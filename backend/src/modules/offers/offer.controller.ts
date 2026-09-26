@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { OfferService } from './offer.service.js';
+import { OfferEmailService } from './offer-email.service.js';
 
 export class OfferController {
   /**
@@ -596,6 +597,27 @@ export class OfferController {
   }
 
   /**
+   * GET /api/v1/offers/:id/send/confirmation-preview
+   * Generates email confirmation preview, secure link, and PDF attachment details for HR review
+   */
+  static async getEmailConfirmationPreview(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const companyId = req.user!.companyId;
+      const userId = req.user!.userId;
+      const offerId = req.params.id;
+
+      const preview = await OfferEmailService.getEmailConfirmationPreview(companyId, userId, offerId);
+
+      res.status(200).json({
+        success: true,
+        data: preview,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
    * POST /api/v1/offers/:id/send
    * Issues the offer to the candidate, mints secure access token, and triggers notification
    */
@@ -604,14 +626,81 @@ export class OfferController {
       const companyId = req.user!.companyId;
       const userId = req.user!.userId;
       const offerId = req.params.id;
-      const { message, sendEmail } = req.body || {};
+      const { subject, message, includePdfAttachment, ccEmails, simulateFailure } = req.body || {};
 
-      const result = await OfferService.sendOffer(companyId, userId, offerId, { message, sendEmail });
+      // Guardrail against simulated AI automated headers
+      const isAiAutomated = req.headers['x-ai-automated'] === 'true' || req.body?.isAiAutomated === true;
+
+      const result = await OfferEmailService.sendOfferEmail(
+        companyId,
+        userId,
+        offerId,
+        {
+          subject,
+          message,
+          includePdfAttachment: includePdfAttachment !== false,
+          ccEmails,
+          simulateFailure: Boolean(simulateFailure),
+          isAiAutomated,
+        },
+        'USER'
+      );
+
+      res.status(result.success ? 200 : 502).json({
+        success: result.success,
+        message: result.message,
+        data: result,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * POST /api/v1/offers/:id/emails/:deliveryId/retry
+   * Retries a previously failed offer email delivery.
+   */
+  static async retryEmailDelivery(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const companyId = req.user!.companyId;
+      const userId = req.user!.userId;
+      const offerId = req.params.id;
+      const deliveryId = req.params.deliveryId;
+      const { simulateFailure, customMessage } = req.body || {};
+
+      const result = await OfferEmailService.retryEmailDelivery(
+        companyId,
+        userId,
+        offerId,
+        deliveryId,
+        { simulateFailure, customMessage },
+        'USER'
+      );
+
+      res.status(result.success ? 200 : 502).json({
+        success: result.success,
+        message: result.message,
+        data: result,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * GET /api/v1/offers/:id/emails
+   * Retrieves chronological email delivery history, status logs, retries, and timestamps.
+   */
+  static async getEmailHistory(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const companyId = req.user!.companyId;
+      const offerId = req.params.id;
+
+      const history = await OfferEmailService.getEmailHistory(companyId, offerId);
 
       res.status(200).json({
         success: true,
-        message: result.message,
-        data: result,
+        data: history,
       });
     } catch (error) {
       next(error);

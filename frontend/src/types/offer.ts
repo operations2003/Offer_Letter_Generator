@@ -378,3 +378,79 @@ export interface OfferHistoryData {
   }>;
 }
 
+export type EmailDeliveryStatus = 'SENT' | 'FAILED' | 'PENDING' | 'RETRYING';
+
+export interface EmailDeliveryRecord {
+  id: string;
+  offerId: string;
+  companyId: string;
+  recipientEmail: string;
+  recipientName: string;
+  subject: string;
+  bodySnippet: string;
+  securePortalUrl: string;
+  portalTokenExpiresAt: string;
+  hasPdfAttachment: boolean;
+  pdfFileName?: string;
+  pdfFileSize?: number;
+  pdfChecksum?: string;
+  status: EmailDeliveryStatus;
+  failureReason?: string;
+  attemptNumber: number;
+  retryCount: number;
+  sentBy: {
+    id: string;
+    name: string;
+    email: string;
+  };
+  attemptedAt: string;
+  deliveredAt?: string;
+  failedAt?: string;
+  metadata?: Record<string, any>;
+}
+
+export interface SendOfferEmailPayload {
+  subject?: string;
+  message?: string;
+  includePdfAttachment?: boolean;
+  ccEmails?: string[];
+  simulateFailure?: boolean;
+}
+
+export interface EmailConfirmationPreview {
+  offerId: string;
+  offerReferenceNumber: string;
+  recipientName: string;
+  recipientEmail: string;
+  senderName: string;
+  senderEmail: string;
+  companyName: string;
+  jobTitle: string;
+  department: string;
+  proposedJoiningDate: string | null;
+  totalCtc: number;
+  currency: string;
+  defaultSubject: string;
+  bodyHtmlPreview: string;
+  bodyTextPreview: string;
+  securePortalUrl: string;
+  portalTokenExpiresAt: string;
+  hasPdfAttachment: boolean;
+  pdfFileName?: string;
+  pdfFileSize?: number;
+  pdfChecksum?: string;
+  canSend: boolean;
+  aiGuardrailNotice: string;
+}
+
+export interface EmailHistoryResponse {
+  offerId: string;
+  offerReferenceNumber: string;
+  currentOfferStatus: string;
+  totalDeliveries: number;
+  sentCount: number;
+  failedCount: number;
+  deliveries: EmailDeliveryRecord[];
+}
+
+

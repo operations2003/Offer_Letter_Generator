@@ -27,6 +27,7 @@ import {
   Layers,
   ArrowUpDown,
   MoreVertical,
+  Mail,
 } from 'lucide-react';
 import { Button } from '../components/common/Button.js';
 import { OfferStatusBadge, AiAdvisoryBadge } from '../components/common/Badge.js';
@@ -36,6 +37,8 @@ import { OfferListItem, GeneratedOfferResult } from '../types/offer.js';
 import { useToast } from '../context/ToastContext.js';
 import { OfferGeneratorWizard } from '../components/offers/wizard/OfferGeneratorWizard.js';
 import { OfferDetailModal } from '../components/offers/OfferDetailModal.js';
+import { EmailSendModal } from '../components/offers/EmailSendModal.js';
+import { EmailHistoryModal } from '../components/offers/EmailHistoryModal.js';
 import { offerService } from '../services/offerService.js';
 
 const INITIAL_MOCK_OFFERS: OfferListItem[] = [
@@ -224,6 +227,8 @@ export const OffersPage: React.FC = () => {
   const [selectedOfferForDetail, setSelectedOfferForDetail] = useState<OfferItem | null>(null);
   const [detailModalTab, setDetailModalTab] = useState<'preview' | 'pdf' | 'versions' | 'status'>('preview');
   const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
+  const [emailSendOffer, setEmailSendOffer] = useState<OfferListItem | null>(null);
+  const [emailHistoryOffer, setEmailHistoryOffer] = useState<OfferListItem | null>(null);
 
   // Update selectedStatus if URL search param changes
   useEffect(() => {
@@ -370,30 +375,17 @@ export const OffersPage: React.FC = () => {
     }
   };
 
-  // 6. SEND ACTION
-  const handleSend = async (item: OfferListItem) => {
-    if (item.status === 'ISSUED') {
-      info(`Offer ${item.referenceNumber} has already been sent to candidate.`);
-      return;
-    }
-    try {
-      setActionLoadingId(item.id);
-      const result = await offerService.sendOffer(item.id, {
-        message: 'Your formal offer of employment is ready for review and digital signature.',
-        sendEmail: true,
-      });
-      success(`Offer ${item.referenceNumber} sent to ${item.candidateName} successfully!`);
-      await fetchOffers();
-    } catch (err: any) {
-      // If direct send needs status modal approval
-      setSelectedOfferForDetail(convertToOfferItem(item));
-      setDetailModalTab('status');
-    } finally {
-      setActionLoadingId(null);
-    }
+  // 6. SEND ACTION (Formal Dispatch via Email Confirmation & Secure Link)
+  const handleSend = (item: OfferListItem) => {
+    setEmailSendOffer(item);
   };
 
-  // 7. HISTORY ACTION
+  // Dedicated EMAIL HISTORY ACTION (Dispatch Logs, Secure Token Link, Retries)
+  const handleEmailHistory = (item: OfferListItem) => {
+    setEmailHistoryOffer(item);
+  };
+
+  // 7. HISTORY ACTION (Audit & Version History)
   const handleHistory = (item: OfferListItem) => {
     setSelectedOfferForDetail(convertToOfferItem(item));
     setDetailModalTab('versions');
@@ -861,7 +853,34 @@ export const OffersPage: React.FC = () => {
 
                     {/* 6. Status Column */}
                     <td style={{ padding: '14px 12px' }}>
-                      <OfferStatusBadge status={o.status as any} />
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 4, alignItems: 'flex-start' }}>
+                        <OfferStatusBadge status={o.status as any} />
+                        {o.status === 'ISSUED' && (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleEmailHistory(o);
+                            }}
+                            style={{
+                              background: 'none',
+                              border: 'none',
+                              padding: 0,
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: 3,
+                              fontSize: '0.6875rem',
+                              color: 'var(--success)',
+                              cursor: 'pointer',
+                              textDecoration: 'underline',
+                              fontWeight: 500,
+                            }}
+                            title="Click to view email delivery logs and exact dispatch timestamp"
+                          >
+                            <CheckCircle2 size={11} /> Sent Log
+                          </button>
+                        )}
+                      </div>
                     </td>
 
                     {/* 7. AI Review Status Column */}
@@ -939,14 +958,26 @@ export const OffersPage: React.FC = () => {
                             padding: '5px 9px',
                             fontSize: '0.72rem',
                             gap: 4,
-                            opacity: o.status === 'ISSUED' ? 0.7 : 1,
+                            background: o.status === 'ISSUED' ? 'rgba(99, 102, 241, 0.15)' : undefined,
+                            color: o.status === 'ISSUED' ? '#818cf8' : undefined,
+                            border: o.status === 'ISSUED' ? '1px solid rgba(99, 102, 241, 0.3)' : undefined,
                           }}
-                          title={o.status === 'ISSUED' ? 'Offer already sent' : 'Send formal offer to candidate'}
+                          title={o.status === 'ISSUED' ? 'Resend or re-dispatch offer email' : 'Send formal offer to candidate'}
                           onClick={() => handleSend(o)}
                           disabled={actionLoadingId === o.id}
                         >
                           <Send size={12} />
-                          <span>Send</span>
+                          <span>{o.status === 'ISSUED' ? 'Resend' : 'Send'}</span>
+                        </button>
+
+                        {/* Email Dispatch Logs Action */}
+                        <button
+                          className="btn btn-secondary"
+                          style={{ padding: '5px 8px', fontSize: '0.72rem' }}
+                          title="View email dispatch history, delivery status, and secure link"
+                          onClick={() => handleEmailHistory(o)}
+                        >
+                          <Mail size={13} />
                         </button>
 
                         {/* History Action */}
@@ -1079,6 +1110,43 @@ export const OffersPage: React.FC = () => {
           onClose={() => setSelectedOfferForDetail(null)}
           onOfferUpdated={() => {
             fetchOffers();
+          }}
+        />
+      )}
+
+      {/* Formal Offer Email Dispatch & Confirmation Modal */}
+      {emailSendOffer && (
+        <EmailSendModal
+          offerId={emailSendOffer.id}
+          offerReferenceNumber={emailSendOffer.referenceNumber}
+          isOpen={Boolean(emailSendOffer)}
+          onClose={() => setEmailSendOffer(null)}
+          onSentSuccessfully={(delivery) => {
+            fetchOffers();
+          }}
+          onViewHistory={() => {
+            const currentOffer = emailSendOffer;
+            setEmailSendOffer(null);
+            setEmailHistoryOffer(currentOffer);
+          }}
+        />
+      )}
+
+      {/* Email History, Dispatch Ledger & Delivery Retry Modal */}
+      {emailHistoryOffer && (
+        <EmailHistoryModal
+          offerId={emailHistoryOffer.id}
+          offerReferenceNumber={emailHistoryOffer.referenceNumber}
+          candidateName={emailHistoryOffer.candidateName}
+          isOpen={Boolean(emailHistoryOffer)}
+          onClose={() => {
+            setEmailHistoryOffer(null);
+            fetchOffers();
+          }}
+          onOpenSendModal={() => {
+            const currentOffer = emailHistoryOffer;
+            setEmailHistoryOffer(null);
+            setEmailSendOffer(currentOffer);
           }}
         />
       )}

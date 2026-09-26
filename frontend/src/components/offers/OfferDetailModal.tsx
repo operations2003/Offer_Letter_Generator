@@ -22,6 +22,7 @@ import {
   UserCheck,
   Send,
   Hash,
+  Mail,
 } from 'lucide-react';
 import { OfferItem } from '../../types/index.js';
 import {
@@ -33,6 +34,8 @@ import {
 import { offerService } from '../../services/offerService.js';
 import { useToast } from '../../context/ToastContext.js';
 import { OfferStatusBadge } from '../common/Badge.js';
+import { EmailSendModal } from './EmailSendModal.js';
+import { EmailHistoryModal } from './EmailHistoryModal.js';
 
 interface OfferDetailModalProps {
   offer: OfferItem;
@@ -73,6 +76,10 @@ export const OfferDetailModal: React.FC<OfferDetailModalProps> = ({
   const [restoringVersion, setRestoringVersion] = useState<number | null>(null);
   const [signatoryName, setSignatoryName] = useState('Sarah Jenkins');
   const [signatoryTitle, setSignatoryTitle] = useState('VP of Global Talent Operations');
+
+  // Email Dispatch & History Modal States
+  const [showEmailSendModal, setShowEmailSendModal] = useState(false);
+  const [showEmailHistoryModal, setShowEmailHistoryModal] = useState(false);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -314,6 +321,29 @@ export const OfferDetailModal: React.FC<OfferDetailModalProps> = ({
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            {/* Quick Action: Send / Dispatch Email */}
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={() => setShowEmailSendModal(true)}
+              style={{ padding: '7px 14px', fontSize: '0.8125rem', gap: 6 }}
+              title="Review email confirmation preview and dispatch formal offer"
+            >
+              <Send size={14} />
+              <span>{isIssued ? 'Resend Email' : 'Send Offer'}</span>
+            </button>
+
+            {/* Quick Action: Email Dispatch History */}
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={() => setShowEmailHistoryModal(true)}
+              style={{ padding: '7px 12px', fontSize: '0.8125rem' }}
+              title="View candidate email dispatch history, delivery status, and token link"
+            >
+              <Mail size={14} />
+            </button>
+
             {/* Quick Action: PDF Download */}
             <button
               type="button"
@@ -826,6 +856,86 @@ export const OfferDetailModal: React.FC<OfferDetailModalProps> = ({
                     </div>
                   </div>
 
+                  {/* Email Communication & Delivery Lifecycle Card */}
+                  <div className="glass-panel" style={{ padding: '20px 24px', border: '1px solid rgba(99, 102, 241, 0.25)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                        <div
+                          style={{
+                            width: 36,
+                            height: 36,
+                            borderRadius: 'var(--radius-md)',
+                            backgroundColor: 'rgba(99, 102, 241, 0.15)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            color: '#818cf8',
+                          }}
+                        >
+                          <Mail size={18} />
+                        </div>
+                        <div>
+                          <h5 style={{ fontSize: '0.9375rem', fontWeight: 600, margin: 0 }}>
+                            Candidate Email Delivery & Secure Portal
+                          </h5>
+                          <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>
+                            Human-authorized dispatch with encrypted cryptographic link & PDF attachment
+                          </span>
+                        </div>
+                      </div>
+
+                      <div style={{ display: 'flex', gap: 8 }}>
+                        <button
+                          type="button"
+                          className="btn btn-secondary"
+                          onClick={() => setShowEmailHistoryModal(true)}
+                          style={{ padding: '6px 12px', fontSize: '0.8125rem', gap: 6 }}
+                        >
+                          <History size={13} />
+                          <span>Delivery Ledger</span>
+                        </button>
+                        <button
+                          type="button"
+                          className="btn btn-primary"
+                          onClick={() => setShowEmailSendModal(true)}
+                          style={{ padding: '6px 14px', fontSize: '0.8125rem', gap: 6 }}
+                        >
+                          <Send size={13} />
+                          <span>{isIssued ? 'Resend Offer Email' : 'Send Offer Email'}</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    <div
+                      style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                        gap: 12,
+                        padding: '12px 14px',
+                        background: 'rgba(0, 0, 0, 0.2)',
+                        borderRadius: 'var(--radius-md)',
+                        fontSize: '0.8125rem',
+                      }}
+                    >
+                      <div>
+                        <div style={{ color: 'var(--text-dim)', fontSize: '0.72rem', textTransform: 'uppercase' }}>Recipient</div>
+                        <div style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{offer.email || 'candidate@example.com'}</div>
+                      </div>
+                      <div>
+                        <div style={{ color: 'var(--text-dim)', fontSize: '0.72rem', textTransform: 'uppercase' }}>Security Protocol</div>
+                        <div style={{ fontWeight: 600, color: 'var(--success)' }}>14-Day Ephemeral Token</div>
+                      </div>
+                      <div>
+                        <div style={{ color: 'var(--text-dim)', fontSize: '0.72rem', textTransform: 'uppercase' }}>Attachment</div>
+                        <div style={{ fontWeight: 600, color: 'var(--text-primary)' }}>Signed PDF + SHA-256 Checksum</div>
+                      </div>
+                      <div>
+                        <div style={{ color: 'var(--text-dim)', fontSize: '0.72rem', textTransform: 'uppercase' }}>Automation Guardrail</div>
+                        <div style={{ fontWeight: 600, color: '#f59e0b' }}>AI Blocked • HR Authorized Only</div>
+                      </div>
+                    </div>
+                  </div>
+
                   {/* Transition History Table */}
                   <div className="glass-panel" style={{ padding: 20 }}>
                     <h5 style={{ fontSize: '0.875rem', fontWeight: 600, marginBottom: 12 }}>Status Transition Logs</h5>
@@ -918,6 +1028,16 @@ export const OfferDetailModal: React.FC<OfferDetailModalProps> = ({
                 <span>Regenerate Offer</span>
               </button>
             )}
+
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={() => setShowEmailSendModal(true)}
+              style={{ fontSize: '0.8125rem', gap: 6 }}
+            >
+              <Send size={14} />
+              <span>{isIssued ? 'Resend Offer Email' : 'Send Offer to Candidate'}</span>
+            </button>
           </div>
         </div>
       </div>
@@ -1036,6 +1156,51 @@ export const OfferDetailModal: React.FC<OfferDetailModalProps> = ({
             </div>
           </div>
         </div>
+      )}
+
+      {/* Email Send Confirmation & Dispatch Modal */}
+      {showEmailSendModal && (
+        <EmailSendModal
+          offerId={offer.id}
+          offerReferenceNumber={offer.referenceNumber}
+          isOpen={showEmailSendModal}
+          onClose={() => setShowEmailSendModal(false)}
+          onSentSuccessfully={async () => {
+            try {
+              const [updatedPreview, updatedStatus] = await Promise.all([
+                offerService.getOfferPreview(offer.id),
+                offerService.getOfferStatus(offer.id),
+              ]);
+              setPreviewData(updatedPreview);
+              setStatusDetails(updatedStatus);
+            } catch (e) {
+              console.error(e);
+            }
+            if (onOfferUpdated) onOfferUpdated();
+          }}
+          onViewHistory={() => {
+            setShowEmailSendModal(false);
+            setShowEmailHistoryModal(true);
+          }}
+        />
+      )}
+
+      {/* Email Dispatch History & Retry Modal */}
+      {showEmailHistoryModal && (
+        <EmailHistoryModal
+          offerId={offer.id}
+          offerReferenceNumber={offer.referenceNumber}
+          candidateName={offer.candidateName}
+          isOpen={showEmailHistoryModal}
+          onClose={() => {
+            setShowEmailHistoryModal(false);
+            if (onOfferUpdated) onOfferUpdated();
+          }}
+          onOpenSendModal={() => {
+            setShowEmailHistoryModal(false);
+            setShowEmailSendModal(true);
+          }}
+        />
       )}
     </div>
   );

@@ -289,13 +289,43 @@ router.post(
 );
 
 /**
+ * Send Offer Confirmation Preview
+ */
+router.get(
+  '/:id/send/confirmation-preview',
+  requireRoles('SUPER_ADMIN', 'HR_MANAGER'),
+  validateRequest({ params: offerParamSchema }),
+  OfferController.getEmailConfirmationPreview
+);
+
+/**
  * Send Offer to Candidate (Marks ISSUED and provisions portal link)
+ * AI Prohibition Guardrail Enforced
  */
 router.post(
   '/:id/send',
   requireRoles('SUPER_ADMIN', 'HR_MANAGER'),
   validateRequest({ params: offerParamSchema }),
   OfferController.sendOffer
+);
+
+/**
+ * Retry Failed Offer Email Delivery
+ */
+router.post(
+  '/:id/emails/:deliveryId/retry',
+  requireRoles('SUPER_ADMIN', 'HR_MANAGER'),
+  OfferController.retryEmailDelivery
+);
+
+/**
+ * Get Chronological Email Delivery History
+ */
+router.get(
+  '/:id/emails',
+  requireRoles('SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER', 'APPROVER', 'AUDITOR'),
+  validateRequest({ params: offerParamSchema }),
+  OfferController.getEmailHistory
 );
 
 /**

@@ -24,6 +24,10 @@ import {
   OfferListItem,
   OfferListResponse,
   OfferHistoryData,
+  EmailDeliveryRecord,
+  SendOfferEmailPayload,
+  EmailConfirmationPreview,
+  EmailHistoryResponse,
 } from '../types/offer.js';
 import { templateService } from './templateService.js';
 
@@ -1396,6 +1400,95 @@ class OfferServiceClass {
     if (!response.ok) {
       const errorJson = await response.json().catch(() => ({}));
       throw new Error(errorJson.message || 'Failed to fetch offer history');
+    }
+
+    const json = await response.json();
+    return json.data;
+  }
+
+  /**
+   * EMAIL CONFIRMATION PREVIEW:
+   * Generates email preview, subject, body, attachment metadata and secure portal link for HR confirmation
+   */
+  async getEmailConfirmationPreview(offerId: string): Promise<EmailConfirmationPreview> {
+    const response = await fetch(`/api/v1/offers/${offerId}/send/confirmation-preview`, {
+      headers: this.getAuthHeaders(),
+    });
+
+    if (!response.ok) {
+      const errorJson = await response.json().catch(() => ({}));
+      throw new Error(errorJson.message || 'Failed to load email confirmation preview');
+    }
+
+    const json = await response.json();
+    return json.data;
+  }
+
+  /**
+   * SEND OFFER EMAIL:
+   * Formally dispatches offer with PDF attachment & secure link
+   */
+  async sendOfferEmail(
+    offerId: string,
+    payload?: SendOfferEmailPayload
+  ): Promise<{
+    success: boolean;
+    delivery: EmailDeliveryRecord;
+    message: string;
+  }> {
+    const response = await fetch(`/api/v1/offers/${offerId}/send`, {
+      method: 'POST',
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(payload || {}),
+    });
+
+    const json = await response.json();
+    if (!response.ok && !json.data) {
+      throw new Error(json.message || 'Failed to send offer email');
+    }
+
+    return json.data || json;
+  }
+
+  /**
+   * RETRY EMAIL DELIVERY:
+   * Retries a failed or pending offer email dispatch
+   */
+  async retryEmailDelivery(
+    offerId: string,
+    deliveryId: string,
+    options?: { simulateFailure?: boolean; customMessage?: string }
+  ): Promise<{
+    success: boolean;
+    delivery: EmailDeliveryRecord;
+    message: string;
+  }> {
+    const response = await fetch(`/api/v1/offers/${offerId}/emails/${deliveryId}/retry`, {
+      method: 'POST',
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(options || {}),
+    });
+
+    const json = await response.json();
+    if (!response.ok && !json.data) {
+      throw new Error(json.message || 'Failed to retry email delivery');
+    }
+
+    return json.data || json;
+  }
+
+  /**
+   * GET EMAIL HISTORY:
+   * Retrieves chronological email dispatch ledger, timestamps, statuses, and retries
+   */
+  async getEmailHistory(offerId: string): Promise<EmailHistoryResponse> {
+    const response = await fetch(`/api/v1/offers/${offerId}/emails`, {
+      headers: this.getAuthHeaders(),
+    });
+
+    if (!response.ok) {
+      const errorJson = await response.json().catch(() => ({}));
+      throw new Error(errorJson.message || 'Failed to load email delivery history');
     }
 
     const json = await response.json();

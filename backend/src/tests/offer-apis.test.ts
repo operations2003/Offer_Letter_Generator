@@ -1,5 +1,6 @@
 import { prisma } from '../prisma/client.js';
 import { OfferService } from '../modules/offers/offer.service.js';
+import { OfferEmailService } from '../modules/offers/offer-email.service.js';
 import { OfferStatus, TemplateCategory } from '@prisma/client';
 import { AiProviderFactory } from '../modules/ai/ai-provider.factory.js';
 import { MockAiAdapter } from '../modules/ai/adapters/mock.adapter.js';
@@ -436,6 +437,7 @@ async function runOfferApiTests() {
     },
     jobTitle: 'Principal Staff Engineer',
     department: 'Engineering',
+    employmentType: TemplateCategory.FULL_TIME,
     workLocation: 'San Francisco, CA',
     proposedJoiningDate: '2026-11-01',
     compensation: {
@@ -461,6 +463,110 @@ async function runOfferApiTests() {
   assert(history.versions.length >= 2, 'History includes version history list');
   assert(history.statusLogs.length > 0, 'History includes status transition logs');
   assert(Array.isArray(history.auditLogs), 'History includes audit log entries');
+
+  // ---------------------------------------------------------------------------
+  // 16. Email Confirmation Preview API
+  // ---------------------------------------------------------------------------
+  console.log('\n--- 16. Email Confirmation Preview API ---');
+  const emailPreview = await OfferEmailService.getEmailConfirmationPreview(companyId, userId, formalOffer.id);
+  assert(Boolean(emailPreview.recipientEmail), 'Email confirmation preview contains candidate recipient email');
+  assert(Boolean(emailPreview.defaultSubject), 'Email confirmation preview contains professional subject line');
+  assert(Boolean(emailPreview.bodyHtmlPreview), 'Email confirmation preview contains formatted HTML body');
+  assert(Boolean(emailPreview.securePortalUrl), 'Email confirmation preview includes secure candidate portal link');
+  assert(Boolean(emailPreview.portalTokenExpiresAt), 'Email confirmation preview has token expiration timestamp');
+  assert(emailPreview.canSend === true, 'Offer verified as ready to send');
+  assert(emailPreview.aiGuardrailNotice.includes('AI Guardrail'), 'Includes AI Guardrail disclaimer');
+
+  // ---------------------------------------------------------------------------
+  // 17. Send Offer Email with PDF Attachment & Secure Link
+  // ---------------------------------------------------------------------------
+  console.log('\n--- 17. Send Offer Email with PDF Attachment & Secure Link ---');
+  const emailSendResult = await OfferEmailService.sendOfferEmail(
+    companyId,
+    userId,
+    formalOffer.id,
+    {
+      subject: 'Welcome to the team - Your Official Offer',
+      message: 'Please review and sign your offer letter.',
+      includePdfAttachment: true,
+    },
+    'USER'
+  );
+  assert(emailSendResult.success === true, 'Offer email successfully dispatched');
+  assert(emailSendResult.delivery.status === 'SENT', 'Email delivery status is marked as SENT');
+  assert(Boolean(emailSendResult.delivery.deliveredAt), 'Sent timestamp recorded on delivery');
+  assert(Boolean(emailSendResult.delivery.securePortalUrl), 'Delivery record contains secure candidate portal link');
+  assert(emailSendResult.delivery.retryCount === 0, 'Initial delivery has retryCount = 0');
+  assert(emailSendResult.delivery.sentBy.id === userId, 'Sent by records human HR user ID');
+
+  // ---------------------------------------------------------------------------
+  // 18. Strict Compliance Guardrail: AI Must Never Automatically Send An Offer
+  // ---------------------------------------------------------------------------
+  console.log('\n--- 18. Strict Compliance Guardrail: AI Must Never Automatically Send An Offer ---');
+  let aiSendBlocked = false;
+  try {
+    await OfferEmailService.sendOfferEmail(
+      companyId,
+      userId,
+      formalOffer.id,
+      { isAiAutomated: true },
+      'AI_WORKER'
+    );
+  } catch (err: any) {
+    if (err.message && err.message.includes('AI models and automated background workers are strictly forbidden')) {
+      aiSendBlocked = true;
+    }
+  }
+  assert(aiSendBlocked === true, 'GUARDRAIL: AI worker is strictly blocked from automatically sending an offer');
+
+  // ---------------------------------------------------------------------------
+  // 19. Failed Delivery Handling & Timestamp Tracking
+  // ---------------------------------------------------------------------------
+  console.log('\n--- 19. Failed Delivery Handling & Timestamp Tracking ---');
+  const failedSendResult = await OfferEmailService.sendOfferEmail(
+    companyId,
+    userId,
+    formalOffer.id,
+    {
+      subject: 'Failed delivery attempt test',
+      simulateFailure: true,
+    },
+    'USER'
+  );
+  assert(failedSendResult.success === false, 'Simulated failure reported as unsuccessful');
+  assert(failedSendResult.delivery.status === 'FAILED', 'Email delivery status is marked as FAILED');
+  assert(Boolean(failedSendResult.delivery.failedAt), 'Failure timestamp recorded on delivery');
+  assert(Boolean(failedSendResult.delivery.failureReason), 'Failure reason recorded on delivery record');
+
+  // ---------------------------------------------------------------------------
+  // 20. Retry Mechanism for Failed Delivery
+  // ---------------------------------------------------------------------------
+  console.log('\n--- 20. Retry Mechanism for Failed Delivery ---');
+  const retryResult = await OfferEmailService.retryEmailDelivery(
+    companyId,
+    userId,
+    formalOffer.id,
+    failedSendResult.delivery.id,
+    { customMessage: 'Retried delivery with active mailbox' },
+    'USER'
+  );
+  assert(retryResult.success === true, 'Retry delivery successfully executed');
+  assert(retryResult.delivery.status === 'SENT', 'Retried delivery status transitioned to SENT');
+  assert(retryResult.delivery.retryCount === 1, 'Retry count incremented to 1');
+  assert(retryResult.delivery.attemptNumber === 2, 'Attempt number incremented to 2');
+  assert(Boolean(retryResult.delivery.deliveredAt), 'Delivery timestamp recorded on successful retry');
+
+  // ---------------------------------------------------------------------------
+  // 21. Chronological Email Delivery History
+  // ---------------------------------------------------------------------------
+  console.log('\n--- 21. Chronological Email Delivery History ---');
+  const emailHistory = await OfferEmailService.getEmailHistory(companyId, formalOffer.id);
+  assert(emailHistory.offerId === formalOffer.id, 'Email history matches requested offer ID');
+  assert(emailHistory.totalDeliveries >= 3, 'Email history contains all send and retry attempts');
+  assert(emailHistory.sentCount >= 2, 'Email history tracks sentCount');
+  assert(emailHistory.failedCount >= 1, 'Email history tracks failedCount');
+  assert(Boolean(emailHistory.deliveries[0].attemptedAt), 'Each delivery item includes timestamp');
+  assert(Boolean(emailHistory.deliveries[0].securePortalUrl), 'Each delivery item includes secure portal link');
 
   console.log('\n================================================================');
   console.log(`📊 OFFER API TEST RESULTS: ${passed} PASSED, ${failed} FAILED`);
