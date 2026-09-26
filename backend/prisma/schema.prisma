@@ -1,0 +1,569 @@
+// =============================================================================
+// PRISMA SCHEMA: AI-POWERED OFFER LETTER GENERATOR
+// =============================================================================
+// Standalone Offer Letter Engine
+// Features:
+//  - Clean separation: AI Extracted Data vs HR Confirmed Data
+//  - Versioning, Audit Logging, and Soft-Deletes
+//  - Future HRMS/ATS integration foreign reference hooks
+// =============================================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// =============================================================================
+// ENUMS
+// =============================================================================
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+}
+
+enum CandidateDocumentType {
+  RESUME
+  INTERVIEW_FEEDBACK
+  COMPENSATION_PROOF
+  APPROVAL_MEMO
+  OTHER
+}
+
+enum DocumentProcessingStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+enum AiExtractionStatus {
+  SUCCESS
+  LOW_CONFIDENCE
+  PARTIAL
+  FAILED
+}
+
+enum AiTaskType {
+  CANDIDATE_DATA_EXTRACTION
+  SALARY_BENCHMARK_CHECK
+  POLICY_COMPLIANCE_CHECK
+  CUSTOM_CLAUSE_DRAFTING
+  COMPENSATION_ANOMALY_DETECTION
+}
+
+enum TemplateCategory {
+  FULL_TIME
+  PART_TIME
+  CONTRACT
+  INTERNSHIP
+  EXECUTIVE
+  CONSULTANT
+}
+
+enum OfferStatus {
+  DRAFT_AI
+  HR_REVIEW
+  PENDING_APPROVAL
+  APPROVED
+  ISSUED
+  ACCEPTED
+  DECLINED
+  EXPIRED
+  WITHDRAWN
+  REVISED
+}
+
+enum GeneratedDocType {
+  OFFER_LETTER_PDF
+  COMPENSATION_ANNEXURE_PDF
+  NDA_DOCUMENT_PDF
+  SIGNED_OFFER_LETTER_PDF
+}
+
+enum AuditActorType {
+  USER
+  SYSTEM
+  AI_WORKER
+  CANDIDATE
+}
+
+enum AuditAction {
+  CREATE
+  READ
+  UPDATE
+  OVERRIDE
+  APPROVE
+  REJECT
+  ISSUE
+  DOWNLOAD
+  ACCEPT
+  DECLINE
+  REVOKE
+  DELETE
+}
+
+// =============================================================================
+// MODELS
+// =============================================================================
+
+model Company {
+  id                  String    @id @default(uuid()) @db.Uuid
+  name                String    @db.VarChar(255)
+  code                String    @unique @db.VarChar(50)
+  legalName           String?   @map("legal_name") @db.VarChar(255)
+  domain              String?   @db.VarChar(255)
+  logoStoragePath     String?   @map("logo_storage_path") @db.Text
+  headquartersAddress Json?     @map("headquarters_address")
+  settings            Json      @default("{}")
+
+  // Future HRMS integration
+  externalHrmsCompanyId String? @map("external_hrms_company_id") @db.VarChar(100)
+
+  createdAt           DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt           DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+  deletedAt           DateTime? @map("deleted_at") @db.Timestamptz
+
+  // Relations
+  users               User[]
+  candidates          Candidate[]
+  candidateDocuments  CandidateDocument[]
+  aiExtractedData     AiExtractedData[]
+  offerTemplates      OfferTemplate[]
+  offers              Offer[]
+  aiSuggestions       AiProcessingSuggestion[]
+  generatedDocuments  GeneratedDocument[]
+  auditLogs           AuditLog[]
+
+  @@index([code])
+  @@index([externalHrmsCompanyId])
+  @@map("companies")
+}
+
+model Role {
+  id           String     @id @default(uuid()) @db.Uuid
+  name         String     @unique @db.VarChar(100)
+  code         String     @unique @db.VarChar(50)
+  description  String?    @db.Text
+  permissions  Json       @default("[]")
+  isSystemRole Boolean    @default(false) @map("is_system_role")
+  createdAt    DateTime   @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt    DateTime   @updatedAt @map("updated_at") @db.Timestamptz
+
+  userRoles    UserRole[]
+
+  @@map("roles")
+}
+
+model User {
+  id                 String     @id @default(uuid()) @db.Uuid
+  companyId          String     @map("company_id") @db.Uuid
+  email              String     @unique @db.VarChar(255)
+  passwordHash       String     @map("password_hash") @db.VarChar(255)
+  firstName          String     @map("first_name") @db.VarChar(100)
+  lastName           String     @map("last_name") @db.VarChar(100)
+  department         String?    @db.VarChar(100)
+  title              String?    @db.VarChar(100)
+  status             UserStatus @default(ACTIVE)
+
+  // Future HRMS integration
+  externalHrmsUserId String?    @map("external_hrms_user_id") @db.VarChar(100)
+
+  lastLoginAt        DateTime?  @map("last_login_at") @db.Timestamptz
+  createdAt          DateTime   @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt          DateTime   @updatedAt @map("updated_at") @db.Timestamptz
+  deletedAt          DateTime?  @map("deleted_at") @db.Timestamptz
+
+  // Relations
+  company            Company    @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  userRoles          UserRole[]
+  assignedRoles      UserRole[] @relation("RoleAssigner")
+  uploadedDocuments  CandidateDocument[]
+  createdTemplates   OfferTemplate[]
+  createdVersions    TemplateVersion[]
+  assignedOffers     Offer[]    @relation("AssignedRecruiter")
+  approvedOffers     Offer[]    @relation("OfferApprover")
+  createdOffers      Offer[]    @relation("OfferCreator")
+  offerVersions      OfferVersion[]
+  offerStatusLogs    OfferStatusLog[]
+  reviewedAiSuggestions AiProcessingSuggestion[]
+  generatedDocs      GeneratedDocument[]
+
+  @@index([companyId])
+  @@index([email])
+  @@index([externalHrmsUserId])
+  @@map("users")
+}
+
+model UserRole {
+  id         String   @id @default(uuid()) @db.Uuid
+  userId     String   @map("user_id") @db.Uuid
+  roleId     String   @map("role_id") @db.Uuid
+  assignedBy String?  @map("assigned_by") @db.Uuid
+  assignedAt DateTime @default(now()) @map("assigned_at") @db.Timestamptz
+
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role       Role     @relation(fields: [roleId], references: [id], onDelete: Restrict)
+  assigner   User?    @relation("RoleAssigner", fields: [assignedBy], references: [id], onDelete: SetNull)
+
+  @@unique([userId, roleId], name: "uq_user_role")
+  @@index([userId])
+  @@index([roleId])
+  @@map("user_roles")
+}
+
+model Candidate {
+  id                     String    @id @default(uuid()) @db.Uuid
+  companyId              String    @map("company_id") @db.Uuid
+  firstName              String    @map("first_name") @db.VarChar(100)
+  lastName               String    @map("last_name") @db.VarChar(100)
+  email                  String    @db.VarChar(255)
+  phone                  String?   @db.VarChar(50)
+  currentTitle           String?   @map("current_title") @db.VarChar(150)
+  currentEmployer        String?   @map("current_employer") @db.VarChar(200)
+  currentLocation        String?   @map("current_location") @db.VarChar(150)
+  experienceYears        Decimal?  @map("experience_years") @db.Decimal(4, 1)
+
+  // Future ATS & HRMS integration hooks
+  externalAtsCandidateId String?   @map("external_ats_candidate_id") @db.VarChar(100)
+  externalHrmsEmployeeId String?   @map("external_hrms_employee_id") @db.VarChar(100)
+
+  createdAt              DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt              DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+  deletedAt              DateTime? @map("deleted_at") @db.Timestamptz
+
+  company                Company   @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  documents              CandidateDocument[]
+  aiExtractions          AiExtractedData[]
+  offers                 Offer[]
+
+  @@unique([companyId, email, deletedAt], name: "uq_company_candidate_email")
+  @@index([companyId])
+  @@index([email])
+  @@index([externalAtsCandidateId])
+  @@index([externalHrmsEmployeeId])
+  @@map("candidates")
+}
+
+model CandidateDocument {
+  id               String                  @id @default(uuid()) @db.Uuid
+  companyId        String                  @map("company_id") @db.Uuid
+  candidateId      String                  @map("candidate_id") @db.Uuid
+  uploadedBy       String                  @map("uploaded_by") @db.Uuid
+  documentType     CandidateDocumentType   @default(RESUME) @map("document_type")
+  originalFileName String                  @map("original_file_name") @db.VarChar(255)
+  fileSizeBytes    BigInt                  @map("file_size_bytes")
+  mimeType         String                  @map("mime_type") @db.VarChar(100)
+  storagePath      String                  @map("storage_path") @db.Text
+  storageProvider  String                  @default("LOCAL_ENCRYPTED") @map("storage_provider") @db.VarChar(50)
+  sha256Checksum   String                  @map("sha256_checksum") @db.VarChar(64)
+  extractedText    String?                 @map("extracted_text") @db.Text
+  processingStatus DocumentProcessingStatus @default(PENDING) @map("processing_status")
+  processingError  String?                 @map("processing_error") @db.Text
+
+  createdAt        DateTime                @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt        DateTime                @updatedAt @map("updated_at") @db.Timestamptz
+  deletedAt        DateTime?               @map("deleted_at") @db.Timestamptz
+
+  company          Company                 @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  candidate        Candidate               @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  uploader         User                    @relation(fields: [uploadedBy], references: [id], onDelete: Restrict)
+  aiExtractions    AiExtractedData[]
+
+  @@index([candidateId])
+  @@index([processingStatus])
+  @@map("candidate_documents")
+}
+
+model AiExtractedData {
+  id                     String             @id @default(uuid()) @db.Uuid
+  companyId              String             @map("company_id") @db.Uuid
+  documentId             String             @map("document_id") @db.Uuid
+  candidateId            String             @map("candidate_id") @db.Uuid
+  providerName           String             @map("provider_name") @db.VarChar(50)
+  modelName              String             @map("model_name") @db.VarChar(100)
+  latencyMs              Int?               @map("latency_ms")
+  promptTokens           Int?               @map("prompt_tokens")
+  completionTokens       Int?               @map("completion_tokens")
+
+  overallConfidenceScore Decimal            @default(0.00) @map("overall_confidence_score") @db.Decimal(3, 2)
+  extractionStatus       AiExtractionStatus @default(SUCCESS) @map("extraction_status")
+
+  // Separated Advisory Data (Confidence-Tagged)
+  structuredFields       Json               @default("{}") @map("structured_fields")
+  rawProviderResponse    Json               @default("{}") @map("raw_provider_response")
+  validationWarnings     Json               @default("[]") @map("validation_warnings")
+
+  createdAt              DateTime           @default(now()) @map("created_at") @db.Timestamptz
+
+  company                Company            @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  document               CandidateDocument  @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  candidate              Candidate          @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  offers                 Offer[]
+
+  @@index([documentId])
+  @@index([candidateId])
+  @@map("ai_extracted_data")
+}
+
+model OfferTemplate {
+  id               String            @id @default(uuid()) @db.Uuid
+  companyId        String            @map("company_id") @db.Uuid
+  title            String            @db.VarChar(200)
+  description      String?           @db.Text
+  category         TemplateCategory  @default(FULL_TIME)
+  isActive         Boolean           @default(true) @map("is_active")
+  currentVersionId String?           @unique @map("current_version_id") @db.Uuid
+  createdBy        String            @map("created_by") @db.Uuid
+
+  createdAt        DateTime          @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt        DateTime          @updatedAt @map("updated_at") @db.Timestamptz
+  deletedAt        DateTime?         @map("deleted_at") @db.Timestamptz
+
+  company          Company           @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  creator          User              @relation(fields: [createdBy], references: [id], onDelete: Restrict)
+  currentVersion   TemplateVersion?  @relation("CurrentTemplateVersion", fields: [currentVersionId], references: [id], onDelete: SetNull)
+  versions         TemplateVersion[] @relation("AllTemplateVersions")
+
+  @@index([companyId])
+  @@map("offer_templates")
+}
+
+model TemplateVersion {
+  id                 String          @id @default(uuid()) @db.Uuid
+  templateId         String          @map("template_id") @db.Uuid
+  versionNumber      Int             @map("version_number")
+  contentMarkup      String          @map("content_markup") @db.Text
+  headerMarkup       String?         @map("header_markup") @db.Text
+  footerMarkup       String?         @map("footer_markup") @db.Text
+  styleCss           String?         @map("style_css") @db.Text
+  placeholdersSchema Json            @default("[]") @map("placeholders_schema")
+  changeSummary      String?         @map("change_summary") @db.VarChar(255)
+  isPublished        Boolean         @default(false) @map("is_published")
+  createdBy          String          @map("created_by") @db.Uuid
+  createdAt          DateTime        @default(now()) @map("created_at") @db.Timestamptz
+
+  template           OfferTemplate   @relation("AllTemplateVersions", fields: [templateId], references: [id], onDelete: Cascade)
+  creator            User            @relation(fields: [createdBy], references: [id], onDelete: Restrict)
+  activeForTemplate  OfferTemplate?  @relation("CurrentTemplateVersion")
+  offers             Offer[]
+  offerVersions      OfferVersion[]
+
+  @@unique([templateId, versionNumber], name: "uq_template_version")
+  @@index([templateId])
+  @@map("template_versions")
+}
+
+model Offer {
+  id                         String           @id @default(uuid()) @db.Uuid
+  companyId                  String           @map("company_id") @db.Uuid
+  candidateId                String           @map("candidate_id") @db.Uuid
+  templateVersionId          String           @map("template_version_id") @db.Uuid
+  offerReferenceNumber       String           @unique @map("offer_reference_number") @db.VarChar(50)
+  currentStatus              OfferStatus      @default(DRAFT_AI) @map("current_status")
+  currentVersionNumber       Int              @default(1) @map("current_version_number")
+
+  // ---------------------------------------------------------------------------
+  // DATA SEPARATION PILLAR
+  // ---------------------------------------------------------------------------
+  // Advisory AI Extracted Data
+  aiExtractedDataId          String?          @map("ai_extracted_data_id") @db.Uuid
+  aiSuggestedTerms           Json             @default("{}") @map("ai_suggested_terms")
+
+  // HR-Confirmed Final Data (Legal Authority)
+  jobTitle                   String           @map("job_title") @db.VarChar(150)
+  department                 String           @db.VarChar(100)
+  bandGrade                  String?          @map("band_grade") @db.VarChar(50)
+  reportingManagerName       String?          @map("reporting_manager_name") @db.VarChar(150)
+  reportingManagerTitle      String?          @map("reporting_manager_title") @db.VarChar(150)
+  workLocation               String           @map("work_location") @db.VarChar(150)
+  employmentType             TemplateCategory @default(FULL_TIME) @map("employment_type")
+  proposedJoiningDate        DateTime         @map("proposed_joining_date") @db.Date
+  currency                   String           @default("USD") @db.VarChar(10)
+
+  baseSalary                 Decimal          @map("base_salary") @db.Decimal(14, 2)
+  hraAllowance               Decimal          @default(0.00) @map("hra_allowance") @db.Decimal(14, 2)
+  specialAllowances          Decimal          @default(0.00) @map("special_allowances") @db.Decimal(14, 2)
+  performanceBonus           Decimal          @default(0.00) @map("performance_bonus") @db.Decimal(14, 2)
+  joiningBonus               Decimal          @default(0.00) @map("joining_bonus") @db.Decimal(14, 2)
+  totalCtc                   Decimal          @map("total_ctc") @db.Decimal(14, 2)
+  equityDetails              Json?            @map("equity_details")
+  benefitsSummary            Json             @default("[]") @map("benefits_summary")
+
+  hrConfirmedTerms           Json             @default("{}") @map("hr_confirmed_terms")
+  humanOverrides             Json             @default("[]") @map("human_overrides")
+
+  // ---------------------------------------------------------------------------
+  // APPROVAL & WORKFLOW
+  // ---------------------------------------------------------------------------
+  assignedRecruiterId        String           @map("assigned_recruiter_id") @db.Uuid
+  approvedByUserId           String?          @map("approved_by_user_id") @db.Uuid
+  approvedAt                 DateTime?        @map("approved_at") @db.Timestamptz
+  approvalNotes              String?          @map("approval_notes") @db.Text
+
+  issuedAt                   DateTime?        @map("issued_at") @db.Timestamptz
+  offerValidUntil            DateTime?        @map("offer_valid_until") @db.Date
+  respondedAt                DateTime?        @map("responded_at") @db.Timestamptz
+  candidateResponseNotes     String?          @map("candidate_response_notes") @db.Text
+
+  // Candidate Access Security
+  candidatePortalTokenHash   String?          @map("candidate_portal_token_hash") @db.VarChar(128)
+  candidatePortalTokenExpiresAt DateTime?     @map("candidate_portal_token_expires_at") @db.Timestamptz
+
+  // ---------------------------------------------------------------------------
+  // FUTURE HRMS & ATS INTEGRATION
+  // ---------------------------------------------------------------------------
+  externalHrmsOfferId        String?          @map("external_hrms_offer_id") @db.VarChar(100)
+  externalAtsApplicationId   String?          @map("external_ats_application_id") @db.VarChar(100)
+  hrmsSyncStatus             String?          @default("NOT_SYNCED") @map("hrms_sync_status") @db.VarChar(50)
+  hrmsSyncedAt               DateTime?        @map("hrms_synced_at") @db.Timestamptz
+
+  createdBy                  String           @map("created_by") @db.Uuid
+  createdAt                  DateTime         @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt                  DateTime         @updatedAt @map("updated_at") @db.Timestamptz
+  deletedAt                  DateTime?        @map("deleted_at") @db.Timestamptz
+
+  // Relations
+  company                    Company          @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  candidate                  Candidate        @relation(fields: [candidateId], references: [id], onDelete: Restrict)
+  templateVersion            TemplateVersion  @relation(fields: [templateVersionId], references: [id], onDelete: Restrict)
+  aiExtractedData            AiExtractedData? @relation(fields: [aiExtractedDataId], references: [id], onDelete: SetNull)
+  recruiter                  User             @relation("AssignedRecruiter", fields: [assignedRecruiterId], references: [id], onDelete: Restrict)
+  approver                   User?            @relation("OfferApprover", fields: [approvedByUserId], references: [id], onDelete: Restrict)
+  creator                    User             @relation("OfferCreator", fields: [createdBy], references: [id], onDelete: Restrict)
+
+  versions                   OfferVersion[]
+  statusLogs                 OfferStatusLog[]
+  aiSuggestions              AiProcessingSuggestion[]
+  generatedDocuments         GeneratedDocument[]
+
+  @@index([companyId])
+  @@index([candidateId])
+  @@index([currentStatus])
+  @@index([offerReferenceNumber])
+  @@index([externalHrmsOfferId])
+  @@index([candidatePortalTokenHash])
+  @@map("offers")
+}
+
+model OfferVersion {
+  id                String          @id @default(uuid()) @db.Uuid
+  offerId           String          @map("offer_id") @db.Uuid
+  versionNumber     Int             @map("version_number")
+  templateVersionId String          @map("template_version_id") @db.Uuid
+  snapshotTerms     Json            @map("snapshot_terms")
+  diffFromPrevious  Json            @default("{}") @map("diff_from_previous")
+  changeReason      String?         @map("change_reason") @db.Text
+  createdBy         String          @map("created_by") @db.Uuid
+  createdAt         DateTime        @default(now()) @map("created_at") @db.Timestamptz
+
+  offer             Offer           @relation(fields: [offerId], references: [id], onDelete: Cascade)
+  templateVersion   TemplateVersion @relation(fields: [templateVersionId], references: [id], onDelete: Restrict)
+  creator           User            @relation(fields: [createdBy], references: [id], onDelete: Restrict)
+  generatedDocs     GeneratedDocument[]
+
+  @@unique([offerId, versionNumber], name: "uq_offer_version")
+  @@index([offerId])
+  @@map("offer_versions")
+}
+
+model OfferStatusLog {
+  id              String      @id @default(uuid()) @db.Uuid
+  offerId         String      @map("offer_id") @db.Uuid
+  fromStatus      OfferStatus @map("from_status")
+  toStatus        OfferStatus @map("to_status")
+  changedByUserId String?     @map("changed_by_user_id") @db.Uuid
+  reasonNotes     String?     @map("reason_notes") @db.Text
+  createdAt       DateTime    @default(now()) @map("created_at") @db.Timestamptz
+
+  offer           Offer       @relation(fields: [offerId], references: [id], onDelete: Cascade)
+  changedBy       User?       @relation(fields: [changedByUserId], references: [id], onDelete: SetNull)
+
+  @@index([offerId])
+  @@map("offer_status_logs")
+}
+
+model AiProcessingSuggestion {
+  id               String     @id @default(uuid()) @db.Uuid
+  companyId        String     @map("company_id") @db.Uuid
+  offerId          String     @map("offer_id") @db.Uuid
+  taskType         AiTaskType @map("task_type")
+  providerName     String     @map("provider_name") @db.VarChar(50)
+  modelName        String     @map("model_name") @db.VarChar(100)
+  promptContext    Json       @map("prompt_context")
+  aiSuggestion     Json       @map("ai_suggestion")
+
+  isAcceptedByHr   Boolean?   @default(false) @map("is_accepted_by_hr")
+  hrFeedbackNotes  String?    @map("hr_feedback_notes") @db.Text
+  hrReviewedBy     String?    @map("hr_reviewed_by") @db.Uuid
+  hrReviewedAt     DateTime?  @map("hr_reviewed_at") @db.Timestamptz
+
+  createdAt        DateTime   @default(now()) @map("created_at") @db.Timestamptz
+
+  company          Company    @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  offer            Offer      @relation(fields: [offerId], references: [id], onDelete: Cascade)
+  reviewer         User?      @relation(fields: [hrReviewedBy], references: [id], onDelete: SetNull)
+
+  @@index([offerId])
+  @@index([taskType])
+  @@map("ai_processing_suggestions")
+}
+
+model GeneratedDocument {
+  id                   String           @id @default(uuid()) @db.Uuid
+  companyId            String           @map("company_id") @db.Uuid
+  offerId              String           @map("offer_id") @db.Uuid
+  offerVersionId       String?          @map("offer_version_id") @db.Uuid
+  documentType         GeneratedDocType @default(OFFER_LETTER_PDF) @map("document_type")
+  fileName             String           @map("file_name") @db.VarChar(255)
+  storagePath          String           @map("storage_path") @db.Text
+  storageProvider      String           @default("LOCAL_ENCRYPTED") @map("storage_provider") @db.VarChar(50)
+  fileSizeBytes        BigInt           @map("file_size_bytes")
+
+  sha256Checksum       String           @map("sha256_checksum") @db.VarChar(64)
+  verificationToken    String           @unique @map("verification_token") @db.VarChar(64)
+  isFinalLegalDocument Boolean          @default(false) @map("is_final_legal_document")
+
+  generatedBy          String           @map("generated_by") @db.Uuid
+  createdAt            DateTime         @default(now()) @map("created_at") @db.Timestamptz
+  deletedAt            DateTime?        @map("deleted_at") @db.Timestamptz
+
+  company              Company          @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  offer                Offer            @relation(fields: [offerId], references: [id], onDelete: Cascade)
+  offerVersion         OfferVersion?    @relation(fields: [offerVersionId], references: [id], onDelete: SetNull)
+  generator            User             @relation(fields: [generatedBy], references: [id], onDelete: Restrict)
+
+  @@index([offerId])
+  @@index([verificationToken])
+  @@index([sha256Checksum])
+  @@map("generated_documents")
+}
+
+model AuditLog {
+  id                String         @id @default(uuid()) @db.Uuid
+  companyId         String         @map("company_id") @db.Uuid
+  actorType         AuditActorType @map("actor_type")
+  actorId           String?        @map("actor_id") @db.Uuid
+  entityType        String         @map("entity_type") @db.VarChar(50)
+  entityId          String         @map("entity_id") @db.Uuid
+  action            AuditAction
+  actionDescription String         @map("action_description") @db.Text
+  previousState     Json?          @map("previous_state")
+  newState          Json?          @map("new_state")
+  ipAddress         String?        @map("ip_address") @db.VarChar(45)
+  userAgent         String?        @map("user_agent") @db.Text
+  createdAt         DateTime       @default(now()) @map("created_at") @db.Timestamptz
+
+  company           Company        @relation(fields: [companyId], references: [id], onDelete: Restrict)
+
+  @@index([entityType, entityId])
+  @@index([companyId])
+  @@index([actorId])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
