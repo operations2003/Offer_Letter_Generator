@@ -162,3 +162,26 @@ export interface OfferPreviewResult {
     warnings: string[];
   };
 }
+
+export interface GenerateDocumentOptions {
+  signatoryName?: string;
+  signatoryTitle?: string;
+  includeWatermark?: boolean;
+  regenerationReason?: string;
+}
+
+export interface GeneratedDocumentResult {
+  documentId: string;
+  offerId: string;
+  offerReferenceNumber: string;
+  versionNumber: number;
+  fileName: string;
+  fileSizeBytes: number;
+  sha256Checksum: string;
+  verificationToken: string;
+  downloadUrl: string;
+  verificationUrl: string;
+  isFinalLegalDocument: boolean;
+  generatedAt: string;
+  renderedHtml?: string;
+}

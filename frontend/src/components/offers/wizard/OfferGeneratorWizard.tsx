@@ -25,6 +25,7 @@ import {
   OfferClauseItem,
   AiQualityCheckResult,
   GeneratedOfferResult,
+  PreGenerationCheckResult,
 } from '../../../types/offer.js';
 import {
   AiCandidateExtractionData,
@@ -181,6 +182,7 @@ export const OfferGeneratorWizard: React.FC<OfferGeneratorWizardProps> = ({
 
   // Step 9: AI Quality Check Result
   const [qualityCheckResult, setQualityCheckResult] = useState<AiQualityCheckResult | null>(null);
+  const [preGenAuditResult, setPreGenAuditResult] = useState<PreGenerationCheckResult | null>(null);
 
   // Step 10: Sign Off
   const [signOff, setSignOff] = useState({
@@ -273,8 +275,46 @@ export const OfferGeneratorWizard: React.FC<OfferGeneratorWizardProps> = ({
     }
 
     setGeneratingOffer(true);
-    setCurrentStep(11);
+
     try {
+      // 1. Mandatory Pre-Generation Audit across all 9 categories
+      const auditRes = await offerService.performPreGenerationCheck({
+        candidate: candidateObject,
+        jobDetails,
+        compensation,
+        terms,
+        company: {
+          name: 'Acme Technologies Global Corp.',
+          legalName: 'Acme Technologies Global Corp.',
+          signatoryName: 'Sarah Jenkins',
+          signatoryTitle: 'VP of Global Talent Operations',
+        },
+      });
+
+      setPreGenAuditResult(auditRes);
+
+      // 2. Enforce Verdict: PASS / WARNING / REVIEW_REQUIRED
+      // AI flags issues, never silently modifies the offer
+      if (auditRes.status === 'REVIEW_REQUIRED') {
+        error(
+          `Pre-Generation Audit: REVIEW_REQUIRED (${auditRes.criticalIssuesCount} blocking issues found). AI has flagged these issues; human HR review and resolution is required before generation. AI will not silently modify the offer.`,
+          'Audit Review Required'
+        );
+        setGeneratingOffer(false);
+        return;
+      }
+
+      if (auditRes.status === 'WARNING') {
+        warning(
+          `Pre-Generation Audit: WARNING (${auditRes.warningsCount} advisory warnings). Proceeding to generation under HR authority.`,
+          'Advisories Present'
+        );
+      } else {
+        info('Pre-Generation Audit: PASS. All 9 consistency checks cleared.', 'Audit Passed');
+      }
+
+      // 3. Final Offer Generation
+      setCurrentStep(11);
       const templateId = selectedTemplate?.id || 'tpl_std_fulltime_001';
       const result = await offerService.generateFinalOffer({
         templateId,
@@ -539,6 +579,8 @@ export const OfferGeneratorWizard: React.FC<OfferGeneratorWizardProps> = ({
             terms={terms}
             qualityCheckResult={qualityCheckResult}
             onUpdateQualityResult={(res) => setQualityCheckResult(res)}
+            preGenAuditResult={preGenAuditResult}
+            onUpdatePreGenAuditResult={(res) => setPreGenAuditResult(res)}
             onJumpToStep={(step) => setCurrentStep(step)}
           />
         )}
@@ -555,6 +597,8 @@ export const OfferGeneratorWizard: React.FC<OfferGeneratorWizardProps> = ({
             approverId={signOff.approverId}
             approvalNotes={signOff.approvalNotes}
             isConfirmed={signOff.isConfirmed}
+            preGenAuditResult={preGenAuditResult}
+            onJumpToStep={(step) => setCurrentStep(step)}
             onUpdateSignOff={(so) => setSignOff(so)}
           />
         )}
@@ -563,6 +607,7 @@ export const OfferGeneratorWizard: React.FC<OfferGeneratorWizardProps> = ({
           <Step11GenerateOffer
             generatedOffer={generatedOffer}
             onFinish={onCancel}
+            onRegenerate={handleProceedToGenerate}
           />
         )}
       </div>

@@ -334,5 +334,53 @@ ${JSON.stringify(context, null, 2)}`;
 
     return { systemPrompt, userPrompt };
   }
+
+  /**
+   * Builds prompt for Pre-Generation Semantic Audit
+   * Evaluates contradictions, designation mismatches, missing clauses, and formatting anomalies.
+   * STRICT GUARDRAIL: AI must flag issues, not silently modify the offer.
+   */
+  static buildPreGenerationSemanticAuditPrompt(offerData: Record<string, unknown>) {
+    const systemPrompt = `You are a Legal & Compliance Offer Audit Copilot for an enterprise HR system.
+Task: PRE_GENERATION_COMPLIANCE_AUDIT
+Audit employment offer terms and rendered contract clauses before document generation and legal issuance.
+
+CRITICAL AUDIT PRINCIPLE:
+AI MUST FLAG ISSUES, NOT SILENTLY MODIFY THE OFFER.
+Never rewrite, replace, or mutate fields. Identify issues with exact field locations, detected contradictions, and actionable HR recommendations.
+
+CHECK CATEGORIES TO AUDIT:
+1. Missing required fields (jobTitle, department, workLocation, employmentType, proposedJoiningDate, baseSalary, totalCtc)
+2. Missing candidate/company information (candidate name, email, phone, company name, signatory name/title)
+3. Date inconsistencies (joining date in past, validity expired, validity after joining date, irrational notice/probation durations)
+4. Designation inconsistencies (title mismatch between candidate background and offer, seniority band conflicts, conflicting designations in clauses)
+5. Salary inconsistencies (math discrepancies between components and total CTC, negative values, base > total, extreme variance)
+6. Missing clauses (absence of mandatory Confidentiality/NDA, IP/Inventions, or Termination/At-Will clauses)
+7. Unreplaced placeholders (presence of literal {{...}} or {...} template tags in the offer text or clauses)
+8. Content/formatting issues (broken HTML tags, corrupted text, undefined/null literals, empty sections)
+9. Contradictions (e.g., remote vs onsite contradictions in clauses, part-time vs full-time hours, conflicting notice periods between summary and text)
+
+VERDICT CRITERIA:
+- "REVIEW_REQUIRED": If ANY critical issue, contradiction, math error, missing mandatory clause, unreplaced placeholder, or missing required field exists.
+- "WARNING": If minor non-blocking issues or advisories exist (e.g. recommended missing phone number or perk, short validity window).
+- "PASS": If all 9 categories pass with zero blocking issues or warnings.
+
+Output valid JSON only matching:
+{
+  "status": "PASS" | "WARNING" | "REVIEW_REQUIRED",
+  "canProceed": boolean,
+  "summary": string,
+  "criticalIssues": string[],
+  "warnings": string[],
+  "semanticContradictions": string[],
+  "designationAnomalies": string[],
+  "missingClauseTypes": string[]
+}`;
+
+    const userPrompt = `Audit the following employment offer data:
+${JSON.stringify(offerData, null, 2)}`;
+
+    return { systemPrompt, userPrompt };
+  }
 }
 

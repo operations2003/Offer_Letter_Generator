@@ -102,7 +102,26 @@ export interface GeneratedOfferResult {
   renderedHtml: string;
   plainText: string;
   verificationToken: string;
+  sha256Checksum?: string;
+  fileSizeBytes?: number;
+  fileName?: string;
+  downloadUrl?: string;
+  verificationUrl?: string;
+  documentId?: string;
   createdAt: string;
+}
+
+export interface GeneratedDocumentItem {
+  id: string;
+  fileName: string;
+  fileSizeBytes: number;
+  sha256Checksum: string;
+  verificationToken: string;
+  isFinalLegalDocument: boolean;
+  generatedBy?: { id: string; firstName: string; lastName: string; email: string };
+  createdAt: string;
+  downloadUrl: string;
+  verificationUrl: string;
 }
 
 export type AiAssistanceType =
@@ -147,3 +166,48 @@ export interface AiAssistantItem {
   variationNumber?: number;
 }
 
+export type PreGenerationStatus = 'PASS' | 'WARNING' | 'REVIEW_REQUIRED';
+
+export type PreGenerationCheckCategory =
+  | 'missing_required_fields'
+  | 'missing_candidate_company_info'
+  | 'date_inconsistencies'
+  | 'designation_inconsistencies'
+  | 'salary_inconsistencies'
+  | 'missing_clauses'
+  | 'unreplaced_placeholders'
+  | 'content_formatting_issues'
+  | 'contradictions';
+
+export interface PreGenerationCheckIssue {
+  id: string;
+  category: PreGenerationCheckCategory;
+  severity: 'CRITICAL' | 'WARNING' | 'INFO';
+  title: string;
+  issue: string;
+  fieldOrLocation?: string;
+  recommendation: string;
+  detectedValue?: unknown;
+  expectedCondition?: string;
+}
+
+export interface CategoryAuditResult {
+  category: PreGenerationCheckCategory;
+  categoryTitle: string;
+  status: PreGenerationStatus;
+  issues: PreGenerationCheckIssue[];
+  passedChecks: string[];
+}
+
+export interface PreGenerationCheckResult {
+  status: PreGenerationStatus;
+  canProceed: boolean;
+  summary: string;
+  totalIssuesCount: number;
+  criticalIssuesCount: number;
+  warningsCount: number;
+  checks: Record<PreGenerationCheckCategory, CategoryAuditResult>;
+  allIssues: PreGenerationCheckIssue[];
+  aiAssistanceNotice: string;
+  checkedAt: string;
+}

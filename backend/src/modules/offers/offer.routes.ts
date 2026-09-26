@@ -13,6 +13,9 @@ import {
   reviewSuggestionSchema,
   aiClauseSchema,
   aiQualityCheckSchema,
+  preGenerationAuditSchema,
+  generateDocumentSchema,
+  verifyTokenParamSchema,
   offerParamSchema,
   versionParamSchema,
 } from './offer.validation.js';
@@ -26,7 +29,14 @@ import {
 
 const router = Router();
 
-// Enforce JWT authentication on all offer routes
+// Public cryptographic verification endpoint (does not require login)
+router.get(
+  '/document/verify/:token',
+  validateRequest({ params: verifyTokenParamSchema }),
+  OfferController.verifyDocumentByToken
+);
+
+// Enforce JWT authentication on all internal offer routes
 router.use(authenticate);
 
 // ---------------------------------------------------------------------------
@@ -146,6 +156,17 @@ router.post(
 );
 
 /**
+ * Pre-Generation Audit (In-flight wizard payload check before formal generation)
+ * Checks 9 categories and returns PASS / WARNING / REVIEW_REQUIRED
+ */
+router.post(
+  '/pre-generation-check',
+  requireRoles('SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER', 'APPROVER'),
+  validateRequest({ body: preGenerationAuditSchema }),
+  OfferController.performPreGenerationCheck
+);
+
+/**
  * List Offers (paginated and filtered)
  */
 router.get(
@@ -205,6 +226,16 @@ router.post(
   requireRoles('SUPER_ADMIN', 'HR_MANAGER', 'APPROVER'),
   validateRequest({ params: offerParamSchema, body: aiQualityCheckSchema }),
   OfferController.performQualityCheck
+);
+
+/**
+ * Pre-Generation Audit for specific saved offer
+ */
+router.post(
+  '/:id/pre-generation-check',
+  requireRoles('SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER', 'APPROVER'),
+  validateRequest({ params: offerParamSchema, body: preGenerationAuditSchema }),
+  OfferController.performPreGenerationCheck
 );
 
 /**
@@ -268,6 +299,49 @@ router.post(
   requireRoles('SUPER_ADMIN', 'HR_MANAGER'),
   validateRequest({ params: versionParamSchema }),
   OfferController.restoreOfferVersion
+);
+
+// ---------------------------------------------------------------------------
+// 5. LEGAL DOCUMENT GENERATION, PDF MINTING & SECURE STORAGE
+// ---------------------------------------------------------------------------
+/**
+ * Generate Official Legal Offer Letter PDF (Strictly HR-Confirmed Data)
+ */
+router.post(
+  '/:id/document/generate',
+  requireRoles('SUPER_ADMIN', 'HR_MANAGER'),
+  validateRequest({ params: offerParamSchema, body: generateDocumentSchema }),
+  OfferController.generateFinalDocument
+);
+
+/**
+ * Regenerate Legal Offer Letter PDF (increments version and preserves audit log)
+ */
+router.post(
+  '/:id/document/regenerate',
+  requireRoles('SUPER_ADMIN', 'HR_MANAGER'),
+  validateRequest({ params: offerParamSchema, body: generateDocumentSchema }),
+  OfferController.regenerateFinalDocument
+);
+
+/**
+ * Download Stored PDF Document
+ */
+router.get(
+  '/:id/document/download',
+  requireRoles('SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER', 'APPROVER', 'AUDITOR'),
+  validateRequest({ params: offerParamSchema }),
+  OfferController.downloadGeneratedDocument
+);
+
+/**
+ * List All Generated Document Versions for Offer
+ */
+router.get(
+  '/:id/documents',
+  requireRoles('SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER', 'APPROVER', 'AUDITOR'),
+  validateRequest({ params: offerParamSchema }),
+  OfferController.listOfferDocuments
 );
 
 export default router;

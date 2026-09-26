@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   FileCheck2,
   Printer,
@@ -10,32 +10,64 @@ import {
   ArrowRight,
   Sparkles,
   Lock,
+  RefreshCw,
+  Hash,
 } from 'lucide-react';
 import { GeneratedOfferResult } from '../../../types/offer.js';
+import { offerService } from '../../../services/offerService.js';
 import { useToast } from '../../../context/ToastContext.js';
 
 interface Step11GenerateOfferProps {
   generatedOffer: GeneratedOfferResult | null;
   onFinish: () => void;
+  onRegenerate?: () => Promise<void>;
 }
 
 export const Step11GenerateOffer: React.FC<Step11GenerateOfferProps> = ({
   generatedOffer,
   onFinish,
+  onRegenerate,
 }) => {
-  const { success, info } = useToast();
+  const { success, error, info } = useToast();
   const [downloading, setDownloading] = useState(false);
+  const [regenerating, setRegenerating] = useState(false);
 
   const handlePrint = () => {
     window.print();
   };
 
-  const handleSimulateDownload = () => {
+  const handleDownloadPdf = async () => {
+    if (!generatedOffer) return;
     setDownloading(true);
-    setTimeout(() => {
+    try {
+      await offerService.downloadOfferPdf(
+        generatedOffer.id,
+        generatedOffer.documentId,
+        generatedOffer.fileName
+      );
+      success('Official offer letter PDF downloaded successfully.', 'PDF Exported');
+    } catch (err: any) {
+      // Fallback: print to PDF
+      window.print();
+    } finally {
       setDownloading(false);
-      success('Official offer letter PDF generated and downloaded successfully.', 'PDF Exported');
-    }, 1200);
+    }
+  };
+
+  const handleRegenerate = async () => {
+    if (onRegenerate) {
+      setRegenerating(true);
+      try {
+        await onRegenerate();
+        success('Offer letter regenerated with incremented version snapshot.', 'Regenerated');
+      } catch (err: any) {
+        error(err?.message || 'Failed to regenerate offer', 'Error');
+      } finally {
+        setRegenerating(false);
+      }
+    } else {
+      info('Regeneration creates a new immutable document version in the tenant ledger.', 'Regenerate Version');
+    }
   };
 
   const handleSendCandidate = () => {
@@ -103,7 +135,7 @@ export const Step11GenerateOffer: React.FC<Step11GenerateOfferProps> = ({
         </div>
 
         {/* Primary Actions */}
-        <div style={{ display: 'flex', gap: 10 }}>
+        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
           <button
             type="button"
             className="btn btn-secondary"
@@ -117,12 +149,23 @@ export const Step11GenerateOffer: React.FC<Step11GenerateOfferProps> = ({
           <button
             type="button"
             className="btn btn-secondary"
-            onClick={handleSimulateDownload}
+            onClick={handleRegenerate}
+            disabled={regenerating}
+            style={{ fontSize: '0.8125rem' }}
+          >
+            <RefreshCw size={15} className={regenerating ? 'animate-spin' : ''} />
+            <span>{regenerating ? 'Regenerating...' : 'Regenerate'}</span>
+          </button>
+
+          <button
+            type="button"
+            className="btn btn-secondary"
+            onClick={handleDownloadPdf}
             disabled={downloading}
             style={{ fontSize: '0.8125rem' }}
           >
             <Download size={15} />
-            <span>{downloading ? 'Exporting PDF...' : 'Download Legal PDF'}</span>
+            <span>{downloading ? 'Downloading PDF...' : 'Download Legal PDF'}</span>
           </button>
 
           <button
@@ -149,20 +192,36 @@ export const Step11GenerateOffer: React.FC<Step11GenerateOfferProps> = ({
           fontSize: '0.75rem',
           color: 'var(--text-dim)',
           flexWrap: 'wrap',
-          gap: 10,
+          gap: 12,
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
           <Lock size={14} color="var(--success)" />
-          <span>CRYPTOGRAPHIC VERIFICATION TOKEN:</span>
+          <span>VERIFICATION TOKEN:</span>
           <span style={{ fontFamily: 'var(--font-mono)', color: '#818cf8', fontWeight: 600 }}>
-            {generatedOffer.verificationToken}
+            {generatedOffer.verificationToken || 'Verified'}
           </span>
+          {generatedOffer.sha256Checksum && (
+            <>
+              <span style={{ color: 'var(--border-subtle)' }}>•</span>
+              <Hash size={13} color="var(--text-muted)" />
+              <span>SHA-256:</span>
+              <span style={{ fontFamily: 'var(--font-mono)', color: 'var(--text-muted)' }} title={generatedOffer.sha256Checksum}>
+                {generatedOffer.sha256Checksum.substring(0, 16)}...
+              </span>
+            </>
+          )}
+          {generatedOffer.fileSizeBytes && (
+            <>
+              <span style={{ color: 'var(--border-subtle)' }}>•</span>
+              <span>{(generatedOffer.fileSizeBytes / 1024).toFixed(1)} KB</span>
+            </>
+          )}
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
           <ShieldCheck size={14} color="var(--success)" />
-          <span>Logged to Immutable Tenant Audit Ledger</span>
+          <span>Logged to Immutable Tenant Audit Ledger (v{generatedOffer.versionNumber})</span>
         </div>
       </div>
 

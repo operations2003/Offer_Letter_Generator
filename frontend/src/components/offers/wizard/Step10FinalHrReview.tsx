@@ -1,19 +1,23 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   ShieldCheck,
   CheckCircle2,
   AlertTriangle,
+  AlertCircle,
   UserCheck,
   FileText,
   Clock,
   Edit2,
   Lock,
+  ArrowRight,
+  Info,
 } from 'lucide-react';
 import {
   CandidateDetails,
   JobEmploymentDetails,
   CompensationData,
   TermsAndPolicies,
+  PreGenerationCheckResult,
 } from '../../../types/offer.js';
 import { HumanOverrideItem, AiCandidateExtractionData } from '../../../types/index.js';
 
@@ -28,6 +32,8 @@ interface Step10FinalHrReviewProps {
   approverId: string;
   approvalNotes: string;
   isConfirmed: boolean;
+  preGenAuditResult?: PreGenerationCheckResult | null;
+  onJumpToStep?: (stepNumber: number) => void;
   onUpdateSignOff: (signOff: {
     recruiterId: string;
     approverId: string;
@@ -47,6 +53,8 @@ export const Step10FinalHrReview: React.FC<Step10FinalHrReviewProps> = ({
   approverId,
   approvalNotes,
   isConfirmed,
+  preGenAuditResult,
+  onJumpToStep,
   onUpdateSignOff,
 }) => {
   const comparisonItems = [
@@ -128,6 +136,116 @@ export const Step10FinalHrReview: React.FC<Step10FinalHrReviewProps> = ({
           Comprehensive legal reconciliation: Review side-by-side data, audit human overrides, and sign off for binding offer issuance.
         </p>
       </div>
+
+      {/* Pre-Generation Audit Status Banner */}
+      {preGenAuditResult && (
+        <div
+          className="glass-panel"
+          style={{
+            padding: '16px 20px',
+            borderRadius: 'var(--radius-md)',
+            background:
+              preGenAuditResult.status === 'PASS'
+                ? 'rgba(16, 185, 129, 0.08)'
+                : preGenAuditResult.status === 'WARNING'
+                ? 'rgba(245, 158, 11, 0.08)'
+                : 'rgba(239, 68, 68, 0.08)',
+            border: `1px solid ${
+              preGenAuditResult.status === 'PASS'
+                ? 'rgba(16, 185, 129, 0.4)'
+                : preGenAuditResult.status === 'WARNING'
+                ? 'rgba(245, 158, 11, 0.4)'
+                : 'rgba(239, 68, 68, 0.4)'
+            }`,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 10,
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              {preGenAuditResult.status === 'PASS' ? (
+                <CheckCircle2 size={20} color="#10b981" />
+              ) : preGenAuditResult.status === 'WARNING' ? (
+                <AlertTriangle size={20} color="#f59e0b" />
+              ) : (
+                <AlertCircle size={20} color="#ef4444" />
+              )}
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <strong style={{ fontSize: '0.9375rem', color: '#fff' }}>
+                    Pre-Generation Compliance Audit:
+                  </strong>
+                  <span
+                    style={{
+                      padding: '2px 8px',
+                      borderRadius: 'var(--radius-full)',
+                      fontSize: '0.6875rem',
+                      fontWeight: 800,
+                      background:
+                        preGenAuditResult.status === 'PASS'
+                          ? 'rgba(16, 185, 129, 0.2)'
+                          : preGenAuditResult.status === 'WARNING'
+                          ? 'rgba(245, 158, 11, 0.2)'
+                          : 'rgba(239, 68, 68, 0.2)',
+                      color:
+                        preGenAuditResult.status === 'PASS'
+                          ? '#34d399'
+                          : preGenAuditResult.status === 'WARNING'
+                          ? '#fbbf24'
+                          : '#f87171',
+                    }}
+                  >
+                    {preGenAuditResult.status}
+                  </span>
+                </div>
+                <div style={{ fontSize: '0.8125rem', color: 'var(--text-muted)', marginTop: 2 }}>
+                  {preGenAuditResult.summary}
+                </div>
+              </div>
+            </div>
+
+            {onJumpToStep && (
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={() => onJumpToStep(9)}
+                style={{ fontSize: '0.75rem', padding: '4px 10px' }}
+              >
+                <span>View Full Audit in Step 9</span>
+                <ArrowRight size={13} />
+              </button>
+            )}
+          </div>
+
+          {/* If REVIEW_REQUIRED, display the critical blockers */}
+          {preGenAuditResult.criticalIssuesCount > 0 && (
+            <div
+              style={{
+                marginTop: 6,
+                padding: '10px 14px',
+                background: 'rgba(239, 68, 68, 0.1)',
+                borderRadius: 'var(--radius-sm)',
+                borderLeft: '3px solid #ef4444',
+                fontSize: '0.8125rem',
+              }}
+            >
+              <div style={{ color: '#fca5a5', fontWeight: 700, marginBottom: 4 }}>
+                {preGenAuditResult.criticalIssuesCount} Blocking Issue(s) Detected (AI Flags Issues, Silently Modifies Nothing):
+              </div>
+              <ul style={{ paddingLeft: 18, color: 'var(--text-main)', margin: 0 }}>
+                {preGenAuditResult.allIssues
+                  .filter((i) => i.severity === 'CRITICAL')
+                  .map((iss) => (
+                    <li key={iss.id} style={{ marginBottom: 4 }}>
+                      <strong>{iss.title}:</strong> {iss.issue} — <em>{iss.recommendation}</em>
+                    </li>
+                  ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Side-by-Side Reconciliation Table */}
       <div className="glass-panel" style={{ overflowX: 'auto', padding: 20 }}>

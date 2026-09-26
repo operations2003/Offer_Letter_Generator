@@ -252,6 +252,39 @@ export class OfferController {
   }
 
   /**
+   * POST /api/v1/offers/pre-generation-check
+   * POST /api/v1/offers/:id/pre-generation-check
+   * Pre-Generation Audit:
+   * Checks for missing required fields, candidate/company info, date inconsistencies,
+   * designation inconsistencies, salary inconsistencies, missing clauses, unreplaced placeholders,
+   * formatting issues, and contradictions.
+   * Returns: PASS, WARNING, REVIEW_REQUIRED.
+   * AI flags issues, never silently modifies the offer.
+   */
+  static async performPreGenerationCheck(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const companyId = req.user!.companyId;
+      const userId = req.user!.userId;
+      const offerId = req.params?.id;
+
+      const auditResult = await OfferService.performPreGenerationCheck(
+        companyId,
+        userId,
+        offerId,
+        req.body
+      );
+
+      res.status(200).json({
+        success: true,
+        message: `Pre-generation audit completed: ${auditResult.status}`,
+        data: auditResult,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
    * GET /api/v1/offers/:id/preview
    * Renders interpolated preview with compensation tables, clauses, and readiness validation
    */
@@ -375,6 +408,139 @@ export class OfferController {
         success: true,
         message: `Successfully restored offer to Version ${versionNumber}`,
         data: restored,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * POST /api/v1/offers/:id/document/generate
+   * Generates formal PDF offer letter strictly from HR-confirmed data and stores securely
+   */
+  static async generateFinalDocument(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const companyId = req.user!.companyId;
+      const userId = req.user!.userId;
+      const offerId = req.params.id;
+      const ipAddress = req.ip || (req.headers['x-forwarded-for'] as string);
+      const userAgent = req.headers['user-agent'];
+
+      const result = await OfferService.generateFinalDocument(
+        companyId,
+        userId,
+        offerId,
+        req.body,
+        ipAddress,
+        userAgent
+      );
+
+      res.status(201).json({
+        success: true,
+        message: 'Official legal offer letter PDF generated and securely archived',
+        data: result,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * POST /api/v1/offers/:id/document/regenerate
+   * Regenerates document with incremented version and audit snapshot
+   */
+  static async regenerateFinalDocument(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const companyId = req.user!.companyId;
+      const userId = req.user!.userId;
+      const offerId = req.params.id;
+      const ipAddress = req.ip || (req.headers['x-forwarded-for'] as string);
+      const userAgent = req.headers['user-agent'];
+
+      const result = await OfferService.regenerateFinalDocument(
+        companyId,
+        userId,
+        offerId,
+        req.body,
+        ipAddress,
+        userAgent
+      );
+
+      res.status(200).json({
+        success: true,
+        message: `Document regenerated successfully: Version ${result.versionNumber}`,
+        data: result,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * GET /api/v1/offers/:id/document/download
+   * Streams stored PDF binary with proper download headers
+   */
+  static async downloadGeneratedDocument(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const companyId = req.user!.companyId;
+      const userId = req.user!.userId;
+      const offerId = req.params.id;
+      const documentId = req.query.documentId as string | undefined;
+
+      const { buffer, fileName, fileSizeBytes, sha256Checksum } = await OfferService.getGeneratedDocumentDownload(
+        companyId,
+        userId,
+        offerId,
+        documentId
+      );
+
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+      res.setHeader('Content-Length', fileSizeBytes.toString());
+      res.setHeader('X-Document-Checksum-SHA256', sha256Checksum);
+      res.status(200).send(buffer);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * GET /api/v1/offers/:id/documents
+   * Lists all generated document versions for this offer
+   */
+  static async listOfferDocuments(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const companyId = req.user!.companyId;
+      const offerId = req.params.id;
+
+      const documents = await OfferService.listOfferDocuments(companyId, offerId);
+
+      res.status(200).json({
+        success: true,
+        data: {
+          offerId,
+          totalDocuments: documents.length,
+          documents,
+        },
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * GET /api/v1/offers/document/verify/:token
+   * Public verification endpoint: validates cryptographic verification token
+   */
+  static async verifyDocumentByToken(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const token = req.params.token;
+
+      const verification = await OfferService.verifyDocumentByToken(token);
+
+      res.status(verification.isValid ? 200 : 404).json({
+        success: verification.isValid,
+        data: verification,
       });
     } catch (error) {
       next(error);

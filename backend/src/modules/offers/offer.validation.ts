@@ -232,3 +232,105 @@ export const versionParamSchema = z.object({
   id: z.string().uuid('Invalid offer ID format'),
   versionNumber: z.coerce.number().int().min(1),
 });
+
+/**
+ * 10. Pre-Generation Audit Schema (Wizard in-flight check or loaded offer audit)
+ */
+export const preGenerationAuditSchema = z.object({
+  candidate: z
+    .object({
+      firstName: z.string().optional(),
+      lastName: z.string().optional(),
+      email: z.string().optional(),
+      phone: z.string().optional(),
+      address: z.string().optional(),
+      currentLocation: z.string().optional(),
+      currentTitle: z.string().optional(),
+      currentEmployer: z.string().optional(),
+      qualification: z.string().optional(),
+      experienceYears: z.number().optional(),
+    })
+    .optional(),
+  company: z
+    .object({
+      name: z.string().optional(),
+      legalName: z.string().optional(),
+      domain: z.string().optional(),
+      address: z.string().optional(),
+      signatoryName: z.string().optional(),
+      signatoryTitle: z.string().optional(),
+    })
+    .optional(),
+  jobDetails: z
+    .object({
+      jobTitle: z.string().optional(),
+      department: z.string().optional(),
+      bandGrade: z.string().optional(),
+      workLocation: z.string().optional(),
+      employmentType: z.string().optional(),
+      proposedJoiningDate: z.string().optional(),
+      reportingManagerName: z.string().optional(),
+      reportingManagerTitle: z.string().optional(),
+    })
+    .optional(),
+  compensation: z
+    .object({
+      currency: z.string().optional(),
+      baseSalary: z.number().optional(),
+      hraAllowance: z.number().optional(),
+      specialAllowances: z.number().optional(),
+      performanceBonus: z.number().optional(),
+      joiningBonus: z.number().optional(),
+      totalCtc: z.number().optional(),
+      equityDetails: z.record(z.unknown()).optional(),
+      benefitsSummary: z.array(z.string()).optional(),
+    })
+    .optional(),
+  terms: z
+    .object({
+      probationDurationDays: z.number().optional(),
+      probationDurationMonths: z.number().optional(),
+      noticePeriodDays: z.number().optional(),
+      probationNoticePeriodDays: z.number().optional(),
+      workingHoursPerWeek: z.number().optional(),
+      workSchedule: z.string().optional(),
+      workModel: z.string().optional(),
+      offerValidUntil: z.string().optional(),
+      clauses: z
+        .array(
+          z.object({
+            id: z.string().optional(),
+            title: z.string(),
+            content: z.string(),
+            isMandatory: z.boolean().optional(),
+            category: z.string().optional(),
+          })
+        )
+        .optional(),
+    })
+    .optional(),
+  templateMarkup: z
+    .object({
+      contentMarkup: z.string().optional(),
+      headerMarkup: z.string().optional(),
+      footerMarkup: z.string().optional(),
+      styleCss: z.string().optional(),
+    })
+    .optional(),
+  renderedHtml: z.string().optional(),
+  plainText: z.string().optional(),
+});
+
+/**
+ * 11. Document Generation Schema
+ */
+export const generateDocumentSchema = z.object({
+  signatoryName: z.string().optional(),
+  signatoryTitle: z.string().optional(),
+  includeWatermark: z.boolean().optional().default(true),
+  regenerationReason: z.string().optional(),
+});
+
+export const verifyTokenParamSchema = z.object({
+  token: z.string().min(8, 'Invalid verification token format'),
+});

@@ -168,3 +168,51 @@ export interface AiAssistantRejectInput {
   offerId?: string;
 }
 
+// ---------------------------------------------------------------------------
+// PRE-GENERATION AUDIT & QUALITY ASSURANCE TYPES
+// ---------------------------------------------------------------------------
+export type PreGenerationStatus = 'PASS' | 'WARNING' | 'REVIEW_REQUIRED';
+
+export type PreGenerationCheckCategory =
+  | 'missing_required_fields'
+  | 'missing_candidate_company_info'
+  | 'date_inconsistencies'
+  | 'designation_inconsistencies'
+  | 'salary_inconsistencies'
+  | 'missing_clauses'
+  | 'unreplaced_placeholders'
+  | 'content_formatting_issues'
+  | 'contradictions';
+
+export interface PreGenerationCheckIssue {
+  id: string;
+  category: PreGenerationCheckCategory;
+  severity: 'CRITICAL' | 'WARNING' | 'INFO';
+  title: string;
+  issue: string;
+  fieldOrLocation?: string;
+  recommendation: string;
+  detectedValue?: unknown;
+  expectedCondition?: string;
+}
+
+export interface CategoryAuditResult {
+  category: PreGenerationCheckCategory;
+  categoryTitle: string;
+  status: PreGenerationStatus;
+  issues: PreGenerationCheckIssue[];
+  passedChecks: string[];
+}
+
+export interface PreGenerationCheckResult {
+  status: PreGenerationStatus;
+  canProceed: boolean;
+  summary: string;
+  totalIssuesCount: number;
+  criticalIssuesCount: number;
+  warningsCount: number;
+  checks: Record<PreGenerationCheckCategory, CategoryAuditResult>;
+  allIssues: PreGenerationCheckIssue[];
+  aiAssistanceNotice: string;
+  checkedAt: string;
+}
