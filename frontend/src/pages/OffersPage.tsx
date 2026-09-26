@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   FileText,
   Search,
@@ -15,6 +15,8 @@ import { OfferStatusBadge, AiAdvisoryBadge } from '../components/common/Badge.js
 import { ExtractWithAi } from '../components/ai/ExtractWithAi.js';
 import { OfferItem, OfferStatus, AiCandidateExtractionData } from '../types/index.js';
 import { useToast } from '../context/ToastContext.js';
+import { OfferGeneratorWizard } from '../components/offers/wizard/OfferGeneratorWizard.js';
+import { GeneratedOfferResult } from '../types/offer.js';
 
 const MOCK_OFFERS: OfferItem[] = [
   {
@@ -88,8 +90,32 @@ export const OffersPage: React.FC = () => {
   const [offers, setOffers] = useState<OfferItem[]>(MOCK_OFFERS);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedStatus, setSelectedStatus] = useState<string>('ALL');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [isWizardOpen, setIsWizardOpen] = useState(() => searchParams.get('create') === 'true');
   const navigate = useNavigate();
   const { success } = useToast();
+
+  const handleOfferCreated = (newOfferResult: GeneratedOfferResult) => {
+    const newOfferItem: OfferItem = {
+      id: newOfferResult.id,
+      referenceNumber: newOfferResult.referenceNumber,
+      candidateName: 'Verified Candidate',
+      email: 'candidate@verified.org',
+      role: 'Role Ratified & Issued',
+      department: 'HR Operations',
+      totalCtc: 185000,
+      currency: 'USD',
+      status: 'ISSUED',
+      aiConfidence: 0.98,
+      createdAt: newOfferResult.createdAt || new Date().toISOString(),
+    };
+
+    setOffers((prev) => [newOfferItem, ...prev]);
+    setIsWizardOpen(false);
+    searchParams.delete('create');
+    setSearchParams(searchParams);
+    success(`Offer ${newOfferResult.referenceNumber} generated successfully!`);
+  };
 
   const filteredOffers = offers.filter((o) => {
     const matchesSearch =
@@ -105,6 +131,19 @@ export const OffersPage: React.FC = () => {
   const handleExtraction = (extracted: AiCandidateExtractionData) => {
     navigate('/ai-studio', { state: { extractedData: extracted } });
   };
+
+  if (isWizardOpen) {
+    return (
+      <OfferGeneratorWizard
+        onCancel={() => {
+          setIsWizardOpen(false);
+          searchParams.delete('create');
+          setSearchParams(searchParams);
+        }}
+        onSuccess={handleOfferCreated}
+      />
+    );
+  }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
@@ -126,7 +165,14 @@ export const OffersPage: React.FC = () => {
         </div>
 
         <div style={{ display: 'flex', gap: 12 }}>
-          <ExtractWithAi onExtractionComplete={handleExtraction} triggerButtonText="Create Offer with AI" />
+          <Button
+            variant="primary"
+            icon={<Sparkles size={16} />}
+            onClick={() => setIsWizardOpen(true)}
+          >
+            Generate Offer (11-Step Flow)
+          </Button>
+          <ExtractWithAi onExtractionComplete={handleExtraction} triggerButtonText="AI Quick Extract" />
         </div>
       </div>
 

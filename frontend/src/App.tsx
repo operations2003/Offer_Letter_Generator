@@ -27,6 +27,7 @@ export const App: React.FC = () => {
         <Route index element={<Navigate to="/dashboard" replace />} />
         <Route path="dashboard" element={<DashboardPage />} />
         <Route path="offers" element={<OffersPage />} />
+        <Route path="offers/create" element={<Navigate to="/offers?create=true" replace />} />
         <Route path="templates" element={<TemplatesPage />} />
         <Route path="ai-studio" element={<AiStudioPage />} />
         <Route
