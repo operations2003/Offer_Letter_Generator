@@ -2,7 +2,8 @@ import { prisma } from '../../prisma/client.js';
 import { CryptoUtil } from '../../utils/crypto.js';
 import { NotFoundError, ConflictError, ValidationError, UnauthorizedError } from '../../errors/app-error.js';
 import { AuditService } from '../audit/audit.service.js';
-import { UserStatus } from '@prisma/client';
+export type UserStatus = 'ACTIVE' | 'INACTIVE' | 'SUSPENDED';
+
 
 export interface CreateUserInput {
   companyId: string;
@@ -106,7 +107,7 @@ export class UserService {
       }),
     ]);
 
-    const formattedUsers = users.map((u) => ({
+    const formattedUsers = users.map((u: any) => ({
       id: u.id,
       email: u.email,
       firstName: u.firstName,
@@ -116,7 +117,7 @@ export class UserService {
       status: u.status,
       lastLoginAt: u.lastLoginAt,
       createdAt: u.createdAt,
-      roles: u.userRoles.map((ur) => ur.role),
+      roles: u.userRoles.map((ur: any) => ur.role),
     }));
 
     return {
@@ -160,7 +161,7 @@ export class UserService {
       status: user.status,
       lastLoginAt: user.lastLoginAt,
       createdAt: user.createdAt,
-      roles: user.userRoles.map((ur) => ur.role),
+      roles: user.userRoles.map((ur: any) => ur.role),
     };
   }
 
@@ -190,7 +191,7 @@ export class UserService {
 
     const passwordHash = await CryptoUtil.hashPassword(input.passwordPlain);
 
-    const newUser = await prisma.$transaction(async (tx) => {
+    const newUser = await prisma.$transaction(async (tx: any) => {
       const created = await tx.user.create({
         data: {
           companyId: input.companyId,
@@ -256,7 +257,7 @@ export class UserService {
       throw new NotFoundError('User');
     }
 
-    const previousRoles = existing.userRoles.map((ur) => ur.role.code);
+    const previousRoles = existing.userRoles.map((ur: any) => ur.role.code);
     const previousState = {
       firstName: existing.firstName,
       lastName: existing.lastName,
@@ -266,7 +267,7 @@ export class UserService {
       roles: previousRoles,
     };
 
-    await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx: any) => {
       // Update core profile fields
       await tx.user.update({
         where: { id: userId },
@@ -325,7 +326,7 @@ export class UserService {
         department: updated.department,
         title: updated.title,
         status: updated.status,
-        roles: updated.roles.map((r) => r.code),
+        roles: updated.roles.map((r: any) => r.code),
       },
       ipAddress: input.ipAddress,
       userAgent: input.userAgent,

@@ -1,5 +1,20 @@
 import { prisma } from '../../prisma/client.js';
-import { AuditActorType, AuditAction } from '@prisma/client';
+
+export type AuditActorType = 'USER' | 'SYSTEM' | 'AI_WORKER' | 'CANDIDATE';
+export type AuditAction =
+  | 'CREATE'
+  | 'READ'
+  | 'UPDATE'
+  | 'OVERRIDE'
+  | 'APPROVE'
+  | 'REJECT'
+  | 'ISSUE'
+  | 'DOWNLOAD'
+  | 'ACCEPT'
+  | 'DECLINE'
+  | 'REVOKE'
+  | 'DELETE';
+
 
 export interface AuditLogEntry {
   companyId: string;
