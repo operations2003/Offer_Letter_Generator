@@ -10,6 +10,7 @@ import authRoutes from './modules/auth/auth.routes.js';
 import userRoutes from './modules/users/user.routes.js';
 import auditRoutes from './modules/audit/audit.routes.js';
 import aiRoutes from './modules/ai/ai.routes.js';
+import offerRoutes from './modules/offers/offer.routes.js';
 
 export function createApp(): Express {
   const app = express();
@@ -73,6 +74,7 @@ export function createApp(): Express {
   app.use('/api/v1/users', userRoutes);
   app.use('/api/v1/audit-logs', auditRoutes);
   app.use('/api/v1/ai', aiRoutes);
+  app.use('/api/v1/offers', offerRoutes);
 
   // 404 handler
   app.use((req: Request, _res: Response, next: NextFunction) => {

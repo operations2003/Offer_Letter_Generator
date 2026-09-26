@@ -12,7 +12,9 @@
     "prisma:seed": "tsx src/prisma/seed.ts",
     "db:push": "prisma db push",
     "lint": "tsc --noEmit",
-    "test": "tsx src/tests/test-runner.ts"
+    "test": "tsx src/tests/test-runner.ts",
+    "test:offers": "tsx src/tests/offer-apis.test.ts",
+    "test:all": "tsx src/tests/test-runner.ts && tsx src/tests/offer-apis.test.ts"
   },
   "keywords": [
     "offer-letter",

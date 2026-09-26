@@ -9,7 +9,7 @@ export class MockAiAdapter implements IAiProviderAdapter {
     const startTime = Date.now();
 
     // Simulate minor processing latency (80ms - 250ms)
-    await new Promise((r) => setTimeout(r, 120));
+    await new Promise((r) => setTimeout(r, 100));
 
     let generatedJson: Record<string, unknown>;
 
@@ -19,14 +19,12 @@ export class MockAiAdapter implements IAiProviderAdapter {
       generatedJson = this.simulatePolicyCheck();
     } else if (request.systemPrompt.includes('SALARY_BENCHMARK_CHECK')) {
       generatedJson = this.simulateSalaryBenchmark();
+    } else if (request.systemPrompt.includes('OFFER_SUGGESTIONS')) {
+      generatedJson = this.simulateOfferSuggestions(request.userPrompt);
+    } else if (request.systemPrompt.includes('OFFER_QUALITY_CHECK')) {
+      generatedJson = this.simulateOfferQualityCheck(request.userPrompt);
     } else {
-      generatedJson = {
-        clauseTitle: 'Standard Non-Disclosure & Restrictive Covenants',
-        clauseText:
-          'The employee agrees that during the term of employment and for a period of twelve (12) months following termination, they shall not directly or indirectly engage in competitive activities or disclose confidential trade secrets.',
-        governingConsiderations:
-          'Conforms to state and federal restrictive covenant enforceability guidelines.',
-      };
+      generatedJson = this.simulateClauseDrafting(request.userPrompt);
     }
 
     const rawContent = JSON.stringify(generatedJson, null, 2);
@@ -46,7 +44,6 @@ export class MockAiAdapter implements IAiProviderAdapter {
   }
 
   private simulateCandidateExtraction(text: string): Record<string, unknown> {
-    // Intelligent heuristic extraction from input text
     const emailMatch = text.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
     const phoneMatch = text.match(/(\+?\d{1,3}[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/);
     const salaryMatch = text.match(/\$?\s*(\d{2,3}(?:,\d{3})+|\d{5,7})/);
@@ -143,6 +140,114 @@ export class MockAiAdapter implements IAiProviderAdapter {
     };
   }
 
+  private simulateOfferSuggestions(userPrompt: string): Record<string, unknown> {
+    return {
+      summary:
+        'AI Advisory Suggestions: Wording enhancements and recommended clauses. Note: Sensitive fields (CTC, probation, notice period) are locked and require human decision.',
+      isAdvisoryOnly: true,
+      sensitiveFieldsLocked: true,
+      suggestions: [
+        {
+          id: 'sug-welcome-01',
+          category: 'WELCOME_WORDING',
+          title: 'Executive Welcome & Culture Alignment',
+          suggestedWording:
+            'We are thrilled to welcome you to our growing engineering leadership team. Your track record of architectural excellence and collaborative leadership will play a vital role in shaping our next-generation cloud infrastructure.',
+          rationale: 'Elevates opening paragraph to resonate with senior engineering leadership profile.',
+          requiresHumanConfirmation: true,
+        },
+        {
+          id: 'sug-perks-02',
+          category: 'ROLE_PERKS',
+          title: 'Remote Collaboration & Ergonomic Setup',
+          suggestedWording:
+            'Employees participating in our hybrid arrangement are eligible for a one-time ergonomic home office allowance and monthly high-speed internet reimbursement in accordance with company policy.',
+          rationale: 'Enhances candidate experience and sets clear expectations for hybrid collaboration.',
+          requiresHumanConfirmation: true,
+        },
+        {
+          id: 'sug-clause-03',
+          category: 'CLAUSE_RECOMMENDATION',
+          title: 'Intellectual Property and Inventions Covenant',
+          suggestedWording:
+            'All discoveries, software routines, architectures, and intellectual assets developed during your employment shall remain the exclusive proprietary property of the company.',
+          rationale: 'Standard legal protection clause recommended for all technical and managerial appointments.',
+          requiresHumanConfirmation: true,
+        },
+        {
+          id: 'sug-clause-04',
+          category: 'CLAUSE_RECOMMENDATION',
+          title: 'Confidentiality and Trade Secrets Non-Disclosure',
+          suggestedWording:
+            'The employee covenants to hold in the strictest confidence all non-public technical blueprints, client rosters, and financial models during and after employment.',
+          rationale: 'Ensures confidentiality standards meet enterprise compliance guidelines.',
+          requiresHumanConfirmation: true,
+        },
+      ],
+    };
+  }
+
+  private simulateOfferQualityCheck(userPrompt: string): Record<string, unknown> {
+    let breakdownSum = 0;
+    let statedCtc = 0;
+    try {
+      const data = JSON.parse(userPrompt.replace(/^Offer Data to audit:\s*/, ''));
+      const base = Number(data.baseSalary || 0);
+      const hra = Number(data.hraAllowance || 0);
+      const special = Number(data.specialAllowances || 0);
+      const perf = Number(data.performanceBonus || 0);
+      const join = Number(data.joiningBonus || 0);
+      breakdownSum = base + hra + special + perf + join;
+      statedCtc = Number(data.totalCtc || breakdownSum);
+    } catch {
+      breakdownSum = 167000;
+      statedCtc = 167000;
+    }
+
+    const discrepancy = Math.abs(breakdownSum - statedCtc);
+    const isMathConsistent = discrepancy < 1.0;
+
+    return {
+      overallQualityScore: isMathConsistent ? 94 : 76,
+      isReadyForIssuance: isMathConsistent,
+      readabilityScore: 'HIGH',
+      completenessScore: 95,
+      compensationCheck: {
+        isMathConsistent,
+        breakdownSum,
+        statedTotalCtc: statedCtc,
+        discrepancy,
+      },
+      criticalIssues: isMathConsistent ? [] : ['Compensation breakdown sum does not match stated Total CTC'],
+      warnings: [
+        'Ensure candidate has acknowledged receipt of background verification disclosure',
+      ],
+      recommendations: [
+        'Consider reiterating reporting line expectations during verbal pre-close discussion',
+        'Verify offer acceptance window leaves candidate at least 7 calendar days to decide',
+      ],
+      sensitiveFieldsAudit: {
+        isHumanConfirmed: true,
+        details: 'Compensation, probation duration, and notice period have HR-confirmed status and were not independently decided by AI.',
+      },
+    };
+  }
+
+  private simulateClauseDrafting(userPrompt: string): Record<string, unknown> {
+    return {
+      clauseTitle: 'Confidentiality, Intellectual Property & Non-Solicitation',
+      clauseText:
+        'The Employee acknowledges that during their employment they will have access to confidential company intellectual property and business methodologies. The Employee agrees not to disclose such proprietary information to unauthorized third parties and agrees that all inventions created in connection with company duties belong solely to the Employer.',
+      keyPoints: [
+        'Defines proprietary company information and trade secrets',
+        'Assigns ownership of newly created work products to the company',
+        'Prohibits unauthorized sharing or post-employment solicitation',
+      ],
+      governingConsiderations:
+        'Strictly drafted for jurisdictional enforceability. HR/Legal should confirm specific state or country restrictive covenant guidelines before issuance.',
+    };
+  }
+
   private simulatePolicyCheck(): Record<string, unknown> {
     return {
       isCompliant: true,
@@ -152,13 +257,13 @@ export class MockAiAdapter implements IAiProviderAdapter {
           ruleName: 'Probation Period Alignment',
           isViolated: false,
           severity: 'INFO',
-          detail: 'Proposed probation period of 90 days aligns with company standard.',
+          detail: 'Proposed probation period conforms to organizational policy.',
         },
         {
           ruleName: 'Notice Period Standard',
           isViolated: false,
           severity: 'INFO',
-          detail: 'Notice period of 30 days conforms to jurisdictional guidelines.',
+          detail: 'Notice period conforms to standard employment terms.',
         },
       ],
     };

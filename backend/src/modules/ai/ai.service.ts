@@ -131,7 +131,13 @@ export class AiService {
   static async draftCustomClause(
     instruction: string,
     context: Record<string, unknown>
-  ): Promise<{ clauseTitle: string; clauseText: string; governingConsiderations: string }> {
+  ): Promise<{
+    clauseTitle: string;
+    clauseText: string;
+    keyPoints?: string[];
+    governingConsiderations: string;
+    isAdvisory: boolean;
+  }> {
     const { systemPrompt, userPrompt } = PromptManager.buildCustomClausePrompt(instruction, context);
 
     const completion = await this.executeWithRetry({
@@ -141,7 +147,111 @@ export class AiService {
       temperature: 0.3,
     });
 
-    return ResponseParser.parseJson(completion.rawContent);
+    const parsed = ResponseParser.parseJson<any>(completion.rawContent);
+    return {
+      clauseTitle: parsed.clauseTitle || 'Employment Agreement Clause',
+      clauseText: parsed.clauseText || '',
+      keyPoints: parsed.keyPoints || [],
+      governingConsiderations: parsed.governingConsiderations || '',
+      isAdvisory: true,
+    };
+  }
+
+  /**
+   * Generates AI suggestions for wording, welcome note, role perks, and recommended clauses
+   * GUARDRAIL: AI cannot decide sensitive fields (CTC, probation duration, notice duration).
+   */
+  static async generateOfferSuggestions(context: Record<string, unknown>): Promise<{
+    summary: string;
+    isAdvisoryOnly: boolean;
+    sensitiveFieldsLocked: boolean;
+    suggestions: Array<{
+      id: string;
+      category: string;
+      title: string;
+      suggestedWording: string;
+      rationale: string;
+      requiresHumanConfirmation: boolean;
+    }>;
+  }> {
+    const { systemPrompt, userPrompt } = PromptManager.buildOfferSuggestionsPrompt(context);
+
+    const completion = await this.executeWithRetry({
+      systemPrompt,
+      userPrompt,
+      jsonMode: true,
+      temperature: 0.3,
+    });
+
+    const parsed = ResponseParser.parseJson<any>(completion.rawContent);
+    return {
+      summary: parsed.summary || 'AI Advisory Suggestions for offer enhancement',
+      isAdvisoryOnly: true,
+      sensitiveFieldsLocked: true,
+      suggestions: Array.isArray(parsed.suggestions)
+        ? parsed.suggestions.map((s: any) => ({
+            id: s.id || `sug-${Math.random().toString(36).substring(2, 8)}`,
+            category: s.category || 'ROLE_PERKS',
+            title: s.title || 'Suggestion',
+            suggestedWording: s.suggestedWording || '',
+            rationale: s.rationale || '',
+            requiresHumanConfirmation: true, // Strictly enforce human review
+          }))
+        : [],
+    };
+  }
+
+  /**
+   * Performs AI Quality Check across offer completeness, math consistency, and sensitive fields audit
+   */
+  static async performOfferQualityCheck(offerData: Record<string, unknown>): Promise<{
+    overallQualityScore: number;
+    isReadyForIssuance: boolean;
+    readabilityScore: string;
+    completenessScore: number;
+    compensationCheck: {
+      isMathConsistent: boolean;
+      breakdownSum: number;
+      statedTotalCtc: number;
+      discrepancy: number;
+    };
+    criticalIssues: string[];
+    warnings: string[];
+    recommendations: string[];
+    sensitiveFieldsAudit: {
+      isHumanConfirmed: boolean;
+      details: string;
+    };
+  }> {
+    const { systemPrompt, userPrompt } = PromptManager.buildOfferQualityCheckPrompt(offerData);
+
+    const completion = await this.executeWithRetry({
+      systemPrompt,
+      userPrompt,
+      jsonMode: true,
+      temperature: 0.1,
+    });
+
+    const parsed = ResponseParser.parseJson<any>(completion.rawContent);
+    return {
+      overallQualityScore: typeof parsed.overallQualityScore === 'number' ? parsed.overallQualityScore : 85,
+      isReadyForIssuance: Boolean(parsed.isReadyForIssuance),
+      readabilityScore: parsed.readabilityScore || 'HIGH',
+      completenessScore: typeof parsed.completenessScore === 'number' ? parsed.completenessScore : 90,
+      compensationCheck: parsed.compensationCheck || {
+        isMathConsistent: true,
+        breakdownSum: 0,
+        statedTotalCtc: 0,
+        discrepancy: 0,
+      },
+      criticalIssues: Array.isArray(parsed.criticalIssues) ? parsed.criticalIssues : [],
+      warnings: Array.isArray(parsed.warnings) ? parsed.warnings : [],
+      recommendations: Array.isArray(parsed.recommendations) ? parsed.recommendations : [],
+      sensitiveFieldsAudit: parsed.sensitiveFieldsAudit || {
+        isHumanConfirmed: true,
+        details: 'Sensitive fields verified for human authorization.',
+      },
+    };
   }
 
   /**

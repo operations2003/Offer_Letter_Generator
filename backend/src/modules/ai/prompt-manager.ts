@@ -89,16 +89,95 @@ ${companyRules.map((r, i) => `${i + 1}. ${r}`).join('\n')}`;
    */
   static buildCustomClausePrompt(instruction: string, context: Record<string, unknown>) {
     const systemPrompt = `You are an expert employment legal drafter.
+Task: CUSTOM_CLAUSE_DRAFTING
 Draft a clear, professional, legally sound clause for inclusion in an employment offer letter based on the provided instruction and context.
-Output JSON:
-{
-  "clauseTitle": string,
-  "clauseText": string,
-  "governingConsiderations": string
-}`;
+
+MANDATORY GUARDRAILS:
+1. You assist with wording, clarity, and phrasing ONLY.
+2. DO NOT unilaterally establish numerical compensation, arbitrary financial penalties, or unconfirmed notice or probation terms.
+3. Output valid JSON only with keys: clauseTitle, clauseText, keyPoints, governingConsiderations.`;
 
     const userPrompt = `Drafting Instruction: ${instruction}
 Context: ${JSON.stringify(context, null, 2)}`;
+
+    return { systemPrompt, userPrompt };
+  }
+
+  /**
+   * Builds prompt for AI offer suggestions (wording, perks, clauses)
+   * GUARDRAIL: AI can assist with wording and suggestions but must not independently decide sensitive fields.
+   */
+  static buildOfferSuggestionsPrompt(context: Record<string, unknown>) {
+    const systemPrompt = `You are an AI Copilot for HR Offer Letters.
+Task: OFFER_SUGGESTIONS
+
+CRITICAL SYSTEM GUARDRAIL:
+You can assist with wording, welcome messaging, perks phrasing, and standard clause recommendations.
+You MUST NOT independently decide or alter sensitive fields:
+- CTC, base salary, bonuses, or financial compensation
+- Probation duration or notice period duration
+- Candidate personal details or joining date
+All suggestions are strictly ADVISORY and must be marked with requiresHumanConfirmation: true.
+
+Output JSON structure:
+{
+  "summary": string,
+  "isAdvisoryOnly": true,
+  "sensitiveFieldsLocked": true,
+  "suggestions": [
+    {
+      "id": string,
+      "category": "WELCOME_WORDING" | "BENEFITS_RECOMMENDATION" | "CLAUSE_RECOMMENDATION" | "ROLE_PERKS",
+      "title": string,
+      "suggestedWording": string,
+      "rationale": string,
+      "requiresHumanConfirmation": true
+    }
+  ]
+}`;
+
+    const userPrompt = `Please generate high-quality wording, perk, and clause suggestions for this offer context:
+${JSON.stringify(context, null, 2)}`;
+
+    return { systemPrompt, userPrompt };
+  }
+
+  /**
+   * Builds prompt for comprehensive AI offer quality check
+   */
+  static buildOfferQualityCheckPrompt(offerData: Record<string, unknown>) {
+    const systemPrompt = `You are an expert HR & Legal Offer Quality Assurance Engine.
+Task: OFFER_QUALITY_CHECK
+Audit the complete offer details across:
+1. Completeness of essential employment terms
+2. Clarity, tone, and professional consistency of clauses
+3. Mathematical alignment of compensation breakdown (Base + HRA + Allowances + Bonuses vs Total CTC)
+4. Standard employment norms (reasonable probation, standard notice period, valid offer timeframe)
+5. SENSITIVE FIELDS AUDIT: Verify that sensitive terms (CTC, probation duration, notice duration) are marked with human HR confirmation and not auto-assigned.
+
+Output JSON structure:
+{
+  "overallQualityScore": number, // 0 to 100
+  "isReadyForIssuance": boolean,
+  "readabilityScore": "HIGH" | "MEDIUM" | "LOW",
+  "completenessScore": number, // 0 to 100
+  "compensationCheck": {
+    "isMathConsistent": boolean,
+    "breakdownSum": number,
+    "statedTotalCtc": number,
+    "discrepancy": number
+  },
+  "criticalIssues": string[],
+  "warnings": string[],
+  "recommendations": string[],
+  "sensitiveFieldsAudit": {
+    "isHumanConfirmed": boolean,
+    "details": string
+  }
+}`;
+
+    const userPrompt = `Offer Data to audit:
+${JSON.stringify(offerData, null, 2)}`;
 
     return { systemPrompt, userPrompt };
   }
