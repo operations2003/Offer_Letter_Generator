@@ -13,7 +13,13 @@ export class MockAiAdapter implements IAiProviderAdapter {
 
     let generatedJson: Record<string, unknown>;
 
-    if (request.systemPrompt.includes('CANDIDATE_DATA_EXTRACTION')) {
+    if (request.systemPrompt.includes('AI_ASSISTANT_GENERATE')) {
+      generatedJson = this.simulateAssistantGenerate(request.userPrompt);
+    } else if (request.systemPrompt.includes('AI_ASSISTANT_IMPROVE')) {
+      generatedJson = this.simulateAssistantImprove(request.userPrompt);
+    } else if (request.systemPrompt.includes('AI_ASSISTANT_REGENERATE')) {
+      generatedJson = this.simulateAssistantRegenerate(request.userPrompt);
+    } else if (request.systemPrompt.includes('CANDIDATE_DATA_EXTRACTION')) {
       generatedJson = this.simulateCandidateExtraction(request.userPrompt);
     } else if (request.systemPrompt.includes('POLICY_COMPLIANCE_CHECK')) {
       generatedJson = this.simulatePolicyCheck();
@@ -593,6 +599,181 @@ export class MockAiAdapter implements IAiProviderAdapter {
       missingStandardPlaceholders,
       improvedMarkupPreview: preview,
       summary: `Found ${suggestions.length} potential hardcoded value(s) to convert into standard placeholders.`,
+    };
+  }
+
+  private simulateAssistantGenerate(userPrompt: string): Record<string, unknown> {
+    const isWelcome = userPrompt.includes('welcome_intro_text') || userPrompt.toLowerCase().includes('welcome');
+    const isJobDesc = userPrompt.includes('job_description_wording') || userPrompt.toLowerCase().includes('job description') || userPrompt.toLowerCase().includes('responsibilities');
+    const isGeneralClause = userPrompt.includes('general_clauses') || userPrompt.toLowerCase().includes('confidentiality') || userPrompt.toLowerCase().includes('at-will');
+    const isCustomClause = userPrompt.includes('custom_hr_clauses') || userPrompt.toLowerCase().includes('relocation') || userPrompt.toLowerCase().includes('clawback') || userPrompt.toLowerCase().includes('stipend');
+
+    if (isWelcome) {
+      return {
+        title: 'Warm Welcome & Cultural Alignment Introduction',
+        content:
+          'On behalf of the entire leadership and team at {{company_name}}, we are thrilled to extend this formal offer of employment to you. Your demonstrated technical background, collaborative mindset, and passion for excellence make you an ideal addition to our organization. We are excited about the lasting impact you will create, and we look forward to achieving great milestones together.',
+        keyPoints: [
+          'Enthusiastic organizational welcome',
+          'Candidate cultural fit recognition',
+          'Company mission alignment without inventing policies',
+        ],
+        isPolicyInvented: false,
+        requiresHrReview: true,
+      };
+    }
+
+    if (isJobDesc) {
+      return {
+        title: 'Core Role Scope & Functional Deliverables',
+        content:
+          'As {{designation}} within the {{department}} organization, you will lead key software architecture initiatives, mentor team members, and drive execution of critical product milestones. You will collaborate with cross-functional product, infrastructure, and leadership stakeholders to uphold operational reliability and engineering velocity. Detailed operational goals and performance metrics shall be established with your reporting manager during onboarding.',
+        keyPoints: [
+          'Strategic architectural leadership',
+          'Cross-functional team collaboration',
+          'Performance goals left to mutual HR/manager onboarding agreement',
+        ],
+        isPolicyInvented: false,
+        requiresHrReview: true,
+      };
+    }
+
+    if (isGeneralClause) {
+      return {
+        title: 'Standard Confidentiality & Intellectual Property Covenant',
+        content:
+          'The Employee acknowledges that in the course of employment, they will have access to confidential proprietary information belonging to {{company_name}}. The Employee agrees to maintain the strict confidentiality of all trade secrets and business strategies both during employment and following separation. All intellectual property, designs, code, and inventions conceived or created within the scope of duties remain the exclusive property of {{company_name}}.',
+        keyPoints: [
+          'Comprehensive non-disclosure obligations',
+          'Assignment of inventions and work products',
+          'Standard protective clauses with zero arbitrary policies added',
+        ],
+        isPolicyInvented: false,
+        requiresHrReview: true,
+      };
+    }
+
+    if (isCustomClause) {
+      return {
+        title: 'Custom HR Terms & Relocation/Equipment Provisioning',
+        content:
+          'The Company shall furnish appropriate technical hardware and workstation accessories necessary for the performance of your duties, subject to corporate IT asset security standards. Any additional expense reimbursements, travel allowances, or relocation support requested must comply with {{company_policy_name}} guidelines and require written approval from the Human Resources Department prior to disbursement.',
+        keyPoints: [
+          'Hardware provisioning standard',
+          'Strict requirement for established HR policy compliance',
+          'Explicit placeholder requiring HR verification before financial commitment',
+        ],
+        isPolicyInvented: false,
+        requiresHrReview: true,
+      };
+    }
+
+    // Default: Professional offer wording
+    return {
+      title: 'Professional Offer Appointment Letter Wording',
+      content:
+        'We are delighted to formally offer you the position of {{designation}} with {{company_name}}, reporting directly to {{reporting_manager}}. This offer represents our confidence in your talents and your future contributions to our team. Please review the detailed compensation, benefits, and employment terms set forth herein, which are subject to mutual review and approval.',
+      keyPoints: [
+        'Formal appointment statement',
+        'Reporting hierarchy reference',
+        'Placeholder integration for company terms',
+      ],
+      isPolicyInvented: false,
+      requiresHrReview: true,
+    };
+  }
+
+  private simulateAssistantImprove(userPrompt: string): Record<string, unknown> {
+    const textMatch = userPrompt.match(/<text_to_improve>([\s\S]*?)<\/text_to_improve>/);
+    const originalText = textMatch ? textMatch[1].trim() : 'We offer you the job position.';
+
+    const isGrammar = userPrompt.includes('grammar') || userPrompt.includes('grammar_improvement');
+    const isConcise = userPrompt.includes('concise');
+    const isWarm = userPrompt.includes('warm_culture');
+    const isLegal = userPrompt.includes('professional_legal');
+
+    let improvedText = originalText;
+    let changesSummary = 'Improved readability and professional tone while preserving original terms.';
+
+    if (isGrammar) {
+      // Fix common typos and polish grammar
+      improvedText = originalText
+        .replace(/\bteh\b/gi, 'the')
+        .replace(/\brecieve\b/gi, 'receive')
+        .replace(/\bseperate\b/gi, 'separate')
+        .replace(/\bi\b/g, 'I')
+        .replace(/\s+/g, ' ')
+        .trim();
+      if (!improvedText.endsWith('.')) improvedText += '.';
+      changesSummary = 'Corrected grammatical syntax, spelling errors, and punctuation while strictly preserving all factual values.';
+    } else if (isConcise) {
+      improvedText = originalText
+        .replace(/shall be entitled to receive/gi, 'receives')
+        .replace(/in the event that/gi, 'if')
+        .replace(/for the purpose of/gi, 'to')
+        .replace(/at this point in time/gi, 'now')
+        .trim();
+      changesSummary = 'Streamlined phrasing to eliminate wordiness while preserving exact legal and policy meaning.';
+    } else if (isWarm) {
+      improvedText = `We are genuinely delighted to share this opportunity with you. ${originalText} We are enthusiastic about welcoming you aboard and partnering together for your ongoing success.`;
+      changesSummary = 'Elevated warmth and positive tone to enhance candidate engagement, without adding new obligations.';
+    } else if (isLegal) {
+      improvedText = `${originalText} This provision shall be construed in accordance with applicable governing labor standards and {{company_name}} corporate governance policies.`;
+      changesSummary = 'Enhanced contractual precision and clarity; no new company policies invented.';
+    } else {
+      improvedText = originalText
+        .replace(/will do/gi, 'shall perform')
+        .replace(/good job/gi, 'exceptional performance')
+        .trim();
+      changesSummary = 'Refined vocabulary and sentence cadence for professional HR standards.';
+    }
+
+    return {
+      title: 'Refined & Improved Content',
+      improvedText,
+      changesSummary,
+      isPolicyInvented: false,
+      requiresHrReview: true,
+    };
+  }
+
+  private simulateAssistantRegenerate(userPrompt: string): Record<string, unknown> {
+    const isWelcome = userPrompt.includes('welcome_intro_text') || userPrompt.toLowerCase().includes('welcome');
+    const isJobDesc = userPrompt.includes('job_description_wording');
+    const isGeneralClause = userPrompt.includes('general_clauses');
+
+    let title = 'Alternative Drafting Variation';
+    let content = '';
+
+    if (isWelcome) {
+      title = 'Alternative Welcome & Culture Introduction';
+      content =
+        'Welcome to {{company_name}}! It is our distinct pleasure to present this offer for the position of {{designation}}. We were deeply impressed by your achievements and collaborative energy throughout the interview process. Our team is solving pivotal challenges, and we know your unique perspectives will help us reach new heights.';
+    } else if (isJobDesc) {
+      title = 'Alternative Job Description & Responsibilities Scope';
+      content =
+        'In your role as {{designation}}, you will serve as a technical catalyst within {{department}}. Core responsibilities include architecting high-reliability systems, establishing robust engineering guidelines, and partnering with product teams to translate customer requirements into resilient software solutions.';
+    } else if (isGeneralClause) {
+      title = 'Alternative Confidentiality Covenant';
+      content =
+        'During and after employment with {{company_name}}, the Employee agrees to hold all proprietary trade secrets, business strategies, and client data in rigorous confidence, utilizing such materials strictly in furtherance of authorized Company duties.';
+    } else {
+      title = 'Alternative Offer Appointment Wording';
+      content =
+        '{{company_name}} is proud to extend this offer of employment for the role of {{designation}}. We anticipate your arrival on {{joining_date}} and are confident that your leadership will elevate our collective mission.';
+    }
+
+    return {
+      title,
+      content,
+      keyPoints: [
+        'Alternative wording variation',
+        'Distinct stylistic cadence while preserving factual accuracy',
+        'Zero invented policies or obligations',
+      ],
+      changesSummary: 'Generated fresh wording alternative with enhanced stylistic distinction.',
+      isPolicyInvented: false,
+      requiresHrReview: true,
     };
   }
 }

@@ -6,6 +6,7 @@ import { GenerateWithAi } from '../components/ai/GenerateWithAi.js';
 import { ReviewAiOutput } from '../components/ai/ReviewAiOutput.js';
 import { MissingInformation } from '../components/ai/MissingInformation.js';
 import { ImproveWithAi } from '../components/ai/ImproveWithAi.js';
+import { AiAssist } from '../components/ai/AiAssist.js';
 import { AiCandidateExtractionData, HrConfirmedTerms } from '../types/index.js';
 import { useToast } from '../context/ToastContext.js';
 
@@ -176,6 +177,22 @@ export const AiStudioPage: React.FC = () => {
           <ExtractWithAi onExtractionComplete={(data) => setAiData(data)} />
         </div>
       </div>
+
+      {/* AI Assistant Co-Pilot (Generate / Improve / Regenerate / In-Place Edit / Accept / Reject) */}
+      <AiAssist
+        contextData={{
+          candidateName: aiData.candidateName?.value,
+          jobTitle: aiData.designation?.value,
+          department: aiData.department?.value,
+          location: aiData.location?.value,
+          baseSalary: aiData.baseSalary?.value,
+        }}
+        onApplyAction={(actionType, result) => {
+          if (actionType === 'general_clauses' || actionType === 'custom_hr_clauses') {
+            setNonCompeteText(result.content);
+          }
+        }}
+      />
 
       {/* Missing Information Component */}
       <MissingInformation

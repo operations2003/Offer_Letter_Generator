@@ -230,7 +230,7 @@ export const Step8AiAssistance: React.FC<Step8AiAssistanceProps> = ({
         </div>
       </div>
 
-      {/* AI Clause Drafter Tool */}
+      {/* AI Drafting Assistant (Offer Wording, Welcome Text, Job Description, General & Custom Clauses) */}
       <div
         className="glass-panel"
         style={{
@@ -241,14 +241,52 @@ export const Step8AiAssistance: React.FC<Step8AiAssistanceProps> = ({
           background: 'var(--bg-tertiary)',
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <Wand2 size={18} color="#c084fc" />
-          <h4 style={{ fontSize: '1rem', fontWeight: 700 }}>Custom Clause AI Drafter</h4>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <Wand2 size={18} color="#c084fc" />
+            <h4 style={{ fontSize: '1rem', fontWeight: 700 }}>AI Drafter & Clause Assistant</h4>
+          </div>
+          <span className="ai-badge" style={{ fontSize: '0.6875rem' }}>
+            HR Reviewed & Editable
+          </span>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: 8 }}>
+          {[
+            { id: 'professional_offer_wording', label: 'Offer Wording' },
+            { id: 'welcome_intro_text', label: 'Welcome Note' },
+            { id: 'job_description_wording', label: 'Job Description' },
+            { id: 'general_clauses', label: 'General Clauses' },
+            { id: 'custom_hr_clauses', label: 'Custom HR Clauses' },
+          ].map((cat) => (
+            <button
+              key={cat.id}
+              type="button"
+              onClick={() => {
+                setClauseType(cat.label);
+                if (cat.id === 'welcome_intro_text') {
+                  setClauseInstruction('Draft an enthusiastic welcoming message for senior leadership hire');
+                } else if (cat.id === 'job_description_wording') {
+                  setClauseInstruction(`Draft core architectural deliverables and responsibilities for ${roleTitle || 'this role'}`);
+                } else if (cat.id === 'general_clauses') {
+                  setClauseInstruction('Draft standard IP assignment and trade secrets confidentiality clause');
+                } else if (cat.id === 'custom_hr_clauses') {
+                  setClauseInstruction('Draft ergonomic workstation setup and hybrid stipend terms');
+                } else {
+                  setClauseInstruction(`Draft formal appointment offer letter body for ${roleTitle || 'position'}`);
+                }
+              }}
+              className={`btn ${clauseType === cat.label ? 'btn-primary' : 'btn-secondary'}`}
+              style={{ fontSize: '0.75rem', padding: '6px 10px' }}
+            >
+              {cat.label}
+            </button>
+          ))}
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: 12 }}>
           <div>
-            <label className="form-label">Clause Subject</label>
+            <label className="form-label">Category / Subject</label>
             <input
               type="text"
               className="form-input"
@@ -275,13 +313,13 @@ export const Step8AiAssistance: React.FC<Step8AiAssistanceProps> = ({
                 style={{ fontSize: '0.8125rem', whiteSpace: 'nowrap' }}
               >
                 <Sparkles size={14} />
-                <span>{generatingClause ? 'Drafting...' : 'Draft Clause'}</span>
+                <span>{generatingClause ? 'Drafting...' : 'Generate Draft'}</span>
               </button>
             </div>
           </div>
         </div>
 
-        {/* Generated Clause Card */}
+        {/* Generated Clause Card with In-Place Editing */}
         {generatedClause && (
           <div
             className="glass-panel animate-fade-in"
@@ -294,14 +332,21 @@ export const Step8AiAssistance: React.FC<Step8AiAssistanceProps> = ({
               gap: 12,
             }}
           >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <span className="ai-badge" style={{ fontSize: '0.6875rem' }}>AI Generated Draft</span>
+              <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>Advisory • HR Editable</span>
+            </div>
+
             <div>
-              <span className="ai-badge" style={{ fontSize: '0.6875rem' }}>AI Generated Clause</span>
-              <h5 style={{ fontSize: '0.9375rem', fontWeight: 700, color: '#fff', marginTop: 4 }}>
+              <h5 style={{ fontSize: '0.9375rem', fontWeight: 700, color: '#fff', marginBottom: 6 }}>
                 {generatedClause.title}
               </h5>
-              <div
-                style={{ fontSize: '0.8125rem', color: 'var(--text-main)', marginTop: 4, lineHeight: 1.5 }}
-                dangerouslySetInnerHTML={{ __html: generatedClause.content }}
+              <textarea
+                className="form-input"
+                rows={4}
+                value={generatedClause.content.replace(/<[^>]*>/g, '')}
+                onChange={(e) => setGeneratedClause({ ...generatedClause, content: e.target.value })}
+                style={{ width: '100%', fontFamily: 'inherit', fontSize: '0.875rem', lineHeight: 1.6 }}
               />
             </div>
 
@@ -312,7 +357,7 @@ export const Step8AiAssistance: React.FC<Step8AiAssistanceProps> = ({
                 onClick={() => setGeneratedClause(null)}
                 style={{ fontSize: '0.75rem' }}
               >
-                Discard
+                Reject / Discard
               </button>
               <button
                 type="button"
@@ -321,7 +366,7 @@ export const Step8AiAssistance: React.FC<Step8AiAssistanceProps> = ({
                 style={{ fontSize: '0.75rem' }}
               >
                 <Plus size={14} />
-                <span>Insert into Contract Clauses</span>
+                <span>Accept & Insert into Contract</span>
               </button>
             </div>
           </div>
@@ -330,3 +375,4 @@ export const Step8AiAssistance: React.FC<Step8AiAssistanceProps> = ({
     </div>
   );
 };
+

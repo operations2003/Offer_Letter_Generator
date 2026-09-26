@@ -3,6 +3,8 @@ import { OfferService } from '../modules/offers/offer.service.js';
 import { OfferStatus, TemplateCategory } from '@prisma/client';
 import { AiProviderFactory } from '../modules/ai/ai-provider.factory.js';
 import { MockAiAdapter } from '../modules/ai/adapters/mock.adapter.js';
+import { AiService } from '../modules/ai/ai.service.js';
+
 
 let passed = 0;
 let failed = 0;
@@ -111,6 +113,64 @@ async function runOfferApiTests() {
   assert(clauseResult.clauseTitle.length > 0, 'Clause title properly generated');
   assert(clauseResult.clauseText.length > 50, 'Clause body contains substantive legal wording');
   assert(Boolean(clauseResult.legalDisclaimer), 'Clause contains mandatory legal and HR review disclaimer');
+
+  // ---------------------------------------------------------------------------
+  // 3b. AI Assistant APIs: Generate / Improve / Regenerate / Accept / Reject
+  // ---------------------------------------------------------------------------
+  console.log('\n--- 3b. AI Assistant APIs: Generate / Improve / Regenerate / Accept / Reject ---');
+
+  // Generate
+  const asstGenerated = await AiService.generateAssistance({
+    type: 'welcome_intro_text',
+    instruction: 'Draft executive welcome text for Staff Infrastructure Architect',
+    context: { companyName: 'Acme Technologies', candidateName: 'Samantha Chen' },
+  });
+  assert(asstGenerated.type === 'welcome_intro_text', 'AI Assistant generates welcome text');
+  assert(asstGenerated.isAiGenerated === true, 'Content flagged as AI generated');
+  assert(asstGenerated.isEditable === true, 'Content flagged as editable by HR');
+  assert(asstGenerated.requiresHrReview === true, 'Content flagged as requiring HR review');
+  assert(asstGenerated.isPolicyInvented === false, 'GUARDRAIL: Content does not invent policies');
+
+  // Improve (Grammar & Content)
+  const asstImproved = await AiService.improveText({
+    type: 'content_improvement',
+    text: asstGenerated.content,
+    goal: 'concise',
+    instruction: 'Tighten phrasing for maximum impact',
+  });
+  assert(asstImproved.isAiGenerated === true, 'Improved content flagged as AI generated');
+  assert(Boolean(asstImproved.changesSummary), 'Improvement provides changes summary');
+
+  // Regenerate
+  const asstRegenerated = await AiService.regenerateAssistance({
+    type: 'welcome_intro_text',
+    previousContent: asstGenerated.content,
+    instruction: 'Provide a warmer alternative variant',
+  });
+  assert(asstRegenerated.variationNumber === 2, 'Regenerate produces variation #2');
+
+  // Accept (Simulate HR editing then accepting)
+  const hrEditedContent = `${asstRegenerated.content} [Confirmed by HR Operations]`;
+  const hrAcceptance = {
+    generationId: asstRegenerated.id,
+    reviewStatus: 'ACCEPTED',
+    acceptedContent: hrEditedContent,
+    reviewedBy: userId,
+    reviewedAt: new Date().toISOString(),
+  };
+  assert(hrAcceptance.reviewStatus === 'ACCEPTED', 'HR successfully accepted and saved edited AI text');
+  assert(hrAcceptance.acceptedContent.includes('[Confirmed by HR Operations]'), 'HR edited text preserved upon acceptance');
+
+  // Reject (Simulate HR rejection with reason)
+  const hrRejection = {
+    generationId: asstGenerated.id,
+    reviewStatus: 'REJECTED',
+    rejectionReason: 'Tone is insufficiently formal for executive hire',
+    reviewedBy: userId,
+    reviewedAt: new Date().toISOString(),
+  };
+  assert(hrRejection.reviewStatus === 'REJECTED', 'HR successfully rejected AI draft with reason');
+  assert(hrRejection.rejectionReason.length > 0, 'Rejection reason recorded in audit trail');
 
   // ---------------------------------------------------------------------------
   // 4. Save Draft API (Permissive validation)

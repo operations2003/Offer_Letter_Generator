@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { OfferController } from './offer.controller.js';
+import { AiController } from '../ai/ai.controller.js';
 import { authenticate, requireRoles } from '../../middleware/auth.js';
 import { validateRequest } from '../../middleware/validate.js';
 import {
@@ -15,6 +16,13 @@ import {
   offerParamSchema,
   versionParamSchema,
 } from './offer.validation.js';
+import {
+  assistantGenerateSchema,
+  assistantImproveSchema,
+  assistantRegenerateSchema,
+  assistantAcceptSchema,
+  assistantRejectSchema,
+} from '../ai/ai.validation.js';
 
 const router = Router();
 
@@ -62,6 +70,56 @@ router.patch(
   requireRoles('SUPER_ADMIN', 'HR_MANAGER'),
   validateRequest({ body: reviewSuggestionSchema }),
   OfferController.reviewAiSuggestion
+);
+
+/**
+ * AI Assistant Generate API
+ */
+router.post(
+  '/ai/assistant/generate',
+  requireRoles('SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER'),
+  validateRequest({ body: assistantGenerateSchema }),
+  AiController.generateAssistance
+);
+
+/**
+ * AI Assistant Improve API
+ */
+router.post(
+  '/ai/assistant/improve',
+  requireRoles('SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER'),
+  validateRequest({ body: assistantImproveSchema }),
+  AiController.improveText
+);
+
+/**
+ * AI Assistant Regenerate API
+ */
+router.post(
+  '/ai/assistant/regenerate',
+  requireRoles('SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER'),
+  validateRequest({ body: assistantRegenerateSchema }),
+  AiController.regenerateAssistance
+);
+
+/**
+ * AI Assistant Accept API
+ */
+router.post(
+  '/ai/assistant/accept',
+  requireRoles('SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER'),
+  validateRequest({ body: assistantAcceptSchema }),
+  AiController.acceptAssistance
+);
+
+/**
+ * AI Assistant Reject API
+ */
+router.post(
+  '/ai/assistant/reject',
+  requireRoles('SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER'),
+  validateRequest({ body: assistantRejectSchema }),
+  AiController.rejectAssistance
 );
 
 // ---------------------------------------------------------------------------

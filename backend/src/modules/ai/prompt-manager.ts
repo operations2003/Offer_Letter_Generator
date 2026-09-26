@@ -1,3 +1,5 @@
+import { AiAssistanceType, AiImprovementGoal } from './types.js';
+
 export class PromptManager {
   /**
    * Builds candidate data extraction prompt with strict prompt-injection guardrails
@@ -195,4 +197,142 @@ ${JSON.stringify(offerData, null, 2)}`;
 
     return { systemPrompt, userPrompt };
   }
+
+  /**
+   * Builds prompt for AI drafting assistance across 5 generation categories:
+   * - Professional offer wording
+   * - Welcome/introduction text
+   * - Job description wording
+   * - General clauses
+   * - Custom HR clauses
+   *
+   * STRICT COMPLIANCE RULE:
+   * AI MUST NOT invent company policies or legal obligations.
+   * All AI-generated content is advisory, editable, and must be reviewed by HR.
+   */
+  static buildAssistantGeneratePrompt(
+    type: AiAssistanceType,
+    instruction: string,
+    context: Record<string, unknown> = {}
+  ) {
+    const systemPrompt = `You are an expert HR and Legal Offer Letter Drafting Copilot.
+Task: AI_ASSISTANT_GENERATE
+Assistance Type: ${type}
+
+CRITICAL COMPLIANCE GUARDRAIL (NON-NEGOTIABLE):
+1. AI MUST NOT INVENT company policies, legal obligations, arbitrary financial penalties, statutory mandates, or binding corporate commitments not provided in the prompt context.
+2. If specific company policy parameters or durations are needed (e.g. probation days, notice period, annual leave days, expense reimbursement caps), use standard placeholders like {{policy_duration}}, {{probation_days}}, {{notice_period}}, {{policy_stipend_amount}} or specify that HR must fill in company-defined terms. NEVER invent a policy.
+3. Assist strictly with:
+   - professional_offer_wording: formal, clear, and legally sound offer letter phrasing.
+   - welcome_intro_text: warm, engaging, and culture-aligned welcoming message.
+   - job_description_wording: articulate, well-structured responsibilities and scope of role.
+   - general_clauses: standard legal protective clauses (e.g., Confidentiality, At-Will, Governing Law, IP assignment, Severability).
+   - custom_hr_clauses: tailored HR clauses based on the given instructions (e.g., Relocation terms, remote equipment, sign-on terms).
+4. All AI output is strictly ADVISORY, EDITABLE, and MUST BE REVIEWED AND ACCEPTED BY HR before binding issuance.
+
+Output valid JSON only:
+{
+  "title": string,
+  "content": string,
+  "keyPoints": string[],
+  "isPolicyInvented": false,
+  "requiresHrReview": true
+}`;
+
+    const userPrompt = `Assistance Type: ${type}
+Instruction: ${instruction}
+Context:
+${JSON.stringify(context, null, 2)}`;
+
+    return { systemPrompt, userPrompt };
+  }
+
+  /**
+   * Builds prompt for text improvement:
+   * - Grammar improvement (fixing typos, syntax, readability, punctuation)
+   * - Content improvement (tone, clarity, conciseness, legal precision)
+   *
+   * STRICT COMPLIANCE RULE:
+   * AI MUST NOT invent company policies or legal obligations.
+   */
+  static buildAssistantImprovePrompt(
+    type: AiAssistanceType = 'content_improvement',
+    text: string,
+    goal: AiImprovementGoal = 'clarity',
+    instruction?: string,
+    context: Record<string, unknown> = {}
+  ) {
+    const systemPrompt = `You are an expert HR & Legal Editor and Proofreader.
+Task: AI_ASSISTANT_IMPROVE
+Assistance Type: ${type}
+Improvement Goal: ${goal} (grammar | clarity | concise | professional_legal | warm_culture)
+
+CRITICAL COMPLIANCE GUARDRAIL (NON-NEGOTIABLE):
+1. AI MUST NOT INVENT company policies or legal obligations.
+2. Preserve all factual data, monetary values, dates, and names exactly as provided in the original text.
+3. Grammar improvement: Correct grammatical errors, typos, spelling, subject-verb agreement, and punctuation while keeping the meaning identical.
+4. Content improvement: Enhance readability, flow, conciseness, and professional tone according to the selected goal (${goal}).
+5. All AI improvements are strictly ADVISORY, EDITABLE, and MUST BE REVIEWED AND ACCEPTED BY HR.
+
+Output valid JSON only:
+{
+  "title": string,
+  "improvedText": string,
+  "changesSummary": string,
+  "isPolicyInvented": false,
+  "requiresHrReview": true
+}`;
+
+    const userPrompt = `Goal: ${goal}
+Specific Instruction: ${instruction || 'Refine and improve the wording'}
+Original Text to improve:
+<text_to_improve>
+${text}
+</text_to_improve>
+Context:
+${JSON.stringify(context, null, 2)}`;
+
+    return { systemPrompt, userPrompt };
+  }
+
+  /**
+   * Builds prompt to regenerate or produce an alternative variation of previously generated content.
+   */
+  static buildAssistantRegeneratePrompt(
+    type: AiAssistanceType,
+    previousContent: string,
+    instruction?: string,
+    context: Record<string, unknown> = {}
+  ) {
+    const systemPrompt = `You are an expert HR & Legal Offer Letter Drafting Copilot.
+Task: AI_ASSISTANT_REGENERATE
+Assistance Type: ${type}
+
+CRITICAL COMPLIANCE GUARDRAIL:
+1. AI MUST NOT INVENT company policies or legal obligations.
+2. Provide a distinct alternative phrasing or refined variation while keeping the underlying terms consistent.
+3. All output is strictly ADVISORY, EDITABLE, and MUST BE REVIEWED AND ACCEPTED BY HR.
+
+Output valid JSON only:
+{
+  "title": string,
+  "content": string,
+  "keyPoints": string[],
+  "changesSummary": string,
+  "isPolicyInvented": false,
+  "requiresHrReview": true
+}`;
+
+    const userPrompt = `Assistance Type: ${type}
+Feedback / Refinement Guidance: ${instruction || 'Provide an alternative professional wording variation'}
+Previous Version:
+<previous_content>
+${previousContent}
+</previous_content>
+Context:
+${JSON.stringify(context, null, 2)}`;
+
+    return { systemPrompt, userPrompt };
+  }
 }
+

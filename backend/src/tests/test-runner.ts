@@ -243,6 +243,97 @@ async function runTests() {
     'Guarantees templates are NOT automatically modified without HR review'
   );
 
+  // ---------------------------------------------------------------------------
+  // 8. AI Drafting Assistant & Compliance Guardrails Tests
+  // ---------------------------------------------------------------------------
+  console.log('\n--- 8. AI Drafting Assistant & Compliance Guardrails Tests ---');
+
+  // 8.1 Professional Offer Wording
+  const offerWording = await AiService.generateAssistance({
+    type: 'professional_offer_wording',
+    instruction: 'Draft standard formal appointment letter opening and reporting structure',
+    context: { jobTitle: 'Senior Cloud Architect', department: 'Engineering' },
+  });
+  assert(offerWording.type === 'professional_offer_wording', 'Assists with professional offer wording');
+  assert(offerWording.isAiGenerated === true, 'AI generated flag is strictly true');
+  assert(offerWording.isEditable === true, 'Content is marked editable by HR');
+  assert(offerWording.requiresHrReview === true, 'Requires HR review before binding issuance');
+  assert(offerWording.isPolicyInvented === false, 'GUARDRAIL: AI does not invent company policies');
+  assert(offerWording.reviewStatus === 'PENDING', 'Initial review status is PENDING');
+
+  // 8.2 Welcome / Introduction Text
+  const welcomeText = await AiService.generateAssistance({
+    type: 'welcome_intro_text',
+    instruction: 'Draft an enthusiastic welcoming message aligned with high-performance culture',
+    context: { candidateName: 'Jane Alexandra Doe', companyName: 'Acme Technologies' },
+  });
+  assert(welcomeText.type === 'welcome_intro_text', 'Assists with welcome and introduction text');
+  assert(welcomeText.content.length > 50, 'Welcome text has substantive greeting');
+  assert(welcomeText.isPolicyInvented === false, 'Welcome text does not fabricate company obligations');
+
+  // 8.3 Job Description Wording
+  const jobDesc = await AiService.generateAssistance({
+    type: 'job_description_wording',
+    instruction: 'Draft core architectural deliverables and cross-functional leadership responsibilities',
+    context: { jobTitle: 'Lead Platform Architect', department: 'Infrastructure' },
+  });
+  assert(jobDesc.type === 'job_description_wording', 'Assists with job description wording');
+  assert(jobDesc.content.toLowerCase().includes('architect'), 'Job description contains relevant role responsibilities');
+  assert(jobDesc.requiresHrReview === true, 'Job description requires HR review');
+
+  // 8.4 General Clauses
+  const generalClause = await AiService.generateAssistance({
+    type: 'general_clauses',
+    instruction: 'Draft non-disclosure and intellectual property assignment clause',
+    context: { companyName: 'Acme Technologies Global Corp.' },
+  });
+  assert(generalClause.type === 'general_clauses', 'Assists with general contract clauses');
+  assert(generalClause.content.toLowerCase().includes('confidential'), 'Clause includes confidentiality terms');
+  assert(generalClause.isPolicyInvented === false, 'General clause does not invent arbitrary obligations');
+
+  // 8.5 Custom HR Clauses
+  const customClause = await AiService.generateAssistance({
+    type: 'custom_hr_clauses',
+    instruction: 'Draft IT equipment provisioning and home office policy',
+    context: { role: 'Hybrid Engineer' },
+  });
+  assert(customClause.type === 'custom_hr_clauses', 'Assists with custom HR clauses');
+  assert(customClause.content.includes('{{company_policy_name}}') || customClause.content.includes('HR'), 'Uses policy placeholder without inventing company policy');
+
+  // 8.6 Grammar Improvement
+  const grammarSample = 'The candidate will recieve teh laptop and i will supervise him';
+  const improvedGrammar = await AiService.improveText({
+    type: 'grammar_improvement',
+    text: grammarSample,
+    goal: 'grammar',
+    instruction: 'Fix spelling errors and grammatical syntax',
+  });
+  assert(improvedGrammar.type === 'grammar_improvement', 'Assists with grammar improvement');
+  assert(!improvedGrammar.content.includes('teh') && !improvedGrammar.content.includes('recieve'), 'Grammar check corrects typos (teh -> the, recieve -> receive)');
+  assert(improvedGrammar.isEditable === true, 'Improved grammar content is editable');
+  assert(improvedGrammar.isPolicyInvented === false, 'Grammar improvement does not invent policies');
+
+  // 8.7 Content Improvement (Conciseness & Clarity)
+  const verboseClause = 'In the event that the employee shall be entitled to receive benefits, they shall for the purpose of work...';
+  const improvedContent = await AiService.improveText({
+    type: 'content_improvement',
+    text: verboseClause,
+    goal: 'concise',
+  });
+  assert(improvedContent.type === 'content_improvement', 'Assists with content improvement');
+  assert(improvedContent.content.includes('if') || improvedContent.content.includes('receives'), 'Streamlines wordy phrasing');
+  assert(Boolean(improvedContent.changesSummary), 'Provides changes summary for transparency');
+
+  // 8.8 Regenerate API
+  const regenerated = await AiService.regenerateAssistance({
+    type: 'welcome_intro_text',
+    previousContent: welcomeText.content,
+    instruction: 'Make it even more inspiring and collaborative',
+  });
+  assert(regenerated.variationNumber === 2, 'Regenerate API increments variation number to 2');
+  assert(regenerated.isAiGenerated === true, 'Regenerated output retains AI generated status');
+  assert(regenerated.requiresHrReview === true, 'Regenerated output strictly requires HR review');
+
   console.log('\n================================================================');
   console.log(`📊 TEST RESULTS: ${passed} PASSED, ${failed} FAILED`);
   console.log('================================================================\n');
@@ -256,3 +347,4 @@ runTests().catch((err) => {
   console.error('Fatal test error:', err);
   process.exit(1);
 });
+

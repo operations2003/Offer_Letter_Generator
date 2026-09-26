@@ -104,3 +104,46 @@ export interface GeneratedOfferResult {
   verificationToken: string;
   createdAt: string;
 }
+
+export type AiAssistanceType =
+  | 'professional_offer_wording'
+  | 'welcome_intro_text'
+  | 'job_description_wording'
+  | 'general_clauses'
+  | 'custom_hr_clauses'
+  | 'grammar_improvement'
+  | 'content_improvement';
+
+export type AiImprovementGoal =
+  | 'grammar'
+  | 'clarity'
+  | 'concise'
+  | 'professional_legal'
+  | 'warm_culture';
+
+export type AiReviewStatus = 'PENDING' | 'ACCEPTED' | 'REJECTED';
+
+export interface AiAssistantItem {
+  id: string;
+  type: AiAssistanceType;
+  title: string;
+  originalText?: string;
+  content: string;
+  keyPoints?: string[];
+  changesSummary?: string;
+  isAiGenerated: true;
+  isEditable: true;
+  requiresHrReview: true;
+  reviewStatus: AiReviewStatus;
+  guardrailNotice: string;
+  isPolicyInvented: false;
+  context?: Record<string, unknown>;
+  createdAt: string;
+  updatedAt?: string;
+  reviewedBy?: string;
+  reviewedAt?: string;
+  hrFeedbackNotes?: string;
+  rejectionReason?: string;
+  variationNumber?: number;
+}
+

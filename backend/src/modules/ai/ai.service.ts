@@ -7,6 +7,10 @@ import {
   AiCompletionRequest,
   AiCompletionResponse,
   AiPolicyComplianceResult,
+  AiAssistantItem,
+  AiAssistantGenerateInput,
+  AiAssistantImproveInput,
+  AiAssistantRegenerateInput,
 } from './types.js';
 import { config } from '../../config/env.js';
 import { RateLimitError } from '../../errors/app-error.js';
@@ -272,4 +276,143 @@ export class AiService {
       },
     };
   }
+
+  /**
+   * AI Assistant: Generate drafting assistance across:
+   * - Professional offer wording
+   * - Welcome/introduction text
+   * - Job description wording
+   * - General clauses
+   * - Custom HR clauses
+   *
+   * STRICT GUARDRAIL: AI must not invent company policies or legal obligations.
+   * All AI-generated content is advisory, editable, and must be reviewed by HR.
+   */
+  static async generateAssistance(input: AiAssistantGenerateInput): Promise<AiAssistantItem> {
+    const { systemPrompt, userPrompt } = PromptManager.buildAssistantGeneratePrompt(
+      input.type,
+      input.instruction,
+      input.context || {}
+    );
+
+    const completion = await this.executeWithRetry({
+      systemPrompt,
+      userPrompt,
+      jsonMode: true,
+      temperature: 0.3,
+    });
+
+    const parsed = ResponseParser.parseJson<any>(completion.rawContent);
+    const id = `ai_gen_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+
+    return {
+      id,
+      type: input.type,
+      title: parsed.title || 'AI Generated Drafting',
+      content: parsed.content || '',
+      keyPoints: Array.isArray(parsed.keyPoints) ? parsed.keyPoints : [],
+      isAiGenerated: true,
+      isEditable: true,
+      requiresHrReview: true,
+      reviewStatus: 'PENDING',
+      guardrailNotice:
+        'AI assistance is advisory and must not invent company policies or legal obligations. HR review and editing required before inclusion.',
+      isPolicyInvented: false,
+      context: input.context,
+      createdAt: new Date().toISOString(),
+      variationNumber: 1,
+    };
+  }
+
+  /**
+   * AI Assistant: Improve existing text:
+   * - Grammar improvement (grammar, punctuation, typos, flow)
+   * - Content improvement (tone, clarity, conciseness, legal precision)
+   *
+   * STRICT GUARDRAIL: AI must not invent company policies or legal obligations.
+   */
+  static async improveText(input: AiAssistantImproveInput): Promise<AiAssistantItem> {
+    const type = input.type || 'content_improvement';
+    const goal = input.goal || 'clarity';
+
+    const { systemPrompt, userPrompt } = PromptManager.buildAssistantImprovePrompt(
+      type,
+      input.text,
+      goal,
+      input.instruction,
+      input.context || {}
+    );
+
+    const completion = await this.executeWithRetry({
+      systemPrompt,
+      userPrompt,
+      jsonMode: true,
+      temperature: 0.2,
+    });
+
+    const parsed = ResponseParser.parseJson<any>(completion.rawContent);
+    const id = `ai_imp_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+
+    return {
+      id,
+      type,
+      title: parsed.title || 'AI Improved Text',
+      originalText: input.text,
+      content: parsed.improvedText || input.text,
+      changesSummary: parsed.changesSummary || 'Improved clarity and tone while preserving facts.',
+      isAiGenerated: true,
+      isEditable: true,
+      requiresHrReview: true,
+      reviewStatus: 'PENDING',
+      guardrailNotice:
+        'AI improvement is advisory and must not invent company policies or legal obligations. HR review and editing required before inclusion.',
+      isPolicyInvented: false,
+      context: input.context,
+      createdAt: new Date().toISOString(),
+      variationNumber: 1,
+    };
+  }
+
+  /**
+   * AI Assistant: Regenerate alternative variation of drafted or improved content
+   */
+  static async regenerateAssistance(input: AiAssistantRegenerateInput): Promise<AiAssistantItem> {
+    const { systemPrompt, userPrompt } = PromptManager.buildAssistantRegeneratePrompt(
+      input.type,
+      input.previousContent,
+      input.instruction,
+      input.context || {}
+    );
+
+    const completion = await this.executeWithRetry({
+      systemPrompt,
+      userPrompt,
+      jsonMode: true,
+      temperature: 0.4,
+    });
+
+    const parsed = ResponseParser.parseJson<any>(completion.rawContent);
+    const id = `ai_regen_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+    const variationNumber = (input.variationNumber || 1) + 1;
+
+    return {
+      id,
+      type: input.type,
+      title: parsed.title || 'Alternative Drafting Variation',
+      content: parsed.content || '',
+      keyPoints: Array.isArray(parsed.keyPoints) ? parsed.keyPoints : [],
+      changesSummary: parsed.changesSummary || 'Generated alternative phrasing variation.',
+      isAiGenerated: true,
+      isEditable: true,
+      requiresHrReview: true,
+      reviewStatus: 'PENDING',
+      guardrailNotice:
+        'AI assistance is advisory and must not invent company policies or legal obligations. HR review and editing required before inclusion.',
+      isPolicyInvented: false,
+      context: input.context,
+      createdAt: new Date().toISOString(),
+      variationNumber,
+    };
+  }
 }
+
