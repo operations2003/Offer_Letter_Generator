@@ -14,84 +14,125 @@ const DEFAULT_EXTRACTION: AiCandidateExtractionData = {
     value: 'Jane Doe',
     confidenceScore: 0.98,
     sourceSnippet: 'Jane Doe - Senior Full Stack Engineer (7.5 years experience)',
+    isDetected: true,
   },
   email: {
     value: 'jane.doe@example.com',
     confidenceScore: 0.96,
     sourceSnippet: 'jane.doe@example.com',
+    isDetected: true,
   },
   phone: {
     value: '+1 (555) 349-2041',
     confidenceScore: 0.91,
     sourceSnippet: '+1 (555) 349-2041',
+    isDetected: true,
   },
-  currentEmployer: {
-    value: 'Stripe Technologies Inc.',
-    confidenceScore: 0.94,
-    sourceSnippet: 'Senior Full Stack Engineer at Stripe Technologies Inc.',
-  },
-  currentTitle: {
-    value: 'Senior Full Stack Engineer',
+  address: {
+    value: '452 Mission Street, Suite 1200, San Francisco, CA 94105',
     confidenceScore: 0.92,
-    sourceSnippet: 'Senior Full Stack Engineer (2021 - Present)',
+    sourceSnippet: '452 Mission Street, San Francisco',
+    isDetected: true,
   },
-  offeredRole: {
+  qualification: {
+    value: 'Master of Science in Computer Science, Stanford University',
+    confidenceScore: 0.95,
+    sourceSnippet: 'MS in CS, Stanford University',
+    isDetected: true,
+  },
+  experience: {
+    value: '7.5 years',
+    confidenceScore: 0.92,
+    sourceSnippet: '7.5 years in distributed systems',
+    isDetected: true,
+  },
+  designation: {
     value: 'Lead Platform Architect',
     confidenceScore: 0.95,
-    sourceSnippet: 'Interview Debrief: Target role is Lead Platform Architect',
+    sourceSnippet: 'Target role is Lead Platform Architect',
+    isDetected: true,
   },
   department: {
     value: 'Core Infrastructure & Engineering',
     confidenceScore: 0.9,
     sourceSnippet: 'Core Infrastructure & Engineering',
+    isDetected: true,
   },
-  experienceYears: {
-    value: 7.5,
-    confidenceScore: 0.89,
-    sourceSnippet: '7.5 years of distributed systems experience',
+  location: {
+    value: 'San Francisco, CA (Hybrid)',
+    confidenceScore: 0.9,
+    sourceSnippet: 'San Francisco, CA (Hybrid)',
+    isDetected: true,
   },
-  proposedJoiningDate: {
+  joiningDate: {
     value: '2026-11-01',
     confidenceScore: 0.85,
     sourceSnippet: 'Earliest start date: First week of November 2026',
+    isDetected: true,
+  },
+  employmentType: {
+    value: 'Full-time',
+    confidenceScore: 0.96,
+    sourceSnippet: 'Full-time permanent',
+    isDetected: true,
+  },
+  reportingManager: {
+    value: 'Marcus Vance, VP of Engineering',
+    confidenceScore: 0.92,
+    sourceSnippet: 'Reporting to Marcus Vance, VP of Engineering',
+    isDetected: true,
+  },
+  otherDetails: {
+    value: 'AWS Solutions Architect Professional certified. 30-day notice period.',
+    confidenceScore: 0.88,
+    sourceSnippet: 'Notes section',
+    isDetected: true,
   },
   currency: {
     value: 'USD',
     confidenceScore: 0.99,
     sourceSnippet: 'USD standard',
+    isDetected: true,
   },
   baseSalary: {
     value: 155000,
     confidenceScore: 0.94,
     sourceSnippet: 'Base compensation proposed: $155,000 USD',
+    isDetected: true,
   },
   hraAllowance: {
     value: 25000,
     confidenceScore: 0.88,
     sourceSnippet: 'Housing allowance: $25,000',
+    isDetected: true,
   },
   specialAllowances: {
     value: 12000,
     confidenceScore: 0.85,
     sourceSnippet: 'Special wellness/tech allowance: $12,000',
+    isDetected: true,
   },
   performanceBonus: {
     value: 22000,
     confidenceScore: 0.89,
     sourceSnippet: '15% annual target bonus: $22,000',
+    isDetected: true,
   },
   joiningBonus: {
     value: 15000,
     confidenceScore: 0.92,
     sourceSnippet: 'Sign-on joining bonus: $15,000 payable upon 30 days',
+    isDetected: true,
   },
   totalCtc: {
     value: 229000,
     confidenceScore: 0.96,
     sourceSnippet: 'Total annual CTC: $229,000',
+    isDetected: true,
   },
   overallConfidenceScore: 0.94,
   warnings: [],
+  missingFields: [],
 };
 
 export const AiStudioPage: React.FC = () => {

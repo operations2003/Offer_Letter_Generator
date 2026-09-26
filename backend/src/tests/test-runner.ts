@@ -148,6 +148,101 @@ async function runTests() {
   });
   assert(typeof clauseResult.clauseText === 'string' && clauseResult.clauseText.length > 0, 'Clause drafting produced valid legal text');
 
+  // ---------------------------------------------------------------------------
+  // 6. Document Extractor & Strict Non-Assumption Rule Tests
+  // ---------------------------------------------------------------------------
+  console.log('\n--- 6. Document Extractor & Strict Non-Assumption Rule ---');
+
+  const { DocumentExtractorService } = await import('../modules/documents/document-extractor.service.js');
+
+  const txtBuffer = Buffer.from('Jane Doe\nEmail: jane.doe@example.com\nDesignation: Staff Architect\nBase Salary: $160,000 USD\nJoining Date: 2026-11-01', 'utf-8');
+  const txtDoc = await DocumentExtractorService.extractTextFromBuffer(txtBuffer, 'resume.txt', 'text/plain');
+  assert(txtDoc.detectedFormat === 'TXT', 'Correctly detects TXT file format');
+  assert(txtDoc.extractedText.includes('Staff Architect'), 'Extracts text from TXT buffer');
+  assert(txtDoc.fileHashSha256.length === 64, 'Computes SHA-256 hash for document auditability');
+
+  // Test Non-Assumption Rule on Minimal Document
+  const minimalDocText = 'Alex Morgan | alex.m@techwork.org | Phone: +1 617-555-0199\nBase Salary: $110,000 USD.';
+  const minimalExtraction = await AiService.extractCandidateData(minimalDocText);
+  assert(minimalExtraction.extraction.candidateName.value === 'Alex Morgan', 'Extracts candidate name when present');
+  assert(minimalExtraction.extraction.address.value === null, 'Does NOT assume address when absent from document');
+  assert(minimalExtraction.extraction.reportingManager.value === null, 'Does NOT assume reporting manager when absent');
+  assert(minimalExtraction.extraction.joiningDate.value === null, 'Does NOT assume joining date when absent');
+  assert(minimalExtraction.extraction.missingFields.includes('Address'), 'Explicitly flags Address in missingFields array');
+  assert(minimalExtraction.extraction.missingFields.includes('Reporting Manager'), 'Explicitly flags Reporting Manager in missingFields array');
+
+  // ---------------------------------------------------------------------------
+  // 7. Template System, Placeholder Management & AI Suggestions
+  // ---------------------------------------------------------------------------
+  console.log('\n--- 7. Template System, Placeholder Management & AI Suggestions ---');
+
+  const { PlaceholderManager, STANDARD_PLACEHOLDERS } = await import(
+    '../modules/templates/placeholders.catalog.js'
+  );
+  const { TemplateService } = await import('../modules/templates/template.service.js');
+
+  // Verify all 11 user-specified placeholders are present in standard catalog
+  const requiredKeys = [
+    'candidate_name',
+    'designation',
+    'department',
+    'location',
+    'joining_date',
+    'employment_type',
+    'salary',
+    'probation_period',
+    'notice_period',
+    'reporting_manager',
+    'working_hours',
+  ];
+
+  for (const key of requiredKeys) {
+    const exists = STANDARD_PLACEHOLDERS.some((p) => p.key === key);
+    assert(exists, `Standard catalog includes placeholder: {{${key}}}`);
+  }
+
+  // Test placeholder extraction
+  const sampleMarkup = `
+    Dear {{candidate_name}},
+    We are pleased to offer you the position of {{designation}} in {{department}} at {{location}}.
+    Your joining date is {{joining_date}} as a {{employment_type}} employee.
+    Your annual salary will be {{salary}}.
+    Probation period: {{probation_period}}. Notice period: {{notice_period}}.
+    Reporting manager: {{reporting_manager}}. Working hours: {{working_hours}}.
+  `;
+
+  const extractedTokens = PlaceholderManager.extractPlaceholders(sampleMarkup);
+  assert(extractedTokens.length === 11, `Extracts all 11 placeholders from markup (${extractedTokens.length}/11)`);
+  assert(extractedTokens.includes('candidate_name'), 'Found candidate_name placeholder');
+  assert(extractedTokens.includes('working_hours'), 'Found working_hours placeholder');
+
+  // Test placeholder validation
+  const validation = PlaceholderManager.validatePlaceholders(sampleMarkup);
+  assert(validation.valid.length === 11, 'All 11 placeholders validated successfully');
+  assert(validation.unknown.length === 0, 'Zero unknown placeholders flagged');
+  assert(validation.missingRequired.length === 0, 'All required placeholders present in sample template');
+
+  // Test AI Placeholder Detection (Advisory Only)
+  const hardcodedDraft = `
+    Dear Jane Doe,
+    We are offering you the role of Senior Architect in Engineering.
+    Compensation will be $150,000 USD per year.
+    There is a probation period of 90 days and a notice period of 30 days.
+  `;
+
+  const aiSuggestions = await TemplateService.aiDetectPlaceholders(hardcodedDraft);
+  assert(aiSuggestions.advisoryMode === 'HUMAN_IN_THE_LOOP', 'Enforces advisory mode for AI suggestions');
+  assert(aiSuggestions.suggestions.length > 0, `AI generated ${aiSuggestions.suggestions.length} placeholder suggestions`);
+  assert(
+    aiSuggestions.suggestions.some((s: any) => s.suggestedToken === '{{candidate_name}}' || s.suggestedToken === '{{salary}}'),
+    'AI detected hardcoded name or salary'
+  );
+  assert(aiSuggestions.missingStandardPlaceholders.length > 0, 'Flags missing standard placeholders');
+  assert(
+    aiSuggestions.warning.includes('not automatically modified'),
+    'Guarantees templates are NOT automatically modified without HR review'
+  );
+
   console.log('\n================================================================');
   console.log(`📊 TEST RESULTS: ${passed} PASSED, ${failed} FAILED`);
   console.log('================================================================\n');

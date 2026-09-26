@@ -45,18 +45,25 @@ export interface AiExtractedField<T> {
   confidenceScore: number; // 0.00 - 1.00
   sourceSnippet?: string;
   validationWarning?: string;
+  isDetected?: boolean;
 }
 
 export interface AiCandidateExtractionData {
   candidateName: AiExtractedField<string>;
   email: AiExtractedField<string>;
   phone: AiExtractedField<string>;
-  currentEmployer: AiExtractedField<string>;
-  currentTitle: AiExtractedField<string>;
-  offeredRole: AiExtractedField<string>;
+  address: AiExtractedField<string>;
+  qualification: AiExtractedField<string>;
+  experience: AiExtractedField<string>;
+  currentEmployer?: AiExtractedField<string>;
+  currentTitle?: AiExtractedField<string>;
+  designation: AiExtractedField<string>;
   department: AiExtractedField<string>;
-  experienceYears: AiExtractedField<number>;
-  proposedJoiningDate: AiExtractedField<string>;
+  location: AiExtractedField<string>;
+  joiningDate: AiExtractedField<string>;
+  employmentType: AiExtractedField<string>;
+  reportingManager: AiExtractedField<string>;
+  otherDetails: AiExtractedField<string>;
   currency: AiExtractedField<string>;
   baseSalary: AiExtractedField<number>;
   hraAllowance: AiExtractedField<number>;
@@ -66,17 +73,25 @@ export interface AiCandidateExtractionData {
   totalCtc: AiExtractedField<number>;
   overallConfidenceScore: number;
   warnings: string[];
+  missingFields: string[];
 }
+
+export type FieldDecision = 'PENDING' | 'ACCEPTED' | 'EDITED' | 'REJECTED';
 
 export interface HrConfirmedTerms {
   candidateName: string;
   email: string;
   phone: string;
-  offeredRole: string;
+  address: string;
+  qualification: string;
+  experience: string;
+  designation: string;
   department: string;
-  workLocation: string;
+  location: string;
+  joiningDate: string;
   employmentType: string;
-  proposedJoiningDate: string;
+  reportingManager: string;
+  otherDetails: string;
   currency: string;
   baseSalary: number;
   hraAllowance: number;
@@ -84,6 +99,16 @@ export interface HrConfirmedTerms {
   performanceBonus: number;
   joiningBonus: number;
   totalCtc: number;
+}
+
+export interface HumanOverrideItem {
+  field: string;
+  fieldLabel: string;
+  decision: FieldDecision;
+  aiValue: any;
+  hrValue: any;
+  confidenceScore: number;
+  reason?: string;
 }
 
 export interface OfferItem {
