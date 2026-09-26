@@ -12,10 +12,14 @@ import {
   Lock,
   RefreshCw,
   Hash,
+  Send,
+  Mail,
 } from 'lucide-react';
 import { GeneratedOfferResult } from '../../../types/offer.js';
 import { offerService } from '../../../services/offerService.js';
 import { useToast } from '../../../context/ToastContext.js';
+import { EmailSendModal } from '../EmailSendModal.js';
+import { EmailHistoryModal } from '../EmailHistoryModal.js';
 
 interface Step11GenerateOfferProps {
   generatedOffer: GeneratedOfferResult | null;
@@ -31,6 +35,8 @@ export const Step11GenerateOffer: React.FC<Step11GenerateOfferProps> = ({
   const { success, error, info } = useToast();
   const [downloading, setDownloading] = useState(false);
   const [regenerating, setRegenerating] = useState(false);
+  const [showEmailSendModal, setShowEmailSendModal] = useState(false);
+  const [showEmailHistoryModal, setShowEmailHistoryModal] = useState(false);
 
   const handlePrint = () => {
     window.print();
@@ -68,13 +74,6 @@ export const Step11GenerateOffer: React.FC<Step11GenerateOfferProps> = ({
     } else {
       info('Regeneration creates a new immutable document version in the tenant ledger.', 'Regenerate Version');
     }
-  };
-
-  const handleSendCandidate = () => {
-    info(
-      `Secure portal invitation link dispatched to candidate with token: ${generatedOffer?.verificationToken?.substring(0, 14)}...`,
-      'Portal Invitation Issued'
-    );
   };
 
   if (!generatedOffer) {
@@ -170,12 +169,23 @@ export const Step11GenerateOffer: React.FC<Step11GenerateOfferProps> = ({
 
           <button
             type="button"
+            className="btn btn-secondary"
+            onClick={() => setShowEmailHistoryModal(true)}
+            style={{ fontSize: '0.8125rem' }}
+            title="View email dispatch logs, delivery status, and tracking"
+          >
+            <Mail size={15} />
+            <span>Send History</span>
+          </button>
+
+          <button
+            type="button"
             className="btn btn-primary"
-            onClick={handleSendCandidate}
+            onClick={() => setShowEmailSendModal(true)}
             style={{ fontSize: '0.8125rem' }}
           >
-            <Share2 size={15} />
-            <span>Issue to Candidate Portal</span>
+            <Send size={15} />
+            <span>Send Offer via Email</span>
           </button>
         </div>
       </div>
@@ -271,6 +281,40 @@ export const Step11GenerateOffer: React.FC<Step11GenerateOfferProps> = ({
           <ArrowRight size={16} />
         </button>
       </div>
+
+      {/* Email Send Confirmation & Preview Modal */}
+      {showEmailSendModal && (
+        <EmailSendModal
+          offerId={generatedOffer.id}
+          offerReferenceNumber={generatedOffer.referenceNumber}
+          isOpen={showEmailSendModal}
+          onClose={() => setShowEmailSendModal(false)}
+          onSentSuccessfully={() => {
+            setShowEmailSendModal(false);
+            success('Offer email successfully sent to candidate!');
+          }}
+          onViewHistory={() => {
+            setShowEmailSendModal(false);
+            setShowEmailHistoryModal(true);
+          }}
+        />
+      )}
+
+      {/* Email Dispatch History & Retry Modal */}
+      {showEmailHistoryModal && (
+        <EmailHistoryModal
+          offerId={generatedOffer.id}
+          offerReferenceNumber={generatedOffer.referenceNumber}
+          candidateName="Candidate"
+          isOpen={showEmailHistoryModal}
+          onClose={() => setShowEmailHistoryModal(false)}
+          onOpenSendModal={() => {
+            setShowEmailHistoryModal(false);
+            setShowEmailSendModal(true);
+          }}
+        />
+      )}
     </div>
   );
 };
+
