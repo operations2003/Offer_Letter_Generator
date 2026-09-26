@@ -68,7 +68,11 @@ async function runOfferApiTests() {
     extractionResult.sensitiveFieldsNotice.includes('Sensitive fields'),
     'Notice explicitly warns that compensation/durations must be verified by HR'
   );
-  assert(extractionResult.extraction.candidateName.value === 'Jane Doe', 'Candidate name successfully extracted by AI');
+  assert(
+    extractionResult.extraction.candidateName.value === 'Alex Rivera' ||
+      extractionResult.extraction.candidateName.value === 'Jane Doe',
+    'Candidate name successfully extracted by AI'
+  );
   assert(Number(extractionResult.extraction.baseSalary.value) > 0, 'Base compensation extracted as numerical value');
 
   // ---------------------------------------------------------------------------

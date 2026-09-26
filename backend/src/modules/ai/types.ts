@@ -17,21 +17,37 @@ export interface AiCompletionResponse {
 
 export interface AiExtractedField<T> {
   value: T | null;
-  confidenceScore: number;     // 0.00 to 1.00
+  confidenceScore: number;     // 0.00 to 1.00 (0 if missing)
   sourceSnippet?: string;      // Verbatim text from resume/document
-  validationWarning?: string;  // e.g. "Missing country code on phone"
+  validationWarning?: string;  // e.g. "Not mentioned in document"
+  isDetected: boolean;         // True if explicitly found in document
 }
 
 export interface AiCandidateExtractionData {
+  // Candidate Personal & Contact Information
   candidateName: AiExtractedField<string>;
   email: AiExtractedField<string>;
   phone: AiExtractedField<string>;
-  currentEmployer: AiExtractedField<string>;
-  currentTitle: AiExtractedField<string>;
-  offeredRole: AiExtractedField<string>;
+  address: AiExtractedField<string>;
+
+  // Professional Background
+  qualification: AiExtractedField<string>;
+  experience: AiExtractedField<string>;
+  currentEmployer?: AiExtractedField<string>;
+  currentTitle?: AiExtractedField<string>;
+
+  // Proposed Role & Organization
+  designation: AiExtractedField<string>;
   department: AiExtractedField<string>;
-  experienceYears: AiExtractedField<number>;
-  proposedJoiningDate: AiExtractedField<string>;
+  location: AiExtractedField<string>;
+  joiningDate: AiExtractedField<string>;
+  employmentType: AiExtractedField<string>;
+  reportingManager: AiExtractedField<string>;
+
+  // Additional Context
+  otherDetails: AiExtractedField<string>;
+
+  // Compensation Breakdown (if mentioned)
   currency: AiExtractedField<string>;
   baseSalary: AiExtractedField<number>;
   hraAllowance: AiExtractedField<number>;
@@ -39,8 +55,11 @@ export interface AiCandidateExtractionData {
   performanceBonus: AiExtractedField<number>;
   joiningBonus: AiExtractedField<number>;
   totalCtc: AiExtractedField<number>;
+
+  // Metadata & Audit
   overallConfidenceScore: number;
   warnings: string[];
+  missingFields: string[]; // Explicit list of fields NOT detected in document
 }
 
 export interface AiPolicyComplianceResult {
@@ -56,7 +75,7 @@ export interface AiPolicyComplianceResult {
 }
 
 export interface AiSalaryBenchmarkResult {
-  marketPercentile: number; // e.g. 50, 75
+  marketPercentile: number;
   recommendedRange: {
     min: number;
     median: number;

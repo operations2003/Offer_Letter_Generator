@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { LoginPage } from './pages/LoginPage.js';
 import { DashboardPage } from './pages/DashboardPage.js';
 import { OffersPage } from './pages/OffersPage.js';
+import { TemplatesPage } from './pages/TemplatesPage.js';
 import { AiStudioPage } from './pages/AiStudioPage.js';
 import { AuditLogsPage } from './pages/AuditLogsPage.js';
 import { AppLayout } from './components/layout/AppLayout.js';
@@ -26,6 +27,7 @@ export const App: React.FC = () => {
         <Route index element={<Navigate to="/dashboard" replace />} />
         <Route path="dashboard" element={<DashboardPage />} />
         <Route path="offers" element={<OffersPage />} />
+        <Route path="templates" element={<TemplatesPage />} />
         <Route path="ai-studio" element={<AiStudioPage />} />
         <Route
           path="audit-logs"

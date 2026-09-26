@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { AiController } from './ai.controller.js';
 import { authenticate, requireRoles } from '../../middleware/auth.js';
 import { validateRequest } from '../../middleware/validate.js';
+import { uploadDocumentMiddleware } from '../../middleware/upload.js';
 import { z } from 'zod';
 
 const router = Router();
@@ -26,6 +27,15 @@ const clauseSchema = z.object({
 
 router.get('/status', AiController.getStatus);
 
+// Document File Upload & Extraction (PDF, DOCX, TXT)
+router.post(
+  '/upload-and-extract',
+  requireRoles('SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER'),
+  uploadDocumentMiddleware,
+  AiController.uploadAndExtract
+);
+
+// Raw Text Candidate Extraction
 router.post(
   '/extract-candidate',
   requireRoles('SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER'),

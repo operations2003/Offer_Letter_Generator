@@ -8,6 +8,7 @@ import {
   Users,
   LogOut,
   Building,
+  FileText,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext.js';
 
@@ -31,6 +32,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
       label: 'Offers Pipeline',
       icon: <FileCheck2 size={18} />,
       roles: ['SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER', 'APPROVER'],
+    },
+    {
+      to: '/templates',
+      label: 'Offer Templates',
+      icon: <FileText size={18} />,
+      roles: ['SUPER_ADMIN', 'HR_MANAGER'],
     },
     {
       to: '/ai-studio',
