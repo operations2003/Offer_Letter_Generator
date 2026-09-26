@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import { prisma } from '../../prisma/client.js';
 import { OfferStatus, TemplateCategory, AuditAction, AiTaskType } from '@prisma/client';
 import { AppError, NotFoundError, ValidationError, ForbiddenError } from '../../errors/app-error.js';
@@ -632,34 +633,210 @@ export class OfferService {
   }
 
   /**
-   * LIST OFFERS with filtering & pagination
+   * DASHBOARD STATISTICS:
+   * Aggregates live pipeline metrics for the company:
+   * - Total
+   * - Draft
+   * - AI Processing
+   * - Awaiting Review
+   * - Generated
+   * - Sent
+   * - Accepted
+   * - Rejected
+   * - Expired
+   */
+  static async getDashboardStatistics(companyId: string) {
+    const now = new Date();
+
+    const [
+      total,
+      draftCount,
+      aiProcessingCount,
+      awaitingReviewCount,
+      generatedCount,
+      sentCount,
+      acceptedCount,
+      rejectedCount,
+      expiredCount,
+    ] = await Promise.all([
+      // Total non-deleted offers
+      prisma.offer.count({
+        where: { companyId, deletedAt: null },
+      }),
+
+      // Draft: DRAFT_AI status without active AI extraction or pending AI reviews
+      prisma.offer.count({
+        where: {
+          companyId,
+          deletedAt: null,
+          currentStatus: OfferStatus.DRAFT_AI,
+          aiExtractedDataId: null,
+          aiSuggestions: { none: { hrReviewedAt: null } },
+        },
+      }),
+
+      // AI Processing: DRAFT_AI with AI extraction OR offers with unreviewed AI suggestions
+      prisma.offer.count({
+        where: {
+          companyId,
+          deletedAt: null,
+          OR: [
+            {
+              currentStatus: OfferStatus.DRAFT_AI,
+              aiExtractedDataId: { not: null },
+            },
+            {
+              aiSuggestions: {
+                some: { hrReviewedAt: null },
+              },
+            },
+          ],
+        },
+      }),
+
+      // Awaiting Review: HR_REVIEW or PENDING_APPROVAL
+      prisma.offer.count({
+        where: {
+          companyId,
+          deletedAt: null,
+          currentStatus: { in: [OfferStatus.HR_REVIEW, OfferStatus.PENDING_APPROVAL] },
+        },
+      }),
+
+      // Generated: APPROVED status (or has minted legal PDF ready for issuance)
+      prisma.offer.count({
+        where: {
+          companyId,
+          deletedAt: null,
+          currentStatus: OfferStatus.APPROVED,
+        },
+      }),
+
+      // Sent: ISSUED status
+      prisma.offer.count({
+        where: {
+          companyId,
+          deletedAt: null,
+          currentStatus: OfferStatus.ISSUED,
+        },
+      }),
+
+      // Accepted: ACCEPTED status
+      prisma.offer.count({
+        where: {
+          companyId,
+          deletedAt: null,
+          currentStatus: OfferStatus.ACCEPTED,
+        },
+      }),
+
+      // Rejected: DECLINED or WITHDRAWN
+      prisma.offer.count({
+        where: {
+          companyId,
+          deletedAt: null,
+          currentStatus: { in: [OfferStatus.DECLINED, OfferStatus.WITHDRAWN] },
+        },
+      }),
+
+      // Expired: EXPIRED status or validUntil < now (and not accepted/declined/withdrawn)
+      prisma.offer.count({
+        where: {
+          companyId,
+          deletedAt: null,
+          OR: [
+            { currentStatus: OfferStatus.EXPIRED },
+            {
+              offerValidUntil: { lt: now },
+              currentStatus: {
+                notIn: [OfferStatus.ACCEPTED, OfferStatus.DECLINED, OfferStatus.WITHDRAWN],
+              },
+            },
+          ],
+        },
+      }),
+    ]);
+
+    return {
+      total,
+      draft: draftCount,
+      aiProcessing: aiProcessingCount,
+      awaitingReview: awaitingReviewCount,
+      generated: generatedCount,
+      sent: sentCount,
+      accepted: acceptedCount,
+      rejected: rejectedCount,
+      expired: expiredCount,
+    };
+  }
+
+  /**
+   * LIST OFFERS with advanced filtering (status, department, template, AI review status), search & pagination
    */
   static async listOffers(
     companyId: string,
     query: {
-      status?: OfferStatus;
+      status?: OfferStatus | string;
       candidateId?: string;
       search?: string;
+      department?: string;
+      templateId?: string;
+      aiReviewStatus?: string;
+      page?: number;
       limit?: number;
       offset?: number;
     }
   ) {
     const where: any = { companyId, deletedAt: null };
 
-    if (query.status) where.currentStatus = query.status;
+    if (query.status && query.status !== 'ALL') {
+      if (query.status === 'REJECTED') {
+        where.currentStatus = { in: [OfferStatus.DECLINED, OfferStatus.WITHDRAWN] };
+      } else if (query.status === 'AWAITING_REVIEW') {
+        where.currentStatus = { in: [OfferStatus.HR_REVIEW, OfferStatus.PENDING_APPROVAL] };
+      } else if (query.status === 'EXPIRED') {
+        const now = new Date();
+        where.OR = [
+          { currentStatus: OfferStatus.EXPIRED },
+          {
+            offerValidUntil: { lt: now },
+            currentStatus: { notIn: [OfferStatus.ACCEPTED, OfferStatus.DECLINED, OfferStatus.WITHDRAWN] },
+          },
+        ];
+      } else {
+        where.currentStatus = query.status as OfferStatus;
+      }
+    }
+
+    if (query.department && query.department !== 'ALL') {
+      where.department = { contains: query.department, mode: 'insensitive' };
+    }
+
+    if (query.templateId && query.templateId !== 'ALL') {
+      where.templateVersion = { templateId: query.templateId };
+    }
+
     if (query.candidateId) where.candidateId = query.candidateId;
-    if (query.search) {
-      where.OR = [
-        { offerReferenceNumber: { contains: query.search, mode: 'insensitive' } },
-        { jobTitle: { contains: query.search, mode: 'insensitive' } },
-        { candidate: { firstName: { contains: query.search, mode: 'insensitive' } } },
-        { candidate: { lastName: { contains: query.search, mode: 'insensitive' } } },
-        { candidate: { email: { contains: query.search, mode: 'insensitive' } } },
-      ];
+
+    if (query.search && query.search.trim().length > 0) {
+      const q = query.search.trim();
+      where.AND = where.AND || [];
+      where.AND.push({
+        OR: [
+          { offerReferenceNumber: { contains: q, mode: 'insensitive' } },
+          { jobTitle: { contains: q, mode: 'insensitive' } },
+          { department: { contains: q, mode: 'insensitive' } },
+          { candidate: { firstName: { contains: q, mode: 'insensitive' } } },
+          { candidate: { lastName: { contains: q, mode: 'insensitive' } } },
+          { candidate: { email: { contains: q, mode: 'insensitive' } } },
+          { candidate: { phone: { contains: q, mode: 'insensitive' } } },
+        ],
+      });
     }
 
     const limit = Math.min(query.limit || 20, 100);
-    const offset = query.offset || 0;
+    const page = query.page ? Math.max(1, query.page) : query.offset !== undefined ? Math.floor(query.offset / limit) + 1 : 1;
+    const offset = query.offset !== undefined ? query.offset : (page - 1) * limit;
 
     const [total, offers] = await Promise.all([
       prisma.offer.count({ where }),
@@ -670,12 +847,89 @@ export class OfferService {
         skip: offset,
         include: {
           candidate: true,
+          templateVersion: {
+            include: {
+              template: true,
+            },
+          },
           recruiter: { select: { id: true, firstName: true, lastName: true, email: true } },
+          generatedDocuments: {
+            select: { id: true, documentType: true, fileName: true, isFinalLegalDocument: true, createdAt: true },
+            orderBy: { createdAt: 'desc' },
+            take: 1,
+          },
+          aiSuggestions: {
+            select: { id: true, isAcceptedByHr: true, hrReviewedAt: true },
+          },
         },
       }),
     ]);
 
-    return { total, limit, offset, items: offers };
+    const items = offers.map((o) => {
+      // Determine AI review status
+      let aiReviewStatus: 'VERIFIED_BY_HR' | 'PENDING_AI_REVIEW' | 'OVERRIDDEN' | 'STANDARD' = 'STANDARD';
+      const humanOverrides = Array.isArray(o.humanOverrides) ? (o.humanOverrides as any[]) : [];
+
+      if (humanOverrides.length > 0) {
+        aiReviewStatus = 'OVERRIDDEN';
+      } else if (o.aiSuggestions && o.aiSuggestions.some((s) => s.hrReviewedAt === null)) {
+        aiReviewStatus = 'PENDING_AI_REVIEW';
+      } else if (o.aiSuggestions && o.aiSuggestions.length > 0) {
+        aiReviewStatus = 'VERIFIED_BY_HR';
+      } else if (o.aiExtractedDataId) {
+        aiReviewStatus = 'VERIFIED_BY_HR';
+      }
+
+      return {
+        id: o.id,
+        referenceNumber: o.offerReferenceNumber,
+        offerReferenceNumber: o.offerReferenceNumber,
+        candidate: o.candidate,
+        candidateName: `${o.candidate.firstName} ${o.candidate.lastName}`,
+        email: o.candidate.email,
+        phone: o.candidate.phone,
+        position: o.jobTitle,
+        jobTitle: o.jobTitle,
+        department: o.department,
+        bandGrade: o.bandGrade,
+        workLocation: o.workLocation,
+        employmentType: o.employmentType,
+        offerDate: o.issuedAt ? o.issuedAt.toISOString() : o.createdAt.toISOString(),
+        createdAt: o.createdAt.toISOString(),
+        updatedAt: o.updatedAt.toISOString(),
+        joiningDate: o.proposedJoiningDate ? o.proposedJoiningDate.toISOString() : null,
+        proposedJoiningDate: o.proposedJoiningDate ? o.proposedJoiningDate.toISOString() : null,
+        offerValidUntil: o.offerValidUntil ? o.offerValidUntil.toISOString() : null,
+        template: o.templateVersion?.template?.title || 'Standard Employment Agreement',
+        templateCode: o.templateVersion?.template?.category || o.employmentType,
+        templateVersionId: o.templateVersionId,
+        status: o.currentStatus,
+        currentStatus: o.currentStatus,
+        currentVersionNumber: o.currentVersionNumber,
+        aiReviewStatus,
+        totalCtc: Number(o.totalCtc),
+        baseSalary: Number(o.baseSalary),
+        currency: o.currency,
+        hasGeneratedDocument: Boolean(o.generatedDocuments && o.generatedDocuments.length > 0),
+        generatedDocumentId: o.generatedDocuments?.[0]?.id || null,
+        recruiter: o.recruiter,
+      };
+    });
+
+    const filteredItems = query.aiReviewStatus && query.aiReviewStatus !== 'ALL'
+      ? items.filter((item) => item.aiReviewStatus === query.aiReviewStatus)
+      : items;
+
+    const totalPages = Math.ceil(total / limit) || 1;
+
+    return {
+      total,
+      page,
+      limit,
+      totalPages,
+      offset,
+      items: filteredItems,
+    };
   }
 
   /**
@@ -1773,5 +2027,267 @@ export class OfferService {
       downloadUrl: `/api/v1/offers/${offerId}/document/download?documentId=${d.id}`,
       verificationUrl: `/api/v1/offers/document/verify/${d.verificationToken}`,
     }));
+  }
+
+  /**
+   * DUPLICATE OFFER:
+   * Clones an existing offer into a new Draft offer with a fresh reference number.
+   */
+  static async duplicateOffer(companyId: string, userId: string, offerId: string) {
+    const existing = await prisma.offer.findFirst({
+      where: { id: offerId, companyId, deletedAt: null },
+      include: {
+        candidate: true,
+        templateVersion: true,
+      },
+    });
+
+    if (!existing) {
+      throw new NotFoundError('Source offer to duplicate');
+    }
+
+    const offerReferenceNumber = await this.generateReferenceNumber(companyId);
+
+    // Calculate dates: joining date defaulting to source or 30 days from now
+    const joiningDate = existing.proposedJoiningDate || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+
+    const duplicatedOffer = await prisma.$transaction(async (tx) => {
+      const newOffer = await tx.offer.create({
+        data: {
+          companyId,
+          candidateId: existing.candidateId,
+          templateVersionId: existing.templateVersionId,
+          offerReferenceNumber,
+          currentStatus: OfferStatus.DRAFT_AI,
+          currentVersionNumber: 1,
+
+          jobTitle: existing.jobTitle,
+          department: existing.department,
+          bandGrade: existing.bandGrade,
+          reportingManagerName: existing.reportingManagerName,
+          reportingManagerTitle: existing.reportingManagerTitle,
+          workLocation: existing.workLocation,
+          employmentType: existing.employmentType,
+          proposedJoiningDate: joiningDate,
+          currency: existing.currency,
+
+          baseSalary: existing.baseSalary,
+          hraAllowance: existing.hraAllowance,
+          specialAllowances: existing.specialAllowances,
+          performanceBonus: existing.performanceBonus,
+          joiningBonus: existing.joiningBonus,
+          totalCtc: existing.totalCtc,
+          equityDetails: existing.equityDetails || undefined,
+          benefitsSummary: existing.benefitsSummary as any,
+
+          hrConfirmedTerms: existing.hrConfirmedTerms as any,
+          humanOverrides: existing.humanOverrides as any,
+
+          assignedRecruiterId: userId,
+          createdBy: userId,
+        },
+        include: {
+          candidate: true,
+          templateVersion: { include: { template: true } },
+          recruiter: { select: { id: true, firstName: true, lastName: true, email: true } },
+        },
+      });
+
+      // Create initial version record for version 1
+      await tx.offerVersion.create({
+        data: {
+          offerId: newOffer.id,
+          templateVersionId: newOffer.templateVersionId,
+          versionNumber: 1,
+          createdBy: userId,
+          changeReason: `Cloned from offer ${existing.offerReferenceNumber}`,
+          snapshotTerms: {
+            jobTitle: newOffer.jobTitle,
+            department: newOffer.department,
+            totalCtc: Number(newOffer.totalCtc),
+            baseSalary: Number(newOffer.baseSalary),
+            currency: newOffer.currency,
+            workLocation: newOffer.workLocation,
+            proposedJoiningDate: newOffer.proposedJoiningDate,
+            duplicatedFrom: existing.offerReferenceNumber,
+          },
+        },
+      });
+
+      // Status log
+      await tx.offerStatusLog.create({
+        data: {
+          offerId: newOffer.id,
+          fromStatus: OfferStatus.DRAFT_AI,
+          toStatus: OfferStatus.DRAFT_AI,
+          changedByUserId: userId,
+          reasonNotes: `Offer duplicated from ${existing.offerReferenceNumber}`,
+        },
+      });
+
+      return newOffer;
+    });
+
+    await AuditService.record({
+      companyId,
+      actorType: 'USER',
+      actorId: userId,
+      entityType: 'OFFER',
+      entityId: duplicatedOffer.id,
+      action: 'CREATE',
+      actionDescription: `Duplicated offer ${duplicatedOffer.offerReferenceNumber} from ${existing.offerReferenceNumber}`,
+      newState: {
+        id: duplicatedOffer.id,
+        reference: duplicatedOffer.offerReferenceNumber,
+        sourceReference: existing.offerReferenceNumber,
+      },
+    });
+
+    return duplicatedOffer;
+  }
+
+  /**
+   * SEND OFFER:
+   * Formally issues the offer to the candidate (generates candidate portal token, marks ISSUED, records audit log).
+   */
+  static async sendOffer(
+    companyId: string,
+    userId: string,
+    offerId: string,
+    options?: { message?: string; sendEmail?: boolean }
+  ) {
+    const offer = await prisma.offer.findFirst({
+      where: { id: offerId, companyId, deletedAt: null },
+      include: { candidate: true },
+    });
+
+    if (!offer) {
+      throw new NotFoundError('Offer');
+    }
+
+    if (offer.currentStatus === OfferStatus.ISSUED) {
+      throw new ValidationError('Offer has already been sent to the candidate');
+    }
+
+    // Generate candidate portal token if not already generated
+    const portalToken = crypto.randomBytes(32).toString('hex');
+    const tokenHash = crypto.createHash('sha256').update(portalToken).digest('hex');
+    const tokenExpiresAt = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000); // 14 days validity
+
+    const fromStatus = offer.currentStatus;
+
+    const updated = await prisma.$transaction(async (tx) => {
+      const result = await tx.offer.update({
+        where: { id: offerId },
+        data: {
+          currentStatus: OfferStatus.ISSUED,
+          issuedAt: new Date(),
+          candidatePortalTokenHash: tokenHash,
+          candidatePortalTokenExpiresAt: tokenExpiresAt,
+        },
+        include: {
+          candidate: true,
+          templateVersion: { include: { template: true } },
+        },
+      });
+
+      await tx.offerStatusLog.create({
+        data: {
+          offerId,
+          fromStatus,
+          toStatus: OfferStatus.ISSUED,
+          changedByUserId: userId,
+          reasonNotes: options?.message || 'Offer letter formally issued and sent to candidate',
+        },
+      });
+
+      return result;
+    });
+
+    await AuditService.record({
+      companyId,
+      actorType: 'USER',
+      actorId: userId,
+      entityType: 'OFFER',
+      entityId: offerId,
+      action: 'ISSUE',
+      actionDescription: `Offer ${offer.offerReferenceNumber} sent to candidate ${offer.candidate.firstName} ${offer.candidate.lastName} (${offer.candidate.email})`,
+      newState: {
+        id: updated.id,
+        status: updated.currentStatus,
+        issuedAt: updated.issuedAt,
+        candidateEmail: offer.candidate.email,
+      },
+    });
+
+    return {
+      offer: updated,
+      portalToken,
+      portalUrl: `/candidate-portal/offers/${offer.id}?token=${portalToken}`,
+      message: `Offer ${offer.offerReferenceNumber} sent successfully to ${offer.candidate.firstName} ${offer.candidate.lastName}`,
+    };
+  }
+
+  /**
+   * GET OFFER HISTORY:
+   * Returns comprehensive audit history: version changes, status transition logs, and audit trail.
+   */
+  static async getOfferHistory(companyId: string, offerId: string) {
+    const offer = await prisma.offer.findFirst({
+      where: { id: offerId, companyId, deletedAt: null },
+      include: {
+        candidate: true,
+        templateVersion: { include: { template: true } },
+      },
+    });
+
+    if (!offer) {
+      throw new NotFoundError('Offer');
+    }
+
+    const [versions, statusLogs, auditLogs] = await Promise.all([
+      prisma.offerVersion.findMany({
+        where: { offerId },
+        orderBy: { versionNumber: 'desc' },
+        include: {
+          creator: {
+            select: { id: true, firstName: true, lastName: true, email: true },
+          },
+        },
+      }),
+      prisma.offerStatusLog.findMany({
+        where: { offerId },
+        orderBy: { createdAt: 'desc' },
+        include: {
+          changedBy: {
+            select: { id: true, firstName: true, lastName: true, email: true },
+          },
+        },
+      }),
+      prisma.auditLog.findMany({
+        where: {
+          companyId,
+          entityType: 'OFFER',
+          entityId: offerId,
+        },
+        orderBy: { createdAt: 'desc' },
+        take: 50,
+      }),
+    ]);
+
+    return {
+      offer: {
+        id: offer.id,
+        referenceNumber: offer.offerReferenceNumber,
+        candidateName: `${offer.candidate.firstName} ${offer.candidate.lastName}`,
+        currentStatus: offer.currentStatus,
+        currentVersionNumber: offer.currentVersionNumber,
+        createdAt: offer.createdAt,
+        updatedAt: offer.updatedAt,
+      },
+      versions,
+      statusLogs,
+      auditLogs,
+    };
   }
 }

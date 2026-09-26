@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   FileText,
@@ -9,6 +9,12 @@ import {
   ShieldCheck,
   AlertTriangle,
   ArrowUpRight,
+  Send,
+  FileCheck2,
+  XCircle,
+  CalendarX,
+  Layers,
+  Edit3,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.js';
 import { Button } from '../components/common/Button.js';
@@ -18,6 +24,8 @@ import { ExtractWithAi } from '../components/ai/ExtractWithAi.js';
 import { GenerateWithAi } from '../components/ai/GenerateWithAi.js';
 import { AiSuggestions, AiSuggestionItem } from '../components/ai/AiSuggestions.js';
 import { OfferItem, AiCandidateExtractionData } from '../types/index.js';
+import { DashboardStatistics } from '../types/offer.js';
+import { offerService } from '../services/offerService.js';
 
 const INITIAL_OFFERS: OfferItem[] = [
   {
@@ -100,11 +108,137 @@ export const DashboardPage: React.FC = () => {
   const navigate = useNavigate();
   const [offers, setOffers] = useState<OfferItem[]>(INITIAL_OFFERS);
   const [suggestions, setSuggestions] = useState<AiSuggestionItem[]>(INITIAL_SUGGESTIONS);
+  const [statistics, setStatistics] = useState<DashboardStatistics>({
+    total: 0,
+    draft: 0,
+    aiProcessing: 0,
+    awaitingReview: 0,
+    generated: 0,
+    sent: 0,
+    accepted: 0,
+    rejected: 0,
+    expired: 0,
+  });
+  const [loadingStats, setLoadingStats] = useState(true);
+
+  useEffect(() => {
+    let isMounted = true;
+    const fetchStats = async () => {
+      try {
+        const data = await offerService.getDashboardStatistics();
+        if (isMounted) {
+          setStatistics(data);
+        }
+      } catch (err) {
+        console.error('Failed to load dashboard statistics', err);
+      } finally {
+        if (isMounted) setLoadingStats(false);
+      }
+    };
+
+    fetchStats();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const handleExtraction = (extracted: AiCandidateExtractionData) => {
     // Navigate to AI Studio with the newly extracted data
     navigate('/ai-studio', { state: { extractedData: extracted } });
   };
+
+  const statCards = [
+    {
+      id: 'total',
+      title: 'Total',
+      count: statistics.total,
+      hint: 'All offer letters',
+      icon: <Layers size={18} style={{ color: 'var(--primary)' }} />,
+      borderColor: 'var(--border-medium)',
+      statusFilter: 'ALL',
+      color: '#fff',
+    },
+    {
+      id: 'draft',
+      title: 'Draft',
+      count: statistics.draft,
+      hint: 'Staged draft offers',
+      icon: <Edit3 size={18} style={{ color: '#93c5fd' }} />,
+      borderColor: 'rgba(147, 197, 253, 0.3)',
+      statusFilter: 'DRAFT_AI',
+      color: '#93c5fd',
+    },
+    {
+      id: 'aiProcessing',
+      title: 'AI Processing',
+      count: statistics.aiProcessing,
+      hint: 'Extraction & suggestions',
+      icon: <Sparkles size={18} style={{ color: '#c084fc' }} />,
+      borderColor: 'rgba(192, 132, 252, 0.3)',
+      statusFilter: 'DRAFT_AI',
+      color: '#c084fc',
+    },
+    {
+      id: 'awaitingReview',
+      title: 'Awaiting Review',
+      count: statistics.awaitingReview,
+      hint: 'HR & approver review',
+      icon: <Clock size={18} style={{ color: '#fbbf24' }} />,
+      borderColor: 'rgba(251, 191, 36, 0.3)',
+      statusFilter: 'AWAITING_REVIEW',
+      color: '#fbbf24',
+    },
+    {
+      id: 'generated',
+      title: 'Generated',
+      count: statistics.generated,
+      hint: 'Minted legal documents',
+      icon: <FileCheck2 size={18} style={{ color: '#38bdf8' }} />,
+      borderColor: 'rgba(56, 189, 248, 0.3)',
+      statusFilter: 'APPROVED',
+      color: '#38bdf8',
+    },
+    {
+      id: 'sent',
+      title: 'Sent',
+      count: statistics.sent,
+      hint: 'Dispatched to candidate',
+      icon: <Send size={18} style={{ color: '#818cf8' }} />,
+      borderColor: 'rgba(129, 140, 248, 0.3)',
+      statusFilter: 'ISSUED',
+      color: '#818cf8',
+    },
+    {
+      id: 'accepted',
+      title: 'Accepted',
+      count: statistics.accepted,
+      hint: 'Signed by candidate',
+      icon: <CheckCircle2 size={18} style={{ color: '#34d399' }} />,
+      borderColor: 'rgba(52, 211, 153, 0.3)',
+      statusFilter: 'ACCEPTED',
+      color: '#34d399',
+    },
+    {
+      id: 'rejected',
+      title: 'Rejected',
+      count: statistics.rejected,
+      hint: 'Declined or revoked',
+      icon: <XCircle size={18} style={{ color: '#f87171' }} />,
+      borderColor: 'rgba(248, 113, 113, 0.3)',
+      statusFilter: 'REJECTED',
+      color: '#f87171',
+    },
+    {
+      id: 'expired',
+      title: 'Expired',
+      count: statistics.expired,
+      hint: 'Past deadline',
+      icon: <CalendarX size={18} style={{ color: '#94a3b8' }} />,
+      borderColor: 'rgba(148, 163, 184, 0.3)',
+      statusFilter: 'EXPIRED',
+      color: '#94a3b8',
+    },
+  ];
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 28 }}>
@@ -137,52 +271,83 @@ export const DashboardPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Metrics Row */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 18 }}>
-        <div className="glass-panel" style={{ padding: 20 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
-            <span style={{ fontSize: '0.8125rem', color: 'var(--text-muted)' }}>Active Offers</span>
-            <FileText size={18} style={{ color: 'var(--primary)' }} />
-          </div>
-          <div style={{ fontSize: '1.75rem', fontWeight: 700 }}>24</div>
-          <div style={{ fontSize: '0.75rem', color: 'var(--success)', marginTop: 4, display: 'flex', alignItems: 'center', gap: 4 }}>
-            <TrendingUp size={12} />
-            <span>+4 this week</span>
-          </div>
+      {/* Section Header */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div>
+          <h3 style={{ fontSize: '1.25rem', fontWeight: 600 }}>Pipeline Overview</h3>
+          <p style={{ fontSize: '0.8125rem', color: 'var(--text-muted)' }}>
+            Real-time offer lifecycle metrics across all stages
+          </p>
         </div>
+        <Button
+          variant="secondary"
+          onClick={() => navigate('/offers')}
+          icon={<ArrowUpRight size={14} />}
+          style={{ fontSize: '0.8125rem' }}
+        >
+          Manage All Offers
+        </Button>
+      </div>
 
-        <div className="glass-panel" style={{ padding: 20, borderColor: 'rgba(96, 165, 250, 0.3)' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
-            <span style={{ fontSize: '0.8125rem', color: 'var(--text-muted)' }}>Pending HR Review</span>
-            <Clock size={18} style={{ color: '#60a5fa' }} />
-          </div>
-          <div style={{ fontSize: '1.75rem', fontWeight: 700, color: '#60a5fa' }}>4</div>
-          <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)', marginTop: 4 }}>
-            AI Drafts awaiting confirmation
-          </div>
-        </div>
+      {/* 9 Dashboard Statistics Cards */}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+          gap: 16,
+        }}
+      >
+        {statCards.map((card) => (
+          <div
+            key={card.id}
+            className="glass-panel"
+            onClick={() => navigate(`/offers?status=${card.statusFilter}`)}
+            style={{
+              padding: '18px 20px',
+              cursor: 'pointer',
+              borderColor: card.borderColor,
+              transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-2px)';
+              e.currentTarget.style.boxShadow = '0 8px 24px rgba(0, 0, 0, 0.3)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = 'none';
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+              <span style={{ fontSize: '0.8125rem', color: 'var(--text-muted)', fontWeight: 500 }}>
+                {card.title}
+              </span>
+              <div
+                style={{
+                  padding: 6,
+                  borderRadius: 8,
+                  background: 'rgba(255, 255, 255, 0.04)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                {card.icon}
+              </div>
+            </div>
 
-        <div className="glass-panel" style={{ padding: 20 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
-            <span style={{ fontSize: '0.8125rem', color: 'var(--text-muted)' }}>Pending Approval</span>
-            <CheckCircle2 size={18} style={{ color: '#fbbf24' }} />
+            <div>
+              <div style={{ fontSize: '1.85rem', fontWeight: 700, color: card.color }}>
+                {loadingStats ? '-' : card.count}
+              </div>
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)', marginTop: 4 }}>
+                {card.hint}
+              </div>
+            </div>
           </div>
-          <div style={{ fontSize: '1.75rem', fontWeight: 700, color: '#fbbf24' }}>3</div>
-          <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)', marginTop: 4 }}>
-            Submitted to Department Approvers
-          </div>
-        </div>
-
-        <div className="glass-panel" style={{ padding: 20, borderColor: 'var(--ai-border)' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
-            <span style={{ fontSize: '0.8125rem', color: 'var(--text-muted)' }}>AI Extraction Confidence</span>
-            <Sparkles size={18} style={{ color: 'var(--ai-purple)' }} />
-          </div>
-          <div style={{ fontSize: '1.75rem', fontWeight: 700, color: '#c084fc' }}>94.2%</div>
-          <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)', marginTop: 4 }}>
-            Average across last 50 extractions
-          </div>
-        </div>
+        ))}
       </div>
 
       {/* AI Assistant Co-Pilot Bar */}

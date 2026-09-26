@@ -167,6 +167,16 @@ router.post(
 );
 
 /**
+ * Get Dashboard Statistics:
+ * Total, Draft, AI Processing, Awaiting Review, Generated, Sent, Accepted, Rejected, Expired
+ */
+router.get(
+  '/statistics',
+  requireRoles('SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER', 'APPROVER', 'AUDITOR'),
+  OfferController.getDashboardStatistics
+);
+
+/**
  * List Offers (paginated and filtered)
  */
 router.get(
@@ -266,6 +276,36 @@ router.patch(
   requireRoles('SUPER_ADMIN', 'HR_MANAGER', 'APPROVER'),
   validateRequest({ params: offerParamSchema, body: updateStatusSchema }),
   OfferController.updateOfferStatus
+);
+
+/**
+ * Duplicate Offer (Clone to fresh draft with new reference number)
+ */
+router.post(
+  '/:id/duplicate',
+  requireRoles('SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER'),
+  validateRequest({ params: offerParamSchema }),
+  OfferController.duplicateOffer
+);
+
+/**
+ * Send Offer to Candidate (Marks ISSUED and provisions portal link)
+ */
+router.post(
+  '/:id/send',
+  requireRoles('SUPER_ADMIN', 'HR_MANAGER'),
+  validateRequest({ params: offerParamSchema }),
+  OfferController.sendOffer
+);
+
+/**
+ * Comprehensive Offer History & Audit Trail
+ */
+router.get(
+  '/:id/history',
+  requireRoles('SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER', 'APPROVER', 'AUDITOR'),
+  validateRequest({ params: offerParamSchema }),
+  OfferController.getOfferHistory
 );
 
 // ---------------------------------------------------------------------------

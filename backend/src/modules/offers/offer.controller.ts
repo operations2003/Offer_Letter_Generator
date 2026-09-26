@@ -116,19 +116,45 @@ export class OfferController {
   }
 
   /**
+   * GET /api/v1/offers/statistics
+   * Returns pipeline counts: Total, Draft, AI Processing, Awaiting Review, Generated, Sent, Accepted, Rejected, Expired
+   */
+  static async getDashboardStatistics(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const companyId = req.user!.companyId;
+      const stats = await OfferService.getDashboardStatistics(companyId);
+      res.status(200).json({
+        success: true,
+        data: stats,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
    * GET /api/v1/offers
+   * List offers with advanced filtering, search and pagination
    */
   static async listOffers(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const companyId = req.user!.companyId;
-      const { status, candidateId, search, limit, offset } = req.query;
+      const { status, candidateId, search, department, templateId, aiReviewStatus, page, limit, offset } = req.query;
+
+      const parsedLimit = limit ? parseInt(limit as string, 10) : 20;
+      const parsedPage = page ? parseInt(page as string, 10) : undefined;
+      const parsedOffset = offset !== undefined ? parseInt(offset as string, 10) : undefined;
 
       const result = await OfferService.listOffers(companyId, {
         status: status as any,
         candidateId: candidateId as string,
         search: search as string,
-        limit: limit ? parseInt(limit as string, 10) : undefined,
-        offset: offset ? parseInt(offset as string, 10) : undefined,
+        department: department as string,
+        templateId: templateId as string,
+        aiReviewStatus: aiReviewStatus as string,
+        page: parsedPage,
+        limit: parsedLimit,
+        offset: parsedOffset,
       });
 
       res.status(200).json({
@@ -541,6 +567,71 @@ export class OfferController {
       res.status(verification.isValid ? 200 : 404).json({
         success: verification.isValid,
         data: verification,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * POST /api/v1/offers/:id/duplicate
+   * Duplicates an existing offer into a fresh draft with a new reference number
+   */
+  static async duplicateOffer(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const companyId = req.user!.companyId;
+      const userId = req.user!.userId;
+      const offerId = req.params.id;
+
+      const duplicated = await OfferService.duplicateOffer(companyId, userId, offerId);
+
+      res.status(201).json({
+        success: true,
+        message: `Offer duplicated successfully with reference ${duplicated.offerReferenceNumber}`,
+        data: duplicated,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * POST /api/v1/offers/:id/send
+   * Issues the offer to the candidate, mints secure access token, and triggers notification
+   */
+  static async sendOffer(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const companyId = req.user!.companyId;
+      const userId = req.user!.userId;
+      const offerId = req.params.id;
+      const { message, sendEmail } = req.body || {};
+
+      const result = await OfferService.sendOffer(companyId, userId, offerId, { message, sendEmail });
+
+      res.status(200).json({
+        success: true,
+        message: result.message,
+        data: result,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * GET /api/v1/offers/:id/history
+   * Retrieves comprehensive audit history, versions, and status logs
+   */
+  static async getOfferHistory(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const companyId = req.user!.companyId;
+      const offerId = req.params.id;
+
+      const history = await OfferService.getOfferHistory(companyId, offerId);
+
+      res.status(200).json({
+        success: true,
+        data: history,
       });
     } catch (error) {
       next(error);

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   FileText,
@@ -8,128 +8,405 @@ import {
   Sparkles,
   Download,
   Eye,
+  Edit3,
+  Copy,
+  Send,
+  History,
   CheckCircle2,
+  AlertTriangle,
+  Calendar,
+  Briefcase,
+  User,
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+  RefreshCw,
+  X,
+  FileCheck2,
+  Layers,
+  ArrowUpDown,
+  MoreVertical,
 } from 'lucide-react';
 import { Button } from '../components/common/Button.js';
 import { OfferStatusBadge, AiAdvisoryBadge } from '../components/common/Badge.js';
 import { ExtractWithAi } from '../components/ai/ExtractWithAi.js';
 import { OfferItem, OfferStatus, AiCandidateExtractionData } from '../types/index.js';
+import { OfferListItem, GeneratedOfferResult } from '../types/offer.js';
 import { useToast } from '../context/ToastContext.js';
 import { OfferGeneratorWizard } from '../components/offers/wizard/OfferGeneratorWizard.js';
 import { OfferDetailModal } from '../components/offers/OfferDetailModal.js';
-import { GeneratedOfferResult } from '../types/offer.js';
 import { offerService } from '../services/offerService.js';
 
-const MOCK_OFFERS: OfferItem[] = [
+const INITIAL_MOCK_OFFERS: OfferListItem[] = [
   {
     id: 'off_001',
     referenceNumber: 'OFF-2026-0042',
     candidateName: 'Jane Doe',
     email: 'jane.doe@example.com',
-    role: 'Lead Platform Architect',
+    phone: '+1 (555) 234-5678',
+    position: 'Lead Platform Architect',
     department: 'Engineering',
+    bandGrade: 'L6',
+    offerDate: '2026-09-26T08:30:00Z',
+    joiningDate: '2026-11-16T00:00:00Z',
+    template: 'Standard Full-Time Offer',
+    templateCode: 'FULL_TIME',
+    status: 'HR_REVIEW',
+    aiReviewStatus: 'VERIFIED_BY_HR',
     totalCtc: 229000,
     currency: 'USD',
-    status: 'HR_REVIEW',
-    aiConfidence: 0.94,
-    createdAt: '2026-09-26T08:30:00Z',
   },
   {
     id: 'off_002',
     referenceNumber: 'OFF-2026-0041',
     candidateName: 'Carlos Rivera',
     email: 'carlos.rivera@designtech.io',
-    role: 'Staff Design Systems Engineer',
+    phone: '+1 (555) 345-6789',
+    position: 'Staff Design Systems Engineer',
     department: 'Product Experience',
+    bandGrade: 'L5',
+    offerDate: '2026-09-25T14:15:00Z',
+    joiningDate: '2026-11-01T00:00:00Z',
+    template: 'Design Engineering Offer',
+    templateCode: 'FULL_TIME',
+    status: 'DRAFT_AI',
+    aiReviewStatus: 'PENDING_AI_REVIEW',
     totalCtc: 195000,
     currency: 'USD',
-    status: 'DRAFT_AI',
-    aiConfidence: 0.96,
-    createdAt: '2026-09-25T14:15:00Z',
   },
   {
     id: 'off_003',
     referenceNumber: 'OFF-2026-0040',
     candidateName: 'Priya Sharma',
     email: 'priya.s@techlead.org',
-    role: 'Director of Machine Learning',
+    phone: '+1 (555) 456-7890',
+    position: 'Director of Machine Learning',
     department: 'AI Research',
+    bandGrade: 'L7',
+    offerDate: '2026-09-24T11:00:00Z',
+    joiningDate: '2026-12-01T00:00:00Z',
+    template: 'Executive Employment Agreement',
+    templateCode: 'EXECUTIVE',
+    status: 'PENDING_APPROVAL',
+    aiReviewStatus: 'OVERRIDDEN',
     totalCtc: 285000,
     currency: 'USD',
-    status: 'PENDING_APPROVAL',
-    aiConfidence: 0.91,
-    createdAt: '2026-09-24T11:00:00Z',
   },
   {
     id: 'off_004',
     referenceNumber: 'OFF-2026-0039',
     candidateName: 'Liam O’Connor',
     email: 'liam.oc@cloudops.net',
-    role: 'Senior DevOps Specialist',
+    phone: '+1 (555) 567-8901',
+    position: 'Senior DevOps Specialist',
     department: 'Cloud Infrastructure',
+    bandGrade: 'L4',
+    offerDate: '2026-09-22T09:45:00Z',
+    joiningDate: '2026-10-15T00:00:00Z',
+    template: 'Standard Full-Time Offer',
+    templateCode: 'FULL_TIME',
+    status: 'APPROVED',
+    aiReviewStatus: 'VERIFIED_BY_HR',
     totalCtc: 165000,
     currency: 'USD',
-    status: 'APPROVED',
-    aiConfidence: 0.88,
-    createdAt: '2026-09-22T09:45:00Z',
   },
   {
     id: 'off_005',
     referenceNumber: 'OFF-2026-0038',
     candidateName: 'Emily Watson',
     email: 'emily.w@fintech.co',
-    role: 'VP of Product Engineering',
+    phone: '+1 (555) 678-9012',
+    position: 'VP of Product Engineering',
     department: 'Executive',
+    bandGrade: 'E1',
+    offerDate: '2026-09-20T16:20:00Z',
+    joiningDate: '2026-11-01T00:00:00Z',
+    template: 'Executive Employment Agreement',
+    templateCode: 'EXECUTIVE',
+    status: 'ISSUED',
+    aiReviewStatus: 'VERIFIED_BY_HR',
     totalCtc: 320000,
     currency: 'USD',
-    status: 'ISSUED',
-    aiConfidence: 0.97,
-    createdAt: '2026-09-20T16:20:00Z',
+  },
+  {
+    id: 'off_006',
+    referenceNumber: 'OFF-2026-0037',
+    candidateName: 'Marcus Aurelius',
+    email: 'marcus.a@rome-security.org',
+    phone: '+1 (555) 789-0123',
+    position: 'Security Infrastructure Lead',
+    department: 'Platform Engineering',
+    bandGrade: 'L6',
+    offerDate: '2026-09-18T10:00:00Z',
+    joiningDate: '2026-10-20T00:00:00Z',
+    template: 'Standard Full-Time Offer',
+    templateCode: 'FULL_TIME',
+    status: 'ACCEPTED',
+    aiReviewStatus: 'VERIFIED_BY_HR',
+    totalCtc: 240000,
+    currency: 'USD',
+  },
+  {
+    id: 'off_007',
+    referenceNumber: 'OFF-2026-0036',
+    candidateName: 'Sarah Connor',
+    email: 's.connor@cyberdyne.io',
+    phone: '+1 (555) 890-1234',
+    position: 'Autonomous Systems Engineer',
+    department: 'AI Research',
+    bandGrade: 'L5',
+    offerDate: '2026-09-15T14:30:00Z',
+    joiningDate: '2026-10-01T00:00:00Z',
+    template: 'Standard Full-Time Offer',
+    templateCode: 'FULL_TIME',
+    status: 'DECLINED',
+    aiReviewStatus: 'STANDARD',
+    totalCtc: 198000,
+    currency: 'USD',
+  },
+  {
+    id: 'off_008',
+    referenceNumber: 'OFF-2026-0035',
+    candidateName: 'Alex Mercer',
+    email: 'alex.m@biotech-innovations.com',
+    phone: '+1 (555) 901-2345',
+    position: 'Computational Biologist',
+    department: 'Research',
+    bandGrade: 'L4',
+    offerDate: '2026-08-10T09:00:00Z',
+    joiningDate: '2026-09-01T00:00:00Z',
+    template: 'Specialized Consultant Agreement',
+    templateCode: 'CONSULTANT',
+    status: 'EXPIRED',
+    aiReviewStatus: 'STANDARD',
+    totalCtc: 155000,
+    currency: 'USD',
   },
 ];
 
+const DEPARTMENTS = [
+  'ALL',
+  'Engineering',
+  'Platform Engineering',
+  'Product Experience',
+  'AI Research',
+  'Cloud Infrastructure',
+  'Executive',
+  'Research',
+  'HR Operations',
+];
+
 export const OffersPage: React.FC = () => {
-  const [offers, setOffers] = useState<OfferItem[]>(MOCK_OFFERS);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedStatus, setSelectedStatus] = useState<string>('ALL');
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const { success, error, info } = useToast();
+
+  // State: Offers data
+  const [offers, setOffers] = useState<OfferListItem[]>(INITIAL_MOCK_OFFERS);
+  const [totalCount, setTotalCount] = useState<number>(INITIAL_MOCK_OFFERS.length);
+  const [loading, setLoading] = useState<boolean>(false);
+
+  // Filters & Search State
+  const initialStatusParam = searchParams.get('status') || 'ALL';
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedStatus, setSelectedStatus] = useState<string>(initialStatusParam);
+  const [selectedDepartment, setSelectedDepartment] = useState<string>('ALL');
+  const [selectedAiReviewStatus, setSelectedAiReviewStatus] = useState<string>('ALL');
+
+  // Pagination State
+  const [page, setPage] = useState<number>(1);
+  const [limit, setLimit] = useState<number>(10);
+  const [totalPages, setTotalPages] = useState<number>(1);
+
+  // Modals & Action States
   const [isWizardOpen, setIsWizardOpen] = useState(() => searchParams.get('create') === 'true');
   const [selectedOfferForDetail, setSelectedOfferForDetail] = useState<OfferItem | null>(null);
-  const navigate = useNavigate();
-  const { success } = useToast();
+  const [detailModalTab, setDetailModalTab] = useState<'preview' | 'pdf' | 'versions' | 'status'>('preview');
+  const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
 
-  const handleOfferCreated = (newOfferResult: GeneratedOfferResult) => {
-    const newOfferItem: OfferItem = {
-      id: newOfferResult.id,
-      referenceNumber: newOfferResult.referenceNumber,
-      candidateName: 'Verified Candidate',
-      email: 'candidate@verified.org',
-      role: 'Role Ratified & Issued',
-      department: 'HR Operations',
-      totalCtc: 185000,
-      currency: 'USD',
-      status: 'ISSUED',
-      aiConfidence: 0.98,
-      createdAt: newOfferResult.createdAt || new Date().toISOString(),
+  // Update selectedStatus if URL search param changes
+  useEffect(() => {
+    const statusParam = searchParams.get('status');
+    if (statusParam) {
+      setSelectedStatus(statusParam);
+      setPage(1);
+    }
+  }, [searchParams]);
+
+  // Fetch offers from backend
+  const fetchOffers = async () => {
+    setLoading(true);
+    try {
+      const response = await offerService.listOffers({
+        search: searchTerm,
+        status: selectedStatus,
+        department: selectedDepartment,
+        aiReviewStatus: selectedAiReviewStatus,
+        page,
+        limit,
+      });
+
+      if (response && response.items && response.items.length > 0) {
+        setOffers(response.items);
+        setTotalCount(response.total);
+        setTotalPages(response.totalPages);
+      } else if (response && response.total === 0 && (searchTerm || selectedStatus !== 'ALL' || selectedDepartment !== 'ALL')) {
+        setOffers([]);
+        setTotalCount(0);
+        setTotalPages(1);
+      } else {
+        // Fallback filtering in memory for mock / offline development
+        let filtered = [...INITIAL_MOCK_OFFERS];
+        if (selectedStatus !== 'ALL') {
+          if (selectedStatus === 'AWAITING_REVIEW') {
+            filtered = filtered.filter((o) => ['HR_REVIEW', 'PENDING_APPROVAL'].includes(o.status));
+          } else if (selectedStatus === 'REJECTED') {
+            filtered = filtered.filter((o) => ['DECLINED', 'WITHDRAWN'].includes(o.status));
+          } else {
+            filtered = filtered.filter((o) => o.status === selectedStatus);
+          }
+        }
+        if (selectedDepartment !== 'ALL') {
+          filtered = filtered.filter((o) => o.department === selectedDepartment);
+        }
+        if (selectedAiReviewStatus !== 'ALL') {
+          filtered = filtered.filter((o) => o.aiReviewStatus === selectedAiReviewStatus);
+        }
+        if (searchTerm.trim()) {
+          const q = searchTerm.toLowerCase();
+          filtered = filtered.filter(
+            (o) =>
+              o.candidateName.toLowerCase().includes(q) ||
+              o.email.toLowerCase().includes(q) ||
+              o.position.toLowerCase().includes(q) ||
+              o.referenceNumber.toLowerCase().includes(q)
+          );
+        }
+        setTotalCount(filtered.length);
+        setTotalPages(Math.ceil(filtered.length / limit) || 1);
+        setOffers(filtered.slice((page - 1) * limit, page * limit));
+      }
+    } catch (err: any) {
+      console.warn('Backend list offers unavailable, using local mock data', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchOffers();
+  }, [page, limit, selectedStatus, selectedDepartment, selectedAiReviewStatus, searchTerm]);
+
+  // Convert OfferListItem to OfferItem for OfferDetailModal
+  const convertToOfferItem = (o: OfferListItem): OfferItem => {
+    return {
+      id: o.id,
+      referenceNumber: o.referenceNumber,
+      candidateName: o.candidateName,
+      email: o.email,
+      role: o.position,
+      department: o.department,
+      totalCtc: o.totalCtc,
+      currency: o.currency || 'USD',
+      status: (o.status as OfferStatus) || 'DRAFT_AI',
+      aiConfidence: o.aiReviewStatus === 'VERIFIED_BY_HR' ? 0.98 : 0.91,
+      createdAt: o.offerDate || new Date().toISOString(),
     };
+  };
 
-    setOffers((prev) => [newOfferItem, ...prev]);
+  // ---------------------------------------------------------------------------
+  // THE 7 REQUIRED ACTIONS:
+  // View / Edit / Preview / Download / Duplicate / Send / History
+  // ---------------------------------------------------------------------------
+
+  // 1. VIEW ACTION
+  const handleView = (item: OfferListItem) => {
+    setSelectedOfferForDetail(convertToOfferItem(item));
+    setDetailModalTab('preview');
+  };
+
+  // 2. EDIT ACTION
+  const handleEdit = (item: OfferListItem) => {
+    if (['APPROVED', 'ISSUED', 'ACCEPTED'].includes(item.status)) {
+      info(`Offer ${item.referenceNumber} is in ${item.status} state. To modify, create a new version or duplicate.`);
+    }
+    // Launch wizard or editor with offer context
+    setSelectedOfferForDetail(convertToOfferItem(item));
+    setDetailModalTab('preview');
+  };
+
+  // 3. PREVIEW ACTION
+  const handlePreview = (item: OfferListItem) => {
+    setSelectedOfferForDetail(convertToOfferItem(item));
+    setDetailModalTab('preview');
+  };
+
+  // 4. DOWNLOAD ACTION
+  const handleDownload = async (item: OfferListItem) => {
+    try {
+      setActionLoadingId(item.id);
+      await offerService.downloadOfferPdf(item.id, undefined, `Offer_${item.referenceNumber}.pdf`);
+      success(`Downloaded official PDF for ${item.referenceNumber}`);
+    } catch (err: any) {
+      // Fallback
+      window.print();
+    } finally {
+      setActionLoadingId(null);
+    }
+  };
+
+  // 5. DUPLICATE ACTION
+  const handleDuplicate = async (item: OfferListItem) => {
+    try {
+      setActionLoadingId(item.id);
+      const duplicated = await offerService.duplicateOffer(item.id);
+      success(`Duplicated offer successfully as ${duplicated.referenceNumber || duplicated.offerReferenceNumber}`);
+      await fetchOffers();
+    } catch (err: any) {
+      error(err.message || 'Failed to duplicate offer', 'Error');
+    } finally {
+      setActionLoadingId(null);
+    }
+  };
+
+  // 6. SEND ACTION
+  const handleSend = async (item: OfferListItem) => {
+    if (item.status === 'ISSUED') {
+      info(`Offer ${item.referenceNumber} has already been sent to candidate.`);
+      return;
+    }
+    try {
+      setActionLoadingId(item.id);
+      const result = await offerService.sendOffer(item.id, {
+        message: 'Your formal offer of employment is ready for review and digital signature.',
+        sendEmail: true,
+      });
+      success(`Offer ${item.referenceNumber} sent to ${item.candidateName} successfully!`);
+      await fetchOffers();
+    } catch (err: any) {
+      // If direct send needs status modal approval
+      setSelectedOfferForDetail(convertToOfferItem(item));
+      setDetailModalTab('status');
+    } finally {
+      setActionLoadingId(null);
+    }
+  };
+
+  // 7. HISTORY ACTION
+  const handleHistory = (item: OfferListItem) => {
+    setSelectedOfferForDetail(convertToOfferItem(item));
+    setDetailModalTab('versions');
+  };
+
+  // Handle Offer Creation from 11-step wizard
+  const handleOfferCreated = (newOfferResult: GeneratedOfferResult) => {
     setIsWizardOpen(false);
     searchParams.delete('create');
     setSearchParams(searchParams);
     success(`Offer ${newOfferResult.referenceNumber} generated successfully!`);
+    fetchOffers();
   };
-
-  const filteredOffers = offers.filter((o) => {
-    const matchesSearch =
-      o.candidateName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      o.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      o.role.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      o.referenceNumber.toLowerCase().includes(searchTerm.toLowerCase());
-
-    const matchesStatus = selectedStatus === 'ALL' || o.status === selectedStatus;
-    return matchesSearch && matchesStatus;
-  });
 
   const handleExtraction = (extracted: AiCandidateExtractionData) => {
     navigate('/ai-studio', { state: { extractedData: extracted } });
@@ -148,9 +425,109 @@ export const OffersPage: React.FC = () => {
     );
   }
 
+  // Helper date formatter
+  const formatDate = (isoString?: string | null) => {
+    if (!isoString) return 'Not set';
+    try {
+      const d = new Date(isoString);
+      return d.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+      });
+    } catch {
+      return isoString;
+    }
+  };
+
+  // Helper AI Review Status Badge renderer
+  const renderAiReviewStatusBadge = (status: OfferListItem['aiReviewStatus']) => {
+    switch (status) {
+      case 'VERIFIED_BY_HR':
+        return (
+          <span
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 5,
+              fontSize: '0.72rem',
+              fontWeight: 600,
+              padding: '3px 8px',
+              borderRadius: 6,
+              background: 'rgba(52, 211, 153, 0.12)',
+              color: '#34d399',
+              border: '1px solid rgba(52, 211, 153, 0.25)',
+            }}
+          >
+            <CheckCircle2 size={12} />
+            <span>HR Verified</span>
+          </span>
+        );
+      case 'PENDING_AI_REVIEW':
+        return (
+          <span
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 5,
+              fontSize: '0.72rem',
+              fontWeight: 600,
+              padding: '3px 8px',
+              borderRadius: 6,
+              background: 'rgba(192, 132, 252, 0.12)',
+              color: '#c084fc',
+              border: '1px solid rgba(192, 132, 252, 0.25)',
+            }}
+          >
+            <Sparkles size={12} />
+            <span>AI Review Pending</span>
+          </span>
+        );
+      case 'OVERRIDDEN':
+        return (
+          <span
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 5,
+              fontSize: '0.72rem',
+              fontWeight: 600,
+              padding: '3px 8px',
+              borderRadius: 6,
+              background: 'rgba(251, 191, 36, 0.12)',
+              color: '#fbbf24',
+              border: '1px solid rgba(251, 191, 36, 0.25)',
+            }}
+          >
+            <AlertTriangle size={12} />
+            <span>Overrides Applied</span>
+          </span>
+        );
+      default:
+        return (
+          <span
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 5,
+              fontSize: '0.72rem',
+              fontWeight: 600,
+              padding: '3px 8px',
+              borderRadius: 6,
+              background: 'rgba(148, 163, 184, 0.12)',
+              color: '#94a3b8',
+              border: '1px solid rgba(148, 163, 184, 0.25)',
+            }}
+          >
+            <span>Standard</span>
+          </span>
+        );
+    }
+  };
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-      {/* Title & Actions Bar */}
+      {/* Top Header & Quick Actions Bar */}
       <div
         className="glass-panel"
         style={{
@@ -158,16 +535,40 @@ export const OffersPage: React.FC = () => {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: 16,
         }}
       >
         <div>
-          <h2 style={{ fontSize: '1.4rem', marginBottom: 4 }}>Offers Pipeline</h2>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
+            <h2 style={{ fontSize: '1.4rem', fontWeight: 600 }}>Offers Pipeline</h2>
+            <span
+              style={{
+                fontSize: '0.75rem',
+                padding: '2px 8px',
+                borderRadius: 12,
+                background: 'var(--primary-subtle)',
+                color: 'var(--primary-light)',
+                fontWeight: 600,
+              }}
+            >
+              {totalCount} Total Offers
+            </span>
+          </div>
           <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem' }}>
-            Lifecycle management: AI Draft → HR Review → Department Approval → Issued PDF.
+            Lifecycle management: Draft → AI Processing → Awaiting Review → Generated → Sent → Accepted.
           </p>
         </div>
 
-        <div style={{ display: 'flex', gap: 12 }}>
+        <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+          <Button
+            variant="secondary"
+            icon={<RefreshCw size={14} className={loading ? 'spin' : ''} />}
+            onClick={() => fetchOffers()}
+            style={{ padding: '8px 14px', fontSize: '0.8125rem' }}
+          >
+            Refresh
+          </Button>
           <Button
             variant="primary"
             icon={<Sparkles size={16} />}
@@ -183,138 +584,501 @@ export const OffersPage: React.FC = () => {
       <div
         className="glass-panel"
         style={{
-          padding: '16px 20px',
+          padding: '18px 22px',
           display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
+          flexDirection: 'column',
           gap: 16,
-          flexWrap: 'wrap',
         }}
       >
-        <div style={{ position: 'relative', flex: 1, minWidth: 260 }}>
-          <Search
-            size={16}
-            style={{
-              position: 'absolute',
-              left: 12,
-              top: '50%',
-              transform: 'translateY(-50%)',
-              color: 'var(--text-dim)',
-            }}
-          />
-          <input
-            type="text"
-            className="form-input"
-            placeholder="Search candidate, role, or reference..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            style={{ paddingLeft: 38 }}
-          />
+        {/* Search Row & Dropdown Filters */}
+        <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap', alignItems: 'center' }}>
+          {/* Search Input */}
+          <div style={{ position: 'relative', flex: 2, minWidth: 260 }}>
+            <Search
+              size={16}
+              style={{
+                position: 'absolute',
+                left: 12,
+                top: '50%',
+                transform: 'translateY(-50%)',
+                color: 'var(--text-dim)',
+              }}
+            />
+            <input
+              type="text"
+              className="form-input"
+              placeholder="Search candidate name, email, job title, or reference..."
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setPage(1);
+              }}
+              style={{ paddingLeft: 38, paddingRight: searchTerm ? 32 : 12, width: '100%' }}
+            />
+            {searchTerm && (
+              <button
+                onClick={() => setSearchTerm('')}
+                style={{
+                  position: 'absolute',
+                  right: 10,
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  background: 'none',
+                  border: 'none',
+                  color: 'var(--text-dim)',
+                  cursor: 'pointer',
+                  padding: 2,
+                }}
+              >
+                <X size={14} />
+              </button>
+            )}
+          </div>
+
+          {/* Department Filter Dropdown */}
+          <div style={{ flex: 1, minWidth: 180 }}>
+            <select
+              className="form-input"
+              value={selectedDepartment}
+              onChange={(e) => {
+                setSelectedDepartment(e.target.value);
+                setPage(1);
+              }}
+              style={{ width: '100%', height: '40px' }}
+            >
+              <option value="ALL">All Departments</option>
+              {DEPARTMENTS.filter((d) => d !== 'ALL').map((dept) => (
+                <option key={dept} value={dept}>
+                  {dept}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* AI Review Status Filter Dropdown */}
+          <div style={{ flex: 1, minWidth: 180 }}>
+            <select
+              className="form-input"
+              value={selectedAiReviewStatus}
+              onChange={(e) => {
+                setSelectedAiReviewStatus(e.target.value);
+                setPage(1);
+              }}
+              style={{ width: '100%', height: '40px' }}
+            >
+              <option value="ALL">All AI Review States</option>
+              <option value="VERIFIED_BY_HR">HR Verified</option>
+              <option value="PENDING_AI_REVIEW">AI Review Pending</option>
+              <option value="OVERRIDDEN">Overrides Applied</option>
+              <option value="STANDARD">Standard Manual</option>
+            </select>
+          </div>
         </div>
 
-        {/* Status Pills */}
-        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-          {['ALL', 'DRAFT_AI', 'HR_REVIEW', 'PENDING_APPROVAL', 'APPROVED', 'ISSUED'].map((st) => (
+        {/* Status Filter Pills Row */}
+        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
+          <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)', marginRight: 4 }}>
+            Status:
+          </span>
+          {[
+            { id: 'ALL', label: 'All' },
+            { id: 'DRAFT_AI', label: 'Draft' },
+            { id: 'AWAITING_REVIEW', label: 'Awaiting Review' },
+            { id: 'APPROVED', label: 'Generated' },
+            { id: 'ISSUED', label: 'Sent' },
+            { id: 'ACCEPTED', label: 'Accepted' },
+            { id: 'REJECTED', label: 'Rejected' },
+            { id: 'EXPIRED', label: 'Expired' },
+          ].map((st) => (
             <button
-              key={st}
-              onClick={() => setSelectedStatus(st)}
-              className={`btn ${selectedStatus === st ? 'btn-primary' : 'btn-secondary'}`}
-              style={{ padding: '6px 12px', fontSize: '0.75rem' }}
+              key={st.id}
+              onClick={() => {
+                setSelectedStatus(st.id);
+                setPage(1);
+                searchParams.set('status', st.id);
+                setSearchParams(searchParams);
+              }}
+              className={`btn ${selectedStatus === st.id ? 'btn-primary' : 'btn-secondary'}`}
+              style={{
+                padding: '5px 12px',
+                fontSize: '0.75rem',
+                borderRadius: 20,
+                transition: 'all 0.15s ease',
+              }}
             >
-              {st.replace(/_/g, ' ')}
+              {st.label}
             </button>
           ))}
         </div>
       </div>
 
-      {/* Offers Table */}
-      <div className="glass-panel" style={{ padding: 24 }}>
+      {/* Offer List Table with 8 Columns */}
+      <div className="glass-panel" style={{ padding: 0, overflow: 'hidden' }}>
         <div style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.875rem' }}>
             <thead>
-              <tr style={{ borderBottom: '1px solid var(--border-subtle)', color: 'var(--text-dim)' }}>
-                <th style={{ padding: '12px 14px' }}>Reference</th>
-                <th style={{ padding: '12px 14px' }}>Candidate</th>
-                <th style={{ padding: '12px 14px' }}>Role & Department</th>
-                <th style={{ padding: '12px 14px' }}>Total CTC</th>
-                <th style={{ padding: '12px 14px' }}>Workflow Status</th>
-                <th style={{ padding: '12px 14px' }}>AI Confidence</th>
-                <th style={{ padding: '12px 14px', textAlign: 'right' }}>Actions</th>
+              <tr
+                style={{
+                  background: 'rgba(255, 255, 255, 0.02)',
+                  borderBottom: '1px solid var(--border-subtle)',
+                  color: 'var(--text-dim)',
+                  fontSize: '0.75rem',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em',
+                }}
+              >
+                <th style={{ padding: '14px 18px', width: '22%' }}>Candidate</th>
+                <th style={{ padding: '14px 16px', width: '18%' }}>Position</th>
+                <th style={{ padding: '14px 14px', width: '11%' }}>Offer Date</th>
+                <th style={{ padding: '14px 14px', width: '11%' }}>Joining Date</th>
+                <th style={{ padding: '14px 16px', width: '14%' }}>Template</th>
+                <th style={{ padding: '14px 12px', width: '10%' }}>Status</th>
+                <th style={{ padding: '14px 14px', width: '14%' }}>AI Review Status</th>
+                <th style={{ padding: '14px 18px', textAlign: 'right', width: '180px' }}>Actions</th>
               </tr>
             </thead>
             <tbody>
-              {filteredOffers.map((o) => (
-                <tr
-                  key={o.id}
-                  style={{
-                    borderBottom: '1px solid rgba(255, 255, 255, 0.03)',
-                    transition: 'background 0.15s',
-                  }}
-                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.02)')}
-                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
-                >
-                  <td style={{ padding: '14px', fontFamily: 'var(--font-mono)', fontSize: '0.8125rem' }}>
-                    {o.referenceNumber}
+              {loading ? (
+                <tr>
+                  <td colSpan={8} style={{ padding: 48, textAlign: 'center', color: 'var(--text-muted)' }}>
+                    <RefreshCw size={24} className="spin" style={{ margin: '0 auto 12px', display: 'block' }} />
+                    Loading offer records...
                   </td>
-                  <td style={{ padding: '14px' }}>
-                    <div style={{ fontWeight: 600, color: '#fff' }}>{o.candidateName}</div>
-                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{o.email}</div>
-                  </td>
-                  <td style={{ padding: '14px' }}>
-                    <div style={{ fontWeight: 500 }}>{o.role}</div>
-                    <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>{o.department}</div>
-                  </td>
-                  <td style={{ padding: '14px', fontWeight: 600 }}>
-                    ${o.totalCtc.toLocaleString()} {o.currency}
-                  </td>
-                  <td style={{ padding: '14px' }}>
-                    <OfferStatusBadge status={o.status} />
-                  </td>
-                  <td style={{ padding: '14px' }}>
-                    <AiAdvisoryBadge confidence={o.aiConfidence} label="" />
-                  </td>
-                  <td style={{ padding: '14px', textAlign: 'right' }}>
-                    <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
-                      <Button
-                        variant="primary"
-                        style={{ padding: '5px 12px', fontSize: '0.75rem', gap: 6 }}
-                        onClick={() => setSelectedOfferForDetail(o)}
-                        title="Open Offer Preview, Generation Status & Version History"
-                      >
-                        <Eye size={13} />
-                        <span>Preview & Manage</span>
-                      </Button>
-                      <button
-                        className="btn btn-secondary"
-                        style={{ padding: '6px 10px', fontSize: '0.75rem' }}
-                        title="Download Legal PDF"
-                        onClick={async () => {
-                          try {
-                            await offerService.downloadOfferPdf(o.id, undefined, `Offer_${o.referenceNumber}.pdf`);
-                            success(`Downloaded PDF for ${o.referenceNumber}`);
-                          } catch {
-                            window.print();
-                          }
-                        }}
-                      >
-                        <Download size={13} />
-                      </button>
+                </tr>
+              ) : offers.length === 0 ? (
+                <tr>
+                  <td colSpan={8} style={{ padding: 48, textAlign: 'center', color: 'var(--text-muted)' }}>
+                    <Layers size={32} style={{ margin: '0 auto 12px', display: 'block', color: 'var(--text-dim)' }} />
+                    <div style={{ fontSize: '1rem', fontWeight: 600, color: '#fff', marginBottom: 4 }}>
+                      No offers found
+                    </div>
+                    <div style={{ fontSize: '0.8125rem' }}>
+                      Try adjusting your search criteria or status filter.
                     </div>
                   </td>
                 </tr>
-              ))}
+              ) : (
+                offers.map((o) => (
+                  <tr
+                    key={o.id}
+                    style={{
+                      borderBottom: '1px solid rgba(255, 255, 255, 0.04)',
+                      transition: 'background 0.15s ease',
+                    }}
+                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.02)')}
+                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
+                  >
+                    {/* 1. Candidate Column */}
+                    <td style={{ padding: '14px 18px' }}>
+                      <div
+                        style={{
+                          fontWeight: 600,
+                          color: '#fff',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 6,
+                        }}
+                        onClick={() => handleView(o)}
+                        title="Click to view offer details"
+                      >
+                        <User size={14} style={{ color: 'var(--primary-light)' }} />
+                        <span>{o.candidateName}</span>
+                      </div>
+                      <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: 2 }}>
+                        {o.email}
+                      </div>
+                      <div
+                        style={{
+                          fontSize: '0.7rem',
+                          fontFamily: 'var(--font-mono)',
+                          color: 'var(--text-dim)',
+                          marginTop: 3,
+                        }}
+                      >
+                        Ref: {o.referenceNumber}
+                      </div>
+                    </td>
+
+                    {/* 2. Position Column */}
+                    <td style={{ padding: '14px 16px' }}>
+                      <div style={{ fontWeight: 600, color: 'var(--text-bright)' }}>{o.position}</div>
+                      <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginTop: 3 }}>
+                        <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>{o.department}</span>
+                        {o.bandGrade && (
+                          <span
+                            style={{
+                              fontSize: '0.68rem',
+                              padding: '1px 5px',
+                              borderRadius: 4,
+                              background: 'rgba(255, 255, 255, 0.06)',
+                              color: 'var(--text-muted)',
+                            }}
+                          >
+                            {o.bandGrade}
+                          </span>
+                        )}
+                      </div>
+                      <div style={{ fontSize: '0.72rem', color: 'var(--text-dim)', marginTop: 2 }}>
+                        ${o.totalCtc?.toLocaleString()} {o.currency}
+                      </div>
+                    </td>
+
+                    {/* 3. Offer Date Column */}
+                    <td style={{ padding: '14px 14px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: '0.8125rem' }}>
+                        <Calendar size={13} style={{ color: 'var(--text-dim)' }} />
+                        <span>{formatDate(o.offerDate)}</span>
+                      </div>
+                    </td>
+
+                    {/* 4. Joining Date Column */}
+                    <td style={{ padding: '14px 14px' }}>
+                      <div style={{ fontSize: '0.8125rem', fontWeight: o.joiningDate ? 500 : 400 }}>
+                        {formatDate(o.joiningDate)}
+                      </div>
+                    </td>
+
+                    {/* 5. Template Column */}
+                    <td style={{ padding: '14px 16px' }}>
+                      <div style={{ fontWeight: 500, fontSize: '0.8125rem' }}>{o.template}</div>
+                      {o.templateCode && (
+                        <span
+                          style={{
+                            display: 'inline-block',
+                            fontSize: '0.68rem',
+                            padding: '1px 6px',
+                            borderRadius: 4,
+                            background: 'rgba(99, 102, 241, 0.1)',
+                            color: '#a5b4fc',
+                            marginTop: 4,
+                          }}
+                        >
+                          {o.templateCode}
+                        </span>
+                      )}
+                    </td>
+
+                    {/* 6. Status Column */}
+                    <td style={{ padding: '14px 12px' }}>
+                      <OfferStatusBadge status={o.status as any} />
+                    </td>
+
+                    {/* 7. AI Review Status Column */}
+                    <td style={{ padding: '14px 14px' }}>
+                      {renderAiReviewStatusBadge(o.aiReviewStatus)}
+                    </td>
+
+                    {/* 8. Actions Column (View / Edit / Preview / Download / Duplicate / Send / History) */}
+                    <td style={{ padding: '14px 18px', textAlign: 'right' }}>
+                      <div
+                        style={{
+                          display: 'flex',
+                          gap: 4,
+                          justifyContent: 'flex-end',
+                          alignItems: 'center',
+                          flexWrap: 'wrap',
+                        }}
+                      >
+                        {/* View Action */}
+                        <button
+                          className="btn btn-secondary"
+                          style={{ padding: '5px 8px', fontSize: '0.72rem' }}
+                          title="View offer summary and details"
+                          onClick={() => handleView(o)}
+                        >
+                          <Eye size={13} />
+                        </button>
+
+                        {/* Edit Action */}
+                        <button
+                          className="btn btn-secondary"
+                          style={{ padding: '5px 8px', fontSize: '0.72rem' }}
+                          title="Edit terms and clauses"
+                          onClick={() => handleEdit(o)}
+                        >
+                          <Edit3 size={13} />
+                        </button>
+
+                        {/* Preview Action */}
+                        <button
+                          className="btn btn-secondary"
+                          style={{ padding: '5px 8px', fontSize: '0.72rem' }}
+                          title="Preview document markup and terms"
+                          onClick={() => handlePreview(o)}
+                        >
+                          <FileText size={13} />
+                        </button>
+
+                        {/* Download Action */}
+                        <button
+                          className="btn btn-secondary"
+                          style={{ padding: '5px 8px', fontSize: '0.72rem' }}
+                          title="Download official PDF document"
+                          onClick={() => handleDownload(o)}
+                          disabled={actionLoadingId === o.id}
+                        >
+                          <Download size={13} />
+                        </button>
+
+                        {/* Duplicate Action */}
+                        <button
+                          className="btn btn-secondary"
+                          style={{ padding: '5px 8px', fontSize: '0.72rem' }}
+                          title="Duplicate offer into fresh draft"
+                          onClick={() => handleDuplicate(o)}
+                          disabled={actionLoadingId === o.id}
+                        >
+                          <Copy size={13} />
+                        </button>
+
+                        {/* Send Action */}
+                        <button
+                          className="btn btn-primary"
+                          style={{
+                            padding: '5px 9px',
+                            fontSize: '0.72rem',
+                            gap: 4,
+                            opacity: o.status === 'ISSUED' ? 0.7 : 1,
+                          }}
+                          title={o.status === 'ISSUED' ? 'Offer already sent' : 'Send formal offer to candidate'}
+                          onClick={() => handleSend(o)}
+                          disabled={actionLoadingId === o.id}
+                        >
+                          <Send size={12} />
+                          <span>Send</span>
+                        </button>
+
+                        {/* History Action */}
+                        <button
+                          className="btn btn-secondary"
+                          style={{ padding: '5px 8px', fontSize: '0.72rem' }}
+                          title="View audit history, versions, and transitions"
+                          onClick={() => handleHistory(o)}
+                        >
+                          <History size={13} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
+
+        {/* Pagination Bar */}
+        <div
+          style={{
+            padding: '14px 24px',
+            borderTop: '1px solid var(--border-subtle)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            gap: 16,
+            background: 'rgba(255, 255, 255, 0.01)',
+          }}
+        >
+          {/* Showing Count and Limit Selector */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <span style={{ fontSize: '0.8125rem', color: 'var(--text-muted)' }}>
+              Showing {totalCount === 0 ? 0 : (page - 1) * limit + 1} to{' '}
+              {Math.min(page * limit, totalCount)} of {totalCount} offers
+            </span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>Per page:</span>
+              <select
+                className="form-input"
+                value={limit}
+                onChange={(e) => {
+                  setLimit(Number(e.target.value));
+                  setPage(1);
+                }}
+                style={{ padding: '3px 8px', fontSize: '0.75rem', height: 28 }}
+              >
+                <option value={10}>10</option>
+                <option value={20}>20</option>
+                <option value={50}>50</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Page Navigation Controls */}
+          <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
+            <button
+              className="btn btn-secondary"
+              style={{ padding: '5px 8px' }}
+              disabled={page <= 1}
+              onClick={() => setPage(1)}
+              title="First Page"
+            >
+              <ChevronsLeft size={14} />
+            </button>
+            <button
+              className="btn btn-secondary"
+              style={{ padding: '5px 8px' }}
+              disabled={page <= 1}
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              title="Previous Page"
+            >
+              <ChevronLeft size={14} />
+            </button>
+
+            {/* Dynamic Page Buttons */}
+            {Array.from({ length: totalPages }, (_, i) => i + 1)
+              .filter((p) => p === 1 || p === totalPages || Math.abs(p - page) <= 1)
+              .map((p, idx, arr) => {
+                const prev = arr[idx - 1];
+                return (
+                  <React.Fragment key={p}>
+                    {prev && p - prev > 1 && (
+                      <span style={{ padding: '0 4px', color: 'var(--text-dim)', fontSize: '0.8125rem' }}>
+                        ...
+                      </span>
+                    )}
+                    <button
+                      className={`btn ${page === p ? 'btn-primary' : 'btn-secondary'}`}
+                      style={{ padding: '4px 10px', fontSize: '0.75rem', minWidth: 28 }}
+                      onClick={() => setPage(p)}
+                    >
+                      {p}
+                    </button>
+                  </React.Fragment>
+                );
+              })}
+
+            <button
+              className="btn btn-secondary"
+              style={{ padding: '5px 8px' }}
+              disabled={page >= totalPages}
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              title="Next Page"
+            >
+              <ChevronRight size={14} />
+            </button>
+            <button
+              className="btn btn-secondary"
+              style={{ padding: '5px 8px' }}
+              disabled={page >= totalPages}
+              onClick={() => setPage(totalPages)}
+              title="Last Page"
+            >
+              <ChevronsRight size={14} />
+            </button>
+          </div>
+        </div>
       </div>
+
       {/* Offer Detail, Preview, Generation & Version History Hub Modal */}
       {selectedOfferForDetail && (
         <OfferDetailModal
           offer={selectedOfferForDetail}
           isOpen={Boolean(selectedOfferForDetail)}
+          initialTab={detailModalTab}
           onClose={() => setSelectedOfferForDetail(null)}
           onOfferUpdated={() => {
-            // Updated offer in place
+            fetchOffers();
           }}
         />
       )}

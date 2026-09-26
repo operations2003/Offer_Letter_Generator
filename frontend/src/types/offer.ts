@@ -276,3 +276,105 @@ export interface OfferStatusDetails {
   statusLogs: OfferStatusLog[];
 }
 
+export interface DashboardStatistics {
+  total: number;
+  draft: number;
+  aiProcessing: number;
+  awaitingReview: number;
+  generated: number;
+  sent: number;
+  accepted: number;
+  rejected: number;
+  expired: number;
+}
+
+export interface OfferListItem {
+  id: string;
+  referenceNumber: string;
+  offerReferenceNumber?: string;
+  candidate?: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone?: string;
+  };
+  candidateName: string;
+  email: string;
+  phone?: string;
+  position: string;
+  jobTitle?: string;
+  department: string;
+  bandGrade?: string;
+  offerDate: string;
+  createdAt?: string;
+  joiningDate: string | null;
+  proposedJoiningDate?: string | null;
+  template: string;
+  templateCode?: string;
+  status: string;
+  currentStatus?: string;
+  currentVersionNumber?: number;
+  aiReviewStatus: 'VERIFIED_BY_HR' | 'PENDING_AI_REVIEW' | 'OVERRIDDEN' | 'STANDARD';
+  totalCtc: number;
+  baseSalary?: number;
+  currency: string;
+  hasGeneratedDocument?: boolean;
+  generatedDocumentId?: string | null;
+}
+
+export interface OfferListResponse {
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+  offset: number;
+  items: OfferListItem[];
+}
+
+export interface OfferHistoryData {
+  offer: {
+    id: string;
+    referenceNumber: string;
+    candidateName: string;
+    currentStatus: string;
+    currentVersionNumber: number;
+    createdAt: string;
+    updatedAt: string;
+  };
+  versions: Array<{
+    id: string;
+    versionNumber: number;
+    createdAt: string;
+    changeReason?: string;
+    diffFromPrevious?: Record<string, any>;
+    snapshotTerms?: Record<string, any>;
+    creator?: {
+      id: string;
+      firstName: string;
+      lastName: string;
+      email: string;
+    };
+  }>;
+  statusLogs: Array<{
+    id: string;
+    fromStatus: string;
+    toStatus: string;
+    reasonNotes?: string;
+    createdAt: string;
+    changedBy?: {
+      id: string;
+      firstName: string;
+      lastName: string;
+      email: string;
+    };
+  }>;
+  auditLogs: Array<{
+    id: string;
+    action: string;
+    actionDescription: string;
+    createdAt: string;
+    actorType: string;
+  }>;
+}
+

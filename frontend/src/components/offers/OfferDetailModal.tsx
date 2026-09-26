@@ -39,6 +39,7 @@ interface OfferDetailModalProps {
   isOpen: boolean;
   onClose: () => void;
   onOfferUpdated?: () => void;
+  initialTab?: 'preview' | 'pdf' | 'versions' | 'status';
 }
 
 export const OfferDetailModal: React.FC<OfferDetailModalProps> = ({
@@ -46,10 +47,17 @@ export const OfferDetailModal: React.FC<OfferDetailModalProps> = ({
   isOpen,
   onClose,
   onOfferUpdated,
+  initialTab = 'preview',
 }) => {
   const { success, error, info } = useToast();
 
-  const [activeTab, setActiveTab] = useState<'preview' | 'pdf' | 'versions' | 'status'>('preview');
+  const [activeTab, setActiveTab] = useState<'preview' | 'pdf' | 'versions' | 'status'>(initialTab);
+
+  useEffect(() => {
+    if (initialTab) {
+      setActiveTab(initialTab);
+    }
+  }, [initialTab, isOpen]);
   const [loading, setLoading] = useState<boolean>(true);
   const [previewData, setPreviewData] = useState<OfferPreviewData | null>(null);
   const [statusDetails, setStatusDetails] = useState<OfferStatusDetails | null>(null);

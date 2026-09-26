@@ -377,6 +377,91 @@ async function runOfferApiTests() {
   const versionList = await OfferService.getOfferVersions(companyId, formalOffer.id);
   assert(versionList.versions.length >= 2, 'Version list contains multiple historical revisions');
 
+  // ---------------------------------------------------------------------------
+  // 11. Dashboard Statistics API
+  // ---------------------------------------------------------------------------
+  console.log('\n--- 11. Dashboard Statistics API ---');
+  const stats = await OfferService.getDashboardStatistics(companyId);
+  assert(typeof stats.total === 'number' && stats.total > 0, 'Statistics: Total count returned');
+  assert(typeof stats.draft === 'number', 'Statistics: Draft count returned');
+  assert(typeof stats.aiProcessing === 'number', 'Statistics: AI Processing count returned');
+  assert(typeof stats.awaitingReview === 'number', 'Statistics: Awaiting Review count returned');
+  assert(typeof stats.generated === 'number', 'Statistics: Generated count returned');
+  assert(typeof stats.sent === 'number', 'Statistics: Sent count returned');
+  assert(typeof stats.accepted === 'number' && stats.accepted >= 1, 'Statistics: Accepted count returned');
+  assert(typeof stats.rejected === 'number', 'Statistics: Rejected count returned');
+  assert(typeof stats.expired === 'number', 'Statistics: Expired count returned');
+
+  // ---------------------------------------------------------------------------
+  // 12. Offer List API: Search, Filters & Pagination
+  // ---------------------------------------------------------------------------
+  console.log('\n--- 12. Offer List API: Search, Filters & Pagination ---');
+  const listResult = await OfferService.listOffers(companyId, {
+    page: 1,
+    limit: 10,
+    search: 'Samantha',
+  });
+  assert(listResult.items.length > 0, 'Search by candidate name successfully returned offers');
+  assert(Boolean(listResult.items[0].candidate), 'Offer item contains Candidate details');
+  assert(Boolean(listResult.items[0].position), 'Offer item contains Position');
+  assert(Boolean(listResult.items[0].offerDate), 'Offer item contains Offer date');
+  assert(Boolean(listResult.items[0].joiningDate), 'Offer item contains Joining date');
+  assert(Boolean(listResult.items[0].template), 'Offer item contains Template title');
+  assert(Boolean(listResult.items[0].status), 'Offer item contains Status');
+  assert(Boolean(listResult.items[0].aiReviewStatus), 'Offer item contains AI review status');
+  assert(typeof listResult.totalPages === 'number', 'Pagination: totalPages returned');
+  assert(typeof listResult.page === 'number', 'Pagination: current page returned');
+
+  // ---------------------------------------------------------------------------
+  // 13. Duplicate Offer API
+  // ---------------------------------------------------------------------------
+  console.log('\n--- 13. Duplicate Offer API ---');
+  const duplicated = await OfferService.duplicateOffer(companyId, userId, formalOffer.id);
+  assert(Boolean(duplicated.id), 'Duplicate offer created with new ID');
+  assert(duplicated.id !== formalOffer.id, 'Duplicate has unique ID from source');
+  assert(duplicated.currentStatus === OfferStatus.DRAFT_AI, 'Duplicated offer starts in DRAFT_AI');
+  assert(duplicated.currentVersionNumber === 1, 'Duplicated offer starts at Version 1');
+  assert(Boolean(duplicated.jobTitle), 'Duplicated offer preserves job title');
+
+  // ---------------------------------------------------------------------------
+  // 14. Send Offer API
+  // ---------------------------------------------------------------------------
+  console.log('\n--- 14. Send Offer API ---');
+  // Create an approved offer to test send
+  const approvedOffer = await OfferService.createOffer(companyId, userId, {
+    candidateDetails: {
+      firstName: 'Samantha',
+      lastName: 'Vance',
+      email: `samantha.vance.${Date.now()}@example.org`,
+    },
+    jobTitle: 'Principal Staff Engineer',
+    department: 'Engineering',
+    workLocation: 'San Francisco, CA',
+    proposedJoiningDate: '2026-11-01',
+    compensation: {
+      currency: 'USD',
+      baseSalary: 230000,
+      totalCtc: 270000,
+    },
+  });
+
+  const sendResult = await OfferService.sendOffer(companyId, userId, approvedOffer.id, {
+    message: 'Welcome to the team! Your formal offer is ready.',
+  });
+  assert(sendResult.offer.currentStatus === OfferStatus.ISSUED, 'Send Offer transitioned status to ISSUED');
+  assert(Boolean(sendResult.portalToken), 'Send Offer generated candidate portal token');
+  assert(Boolean(sendResult.portalUrl), 'Send Offer returned candidate portal URL');
+
+  // ---------------------------------------------------------------------------
+  // 15. Offer Comprehensive History API
+  // ---------------------------------------------------------------------------
+  console.log('\n--- 15. Offer Comprehensive History API ---');
+  const history = await OfferService.getOfferHistory(companyId, formalOffer.id);
+  assert(history.offer.id === formalOffer.id, 'History matches requested offer ID');
+  assert(history.versions.length >= 2, 'History includes version history list');
+  assert(history.statusLogs.length > 0, 'History includes status transition logs');
+  assert(Array.isArray(history.auditLogs), 'History includes audit log entries');
+
   console.log('\n================================================================');
   console.log(`📊 OFFER API TEST RESULTS: ${passed} PASSED, ${failed} FAILED`);
   console.log('================================================================\n');
