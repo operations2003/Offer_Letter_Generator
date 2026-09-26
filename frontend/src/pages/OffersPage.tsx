@@ -16,7 +16,9 @@ import { ExtractWithAi } from '../components/ai/ExtractWithAi.js';
 import { OfferItem, OfferStatus, AiCandidateExtractionData } from '../types/index.js';
 import { useToast } from '../context/ToastContext.js';
 import { OfferGeneratorWizard } from '../components/offers/wizard/OfferGeneratorWizard.js';
+import { OfferDetailModal } from '../components/offers/OfferDetailModal.js';
 import { GeneratedOfferResult } from '../types/offer.js';
+import { offerService } from '../services/offerService.js';
 
 const MOCK_OFFERS: OfferItem[] = [
   {
@@ -92,6 +94,7 @@ export const OffersPage: React.FC = () => {
   const [selectedStatus, setSelectedStatus] = useState<string>('ALL');
   const [searchParams, setSearchParams] = useSearchParams();
   const [isWizardOpen, setIsWizardOpen] = useState(() => searchParams.get('create') === 'true');
+  const [selectedOfferForDetail, setSelectedOfferForDetail] = useState<OfferItem | null>(null);
   const navigate = useNavigate();
   const { success } = useToast();
 
@@ -273,20 +276,28 @@ export const OffersPage: React.FC = () => {
                   <td style={{ padding: '14px', textAlign: 'right' }}>
                     <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
                       <Button
-                        variant="secondary"
-                        style={{ padding: '5px 10px', fontSize: '0.75rem' }}
-                        onClick={() => navigate('/ai-studio')}
-                        title="Review AI Output vs Confirmed Data"
+                        variant="primary"
+                        style={{ padding: '5px 12px', fontSize: '0.75rem', gap: 6 }}
+                        onClick={() => setSelectedOfferForDetail(o)}
+                        title="Open Offer Preview, Generation Status & Version History"
                       >
-                        Review
+                        <Eye size={13} />
+                        <span>Preview & Manage</span>
                       </Button>
                       <button
-                        className="btn btn-ghost"
-                        style={{ padding: '6px' }}
-                        title="Download Final PDF"
-                        onClick={() => success(`Simulating PDF download for ${o.referenceNumber}`)}
+                        className="btn btn-secondary"
+                        style={{ padding: '6px 10px', fontSize: '0.75rem' }}
+                        title="Download Legal PDF"
+                        onClick={async () => {
+                          try {
+                            await offerService.downloadOfferPdf(o.id, undefined, `Offer_${o.referenceNumber}.pdf`);
+                            success(`Downloaded PDF for ${o.referenceNumber}`);
+                          } catch {
+                            window.print();
+                          }
+                        }}
                       >
-                        <Download size={14} />
+                        <Download size={13} />
                       </button>
                     </div>
                   </td>
@@ -296,6 +307,17 @@ export const OffersPage: React.FC = () => {
           </table>
         </div>
       </div>
+      {/* Offer Detail, Preview, Generation & Version History Hub Modal */}
+      {selectedOfferForDetail && (
+        <OfferDetailModal
+          offer={selectedOfferForDetail}
+          isOpen={Boolean(selectedOfferForDetail)}
+          onClose={() => setSelectedOfferForDetail(null)}
+          onOfferUpdated={() => {
+            // Updated offer in place
+          }}
+        />
+      )}
     </div>
   );
 };

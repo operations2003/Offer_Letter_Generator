@@ -211,3 +211,68 @@ export interface PreGenerationCheckResult {
   aiAssistanceNotice: string;
   checkedAt: string;
 }
+
+export interface OfferVersionItem {
+  id: string;
+  offerId: string;
+  versionNumber: number;
+  changeReason?: string;
+  createdBy?: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+  };
+  createdAt: string;
+  snapshotTerms?: Record<string, unknown>;
+  diffFromPrevious?: Record<string, { before: unknown; after: unknown }>;
+}
+
+export interface OfferPreviewData {
+  offerId: string;
+  offerReferenceNumber: string;
+  currentStatus: string;
+  versionNumber: number;
+  renderedHtml: string;
+  plainText: string;
+  styleCss?: string;
+  placeholders?: string[];
+  validation?: {
+    isReadyForIssuance: boolean;
+    missingRequiredFields: string[];
+    warnings: string[];
+  };
+  verificationToken?: string;
+  sha256Checksum?: string;
+  fileName?: string;
+  downloadUrl?: string;
+}
+
+export interface OfferStatusLog {
+  id: string;
+  previousStatus: string;
+  newStatus: string;
+  reason?: string;
+  notes?: string;
+  createdAt: string;
+  changedBy?: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+  };
+}
+
+export interface OfferStatusDetails {
+  offerId: string;
+  currentStatus: string;
+  allowedTransitions: string[];
+  approver?: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+  };
+  statusLogs: OfferStatusLog[];
+}
+
