@@ -22,6 +22,40 @@ declare global {
 }
 
 /**
+ * In-memory token revocation registry with auto-expiry.
+ * Revokes access tokens upon explicit logout to guarantee session security.
+ */
+class TokenRevocationRegistry {
+  private static revokedTokens = new Map<string, number>();
+
+  static revoke(token: string, expiryTimestampMs?: number): void {
+    // Default expiry 2 hours
+    const expiry = expiryTimestampMs || Date.now() + 2 * 60 * 60 * 1000;
+    this.revokedTokens.set(token, expiry);
+
+    // Periodically clean expired tokens
+    if (this.revokedTokens.size > 1000) {
+      const now = Date.now();
+      for (const [t, exp] of this.revokedTokens.entries()) {
+        if (now > exp) this.revokedTokens.delete(t);
+      }
+    }
+  }
+
+  static isRevoked(token: string): boolean {
+    const expiry = this.revokedTokens.get(token);
+    if (!expiry) return false;
+    if (Date.now() > expiry) {
+      this.revokedTokens.delete(token);
+      return false;
+    }
+    return true;
+  }
+}
+
+export const TokenRevocationService = TokenRevocationRegistry;
+
+/**
  * Verifies JWT token and attaches authenticated user context to request
  */
 export async function authenticate(req: Request, _res: Response, next: NextFunction): Promise<void> {
@@ -32,6 +66,11 @@ export async function authenticate(req: Request, _res: Response, next: NextFunct
     }
 
     const token = authHeader.split(' ')[1];
+
+    if (TokenRevocationRegistry.isRevoked(token)) {
+      throw new UnauthorizedError('Authentication token has been revoked (session ended)');
+    }
+
     let payload: TokenPayload;
 
     try {

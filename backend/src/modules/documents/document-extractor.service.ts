@@ -43,9 +43,34 @@ export class DocumentExtractorService {
     let extractedText = '';
     let pageCount: number | undefined;
 
-    // Detect format by extension and MIME
+    // 1. Executable and binary signature screening
+    if (buffer.length >= 4) {
+      // Windows PE/DOS executable (.exe, .dll, .bat, .sys)
+      if (buffer[0] === 0x4d && buffer[1] === 0x5a) {
+        throw new BadRequestError(`File "${originalFileName}" is an executable binary and is strictly rejected.`);
+      }
+      // Linux ELF binary
+      if (buffer[0] === 0x7f && buffer[1] === 0x45 && buffer[2] === 0x4c && buffer[3] === 0x46) {
+        throw new BadRequestError(`File "${originalFileName}" contains an executable ELF binary and is rejected.`);
+      }
+      // Java class / Mach-O binary
+      if (
+        (buffer[0] === 0xca && buffer[1] === 0xfe && buffer[2] === 0xba && buffer[3] === 0xbe) ||
+        (buffer[0] === 0xcf && buffer[1] === 0xfa && buffer[2] === 0xed && buffer[3] === 0xfe)
+      ) {
+        throw new BadRequestError(`File "${originalFileName}" contains compiled binary bytecode and is rejected.`);
+      }
+    }
+
+    // 2. Format validation with magic byte verification
     if (lowerName.endsWith('.pdf') || mimeType === 'application/pdf') {
       detectedFormat = 'PDF';
+      // Verify %PDF- header in first 1024 bytes
+      const headerSnippet = buffer.subarray(0, Math.min(buffer.length, 1024)).toString('latin1');
+      if (!headerSnippet.includes('%PDF-')) {
+        throw new BadRequestError(`File "${originalFileName}" lacks a valid PDF header signature.`);
+      }
+
       try {
         const parsed = await (pdf as any)(buffer);
         extractedText = parsed.text || '';
@@ -59,6 +84,11 @@ export class DocumentExtractorService {
       mimeType === 'application/docx'
     ) {
       detectedFormat = 'DOCX';
+      // Verify PK\x03\x04 zip container magic bytes
+      if (buffer.length < 4 || buffer[0] !== 0x50 || buffer[1] !== 0x4b || buffer[2] !== 0x03 || buffer[3] !== 0x04) {
+        throw new BadRequestError(`File "${originalFileName}" is not a valid OpenXML Word document (invalid ZIP container signature).`);
+      }
+
       try {
         const result = await mammoth.extractRawText({ buffer });
         extractedText = result.value || '';
@@ -99,11 +129,15 @@ export class DocumentExtractorService {
   }
 
   /**
-   * Sanitizes extracted text by stripping null bytes, excessive whitespace, and non-printable noise
+   * Sanitizes extracted text:
+   * - Strips null bytes and unprintable ASCII control codes
+   * - Neutralizes prompt injection XML tags (e.g. </untrusted_document_content>)
+   * - Normalizes newlines and whitespace
    */
   private static sanitizeText(text: string): string {
     return text
       .replace(/\0/g, '') // Remove null bytes
+      .replace(/<\/?(untrusted_document_content|system_override|instruction|prompt|system)>/gi, '[SANITIZED_TAG]') // Neutralize prompt injection tags
       .replace(/\r\n/g, '\n') // Normalize Windows newlines
       .replace(/\r/g, '\n') // Normalize Mac newlines
       .replace(/\t/g, ' ') // Replace tabs with spaces

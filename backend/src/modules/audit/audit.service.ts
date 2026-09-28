@@ -42,11 +42,55 @@ export interface AuditFilterQuery {
 
 export class AuditService {
   /**
+   * Deeply sanitizes sensitive data fields (passwords, tokens, API keys, secrets)
+   * before persisting to the immutable audit log ledger.
+   */
+  private static redactSensitiveData(obj: unknown): unknown {
+    if (!obj || typeof obj !== 'object') {
+      return obj;
+    }
+
+    if (Array.isArray(obj)) {
+      return obj.map((item) => this.redactSensitiveData(item));
+    }
+
+    const SENSITIVE_KEYS = new Set([
+      'password',
+      'passwordplain',
+      'passwordhash',
+      'token',
+      'accesstoken',
+      'refreshtoken',
+      'jwt',
+      'secret',
+      'apikey',
+      'authorization',
+      'credentials',
+    ]);
+
+    const sanitized: Record<string, unknown> = {};
+    for (const [key, value] of Object.entries(obj as Record<string, unknown>)) {
+      const lowerKey = key.toLowerCase();
+      if (SENSITIVE_KEYS.has(lowerKey)) {
+        sanitized[key] = '[REDACTED]';
+      } else if (typeof value === 'object' && value !== null) {
+        sanitized[key] = this.redactSensitiveData(value);
+      } else {
+        sanitized[key] = value;
+      }
+    }
+    return sanitized;
+  }
+
+  /**
    * Records an immutable entry to the audit log ledger.
    * Runs asynchronously and catches failures to ensure core operations are not blocked.
    */
   static async record(entry: AuditLogEntry): Promise<void> {
     try {
+      const sanitizedPreviousState = entry.previousState ? this.redactSensitiveData(entry.previousState) : undefined;
+      const sanitizedNewState = entry.newState ? this.redactSensitiveData(entry.newState) : undefined;
+
       await prisma.auditLog.create({
         data: {
           companyId: entry.companyId,
@@ -56,8 +100,8 @@ export class AuditService {
           entityId: entry.entityId,
           action: entry.action,
           actionDescription: entry.actionDescription,
-          previousState: (entry.previousState as any) || undefined,
-          newState: (entry.newState as any) || undefined,
+          previousState: (sanitizedPreviousState as any) || undefined,
+          newState: (sanitizedNewState as any) || undefined,
           ipAddress: entry.ipAddress || null,
           userAgent: entry.userAgent || null,
         },

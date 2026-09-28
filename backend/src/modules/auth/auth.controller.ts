@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { AuthService } from './auth.service.js';
 import { AuditService } from '../audit/audit.service.js';
+import { TokenRevocationService } from '../../middleware/auth.js';
 
 export class AuthController {
   static async login(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -38,6 +39,12 @@ export class AuthController {
 
   static async logout(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
+      const authHeader = req.headers.authorization;
+      if (authHeader && authHeader.startsWith('Bearer ')) {
+        const token = authHeader.split(' ')[1];
+        TokenRevocationService.revoke(token);
+      }
+
       if (req.user) {
         await AuditService.record({
           companyId: req.user.companyId,
@@ -46,7 +53,7 @@ export class AuthController {
           entityType: 'User',
           entityId: req.user.userId,
           action: 'READ',
-          actionDescription: `User ${req.user.email} logged out`,
+          actionDescription: `User ${req.user.email} logged out and revoked active session token`,
           ipAddress: req.ip || req.socket.remoteAddress,
           userAgent: req.get('user-agent'),
         });

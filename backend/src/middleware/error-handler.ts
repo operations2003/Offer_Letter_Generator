@@ -75,12 +75,19 @@ export function errorHandler(
   }
 
   // 4. Fallback Unhandled 500
-  console.error('[UNHANDLED_ERROR]', err);
+  // Sanitize message to prevent leaking credentials or connection strings
+  const sanitizedMsg = (err.message || '')
+    .replace(/(postgres|postgresql|mysql):\/\/[^@\s]+@[^\s/]+/gi, '$1://[REDACTED_CREDENTIALS]@[HOST]')
+    .replace(/Bearer\s+[A-Za-z0-9-_.]+/gi, 'Bearer [REDACTED]')
+    .replace(/(api[_-]?key|secret|password)=([^&\s]+)/gi, '$1=[REDACTED]');
+
+  console.error('[UNHANDLED_ERROR]', sanitizedMsg);
+
   res.status(500).json({
     success: false,
     error: {
       code: 'INTERNAL_SERVER_ERROR',
-      message: process.env.NODE_ENV === 'production' ? 'An unexpected internal error occurred' : err.message,
+      message: process.env.NODE_ENV === 'production' ? 'An unexpected internal error occurred' : sanitizedMsg,
       details: process.env.NODE_ENV === 'production' ? null : err.stack,
     },
   });

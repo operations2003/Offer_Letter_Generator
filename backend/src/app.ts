@@ -12,6 +12,7 @@ import auditRoutes from './modules/audit/audit.routes.js';
 import aiRoutes from './modules/ai/ai.routes.js';
 import offerRoutes from './modules/offers/offer.routes.js';
 import templateRoutes from './modules/templates/template.routes.js';
+import { authRateLimiter, aiRateLimiter, generalApiRateLimiter } from './middleware/rate-limiter.js';
 
 export function createApp(): Express {
   const app = express();
@@ -69,6 +70,12 @@ export function createApp(): Express {
 
   app.get('/health', healthHandler);
   app.get('/api/v1/health', healthHandler);
+
+  // Rate Limiting Guards
+  app.use('/api/v1/auth/login', authRateLimiter);
+  app.use('/api/v1/ai', aiRateLimiter);
+  app.use('/api/v1/offers/ai', aiRateLimiter);
+  app.use('/api/v1', generalApiRateLimiter);
 
   // Mount API v1 modules
   app.use('/api/v1/auth', authRoutes);

@@ -2,6 +2,17 @@ import { AiAssistanceType, AiImprovementGoal } from './types.js';
 
 export class PromptManager {
   /**
+   * Neutralizes prompt injection payloads, system overrides, and boundary breaking
+   * tags within untrusted user or document text.
+   */
+  static sanitizeUntrustedInput(text: string): string {
+    if (!text) return '';
+    return text
+      .replace(/<\/?(untrusted_document_content|system|system_override|instruction|developer_override|text_to_improve|previous_content)>/gi, '[SANITIZED_TAG]')
+      .trim();
+  }
+
+  /**
    * Builds candidate data extraction prompt with strict prompt-injection guardrails
    * and a non-negotiable rule that the AI MUST NOT assume or hallucinate missing information.
    */
@@ -54,10 +65,11 @@ Expected JSON Structure:
   "missingFields": string[]
 }`;
 
+    const sanitizedDoc = this.sanitizeUntrustedInput(documentText);
     const userPrompt = `Extract the candidate and offer details from the following document. Remember: DO NOT assume missing information; if a detail is absent, set its value to null.
 
 <untrusted_document_content>
-${documentText.trim()}
+${sanitizedDoc}
 </untrusted_document_content>
 
 Respond ONLY with the valid JSON object.`;
@@ -283,11 +295,12 @@ Output valid JSON only:
   "requiresHrReview": true
 }`;
 
+    const sanitizedText = this.sanitizeUntrustedInput(text);
     const userPrompt = `Goal: ${goal}
 Specific Instruction: ${instruction || 'Refine and improve the wording'}
 Original Text to improve:
 <text_to_improve>
-${text}
+${sanitizedText}
 </text_to_improve>
 Context:
 ${JSON.stringify(context, null, 2)}`;
@@ -323,11 +336,12 @@ Output valid JSON only:
   "requiresHrReview": true
 }`;
 
+    const sanitizedPrev = this.sanitizeUntrustedInput(previousContent);
     const userPrompt = `Assistance Type: ${type}
 Feedback / Refinement Guidance: ${instruction || 'Provide an alternative professional wording variation'}
 Previous Version:
 <previous_content>
-${previousContent}
+${sanitizedPrev}
 </previous_content>
 Context:
 ${JSON.stringify(context, null, 2)}`;
