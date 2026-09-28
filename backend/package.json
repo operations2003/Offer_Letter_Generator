@@ -14,7 +14,8 @@
     "lint": "tsc --noEmit",
     "test": "tsx src/tests/test-runner.ts",
     "test:offers": "tsx src/tests/offer-apis.test.ts",
-    "test:all": "tsx src/tests/test-runner.ts && tsx src/tests/offer-apis.test.ts"
+    "test:personas": "tsx src/tests/persona-verification.test.ts",
+    "test:all": "tsx src/tests/test-runner.ts && tsx src/tests/offer-apis.test.ts && tsx src/tests/persona-verification.test.ts"
   },
   "keywords": [
     "offer-letter",

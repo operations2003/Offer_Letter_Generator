@@ -1673,12 +1673,72 @@ export class OfferService {
         }))
       : [];
 
+    // Generate Compensation Table HTML
+    const compTable = `
+      <table class="compensation-table">
+        <thead>
+          <tr>
+            <th>Component</th>
+            <th style="text-align: right;">Annual Amount (${currency})</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Base Salary</td>
+            <td style="text-align: right;">${OfferTemplateUtil.formatCurrency(baseSalary, currency)}</td>
+          </tr>
+          ${hraAllowance > 0 ? `
+          <tr>
+            <td>Housing Rent Allowance (HRA)</td>
+            <td style="text-align: right;">${OfferTemplateUtil.formatCurrency(hraAllowance, currency)}</td>
+          </tr>` : ''}
+          ${specialAllowances > 0 ? `
+          <tr>
+            <td>Special Allowances</td>
+            <td style="text-align: right;">${OfferTemplateUtil.formatCurrency(specialAllowances, currency)}</td>
+          </tr>` : ''}
+          ${performanceBonus > 0 ? `
+          <tr>
+            <td>Performance Bonus</td>
+            <td style="text-align: right;">${OfferTemplateUtil.formatCurrency(performanceBonus, currency)}</td>
+          </tr>` : ''}
+          ${joiningBonus > 0 ? `
+          <tr>
+            <td>Joining Bonus</td>
+            <td style="text-align: right;">${OfferTemplateUtil.formatCurrency(joiningBonus, currency)}</td>
+          </tr>` : ''}
+          <tr class="total-row">
+            <td>Total Cost to Company (CTC)</td>
+            <td style="text-align: right;">${OfferTemplateUtil.formatCurrency(totalCtc, currency)}</td>
+          </tr>
+        </tbody>
+      </table>
+    `;
+
+    const clausesHtml = clauses.length > 0
+      ? clauses.map((c, i) => `<div class="clause-box"><div class="clause-title">${i + 1}. ${c.title}</div><div class="clause-content">${c.content}</div></div>`).join('\n')
+      : '<p>Standard terms and employment conditions apply.</p>';
+
+    const headerMarkup = offer.templateVersion?.headerMarkup || `
+      <div class="offer-header">
+        <h1 class="company-title">${companyName}</h1>
+        <div class="offer-meta">Ref: ${offer.offerReferenceNumber} | Date: ${OfferTemplateUtil.formatDate(new Date())}</div>
+      </div>
+    `;
+
+    const footerMarkup = offer.templateVersion?.footerMarkup || `
+      <div class="offer-footer">
+        <p style="font-size: 11px; color: #64748b; text-align: center;">${companyLegalName} • Confidential Offer Letter</p>
+      </div>
+    `;
+
     // 3. Placeholder Validation: Ensure no unresolved placeholders
     const placeholders: Record<string, string> = {
       candidate_name: candidateName,
       candidate_email: candidateEmail,
       candidate_phone: candidatePhone || '',
       candidate_address: candidateAddress || '',
+      candidateLocation: candidateAddress || 'Standard Location',
       designation: jobTitle,
       job_title: jobTitle,
       department: department,
@@ -1690,6 +1750,8 @@ export class OfferService {
       proposed_joining_date: proposedJoiningDate,
       reporting_manager: reportingManagerName || 'Executive Committee',
       reporting_manager_title: reportingManagerTitle || 'Department Head',
+      reportingManagerName: reportingManagerName || 'Executive Committee',
+      reportingManagerTitle: reportingManagerTitle || 'Department Head',
       salary: OfferTemplateUtil.formatCurrency(baseSalary, currency),
       base_salary: OfferTemplateUtil.formatCurrency(baseSalary, currency),
       hra_allowance: OfferTemplateUtil.formatCurrency(hraAllowance, currency),
@@ -1699,14 +1761,27 @@ export class OfferService {
       total_ctc: OfferTemplateUtil.formatCurrency(totalCtc, currency),
       currency: currency,
       probation_period: probationSummary,
+      probationSummary: probationSummary,
       notice_period: noticePeriodSummary,
+      noticePeriodSummary: noticePeriodSummary,
       working_hours: workingHoursSummary,
+      workingHoursSummary: workingHoursSummary,
       offer_validity_date: offerValidUntil || 'Within 14 days of receipt',
+      offerValidUntil: offerValidUntil || 'Within 14 days of receipt',
       company_name: companyName,
       company_legal_name: companyLegalName,
       signatory_name: signatoryName,
       signatory_title: signatoryTitle,
       offer_reference_number: offer.offerReferenceNumber,
+      currentDate: OfferTemplateUtil.formatDate(new Date()),
+      compensationTableHtml: compTable,
+      compensation_table_html: compTable,
+      clausesHtml: clausesHtml,
+      clauses_html: clausesHtml,
+      headerMarkup: headerMarkup,
+      header_markup: headerMarkup,
+      footerMarkup: footerMarkup,
+      footer_markup: footerMarkup,
     };
 
     // Sub in camelCase versions as well
@@ -1718,8 +1793,10 @@ export class OfferService {
     // Load template markup
     const rawTemplate = offer.templateVersion?.contentMarkup || OfferTemplateUtil.getDefaultTemplateMarkup().contentMarkup;
     let renderedHtml = rawTemplate;
-    for (const [k, v] of Object.entries(placeholders)) {
-      renderedHtml = renderedHtml.replace(new RegExp(`{{${k}}}`, 'g'), v);
+    for (let pass = 0; pass < 3; pass++) {
+      for (const [k, v] of Object.entries(placeholders)) {
+        renderedHtml = renderedHtml.replace(new RegExp(`{{${k}}}`, 'g'), String(v));
+      }
     }
 
     // STRICT PLACEHOLDER VALIDATION: Detect any unreplaced {{tags}}

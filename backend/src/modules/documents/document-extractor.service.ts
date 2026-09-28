@@ -72,9 +72,29 @@ export class DocumentExtractorService {
       }
 
       try {
-        const parsed = await (pdf as any)(buffer);
-        extractedText = parsed.text || '';
-        pageCount = parsed.numpages;
+        if (typeof pdf === 'function') {
+          const parsed = await (pdf as any)(buffer);
+          extractedText = parsed.text || '';
+          pageCount = parsed.numpages;
+        } else if ((pdf as any)?.PDFParse) {
+          const parser = new (pdf as any).PDFParse({ data: buffer });
+          const parsed = await parser.getText();
+          extractedText = parsed.text || '';
+          pageCount = parsed.total || parsed.pages?.length;
+        } else if (typeof (pdf as any)?.default === 'function') {
+          const parsed = await (pdf as any).default(buffer);
+          extractedText = parsed.text || '';
+          pageCount = parsed.numpages;
+        } else if ((pdf as any)?.default?.PDFParse) {
+          const parser = new (pdf as any).default.PDFParse({ data: buffer });
+          const parsed = await parser.getText();
+          extractedText = parsed.text || '';
+          pageCount = parsed.total || parsed.pages?.length;
+        } else {
+          // Fallback: extract plain text streams if simple PDF
+          const raw = buffer.toString('latin1');
+          extractedText = raw.replace(/[^\x20-\x7E\n\r\t]/g, ' ').trim();
+        }
       } catch (err: any) {
         throw new BadRequestError(`Failed to parse PDF document: ${err.message || 'Corrupt or password-protected PDF'}`);
       }
