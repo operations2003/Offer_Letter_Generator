@@ -17,34 +17,34 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 const DEMO_USERS: Record<string, User> = {
   SUPER_ADMIN: {
     id: 'usr_admin_001',
-    email: 'admin@acme.com',
-    firstName: 'Alex',
-    lastName: 'Vance',
-    title: 'Chief Technology Officer',
+    email: 'admin@tasknera.com',
+    firstName: 'Admin',
+    lastName: 'TaskNera',
+    title: 'Enterprise Administrator',
     department: 'Executive',
     status: 'ACTIVE',
     company: {
-      id: 'cmp_acme_001',
-      name: 'Acme Technologies Global Corp.',
-      code: 'ACME',
-      domain: 'acme.com',
+      id: 'cmp_tasknera_001',
+      name: 'TaskNera Enterprise',
+      code: 'TASKNERA',
+      domain: 'tasknera.com',
     },
     roles: ['SUPER_ADMIN'],
     permissions: ['*'],
   },
   HR_MANAGER: {
-    id: 'usr_hr_002',
-    email: 'hr@acme.com',
-    firstName: 'Sarah',
-    lastName: 'Jenkins',
-    title: 'Senior People Partner',
-    department: 'Human Resources',
+    id: 'usr_sakshi_1048',
+    email: 'sakshi@tasknera.com',
+    firstName: 'Sakshi',
+    lastName: 'Koparde',
+    title: 'Senior People Partner & Operations',
+    department: 'People & Operations',
     status: 'ACTIVE',
     company: {
-      id: 'cmp_acme_001',
-      name: 'Acme Technologies Global Corp.',
-      code: 'ACME',
-      domain: 'acme.com',
+      id: 'cmp_tasknera_001',
+      name: 'TaskNera Enterprise',
+      code: 'TASKNERA',
+      domain: 'tasknera.com',
     },
     roles: ['HR_MANAGER'],
     permissions: [
@@ -58,21 +58,23 @@ const DEMO_USERS: Record<string, User> = {
       'candidates:read',
       'ai:extract',
       'audit:read',
+      'documents:all',
+      'policies:all',
     ],
   },
   RECRUITER: {
     id: 'usr_rec_003',
-    email: 'recruiter@acme.com',
+    email: 'recruiter@tasknera.com',
     firstName: 'David',
     lastName: 'Kim',
     title: 'Talent Acquisition Lead',
     department: 'Recruiting',
     status: 'ACTIVE',
     company: {
-      id: 'cmp_acme_001',
-      name: 'Acme Technologies Global Corp.',
-      code: 'ACME',
-      domain: 'acme.com',
+      id: 'cmp_tasknera_001',
+      name: 'TaskNera Enterprise',
+      code: 'TASKNERA',
+      domain: 'tasknera.com',
     },
     roles: ['RECRUITER'],
     permissions: ['candidates:create', 'candidates:read', 'offers:create', 'offers:read', 'ai:extract'],
@@ -91,10 +93,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       if (savedToken && savedUser) {
         try {
-          setUser(JSON.parse(savedUser));
+          const parsed = JSON.parse(savedUser);
+          if (parsed.email?.includes('acme.com') || parsed.firstName === 'Sarah') {
+            const defaultUser = DEMO_USERS.HR_MANAGER;
+            setUser(defaultUser);
+            localStorage.setItem('offergen_user', JSON.stringify(defaultUser));
+          } else {
+            setUser(parsed);
+          }
         } catch {
           localStorage.removeItem('offergen_user');
           localStorage.removeItem('offergen_token');
+          const defaultUser = DEMO_USERS.HR_MANAGER;
+          setUser(defaultUser);
         }
       } else {
         // By default on initial load, pre-authenticate as HR_MANAGER so user lands directly in working app

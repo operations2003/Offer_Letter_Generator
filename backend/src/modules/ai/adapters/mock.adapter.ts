@@ -19,6 +19,14 @@ export class MockAiAdapter implements IAiProviderAdapter {
       generatedJson = this.simulateAssistantImprove(request.userPrompt);
     } else if (request.systemPrompt.includes('AI_ASSISTANT_REGENERATE')) {
       generatedJson = this.simulateAssistantRegenerate(request.userPrompt);
+    } else if (request.systemPrompt.includes('HR Document Extraction Assistant')) {
+      generatedJson = this.simulateDocumentExtraction(request.userPrompt);
+    } else if (request.systemPrompt.includes('HR Policy Architecture Specialist')) {
+      generatedJson = this.simulatePolicyAi(request.userPrompt);
+    } else if (request.systemPrompt.includes('HR Executive Drafting Assistant')) {
+      generatedJson = this.simulateDocumentDrafting(request.userPrompt);
+    } else if (request.systemPrompt.includes('Precision HR Document Editor')) {
+      generatedJson = this.simulateDocumentEditing(request.userPrompt);
     } else if (request.systemPrompt.includes('CANDIDATE_DATA_EXTRACTION')) {
       generatedJson = this.simulateCandidateExtraction(request.userPrompt);
     } else if (request.systemPrompt.includes('POLICY_COMPLIANCE_CHECK')) {
@@ -776,4 +784,219 @@ export class MockAiAdapter implements IAiProviderAdapter {
       requiresHrReview: true,
     };
   }
+
+  private simulateDocumentExtraction(userPrompt: string): Record<string, unknown> {
+    const extractedFields: Record<string, any> = {};
+    const warnings: string[] = [];
+    const missingFields: string[] = [];
+
+    // Helper for detected fields
+    const extract = (key: string, val: any, quote: string, conf = 0.95) => {
+      extractedFields[key] = {
+        value: val,
+        confidenceScore: conf,
+        sourceSnippet: quote,
+        isDetected: true,
+      };
+    };
+
+    // Helper for absent fields
+    const absent = (key: string) => {
+      missingFields.push(key);
+      extractedFields[key] = {
+        value: null,
+        confidenceScore: 0,
+        sourceSnippet: 'Not mentioned in document',
+        isDetected: false,
+      };
+    };
+
+    // Recipient Names
+    if (userPrompt.includes('Jane Alexandra Doe')) {
+      extract('candidateName', 'Jane Alexandra Doe', 'Jane Alexandra Doe');
+    } else if (userPrompt.includes('Liam Alexander Vance')) {
+      extract('candidateName', 'Liam Alexander Vance', 'Liam Alexander Vance');
+      extract('internName', 'Liam Alexander Vance', 'Liam Alexander Vance');
+    } else if (userPrompt.includes('Sophia Chen')) {
+      extract('employeeName', 'Sophia Chen', 'Sophia Chen');
+    } else if (userPrompt.includes('Arthur Pendelton')) {
+      extract('employeeName', 'Arthur Pendelton', 'Arthur Pendelton');
+    } else if (userPrompt.includes('Maya Lin')) {
+      extract('employeeName', 'Maya Lin', 'Maya Lin');
+    } else if (userPrompt.includes('Devraj Patel')) {
+      extract('employeeName', 'Devraj Patel', 'Devraj Patel');
+    } else if (userPrompt.includes('Marcus Thorne')) {
+      extract('employeeName', 'Marcus Thorne', 'Marcus Thorne');
+    } else if (userPrompt.includes('Alex Mercer')) {
+      extract('contractorName', 'Alex Mercer', 'Alex Mercer');
+    } else if (userPrompt.includes('Apex Global Logistics')) {
+      extract('clientLegalName', 'Apex Global Logistics Inc.', 'Apex Global Logistics Inc.');
+    } else {
+      absent('candidateName');
+    }
+
+    // Emails
+    const emailMatch = userPrompt.match(/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/);
+    if (emailMatch) {
+      extract('email', emailMatch[1], emailMatch[1]);
+      extract('internEmail', emailMatch[1], emailMatch[1]);
+      extract('contractorEmail', emailMatch[1], emailMatch[1]);
+      extract('clientContactEmail', emailMatch[1], emailMatch[1]);
+    } else {
+      absent('email');
+    }
+
+    // Designations / Roles
+    if (userPrompt.includes('Lead Platform Architect')) extract('jobTitle', 'Lead Platform Architect', 'Lead Platform Architect');
+    if (userPrompt.includes('Machine Learning Research Intern')) extract('internshipRole', 'Machine Learning Research Intern', 'Machine Learning Research Intern');
+    if (userPrompt.includes('Senior Distributed Systems Engineer')) extract('currentDesignation', 'Senior Distributed Systems Engineer', 'Senior Distributed Systems Engineer');
+    if (userPrompt.includes('Staff Distributed Systems Engineer')) extract('revisedDesignation', 'Staff Distributed Systems Engineer', 'Staff Distributed Systems Engineer');
+    if (userPrompt.includes('Senior Account Manager')) extract('designation', 'Senior Account Manager', 'Senior Account Manager');
+    if (userPrompt.includes('Principal Product Designer')) extract('designationAtExit', 'Principal Product Designer', 'Principal Product Designer');
+    if (userPrompt.includes('Senior DevOps Engineer')) extract('designation', 'Senior DevOps Engineer', 'Senior DevOps Engineer');
+    if (userPrompt.includes('Staff Security Engineer')) extract('designation', 'Staff Security Engineer', 'Staff Security Engineer');
+
+    // Department & Institution
+    if (userPrompt.includes('Applied AI Labs')) extract('department', 'Applied AI Labs', 'Applied AI Labs');
+    if (userPrompt.includes('Cloud Infrastructure')) extract('department', 'Cloud Infrastructure', 'Cloud Infrastructure');
+    if (userPrompt.includes('Stanford University')) extract('collegeOrUniversity', 'Stanford University', 'Stanford University');
+
+    // Dates
+    const dateMatches = userPrompt.match(/\b(202[4-9]-\d{2}-\d{2})\b/g);
+    if (dateMatches && dateMatches.length > 0) {
+      extract('proposedJoiningDate', dateMatches[0], dateMatches[0]);
+      extract('startDate', dateMatches[0], dateMatches[0]);
+      extract('effectiveDate', dateMatches[0], dateMatches[0]);
+      if (dateMatches[1]) {
+        extract('endDate', dateMatches[1], dateMatches[1]);
+        extract('lastWorkingDate', dateMatches[1], dateMatches[1]);
+        extract('settlementDate', dateMatches[1], dateMatches[1]);
+      }
+    }
+
+    // Compensation & Numeric
+    if (userPrompt.includes('165,000') || userPrompt.includes('165000')) {
+      extract('baseSalary', 165000, '$165,000');
+      extract('revisedBaseSalary', 165000, '$165,000');
+    }
+    if (userPrompt.includes('234,750') || userPrompt.includes('234750')) {
+      extract('totalCtc', 234750, '$234,750');
+    }
+    if (userPrompt.includes('140,000') || userPrompt.includes('140000')) {
+      extract('previousBaseSalary', 140000, '$140,000');
+    }
+    if (userPrompt.includes('6,500') || userPrompt.includes('6500')) {
+      extract('monthlyStipend', 6500, '$6,500');
+      extract('stipendAmount', 6500, '$6,500');
+    }
+    if (userPrompt.includes('19,200') || userPrompt.includes('19200')) {
+      extract('payableEarningsTotal', 19200, '$19,200');
+    }
+    if (userPrompt.includes('3,700') || userPrompt.includes('3700')) {
+      extract('deductionsTotal', 3700, '$3,700');
+    }
+    if (userPrompt.includes('15,500') || userPrompt.includes('15500')) {
+      extract('netPayableAmount', 15500, '$15,500');
+    }
+
+    if (userPrompt.includes('USD')) extract('currency', 'USD', 'USD');
+    else if (userPrompt.includes('EUR')) extract('currency', 'EUR', 'EUR');
+    else if (userPrompt.includes('INR')) extract('currency', 'INR', 'INR');
+
+    return {
+      extractedFields,
+      warnings,
+      missingFields,
+    };
+  }
+
+  private simulateDocumentDrafting(userPrompt: string): Record<string, unknown> {
+    return {
+      title: 'Authorized Document Section Proposal',
+      content:
+        'All activities conducted under this document shall adhere to organizational governance, compliance benchmarks, and confidentiality stipulations. The parties agree to uphold executive professional standards throughout the engagement tenure.',
+      keyPoints: [
+        'Strictly advisory proposal requiring HR review',
+        'Preserves factual terms without policy fabrication',
+        'Subject to executive signatory authorization',
+      ],
+    };
+  }
+
+  private simulateDocumentEditing(userPrompt: string): Record<string, unknown> {
+    const textMatch = userPrompt.match(/Text to improve: "([^"]+)"/);
+    const originalText = textMatch ? textMatch[1] : 'Standard corporate terms and conditions apply.';
+    return {
+      title: 'Refined Executive Wording',
+      improvedText: `Pursuant to corporate governance protocols, ${originalText.toLowerCase().replace(/^(we|this)\s+/i, '')}`,
+      changesSummary: 'Refined phrasing for executive clarity and legal neutrality while strictly preserving facts.',
+    };
+  }
+
+  private simulatePolicyAi(userPrompt: string): Record<string, unknown> {
+    if (userPrompt.includes('TASK: DRAFT_POLICY')) {
+      return {
+        title: 'Comprehensive Enterprise Policy Framework',
+        content: 'This policy establishes standard organizational expectations, operating principles, and compliance parameters for eligible staff.',
+        sections: [
+          { id: 'sec-1', sectionNumber: '1.0', title: 'Purpose & Applicability', content: 'Defines operational intent and workforce eligibility standards.', orderIndex: 1, isMandatory: true },
+          { id: 'sec-2', sectionNumber: '2.0', title: 'Operating Guidelines', content: 'Outlines standard procedures and employee performance expectations.', orderIndex: 2, isMandatory: true },
+          { id: 'sec-3', sectionNumber: '3.0', title: 'Compliance & Escalation', content: 'Specifies non-compliance reporting protocols and grievance escalation.', orderIndex: 3, isMandatory: true },
+        ],
+      };
+    } else if (userPrompt.includes('TASK: IMPROVE_SECTION')) {
+      return {
+        title: 'Refined Section Content',
+        improvedText: 'Employees are expected to adhere to documented operating standards and promptly communicate any schedule discrepancies to their immediate supervisor.',
+        changesSummary: 'Refined sentence structure and elevated professional tone without creating statutory legal guarantees.',
+      };
+    } else if (userPrompt.includes('TASK: IDENTIFY_MISSING_SECTIONS')) {
+      return {
+        missingSectionsIdentified: [
+          {
+            title: 'Reporting & Escalation Procedure',
+            importance: 'CRITICAL',
+            rationale: 'Essential for ensuring transparent resolution of exceptions or non-compliance incidents.',
+            suggestedOutline: 'Define contact points, reporting channels, and protection against retaliation.',
+          },
+          {
+            title: 'Exceptions & Accommodation Request',
+            importance: 'RECOMMENDED',
+            rationale: 'Enables formalized review of medical or religious accommodation requests.',
+            suggestedOutline: 'Procedure for submitting accommodation inquiries to People Operations.',
+          },
+        ],
+      };
+    } else if (userPrompt.includes('TASK: CHECK_CONSISTENCY')) {
+      return {
+        consistencyIssues: [
+          {
+            severity: 'MEDIUM',
+            description: 'Notice requirements differ between section 2.1 (48 hours) and section 4.2 (5 business days).',
+            location: 'Section 2.1 vs Section 4.2',
+            recommendation: 'Standardize advance notice timeline across all dependent clauses.',
+          },
+        ],
+      };
+    } else if (userPrompt.includes('TASK: SUGGEST_WORDING')) {
+      return {
+        wordingSuggestions: [
+          {
+            originalText: 'You have to tell your manager if you are sick.',
+            suggestedText: 'Employees unable to report for duty due to illness must notify their reporting manager at least one hour prior to shift commencement.',
+            rationale: 'Establishes clear, unambiguous operational expectations in professional language.',
+          },
+        ],
+      };
+    } else {
+      return {
+        title: 'Structured Policy Sections',
+        sections: [
+          { id: 'sec-1', sectionNumber: '1.0', title: 'Purpose & Scope', content: 'Defines eligible workforce segments.', orderIndex: 1, isMandatory: true },
+          { id: 'sec-2', sectionNumber: '2.0', title: 'Roles & Responsibilities', content: 'Outlines obligations for managers and employees.', orderIndex: 2, isMandatory: true },
+        ],
+      };
+    }
+  }
 }
+

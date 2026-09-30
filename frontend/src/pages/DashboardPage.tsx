@@ -1,438 +1,827 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  FileText,
   Clock,
-  CheckCircle2,
   Sparkles,
-  TrendingUp,
-  ShieldCheck,
-  AlertTriangle,
   ArrowUpRight,
-  Send,
   FileCheck2,
-  XCircle,
-  CalendarX,
   Layers,
-  Edit3,
+  CalendarCheck2,
+  Award,
+  Headphones,
+  Plus,
+  BookOpen,
+  UserCheck,
+  BrainCircuit,
+  ShieldCheck,
+  Users2,
+  GraduationCap,
+  FileText,
+  Search,
+  CheckCircle2,
+  TrendingUp,
+  AlertCircle,
+  ExternalLink,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.js';
 import { Button } from '../components/common/Button.js';
-import { OfferStatusBadge, AiAdvisoryBadge } from '../components/common/Badge.js';
-import { AiAssist } from '../components/ai/AiAssist.js';
-import { ExtractWithAi } from '../components/ai/ExtractWithAi.js';
-import { GenerateWithAi } from '../components/ai/GenerateWithAi.js';
-import { AiSuggestions, AiSuggestionItem } from '../components/ai/AiSuggestions.js';
-import { OfferItem, AiCandidateExtractionData } from '../types/index.js';
-import { DashboardStatistics } from '../types/offer.js';
-import { offerService } from '../services/offerService.js';
 
-const INITIAL_OFFERS: OfferItem[] = [
-  {
-    id: 'off_001',
-    referenceNumber: 'OFF-2026-0042',
-    candidateName: 'Jane Doe',
-    email: 'jane.doe@example.com',
-    role: 'Lead Platform Architect',
-    department: 'Engineering',
-    totalCtc: 229000,
-    currency: 'USD',
-    status: 'HR_REVIEW',
-    aiConfidence: 0.94,
-    createdAt: '2026-09-26T08:30:00Z',
-  },
-  {
-    id: 'off_002',
-    referenceNumber: 'OFF-2026-0041',
-    candidateName: 'Carlos Rivera',
-    email: 'carlos.rivera@designtech.io',
-    role: 'Staff Design Systems Engineer',
-    department: 'Product Experience',
-    totalCtc: 195000,
-    currency: 'USD',
-    status: 'DRAFT_AI',
-    aiConfidence: 0.96,
-    createdAt: '2026-09-25T14:15:00Z',
-  },
-  {
-    id: 'off_003',
-    referenceNumber: 'OFF-2026-0040',
-    candidateName: 'Priya Sharma',
-    email: 'priya.s@techlead.org',
-    role: 'Director of Machine Learning',
-    department: 'AI Research',
-    totalCtc: 285000,
-    currency: 'USD',
-    status: 'PENDING_APPROVAL',
-    aiConfidence: 0.91,
-    createdAt: '2026-09-24T11:00:00Z',
-  },
-  {
-    id: 'off_004',
-    referenceNumber: 'OFF-2026-0039',
-    candidateName: 'Liam O’Connor',
-    email: 'liam.oc@cloudops.net',
-    role: 'Senior DevOps Specialist',
-    department: 'Cloud Infrastructure',
-    totalCtc: 165000,
-    currency: 'USD',
-    status: 'APPROVED',
-    aiConfidence: 0.88,
-    createdAt: '2026-09-22T09:45:00Z',
-  },
+interface CoreDocTypeItem {
+  code: string;
+  name: string;
+  desc: string;
+  sections: number;
+}
+
+const CORE_DOC_TYPES: CoreDocTypeItem[] = [
+  { code: 'OFFER_LETTER', name: 'Offer Letter', desc: 'Pre-hire terms, CTC, and joining date', sections: 5 },
+  { code: 'INTERNSHIP_LETTER', name: 'Internship Letter', desc: 'Stipend, project scope, and mentor assignment', sections: 4 },
+  { code: 'INCREMENT_LETTER', name: 'Increment Letter', desc: 'Performance appraisal and revised salary', sections: 4 },
+  { code: 'TERMINATION_LETTER', name: 'Termination Letter', desc: 'Formal notice and exit terms', sections: 4 },
+  { code: 'EXPERIENCE_LETTER', name: 'Experience Letter', desc: 'Tenure, designation, and service attestation', sections: 3 },
+  { code: 'RELIEVING_LETTER', name: 'Relieving Letter', desc: 'Official discharge and release confirmation', sections: 3 },
+  { code: 'FNF_SETTLEMENT', name: 'Full & Final Settlement', desc: 'Gratuity, leave encashment, and dues statement', sections: 5 },
+  { code: 'CONTRACT_LETTER', name: 'Contract Letter', desc: 'Fixed-term deliverables and scope of work', sections: 5 },
+  { code: 'MSA', name: 'Master Service Agreement', desc: 'Vendor SLAs, liability caps, and governance', sections: 6 },
 ];
 
-const INITIAL_SUGGESTIONS: AiSuggestionItem[] = [
-  {
-    id: 'sug_1',
-    type: 'SALARY_BAND',
-    title: 'Compensation Benchmark Alert (Jane Doe)',
-    description: 'Proposed base of $155,000 is at the 82nd percentile for Lead Platform Architect in North America.',
-    recommendedAction: 'Verify against department L6 band limit ($160,000 maximum).',
-    confidenceScore: 0.92,
-    impact: 'MEDIUM',
-  },
-  {
-    id: 'sug_2',
-    type: 'POLICY',
-    title: 'Standard Notice Period Conformance',
-    description: 'Executive candidates require 60-day notice period instead of standard 30-day term.',
-    recommendedAction: 'Apply Executive Notice Clause from Template Library.',
-    confidenceScore: 0.95,
-    impact: 'HIGH',
-  },
+const CORE_POLICIES = [
+  'Leave Policy',
+  'Attendance Policy',
+  'Work From Home Policy',
+  'Remote Work Policy',
+  'Hybrid Work Policy',
+  'Code of Conduct',
+  'Anti-Harassment Policy',
+  'IT / Acceptable Use Policy',
+  'Data Privacy Policy',
+  'Information Security Policy',
+  'Expense Policy',
+  'Travel Policy',
+  'Recruitment Policy',
+  'Onboarding Policy',
+  'Performance Management Policy',
+  'Probation Policy',
+  'Grievance Policy',
+  'Disciplinary Policy',
+  'Exit/Offboarding Policy',
 ];
 
 export const DashboardPage: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [offers, setOffers] = useState<OfferItem[]>(INITIAL_OFFERS);
-  const [suggestions, setSuggestions] = useState<AiSuggestionItem[]>(INITIAL_SUGGESTIONS);
-  const [statistics, setStatistics] = useState<DashboardStatistics>({
-    total: 0,
-    draft: 0,
-    aiProcessing: 0,
-    awaitingReview: 0,
-    generated: 0,
-    sent: 0,
-    accepted: 0,
-    rejected: 0,
-    expired: 0,
-  });
-  const [loadingStats, setLoadingStats] = useState(true);
 
-  useEffect(() => {
-    let isMounted = true;
-    const fetchStats = async () => {
-      try {
-        const data = await offerService.getDashboardStatistics();
-        if (isMounted) {
-          setStatistics(data);
-        }
-      } catch (err) {
-        console.error('Failed to load dashboard statistics', err);
-      } finally {
-        if (isMounted) setLoadingStats(false);
-      }
-    };
+  const [activeTab, setActiveTab] = useState<
+    'documents' | 'policies' | 'onboarding' | 'learning' | 'assessments' | 'certificates'
+  >('documents');
 
-    fetchStats();
-    return () => {
-      isMounted = false;
-    };
-  }, []);
-
-  const handleExtraction = (extracted: AiCandidateExtractionData) => {
-    // Navigate to AI Studio with the newly extracted data
-    navigate('/ai-studio', { state: { extractedData: extracted } });
+  // Unified 6 Pillars Statistics
+  const pillarStats = {
+    documents: { total: 9, activeCount: 24, label: '9 Core Document Types' },
+    policies: { total: 19, activeCount: 19, label: '19 Governance Policies' },
+    onboarding: { total: 3, pendingCount: 2, label: 'Active Cohort Candidates' },
+    learning: { total: 4, mandatoryCount: 2, label: 'Enterprise Curricula' },
+    assessments: { total: 3, questionBankCount: 12, label: 'Cognitive & Tech Tests' },
+    certificates: { total: 8, verifiedCount: 8, label: 'Issued Official Credentials' },
   };
 
-  const statCards = [
-    {
-      id: 'total',
-      title: 'Total',
-      count: statistics.total,
-      hint: 'All offer letters',
-      icon: <Layers size={18} style={{ color: 'var(--primary)' }} />,
-      borderColor: 'var(--border-medium)',
-      statusFilter: 'ALL',
-      color: '#fff',
-    },
-    {
-      id: 'draft',
-      title: 'Draft',
-      count: statistics.draft,
-      hint: 'Staged draft offers',
-      icon: <Edit3 size={18} style={{ color: '#93c5fd' }} />,
-      borderColor: 'rgba(147, 197, 253, 0.3)',
-      statusFilter: 'DRAFT_AI',
-      color: '#93c5fd',
-    },
-    {
-      id: 'aiProcessing',
-      title: 'AI Processing',
-      count: statistics.aiProcessing,
-      hint: 'Extraction & suggestions',
-      icon: <Sparkles size={18} style={{ color: '#c084fc' }} />,
-      borderColor: 'rgba(192, 132, 252, 0.3)',
-      statusFilter: 'DRAFT_AI',
-      color: '#c084fc',
-    },
-    {
-      id: 'awaitingReview',
-      title: 'Awaiting Review',
-      count: statistics.awaitingReview,
-      hint: 'HR & approver review',
-      icon: <Clock size={18} style={{ color: '#fbbf24' }} />,
-      borderColor: 'rgba(251, 191, 36, 0.3)',
-      statusFilter: 'AWAITING_REVIEW',
-      color: '#fbbf24',
-    },
-    {
-      id: 'generated',
-      title: 'Generated',
-      count: statistics.generated,
-      hint: 'Minted legal documents',
-      icon: <FileCheck2 size={18} style={{ color: '#38bdf8' }} />,
-      borderColor: 'rgba(56, 189, 248, 0.3)',
-      statusFilter: 'APPROVED',
-      color: '#38bdf8',
-    },
-    {
-      id: 'sent',
-      title: 'Sent',
-      count: statistics.sent,
-      hint: 'Dispatched to candidate',
-      icon: <Send size={18} style={{ color: '#818cf8' }} />,
-      borderColor: 'rgba(129, 140, 248, 0.3)',
-      statusFilter: 'ISSUED',
-      color: '#818cf8',
-    },
-    {
-      id: 'accepted',
-      title: 'Accepted',
-      count: statistics.accepted,
-      hint: 'Signed by candidate',
-      icon: <CheckCircle2 size={18} style={{ color: '#34d399' }} />,
-      borderColor: 'rgba(52, 211, 153, 0.3)',
-      statusFilter: 'ACCEPTED',
-      color: '#34d399',
-    },
-    {
-      id: 'rejected',
-      title: 'Rejected',
-      count: statistics.rejected,
-      hint: 'Declined or revoked',
-      icon: <XCircle size={18} style={{ color: '#f87171' }} />,
-      borderColor: 'rgba(248, 113, 113, 0.3)',
-      statusFilter: 'REJECTED',
-      color: '#f87171',
-    },
-    {
-      id: 'expired',
-      title: 'Expired',
-      count: statistics.expired,
-      hint: 'Past deadline',
-      icon: <CalendarX size={18} style={{ color: '#94a3b8' }} />,
-      borderColor: 'rgba(148, 163, 184, 0.3)',
-      statusFilter: 'EXPIRED',
-      color: '#94a3b8',
-    },
-  ];
-
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 28 }}>
-      {/* Welcome Banner */}
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+      {/* 1. Executive Master Hero Banner */}
       <div
-        className="glass-panel"
         style={{
-          padding: '28px 32px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(168, 85, 247, 0.05) 100%)',
-          border: '1px solid var(--border-medium)',
+          background: 'linear-gradient(135deg, #090e1d 0%, #0d172e 100%)',
+          borderRadius: 20,
+          padding: '32px 36px',
+          color: '#ffffff',
+          position: 'relative',
+          overflow: 'hidden',
+          boxShadow: '0 4px 20px -2px rgba(9, 14, 29, 0.25)',
         }}
       >
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
-            <h2 style={{ fontSize: '1.5rem' }}>Welcome back, {user?.firstName}</h2>
-            <span className="hr-badge">{user?.roles?.[0]}</span>
+        <div style={{ position: 'relative', zIndex: 2, maxWidth: 860 }}>
+          <div
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 8,
+              padding: '4px 12px',
+              borderRadius: 9999,
+              background: 'rgba(59, 130, 246, 0.15)',
+              border: '1px solid rgba(59, 130, 246, 0.25)',
+              color: '#93c5fd',
+              fontSize: '0.75rem',
+              fontWeight: 600,
+              marginBottom: 16,
+            }}
+          >
+            <Sparkles size={13} style={{ color: '#60a5fa' }} />
+            <span>TaskNera Enterprise HRMS &bull; Step 11 Unified Command Center</span>
           </div>
-          <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem', maxWidth: 640 }}>
-            {user?.company?.name} — All candidate extractions are staged as advisory drafts for
-            human review. AI models never finalize offers without your confirmation.
+
+          <h1
+            style={{
+              fontSize: '2rem',
+              fontWeight: 700,
+              color: '#ffffff',
+              letterSpacing: '-0.025em',
+              marginBottom: 10,
+              lineHeight: 1.2,
+            }}
+          >
+            Welcome back, {user?.firstName || 'Sakshi'}!
+          </h1>
+
+          <p
+            style={{
+              fontSize: '0.9375rem',
+              color: '#94a3b8',
+              lineHeight: 1.6,
+              maxWidth: 680,
+              marginBottom: 20,
+            }}
+          >
+            One unified platform connecting all 6 core pillars: HR Documents, Governance Policies,
+            Configurable Onboarding, L&D Academy, Aptitude & Technical Assessments, and Verifiable
+            Certificates.
           </p>
+
+          <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
+            <Button
+              variant="primary"
+              onClick={() => navigate('/documents')}
+              icon={<Plus size={16} />}
+              style={{ padding: '9px 18px', fontSize: '0.85rem' }}
+            >
+              Create HR Document
+            </Button>
+            <Button
+              variant="secondary"
+              onClick={() => navigate('/onboarding')}
+              icon={<UserCheck size={15} />}
+              style={{
+                padding: '9px 18px',
+                fontSize: '0.85rem',
+                background: 'rgba(255, 255, 255, 0.08)',
+                color: '#ffffff',
+                borderColor: 'rgba(255, 255, 255, 0.18)',
+              }}
+            >
+              Onboarding Portal
+            </Button>
+            <Button
+              variant="secondary"
+              onClick={() => navigate('/learning')}
+              icon={<Award size={15} />}
+              style={{
+                padding: '9px 18px',
+                fontSize: '0.85rem',
+                background: 'rgba(255, 255, 255, 0.08)',
+                color: '#ffffff',
+                borderColor: 'rgba(255, 255, 255, 0.18)',
+              }}
+            >
+              L&D & Certificates
+            </Button>
+            <Button
+              variant="secondary"
+              onClick={() => navigate('/assessments')}
+              icon={<BrainCircuit size={15} />}
+              style={{
+                padding: '9px 18px',
+                fontSize: '0.85rem',
+                background: 'rgba(255, 255, 255, 0.08)',
+                color: '#ffffff',
+                borderColor: 'rgba(255, 255, 255, 0.18)',
+              }}
+            >
+              Assessments & Quizzes
+            </Button>
+          </div>
         </div>
 
-        <div style={{ display: 'flex', gap: 12 }}>
-          <GenerateWithAi onGenerated={handleExtraction} />
-          <ExtractWithAi onExtractionComplete={handleExtraction} />
-        </div>
+        {/* Subtle background glow */}
+        <div
+          style={{
+            position: 'absolute',
+            top: -60,
+            right: -60,
+            width: 340,
+            height: 340,
+            borderRadius: '50%',
+            background: 'radial-gradient(circle, rgba(37, 99, 235, 0.25) 0%, transparent 70%)',
+            pointerEvents: 'none',
+          }}
+        />
       </div>
 
-      {/* Section Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div>
-          <h3 style={{ fontSize: '1.25rem', fontWeight: 600 }}>Pipeline Overview</h3>
-          <p style={{ fontSize: '0.8125rem', color: 'var(--text-muted)' }}>
-            Real-time offer lifecycle metrics across all stages
-          </p>
-        </div>
-        <Button
-          variant="secondary"
-          onClick={() => navigate('/offers')}
-          icon={<ArrowUpRight size={14} />}
-          style={{ fontSize: '0.8125rem' }}
-        >
-          Manage All Offers
-        </Button>
-      </div>
-
-      {/* 9 Dashboard Statistics Cards */}
+      {/* 2. Top Metric Cards — Exact TaskNera Operational Modules */}
       <div
         style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(230px, 1fr))',
           gap: 16,
         }}
       >
-        {statCards.map((card) => (
-          <div
-            key={card.id}
-            className="glass-panel"
-            onClick={() => navigate(`/offers?status=${card.statusFilter}`)}
-            style={{
-              padding: '18px 20px',
-              cursor: 'pointer',
-              borderColor: card.borderColor,
-              transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'space-between',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-2px)';
-              e.currentTarget.style.boxShadow = '0 8px 24px rgba(0, 0, 0, 0.3)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.boxShadow = 'none';
-            }}
-          >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-              <span style={{ fontSize: '0.8125rem', color: 'var(--text-muted)', fontWeight: 500 }}>
-                {card.title}
-              </span>
-              <div
-                style={{
-                  padding: 6,
-                  borderRadius: 8,
-                  background: 'rgba(255, 255, 255, 0.04)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                {card.icon}
-              </div>
-            </div>
-
-            <div>
-              <div style={{ fontSize: '1.85rem', fontWeight: 700, color: card.color }}>
-                {loadingStats ? '-' : card.count}
-              </div>
-              <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)', marginTop: 4 }}>
-                {card.hint}
-              </div>
+        <div
+          className="glass-panel"
+          style={{
+            padding: '20px 24px',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            borderRadius: 16,
+            background: '#ffffff',
+            border: '1px solid #e2e8f0',
+          }}
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+            <span style={{ fontSize: '0.7rem', fontWeight: 700, color: '#64748b', letterSpacing: '0.05em' }}>
+              MY ATTENDANCE
+            </span>
+            <div style={{ width: 34, height: 34, borderRadius: '50%', background: '#ecfdf5', color: '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Clock size={16} />
             </div>
           </div>
-        ))}
-      </div>
-
-      {/* AI Assistant Co-Pilot Bar */}
-      <AiAssist />
-
-      {/* Two Column Layout: Offers Pipeline & AI Suggestions */}
-      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 24 }}>
-        {/* Recent Offers Table */}
-        <div className="glass-panel" style={{ padding: 24 }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
-            <div>
-              <h3 style={{ fontSize: '1.125rem' }}>Recent Offer Letters</h3>
-              <p style={{ fontSize: '0.8125rem', color: 'var(--text-muted)' }}>
-                Track real-time status from AI draft to issuance
-              </p>
+          <div>
+            <div style={{ fontSize: '1.35rem', fontWeight: 700, color: '#0f172a' }}>Live Log</div>
+            <div style={{ fontSize: '0.78125rem', color: '#64748b', marginTop: 4 }}>
+              Clock in/out & daily attendance
             </div>
-            <Button
-              variant="ghost"
-              onClick={() => navigate('/offers')}
-              icon={<ArrowUpRight size={14} />}
-              style={{ fontSize: '0.8125rem' }}
-            >
-              View All Offers
-            </Button>
-          </div>
-
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.875rem' }}>
-              <thead>
-                <tr style={{ borderBottom: '1px solid var(--border-subtle)', color: 'var(--text-dim)' }}>
-                  <th style={{ padding: '10px 14px' }}>Candidate & Role</th>
-                  <th style={{ padding: '10px 14px' }}>Status</th>
-                  <th style={{ padding: '10px 14px' }}>Total CTC</th>
-                  <th style={{ padding: '10px 14px' }}>AI Confidence</th>
-                  <th style={{ padding: '10px 14px', textAlign: 'right' }}>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {offers.map((offer) => (
-                  <tr
-                    key={offer.id}
-                    style={{
-                      borderBottom: '1px solid rgba(255, 255, 255, 0.03)',
-                      transition: 'background 0.15s',
-                    }}
-                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.02)')}
-                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
-                  >
-                    <td style={{ padding: '14px' }}>
-                      <div style={{ fontWeight: 600, color: '#fff' }}>{offer.candidateName}</div>
-                      <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                        {offer.role} • {offer.department}
-                      </div>
-                    </td>
-                    <td style={{ padding: '14px' }}>
-                      <OfferStatusBadge status={offer.status} />
-                    </td>
-                    <td style={{ padding: '14px', fontWeight: 600 }}>
-                      ${offer.totalCtc.toLocaleString()} {offer.currency}
-                    </td>
-                    <td style={{ padding: '14px' }}>
-                      <AiAdvisoryBadge confidence={offer.aiConfidence} label="" />
-                    </td>
-                    <td style={{ padding: '14px', textAlign: 'right' }}>
-                      <Button
-                        variant="secondary"
-                        style={{ padding: '6px 12px', fontSize: '0.75rem' }}
-                        onClick={() => navigate('/ai-studio')}
-                      >
-                        Review
-                      </Button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
           </div>
         </div>
 
-        {/* AI Advisory Suggestions Column */}
-        <AiSuggestions
-          suggestions={suggestions}
-          onApply={(id) => setSuggestions(suggestions.filter((s) => s.id !== id))}
-          onDismiss={(id) => setSuggestions(suggestions.filter((s) => s.id !== id))}
-        />
+        <div
+          className="glass-panel"
+          style={{
+            padding: '20px 24px',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            borderRadius: 16,
+            background: '#ffffff',
+            border: '1px solid #e2e8f0',
+          }}
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+            <span style={{ fontSize: '0.7rem', fontWeight: 700, color: '#64748b', letterSpacing: '0.05em' }}>
+              MY LEAVES
+            </span>
+            <div style={{ width: 34, height: 34, borderRadius: '50%', background: '#eff6ff', color: '#2563eb', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <CalendarCheck2 size={16} />
+            </div>
+          </div>
+          <div>
+            <div style={{ fontSize: '1.35rem', fontWeight: 700, color: '#0f172a' }}>Time Off</div>
+            <div style={{ fontSize: '0.78125rem', color: '#64748b', marginTop: 4 }}>
+              Check balances & submit requests
+            </div>
+          </div>
+        </div>
+
+        <div
+          className="glass-panel"
+          style={{
+            padding: '20px 24px',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            borderRadius: 16,
+            background: '#ffffff',
+            border: '1px solid #e2e8f0',
+          }}
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+            <span style={{ fontSize: '0.7rem', fontWeight: 700, color: '#64748b', letterSpacing: '0.05em' }}>
+              MY PERFORMANCE
+            </span>
+            <div style={{ width: 34, height: 34, borderRadius: '50%', background: '#f5f3ff', color: '#7c3aed', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Award size={16} />
+            </div>
+          </div>
+          <div>
+            <div style={{ fontSize: '1.35rem', fontWeight: 700, color: '#0f172a' }}>Reviews</div>
+            <div style={{ fontSize: '0.78125rem', color: '#64748b', marginTop: 4 }}>
+              Quarterly appraisals & objectives
+            </div>
+          </div>
+        </div>
+
+        <div
+          className="glass-panel"
+          style={{
+            padding: '20px 24px',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            borderRadius: 16,
+            background: '#ffffff',
+            border: '1px solid #e2e8f0',
+          }}
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+            <span style={{ fontSize: '0.7rem', fontWeight: 700, color: '#64748b', letterSpacing: '0.05em' }}>
+              HELPDESK & SUPPORT
+            </span>
+            <div style={{ width: 34, height: 34, borderRadius: '50%', background: '#fffbeb', color: '#d97706', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Headphones size={16} />
+            </div>
+          </div>
+          <div>
+            <div style={{ fontSize: '1.35rem', fontWeight: 700, color: '#0f172a' }}>Requests</div>
+            <div style={{ fontSize: '0.78125rem', color: '#64748b', marginTop: 4 }}>
+              Raise employee tickets & queries
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* 3. STEP 11: THE 6 CORE PILLARS COMMAND CENTER */}
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        {/* Hub Header */}
+        <div className="p-6 border-b border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex items-center gap-3.5">
+            <div className="w-11 h-11 rounded-xl bg-blue-100 flex items-center justify-center text-blue-600">
+              <Layers className="w-6 h-6" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h2 className="text-lg font-bold text-slate-900 tracking-tight">
+                  One Unified HRMS Master Dashboard
+                </h2>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
+                  Step 11 Unified Architecture
+                </span>
+              </div>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Centralized management across HR Documents, Policies, Onboarding, L&D, Assessments, and Certificates.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => navigate('/documents')}
+              className="px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors shadow-sm flex items-center gap-1.5"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              New HR Action
+            </button>
+          </div>
+        </div>
+
+        {/* 6 Pillars Quick Overview Row */}
+        <div className="grid grid-cols-2 md:grid-cols-6 divide-x divide-y md:divide-y-0 divide-slate-100 bg-slate-50/60 border-b border-slate-200">
+          {/* Pillar 1: HR Documents */}
+          <div
+            onClick={() => setActiveTab('documents')}
+            className={`p-4 cursor-pointer transition-colors ${
+              activeTab === 'documents' ? 'bg-white shadow-sm' : 'hover:bg-slate-100/60'
+            }`}
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-bold text-slate-500 uppercase">Documents</span>
+              <FileCheck2 className="w-4 h-4 text-blue-600" />
+            </div>
+            <p className="text-xl font-bold text-slate-900 mt-1">9 Types</p>
+            <p className="text-[10px] text-blue-600 font-medium mt-0.5">Offer to MSA</p>
+          </div>
+
+          {/* Pillar 2: Policies */}
+          <div
+            onClick={() => setActiveTab('policies')}
+            className={`p-4 cursor-pointer transition-colors ${
+              activeTab === 'policies' ? 'bg-white shadow-sm' : 'hover:bg-slate-100/60'
+            }`}
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-bold text-slate-500 uppercase">Policies</span>
+              <BookOpen className="w-4 h-4 text-emerald-600" />
+            </div>
+            <p className="text-xl font-bold text-slate-900 mt-1">19 Types</p>
+            <p className="text-[10px] text-emerald-600 font-medium mt-0.5">Version Controlled</p>
+          </div>
+
+          {/* Pillar 3: Onboarding */}
+          <div
+            onClick={() => setActiveTab('onboarding')}
+            className={`p-4 cursor-pointer transition-colors ${
+              activeTab === 'onboarding' ? 'bg-white shadow-sm' : 'hover:bg-slate-100/60'
+            }`}
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-bold text-slate-500 uppercase">Onboarding</span>
+              <Users2 className="w-4 h-4 text-indigo-600" />
+            </div>
+            <p className="text-xl font-bold text-slate-900 mt-1">Cohorts</p>
+            <p className="text-[10px] text-indigo-600 font-medium mt-0.5">Checklist & KYC</p>
+          </div>
+
+          {/* Pillar 4: L&D */}
+          <div
+            onClick={() => setActiveTab('learning')}
+            className={`p-4 cursor-pointer transition-colors ${
+              activeTab === 'learning' ? 'bg-white shadow-sm' : 'hover:bg-slate-100/60'
+            }`}
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-bold text-slate-500 uppercase">L&D Academy</span>
+              <GraduationCap className="w-4 h-4 text-purple-600" />
+            </div>
+            <p className="text-xl font-bold text-slate-900 mt-1">Courses</p>
+            <p className="text-[10px] text-purple-600 font-medium mt-0.5">Compliance Tracks</p>
+          </div>
+
+          {/* Pillar 5: Assessments */}
+          <div
+            onClick={() => setActiveTab('assessments')}
+            className={`p-4 cursor-pointer transition-colors ${
+              activeTab === 'assessments' ? 'bg-white shadow-sm' : 'hover:bg-slate-100/60'
+            }`}
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-bold text-slate-500 uppercase">Assessments</span>
+              <BrainCircuit className="w-4 h-4 text-amber-600" />
+            </div>
+            <p className="text-xl font-bold text-slate-900 mt-1">Quizzes</p>
+            <p className="text-[10px] text-amber-600 font-medium mt-0.5">Aptitude & Tech</p>
+          </div>
+
+          {/* Pillar 6: Certificates */}
+          <div
+            onClick={() => setActiveTab('certificates')}
+            className={`p-4 cursor-pointer transition-colors ${
+              activeTab === 'certificates' ? 'bg-white shadow-sm' : 'hover:bg-slate-100/60'
+            }`}
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-bold text-slate-500 uppercase">Certificates</span>
+              <Award className="w-4 h-4 text-rose-600" />
+            </div>
+            <p className="text-xl font-bold text-slate-900 mt-1">Verifiable</p>
+            <p className="text-[10px] text-rose-600 font-medium mt-0.5">SHA-256 Sealed</p>
+          </div>
+        </div>
+
+        {/* Dynamic Pillar Tab Content */}
+        <div className="p-6">
+          {/* ================================================================= */}
+          {/* TAB 1: HR DOCUMENTS */}
+          {/* ================================================================= */}
+          {activeTab === 'documents' && (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-sm font-bold text-slate-900">
+                    HR Documents Engine (All 9 Standard Formats)
+                  </h3>
+                  <p className="text-xs text-slate-500">
+                    Create, audit, and download PDF documents with strict AI assist and human confirmation
+                  </p>
+                </div>
+                <button
+                  onClick={() => navigate('/documents')}
+                  className="text-xs font-semibold text-blue-600 hover:text-blue-800 flex items-center gap-1"
+                >
+                  View All Documents <ArrowUpRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                {CORE_DOC_TYPES.map((doc) => (
+                  <div
+                    key={doc.code}
+                    className="p-3.5 rounded-xl border border-slate-200 hover:border-slate-300 bg-white hover:shadow-sm transition-all flex flex-col justify-between"
+                  >
+                    <div>
+                      <div className="flex items-center justify-between mb-1.5">
+                        <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-700">
+                          {doc.code}
+                        </span>
+                        <span className="text-[10px] font-medium text-slate-400">
+                          {doc.sections} Sections
+                        </span>
+                      </div>
+                      <h4 className="text-xs font-bold text-slate-900">{doc.name}</h4>
+                      <p className="text-[11px] text-slate-500 mt-1">{doc.desc}</p>
+                    </div>
+                    <div className="mt-3 pt-2 border-t border-slate-100 flex items-center justify-end">
+                      <button
+                        onClick={() => navigate(`/documents/create?type=${doc.code}`)}
+                        className="text-xs font-semibold text-blue-600 hover:text-blue-800"
+                      >
+                        Create Now &rarr;
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* ================================================================= */}
+          {/* TAB 2: GOVERNANCE POLICIES */}
+          {/* ================================================================= */}
+          {activeTab === 'policies' && (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-sm font-bold text-slate-900">
+                    Governance Policies (19 Enterprise Policies)
+                  </h3>
+                  <p className="text-xs text-slate-500">
+                    Policy creation, approval workflows, employee acknowledgment, and version history
+                  </p>
+                </div>
+                <button
+                  onClick={() => navigate('/policies')}
+                  className="text-xs font-semibold text-emerald-600 hover:text-emerald-800 flex items-center gap-1"
+                >
+                  Manage Policies <ArrowUpRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
+
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5">
+                {CORE_POLICIES.map((policyName) => (
+                  <div
+                    key={policyName}
+                    className="p-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 transition-colors flex items-center justify-between"
+                  >
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-emerald-500" />
+                      <span className="text-xs font-medium text-slate-800 truncate">
+                        {policyName}
+                      </span>
+                    </div>
+                    <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded">
+                      v1.0
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* ================================================================= */}
+          {/* TAB 3: ONBOARDING */}
+          {/* ================================================================= */}
+          {activeTab === 'onboarding' && (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-sm font-bold text-slate-900">
+                    Configurable Onboarding Lifecycle
+                  </h3>
+                  <p className="text-xs text-slate-500">
+                    Personal details, KYC document collection, IT checklists, and verification progression
+                  </p>
+                </div>
+                <button
+                  onClick={() => navigate('/onboarding')}
+                  className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 flex items-center gap-1"
+                >
+                  Open Onboarding Center <ArrowUpRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div className="p-4 rounded-xl border border-slate-200 bg-white space-y-2">
+                  <span className="text-xs font-bold text-slate-900 block">
+                    Aditya Sen (Staff Full-Stack Architect)
+                  </span>
+                  <div className="flex items-center gap-2 text-[11px] text-slate-500">
+                    <span>Engineering</span> &bull; <span>Joining: 2026-10-15</span>
+                  </div>
+                  <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                    <div className="bg-indigo-600 h-full rounded-full" style={{ width: '85%' }} />
+                  </div>
+                  <div className="flex items-center justify-between text-[10px] text-slate-500">
+                    <span>KYC & Checklist: 85%</span>
+                    <span className="font-bold text-indigo-600">VERIFIED</span>
+                  </div>
+                </div>
+
+                <div className="p-4 rounded-xl border border-slate-200 bg-white space-y-2">
+                  <span className="text-xs font-bold text-slate-900 block">
+                    Neha Kapoor (Senior People Operations Partner)
+                  </span>
+                  <div className="flex items-center gap-2 text-[11px] text-slate-500">
+                    <span>Human Resources</span> &bull; <span>Joining: 2026-10-20</span>
+                  </div>
+                  <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                    <div className="bg-amber-500 h-full rounded-full" style={{ width: '45%' }} />
+                  </div>
+                  <div className="flex items-center justify-between text-[10px] text-slate-500">
+                    <span>Pending Bank & Declaration</span>
+                    <span className="font-bold text-amber-600">IN_PROGRESS</span>
+                  </div>
+                </div>
+
+                <div className="p-4 rounded-xl border border-slate-200 bg-white space-y-2">
+                  <span className="text-xs font-bold text-slate-900 block">
+                    Rahul Varma (DevOps Cloud Engineer)
+                  </span>
+                  <div className="flex items-center gap-2 text-[11px] text-slate-500">
+                    <span>Cloud Platform</span> &bull; <span>Joining: 2026-11-01</span>
+                  </div>
+                  <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                    <div className="bg-emerald-600 h-full rounded-full" style={{ width: '100%' }} />
+                  </div>
+                  <div className="flex items-center justify-between text-[10px] text-slate-500">
+                    <span>Checklist Complete</span>
+                    <span className="font-bold text-emerald-600">READY_FOR_JOINING</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ================================================================= */}
+          {/* TAB 4: L&D ACADEMY */}
+          {/* ================================================================= */}
+          {activeTab === 'learning' && (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-sm font-bold text-slate-900">
+                    Learning & Development Academy Tracks
+                  </h3>
+                  <p className="text-xs text-slate-500">
+                    Mandatory corporate compliance, technical curricula, assignments, and progression
+                  </p>
+                </div>
+                <button
+                  onClick={() => navigate('/learning')}
+                  className="text-xs font-semibold text-purple-600 hover:text-purple-800 flex items-center gap-1"
+                >
+                  Explore Course Catalog <ArrowUpRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className="p-4 rounded-xl border border-slate-200 bg-white space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-50 text-blue-700">
+                      SECURITY
+                    </span>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200">
+                      Mandatory
+                    </span>
+                  </div>
+                  <h4 className="text-xs font-bold text-slate-900">
+                    Enterprise Information Security & Data Privacy 2026
+                  </h4>
+                  <p className="text-[11px] text-slate-500 line-clamp-2">
+                    Phishing simulation, OWASP Top 10, zero-trust hygiene, and client data governance.
+                  </p>
+                  <div className="text-[11px] text-slate-400 pt-1">
+                    Instructor: Vikram Joshi &bull; Duration: 3 Hours
+                  </div>
+                </div>
+
+                <div className="p-4 rounded-xl border border-slate-200 bg-white space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-50 text-blue-700">
+                      TECHNICAL
+                    </span>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-50 text-emerald-700">
+                      Certificate Eligible
+                    </span>
+                  </div>
+                  <h4 className="text-xs font-bold text-slate-900">
+                    Cloud Architecture & Multi-Tenant Database Design
+                  </h4>
+                  <p className="text-[11px] text-slate-500 line-clamp-2">
+                    High-concurrency microservices, PostgreSQL sharding, connection pooling, and consensus.
+                  </p>
+                  <div className="text-[11px] text-slate-400 pt-1">
+                    Instructor: Sakshi Koparde &bull; Duration: 2 Weeks
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ================================================================= */}
+          {/* TAB 5: ASSESSMENTS & QUIZZES */}
+          {/* ================================================================= */}
+          {activeTab === 'assessments' && (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-sm font-bold text-slate-900">
+                    Aptitude Tests & Cognitive Quizzes (Step 10)
+                  </h3>
+                  <p className="text-xs text-slate-500">
+                    Numerical reasoning, logical deduction, verbal aptitude, and technical screening
+                  </p>
+                </div>
+                <button
+                  onClick={() => navigate('/assessments')}
+                  className="text-xs font-semibold text-amber-600 hover:text-amber-800 flex items-center gap-1"
+                >
+                  Launch Assessment Center <ArrowUpRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className="p-4 rounded-xl border border-slate-200 bg-white space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-indigo-50 text-indigo-700">
+                      APTITUDE & LOGIC
+                    </span>
+                    <span className="text-[10px] font-medium text-slate-400">Pass: 70%</span>
+                  </div>
+                  <h4 className="text-xs font-bold text-slate-900">
+                    TaskNera General Aptitude Benchmark 2026
+                  </h4>
+                  <p className="text-[11px] text-slate-500">
+                    5 Questions &bull; 20 Mins Limit &bull; Max 2 Attempts &bull; Numerical, Logical & Verbal
+                  </p>
+                  <div className="pt-2 flex justify-end">
+                    <button
+                      onClick={() => navigate('/assessments')}
+                      className="px-3 py-1 text-xs font-semibold rounded bg-blue-50 text-blue-700 hover:bg-blue-100"
+                    >
+                      Start Test
+                    </button>
+                  </div>
+                </div>
+
+                <div className="p-4 rounded-xl border border-slate-200 bg-white space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-purple-50 text-purple-700">
+                      TECHNICAL
+                    </span>
+                    <span className="text-[10px] font-medium text-slate-400">Pass: 75%</span>
+                  </div>
+                  <h4 className="text-xs font-bold text-slate-900">
+                    Engineering Core Competency & Cloud Fundamentals
+                  </h4>
+                  <p className="text-[11px] text-slate-500">
+                    HTTP Protocols & ACID Transaction model multi-choice & multi-answers quiz.
+                  </p>
+                  <div className="pt-2 flex justify-end">
+                    <button
+                      onClick={() => navigate('/assessments')}
+                      className="px-3 py-1 text-xs font-semibold rounded bg-blue-50 text-blue-700 hover:bg-blue-100"
+                    >
+                      Start Quiz
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ================================================================= */}
+          {/* TAB 6: CERTIFICATES */}
+          {/* ================================================================= */}
+          {activeTab === 'certificates' && (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-sm font-bold text-slate-900">
+                    Verifiable Certificates Authority (Step 9)
+                  </h3>
+                  <p className="text-xs text-slate-500">
+                    Course completion, professional training, internship, participation, achievement & appreciation credentials
+                  </p>
+                </div>
+                <button
+                  onClick={() => navigate('/learning')}
+                  className="text-xs font-semibold text-rose-600 hover:text-rose-800 flex items-center gap-1"
+                >
+                  Certificate Registry <ArrowUpRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
+
+              <div className="p-4 rounded-xl border border-slate-200 bg-white flex items-center justify-between">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="font-mono font-bold text-blue-700 text-xs">CERT-2026-8812</span>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
+                      ISSUED
+                    </span>
+                  </div>
+                  <h4 className="text-xs font-bold text-slate-900 mt-1">
+                    Sakshi Koparde &bull; Enterprise Information Security 2026
+                  </h4>
+                  <p className="text-[11px] text-slate-400 font-mono mt-0.5">
+                    SHA-256: b163d087a866704a... &bull; Issued: 2026-09-10
+                  </p>
+                </div>
+
+                <button
+                  onClick={() => navigate('/learning')}
+                  className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-blue-600 text-white hover:bg-blue-700 shadow-sm"
+                >
+                  View Certificate PDF
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

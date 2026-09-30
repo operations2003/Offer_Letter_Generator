@@ -12,6 +12,12 @@ import auditRoutes from './modules/audit/audit.routes.js';
 import aiRoutes from './modules/ai/ai.routes.js';
 import offerRoutes from './modules/offers/offer.routes.js';
 import templateRoutes from './modules/templates/template.routes.js';
+import { documentTypeRouter, hrDocumentRouter } from './modules/documents/document-engine/hr-document.routes.js';
+import { documentAiRouter } from './modules/documents/document-engine/document-ai.routes.js';
+import { policyRouter } from './modules/policies/policy.routes.js';
+import { onboardingRouter } from './modules/onboarding/onboarding.routes.js';
+import { createLearningRouter } from './modules/learning/learning.routes.js';
+import { createAssessmentRouter } from './modules/assessments/assessment.routes.js';
 import { authRateLimiter, aiRateLimiter, generalApiRateLimiter } from './middleware/rate-limiter.js';
 
 export function createApp(): Express {
@@ -84,6 +90,13 @@ export function createApp(): Express {
   app.use('/api/v1/ai', aiRoutes);
   app.use('/api/v1/offers', offerRoutes);
   app.use('/api/v1/templates', templateRoutes);
+  app.use('/api/v1/document-types', documentTypeRouter);
+  app.use('/api/v1/hr-documents', hrDocumentRouter);
+  app.use('/api/v1/document-ai', documentAiRouter);
+  app.use('/api/v1/policies', policyRouter);
+  app.use('/api/v1/onboarding', onboardingRouter);
+  app.use('/api/v1/learning', createLearningRouter());
+  app.use('/api/v1/assessments', createAssessmentRouter());
 
   // 404 handler
   app.use((req: Request, _res: Response, next: NextFunction) => {

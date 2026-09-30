@@ -1,5 +1,5 @@
 import React from 'react';
-import { Menu, Building2, Sparkles, Shield, Cpu } from 'lucide-react';
+import { Menu, Bell, ChevronDown } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext.js';
 
 interface HeaderProps {
@@ -11,7 +11,8 @@ export const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
 
   return (
     <header className="header">
-      <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+      {/* Left: Breadcrumbs matching TaskNera Enterprise Console */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
         {onToggleSidebar && (
           <button
             onClick={onToggleSidebar}
@@ -23,71 +24,118 @@ export const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
           </button>
         )}
 
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 8,
-            padding: '5px 12px',
-            borderRadius: 'var(--radius-full)',
-            background: 'var(--bg-tertiary)',
-            border: '1px solid var(--border-subtle)',
-            fontSize: '0.8125rem',
-            color: 'var(--text-muted)',
-          }}
-        >
-          <Building2 size={14} style={{ color: 'var(--primary)' }} />
-          <span style={{ fontWeight: 600, color: 'var(--text-main)' }}>
-            {user?.company?.name || 'Acme Technologies'}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.78125rem' }}>
+          <span style={{ fontWeight: 700, letterSpacing: '0.04em', color: '#64748b' }}>
+            DASHBOARD
           </span>
-          <span style={{ color: 'var(--text-dim)' }}>({user?.company?.code || 'ACME'})</span>
+          <span style={{ color: '#cbd5e1', fontWeight: 400 }}>/</span>
+          <span style={{ fontWeight: 600, color: '#2563eb' }}>
+            Enterprise Console
+          </span>
         </div>
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-        {/* AI Engine Status Pill */}
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 8,
-            padding: '4px 12px',
-            borderRadius: 'var(--radius-full)',
-            background: 'rgba(168, 85, 247, 0.08)',
-            border: '1px solid var(--ai-border)',
-            fontSize: '0.75rem',
-          }}
-        >
+      {/* Right: Notifications & User Profile */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
+        {/* Notification Bell with red badge '3' */}
+        <div style={{ position: 'relative', cursor: 'pointer' }}>
           <div
             style={{
-              width: 8,
-              height: 8,
+              width: 36,
+              height: 36,
               borderRadius: '50%',
-              backgroundColor: '#10b981',
-              boxShadow: '0 0 8px #10b981',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#475569',
+              background: '#f8fafc',
+              border: '1px solid #e2e8f0',
+              transition: 'background 0.15s ease',
             }}
-          />
-          <Cpu size={13} style={{ color: '#c084fc' }} />
-          <span style={{ color: '#c084fc', fontWeight: 600 }}>AI Engine Active (Llama 3.3)</span>
+          >
+            <Bell size={18} />
+          </div>
+          <span
+            style={{
+              position: 'absolute',
+              top: -3,
+              right: -3,
+              backgroundColor: '#ef4444',
+              color: '#ffffff',
+              fontSize: '0.625rem',
+              fontWeight: 700,
+              width: 17,
+              height: 17,
+              borderRadius: '50%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              border: '2px solid #ffffff',
+            }}
+          >
+            3
+          </span>
         </div>
 
-        {/* Current Role Badge */}
+        {/* User Profile Pill matching screenshot */}
         <div
           style={{
             display: 'flex',
             alignItems: 'center',
-            gap: 6,
-            padding: '4px 10px',
-            borderRadius: 'var(--radius-sm)',
-            background: 'rgba(99, 102, 241, 0.1)',
-            border: '1px solid rgba(99, 102, 241, 0.25)',
-            fontSize: '0.75rem',
-            fontWeight: 600,
-            color: '#818cf8',
+            gap: 10,
+            padding: '4px 6px',
+            borderRadius: '9999px',
+            cursor: 'pointer',
           }}
         >
-          <Shield size={12} />
-          <span>{user?.roles?.[0] || 'GUEST'}</span>
+          {/* Avatar */}
+          <div
+            style={{
+              width: 36,
+              height: 36,
+              borderRadius: '50%',
+              background: 'linear-gradient(135deg, #f59e0b 0%, #ea580c 100%)',
+              color: '#ffffff',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontWeight: 700,
+              fontSize: '0.875rem',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+            }}
+          >
+            {user?.firstName?.[0] || 'S'}
+          </div>
+
+          {/* User Details */}
+          <div style={{ textAlign: 'left', lineHeight: 1.25 }}>
+            <div style={{ fontSize: '0.8125rem', fontWeight: 700, color: '#0f172a' }}>
+              {user?.firstName || 'Sakshi'} {user?.lastName || 'Koparde'}
+            </div>
+            <div style={{ fontSize: '0.6875rem', color: '#64748b' }}>
+              {user?.email || 'sakshi@tasknera.com'}
+            </div>
+          </div>
+
+          {/* Role Pill */}
+          <span
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              fontSize: '0.6875rem',
+              fontWeight: 600,
+              padding: '2px 8px',
+              borderRadius: '9999px',
+              background: '#f1f5f9',
+              border: '1px solid #e2e8f0',
+              color: '#475569',
+              marginLeft: 4,
+            }}
+          >
+            {user?.roles?.[0] === 'SUPER_ADMIN' ? 'Admin' : 'Employee'}
+          </span>
+
+          <ChevronDown size={14} style={{ color: '#94a3b8' }} />
         </div>
       </div>
     </header>
