@@ -1066,13 +1066,18 @@ export class OfferService {
     userId: string,
     input: AiClauseGenerationInput
   ) {
-    const result = await AiService.draftCustomClause(input.instruction, {
+    const effectiveInstruction = input.instruction || (input as any).customInstructions || `Draft standard terms for ${input.clauseType}`;
+    const result = await AiService.draftCustomClause(effectiveInstruction, {
       clauseType: input.clauseType,
       ...input.context,
     });
 
     return {
       ...result,
+      clause: {
+        title: result.clauseTitle,
+        content: result.clauseText,
+      },
       isAdvisory: true,
       legalDisclaimer:
         'This clause was drafted by AI for wording assistance. Legal and financial parameters must be reviewed and approved by authorized HR personnel.',
@@ -1404,7 +1409,9 @@ export class OfferService {
       offerId: offer.id,
       offerReferenceNumber: offer.offerReferenceNumber,
       currentStatus: offer.currentStatus,
+      status: offer.currentStatus,
       allowedNextStatuses: allowedTransitions[offer.currentStatus] || [],
+      allowedTransitions: allowedTransitions[offer.currentStatus] || [],
       approvedAt: offer.approvedAt,
       approvedBy: offer.approver,
       issuedAt: offer.issuedAt,
@@ -1428,7 +1435,8 @@ export class OfferService {
     if (!offer) throw new NotFoundError('Offer');
 
     const fromStatus = offer.currentStatus;
-    const toStatus = transition.targetStatus;
+    const toStatus = transition.targetStatus || (transition as any).status;
+    const reasonNotes = transition.reasonNotes || (transition as any).reason;
 
     if (fromStatus === toStatus) {
       return offer;
@@ -1441,7 +1449,7 @@ export class OfferService {
     if (toStatus === OfferStatus.APPROVED) {
       updateData.approvedByUserId = userId;
       updateData.approvedAt = new Date();
-      updateData.approvalNotes = transition.reasonNotes || 'Approved for candidate issuance';
+      updateData.approvalNotes = reasonNotes || 'Approved for candidate issuance';
     }
 
     if (toStatus === OfferStatus.ISSUED) {
@@ -2364,6 +2372,7 @@ export class OfferService {
       },
       versions,
       statusLogs,
+      statusTransitions: statusLogs,
       auditLogs,
     };
   }

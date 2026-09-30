@@ -66,8 +66,48 @@ const MOCK_AUDIT_LOGS: AuditItem[] = [
 ];
 
 export const AuditLogsPage: React.FC = () => {
-  const [logs] = useState<AuditItem[]>(MOCK_AUDIT_LOGS);
+  const [logs, setLogs] = useState<AuditItem[]>(MOCK_AUDIT_LOGS);
   const [selectedLog, setSelectedLog] = useState<AuditItem | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchAuditLogs = async () => {
+      setLoading(true);
+      try {
+        const token = localStorage.getItem('offergen_token');
+        const res = await fetch('/api/v1/audit-logs?limit=50', {
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+        });
+        if (res.ok) {
+          const json = await res.json();
+          if (json.data && Array.isArray(json.data.items) && json.data.items.length > 0) {
+            const mapped: AuditItem[] = json.data.items.map((item: any) => ({
+              id: item.id,
+              actorType: item.actorType || 'USER',
+              actorName: item.actorType === 'AI_WORKER' ? 'AI Extraction Engine' : (item.actorId || 'HR Operations'),
+              action: item.action,
+              entityType: item.entityType,
+              entityId: item.entityId,
+              actionDescription: item.actionDescription,
+              previousState: item.previousState,
+              newState: item.newState,
+              timestamp: item.createdAt || new Date().toISOString(),
+            }));
+            setLogs(mapped);
+          }
+        }
+      } catch {
+        // Fallback to MOCK_AUDIT_LOGS in offline demo mode
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAuditLogs();
+  }, []);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>

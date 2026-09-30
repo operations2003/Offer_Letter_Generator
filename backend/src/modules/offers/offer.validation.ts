@@ -118,12 +118,18 @@ export const createOfferSchema = z.object({
   humanOverrides: z
     .array(
       z.object({
-        fieldName: z.string(),
-        previousValue: z.unknown(),
-        newValue: z.unknown(),
+        fieldName: z.string().optional(),
+        field: z.string().optional(),
+        fieldLabel: z.string().optional(),
+        decision: z.string().optional(),
+        previousValue: z.unknown().optional(),
+        aiValue: z.unknown().optional(),
+        newValue: z.unknown().optional(),
+        hrValue: z.unknown().optional(),
+        confidenceScore: z.number().optional(),
         reason: z.string().optional(),
         timestamp: z.string().optional(),
-      })
+      }).passthrough()
     )
     .optional(),
 }).refine(
@@ -168,10 +174,16 @@ export const updateOfferSchema = saveDraftSchema.extend({
 /**
  * 4. Update Status Schema
  */
-export const updateStatusSchema = z.object({
-  targetStatus: z.nativeEnum(OfferStatus),
-  reasonNotes: z.string().optional(),
-});
+export const updateStatusSchema = z
+  .object({
+    targetStatus: z.nativeEnum(OfferStatus).optional(),
+    status: z.nativeEnum(OfferStatus).optional(),
+    reasonNotes: z.string().optional(),
+    reason: z.string().optional(),
+  })
+  .refine((data) => Boolean(data.targetStatus || data.status), {
+    message: 'Either targetStatus or status must be specified',
+  });
 
 /**
  * 5. AI Extraction Schema
@@ -205,7 +217,8 @@ export const reviewSuggestionSchema = z.object({
  */
 export const aiClauseSchema = z.object({
   clauseType: z.string().min(2, 'Clause type is required'),
-  instruction: z.string().min(5, 'Instruction must be at least 5 characters long'),
+  instruction: z.string().optional(),
+  customInstructions: z.string().optional(),
   context: z
     .object({
       jobTitle: z.string().optional(),
@@ -215,6 +228,8 @@ export const aiClauseSchema = z.object({
       customParameters: z.record(z.unknown()).optional(),
     })
     .optional(),
+}).refine((data) => Boolean(data.instruction || data.customInstructions), {
+  message: 'Either instruction or customInstructions must be provided',
 });
 
 /**

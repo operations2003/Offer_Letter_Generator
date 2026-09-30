@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import { prisma } from '../../prisma/client.js';
 
 export type AuditActorType = 'USER' | 'SYSTEM' | 'AI_WORKER' | 'CANDIDATE';
@@ -89,7 +90,16 @@ export class AuditService {
   static async record(entry: AuditLogEntry): Promise<void> {
     try {
       const sanitizedPreviousState = entry.previousState ? this.redactSensitiveData(entry.previousState) : undefined;
-      const sanitizedNewState = entry.newState ? this.redactSensitiveData(entry.newState) : undefined;
+      const sanitizedNewState = entry.newState ? (this.redactSensitiveData(entry.newState) as Record<string, unknown>) : {};
+
+      const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+      const safeEntityId = entry.entityId && UUID_REGEX.test(entry.entityId)
+        ? entry.entityId
+        : crypto.randomUUID();
+
+      if (entry.entityId && !UUID_REGEX.test(entry.entityId)) {
+        sanitizedNewState.originalEntityId = entry.entityId;
+      }
 
       await prisma.auditLog.create({
         data: {
@@ -97,7 +107,7 @@ export class AuditService {
           actorType: entry.actorType,
           actorId: entry.actorId || null,
           entityType: entry.entityType,
-          entityId: entry.entityId,
+          entityId: safeEntityId,
           action: entry.action,
           actionDescription: entry.actionDescription,
           previousState: (sanitizedPreviousState as any) || undefined,
