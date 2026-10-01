@@ -138,7 +138,7 @@ export const DocumentQualityCheck: React.FC<DocumentQualityCheckProps> = ({
             )}
           </div>
           <div>
-            <h3 style={{ fontSize: '1.05rem', color: '#fff', fontWeight: 700 }}>
+            <h3 style={{ fontSize: '1.05rem', color: 'var(--text-main, #0f172a)', fontWeight: 700 }}>
               {failedCount > 0
                 ? `${failedCount} Blocking Compliance Issues Found`
                 : 'All Legal & Quality Checks Passed'}
@@ -216,7 +216,7 @@ export const DocumentQualityCheck: React.FC<DocumentQualityCheckProps> = ({
 
                 <div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <span style={{ fontWeight: 600, fontSize: '0.875rem', color: '#fff' }}>
+                    <span style={{ fontWeight: 600, fontSize: '0.875rem', color: 'var(--text-main, #0f172a)' }}>
                       {item.title}
                     </span>
                     <span

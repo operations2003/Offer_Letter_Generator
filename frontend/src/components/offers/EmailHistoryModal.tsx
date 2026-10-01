@@ -115,8 +115,8 @@ export const EmailHistoryModal: React.FC<EmailHistoryModalProps> = ({
         left: 0,
         right: 0,
         bottom: 0,
-        backgroundColor: 'rgba(0, 0, 0, 0.75)',
-        backdropFilter: 'blur(6px)',
+        backgroundColor: 'rgba(15, 23, 42, 0.6)',
+        backdropFilter: 'blur(4px)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -125,7 +125,6 @@ export const EmailHistoryModal: React.FC<EmailHistoryModalProps> = ({
       }}
     >
       <div
-        className="glass-panel"
         style={{
           width: '100%',
           maxWidth: 820,
@@ -134,7 +133,8 @@ export const EmailHistoryModal: React.FC<EmailHistoryModalProps> = ({
           flexDirection: 'column',
           overflow: 'hidden',
           borderRadius: 14,
-          boxShadow: '0 24px 64px rgba(0, 0, 0, 0.6)',
+          background: '#ffffff',
+          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
           border: '1px solid var(--border-medium)',
         }}
       >
@@ -146,7 +146,7 @@ export const EmailHistoryModal: React.FC<EmailHistoryModalProps> = ({
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            background: 'rgba(255, 255, 255, 0.02)',
+            background: '#f8fafc',
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -155,23 +155,23 @@ export const EmailHistoryModal: React.FC<EmailHistoryModalProps> = ({
                 width: 38,
                 height: 38,
                 borderRadius: 10,
-                background: 'rgba(99, 102, 241, 0.15)',
+                background: '#e0e7ff',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                color: '#818cf8',
+                color: '#4338ca',
               }}
             >
               <History size={18} />
             </div>
             <div>
-              <h3 style={{ fontSize: '1.15rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 8 }}>
+              <h3 style={{ fontSize: '1.15rem', fontWeight: 600, color: '#0f172a', display: 'flex', alignItems: 'center', gap: 8 }}>
                 <span>Email Delivery History</span>
-                <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)', fontWeight: 400 }}>
+                <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 400 }}>
                   ({offerReferenceNumber})
                 </span>
               </h3>
-              <p style={{ fontSize: '0.8125rem', color: 'var(--text-muted)' }}>
+              <p style={{ fontSize: '0.8125rem', color: '#64748b' }}>
                 Auditable log of all email dispatch attempts, retries, secure links, and delivery timestamps.
               </p>
             </div>
@@ -202,47 +202,47 @@ export const EmailHistoryModal: React.FC<EmailHistoryModalProps> = ({
             style={{
               padding: '12px 24px',
               borderBottom: '1px solid var(--border-subtle)',
-              background: 'rgba(255, 255, 255, 0.01)',
+              background: '#f1f5f9',
               display: 'flex',
               gap: 24,
               fontSize: '0.8125rem',
             }}
           >
             <div>
-              <span style={{ color: 'var(--text-dim)' }}>Candidate: </span>
-              <span style={{ color: '#fff', fontWeight: 500 }}>{candidateName}</span>
+              <span style={{ color: '#64748b' }}>Candidate: </span>
+              <span style={{ color: '#0f172a', fontWeight: 600 }}>{candidateName}</span>
             </div>
             <div>
-              <span style={{ color: 'var(--text-dim)' }}>Total Dispatches: </span>
-              <span style={{ color: '#fff', fontWeight: 600 }}>{history.totalDeliveries}</span>
+              <span style={{ color: '#64748b' }}>Total Dispatches: </span>
+              <span style={{ color: '#0f172a', fontWeight: 600 }}>{history.totalDeliveries}</span>
             </div>
             <div>
-              <span style={{ color: 'var(--text-dim)' }}>Delivered: </span>
-              <span style={{ color: '#34d399', fontWeight: 600 }}>{history.sentCount}</span>
+              <span style={{ color: '#64748b' }}>Delivered: </span>
+              <span style={{ color: '#059669', fontWeight: 600 }}>{history.sentCount}</span>
             </div>
             {history.failedCount > 0 && (
               <div>
-                <span style={{ color: 'var(--text-dim)' }}>Failed Attempts: </span>
-                <span style={{ color: '#f87171', fontWeight: 600 }}>{history.failedCount}</span>
+                <span style={{ color: '#64748b' }}>Failed Attempts: </span>
+                <span style={{ color: '#dc2626', fontWeight: 600 }}>{history.failedCount}</span>
               </div>
             )}
           </div>
         )}
 
         {/* Body List */}
-        <div style={{ padding: 24, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <div style={{ padding: 24, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 16, background: '#f8fafc' }}>
           {loading ? (
             <div style={{ padding: 60, textAlign: 'center', color: 'var(--text-muted)' }}>
               <RefreshCw size={24} className="spin" style={{ margin: '0 auto 12px', display: 'block' }} />
               Loading email delivery logs...
             </div>
           ) : !history || history.deliveries.length === 0 ? (
-            <div style={{ padding: 60, textAlign: 'center', color: 'var(--text-muted)' }}>
-              <Mail size={32} style={{ margin: '0 auto 12px', display: 'block', color: 'var(--text-dim)' }} />
-              <div style={{ fontSize: '1rem', fontWeight: 600, color: '#fff', marginBottom: 4 }}>
+            <div style={{ padding: 60, textAlign: 'center', color: '#64748b' }}>
+              <Mail size={32} style={{ margin: '0 auto 12px', display: 'block', color: '#94a3b8' }} />
+              <div style={{ fontSize: '1rem', fontWeight: 600, color: '#0f172a', marginBottom: 4 }}>
                 No email dispatch records found
               </div>
-              <p style={{ fontSize: '0.8125rem', maxWidth: 400, margin: '0 auto 16px' }}>
+              <p style={{ fontSize: '0.8125rem', maxWidth: 400, margin: '0 auto 16px', color: '#64748b' }}>
                 This offer has not been dispatched to the candidate yet.
               </p>
               {onOpenSendModal && (
@@ -258,12 +258,13 @@ export const EmailHistoryModal: React.FC<EmailHistoryModalProps> = ({
                 style={{
                   padding: 18,
                   borderRadius: 10,
-                  background: 'rgba(255, 255, 255, 0.02)',
+                  background: '#ffffff',
+                  boxShadow: 'var(--shadow-sm)',
                   border:
                     item.status === 'SENT'
-                      ? '1px solid rgba(52, 211, 153, 0.2)'
+                      ? '1px solid #a7f3d0'
                       : item.status === 'FAILED'
-                      ? '1px solid rgba(248, 113, 113, 0.25)'
+                      ? '1px solid #fecaca'
                       : '1px solid var(--border-subtle)',
                   display: 'flex',
                   flexDirection: 'column',
@@ -283,9 +284,9 @@ export const EmailHistoryModal: React.FC<EmailHistoryModalProps> = ({
                           fontWeight: 600,
                           padding: '3px 9px',
                           borderRadius: 6,
-                          background: 'rgba(52, 211, 153, 0.12)',
-                          color: '#34d399',
-                          border: '1px solid rgba(52, 211, 153, 0.3)',
+                          background: '#ecfdf5',
+                          color: '#047857',
+                          border: '1px solid #a7f3d0',
                         }}
                       >
                         <CheckCircle2 size={13} />
@@ -301,9 +302,9 @@ export const EmailHistoryModal: React.FC<EmailHistoryModalProps> = ({
                           fontWeight: 600,
                           padding: '3px 9px',
                           borderRadius: 6,
-                          background: 'rgba(248, 113, 113, 0.12)',
-                          color: '#f87171',
-                          border: '1px solid rgba(248, 113, 113, 0.3)',
+                          background: '#fef2f2',
+                          color: '#b91c1c',
+                          border: '1px solid #fecaca',
                         }}
                       >
                         <AlertTriangle size={13} />
@@ -311,7 +312,7 @@ export const EmailHistoryModal: React.FC<EmailHistoryModalProps> = ({
                       </span>
                     )}
 
-                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 500 }}>
+                    <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 500 }}>
                       Attempt #{item.attemptNumber} {item.retryCount > 0 && `(Retry #${item.retryCount})`}
                     </span>
                   </div>
@@ -326,8 +327,8 @@ export const EmailHistoryModal: React.FC<EmailHistoryModalProps> = ({
                         padding: '4px 10px',
                         fontSize: '0.72rem',
                         gap: 5,
-                        background: '#f87171',
-                        borderColor: '#f87171',
+                        background: '#dc2626',
+                        borderColor: '#dc2626',
                       }}
                     >
                       {retryingId === item.id ? (
@@ -342,10 +343,10 @@ export const EmailHistoryModal: React.FC<EmailHistoryModalProps> = ({
 
                 {/* Subject & Recipient Details */}
                 <div>
-                  <div style={{ fontWeight: 600, color: '#fff', fontSize: '0.875rem' }}>
+                  <div style={{ fontWeight: 600, color: '#0f172a', fontSize: '0.875rem' }}>
                     {item.subject}
                   </div>
-                  <div style={{ fontSize: '0.78rem', color: 'var(--text-dim)', marginTop: 3 }}>
+                  <div style={{ fontSize: '0.78rem', color: '#64748b', marginTop: 3 }}>
                     To: {item.recipientName} &lt;{item.recipientEmail}&gt; • Dispatched by {item.sentBy.name}
                   </div>
                 </div>
@@ -356,10 +357,10 @@ export const EmailHistoryModal: React.FC<EmailHistoryModalProps> = ({
                     style={{
                       padding: '8px 12px',
                       borderRadius: 6,
-                      background: 'rgba(248, 113, 113, 0.08)',
-                      border: '1px solid rgba(248, 113, 113, 0.2)',
+                      background: '#fef2f2',
+                      border: '1px solid #fecaca',
                       fontSize: '0.75rem',
-                      color: '#fca5a5',
+                      color: '#991b1b',
                       display: 'flex',
                       alignItems: 'center',
                       gap: 8,
@@ -379,18 +380,18 @@ export const EmailHistoryModal: React.FC<EmailHistoryModalProps> = ({
                     flexWrap: 'wrap',
                     gap: 12,
                     paddingTop: 8,
-                    borderTop: '1px solid rgba(255, 255, 255, 0.04)',
+                    borderTop: '1px solid var(--border-subtle)',
                     fontSize: '0.75rem',
                   }}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 5, color: '#34d399' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 5, color: '#059669', fontWeight: 500 }}>
                       <Lock size={12} />
                       <span>Secure Candidate Portal Token Attached</span>
                     </div>
 
                     {item.hasPdfAttachment && (
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 5, color: '#a5b4fc' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 5, color: '#4f46e5', fontWeight: 500 }}>
                         <Paperclip size={12} />
                         <span>PDF Included ({item.pdfFileName || 'Legal Document'})</span>
                       </div>
@@ -415,24 +416,24 @@ export const EmailHistoryModal: React.FC<EmailHistoryModalProps> = ({
                     display: 'flex',
                     gap: 16,
                     fontSize: '0.72rem',
-                    color: 'var(--text-dim)',
+                    color: '#64748b',
                     marginTop: 2,
                   }}
                 >
                   <div>
                     <span>Attempted: </span>
-                    <span style={{ color: 'var(--text-muted)' }}>{formatTimestamp(item.attemptedAt)}</span>
+                    <span style={{ color: '#0f172a', fontWeight: 500 }}>{formatTimestamp(item.attemptedAt)}</span>
                   </div>
                   {item.deliveredAt && (
                     <div>
                       <span>Delivered: </span>
-                      <span style={{ color: '#34d399' }}>{formatTimestamp(item.deliveredAt)}</span>
+                      <span style={{ color: '#059669', fontWeight: 600 }}>{formatTimestamp(item.deliveredAt)}</span>
                     </div>
                   )}
                   {item.failedAt && (
                     <div>
                       <span>Failed: </span>
-                      <span style={{ color: '#f87171' }}>{formatTimestamp(item.failedAt)}</span>
+                      <span style={{ color: '#dc2626', fontWeight: 600 }}>{formatTimestamp(item.failedAt)}</span>
                     </div>
                   )}
                 </div>
@@ -449,10 +450,10 @@ export const EmailHistoryModal: React.FC<EmailHistoryModalProps> = ({
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            background: 'rgba(255, 255, 255, 0.01)',
+            background: '#f8fafc',
           }}
         >
-          <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>
+          <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
             All email deliveries and cryptographic tokens are immutably logged for audit compliance.
           </div>
           <Button variant="secondary" onClick={onClose}>

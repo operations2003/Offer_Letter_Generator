@@ -288,7 +288,7 @@ export const DocumentList: React.FC<DocumentListProps> = ({
               9 Core Document Types Supported
             </span>
           </div>
-          <h1 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#fff' }}>
+          <h1 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-main, #0f172a)' }}>
             HR Document Management
           </h1>
           <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>
@@ -442,7 +442,7 @@ export const DocumentList: React.FC<DocumentListProps> = ({
                         <FileText size={16} color="var(--primary)" />
                       </div>
                       <div>
-                        <div style={{ fontWeight: 600, fontSize: '0.875rem', color: '#fff' }}>
+                        <div style={{ fontWeight: 600, fontSize: '0.875rem', color: 'var(--text-main, #0f172a)' }}>
                           {DOCUMENT_TYPE_LABELS[doc.documentTypeCode] || doc.documentTypeCode}
                         </div>
                         <div style={{ fontSize: '0.72rem', color: 'var(--text-dim)' }}>
@@ -453,7 +453,7 @@ export const DocumentList: React.FC<DocumentListProps> = ({
                   </td>
 
                   <td style={{ padding: '14px 18px' }}>
-                    <div style={{ fontWeight: 600, fontSize: '0.875rem', color: '#fff' }}>
+                    <div style={{ fontWeight: 600, fontSize: '0.875rem', color: 'var(--text-main, #0f172a)' }}>
                       {doc.recipientName}
                     </div>
                     <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>

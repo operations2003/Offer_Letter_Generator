@@ -443,15 +443,15 @@ export const OffersPage: React.FC = () => {
               alignItems: 'center',
               gap: 5,
               fontSize: '0.72rem',
-              fontWeight: 600,
+              fontWeight: 700,
               padding: '3px 8px',
               borderRadius: 6,
-              background: 'rgba(52, 211, 153, 0.12)',
-              color: '#34d399',
-              border: '1px solid rgba(52, 211, 153, 0.25)',
+              background: '#ecfdf5',
+              color: '#047857',
+              border: '1px solid #a7f3d0',
             }}
           >
-            <CheckCircle2 size={12} />
+            <CheckCircle2 size={12} style={{ color: '#059669' }} />
             <span>HR Verified</span>
           </span>
         );
@@ -463,15 +463,15 @@ export const OffersPage: React.FC = () => {
               alignItems: 'center',
               gap: 5,
               fontSize: '0.72rem',
-              fontWeight: 600,
+              fontWeight: 700,
               padding: '3px 8px',
               borderRadius: 6,
-              background: 'rgba(192, 132, 252, 0.12)',
-              color: '#c084fc',
-              border: '1px solid rgba(192, 132, 252, 0.25)',
+              background: '#f5f3ff',
+              color: '#6d28d9',
+              border: '1px solid #ddd6fe',
             }}
           >
-            <Sparkles size={12} />
+            <Sparkles size={12} style={{ color: '#7c3aed' }} />
             <span>AI Review Pending</span>
           </span>
         );
@@ -483,15 +483,15 @@ export const OffersPage: React.FC = () => {
               alignItems: 'center',
               gap: 5,
               fontSize: '0.72rem',
-              fontWeight: 600,
+              fontWeight: 700,
               padding: '3px 8px',
               borderRadius: 6,
-              background: 'rgba(251, 191, 36, 0.12)',
-              color: '#fbbf24',
-              border: '1px solid rgba(251, 191, 36, 0.25)',
+              background: '#fffbeb',
+              color: '#b45309',
+              border: '1px solid #fde68a',
             }}
           >
-            <AlertTriangle size={12} />
+            <AlertTriangle size={12} style={{ color: '#d97706' }} />
             <span>Overrides Applied</span>
           </span>
         );
@@ -506,9 +506,9 @@ export const OffersPage: React.FC = () => {
               fontWeight: 600,
               padding: '3px 8px',
               borderRadius: 6,
-              background: 'rgba(148, 163, 184, 0.12)',
-              color: '#94a3b8',
-              border: '1px solid rgba(148, 163, 184, 0.25)',
+              background: '#f1f5f9',
+              color: '#475569',
+              border: '1px solid #cbd5e1',
             }}
           >
             <span>Standard</span>
@@ -711,9 +711,9 @@ export const OffersPage: React.FC = () => {
             <thead>
               <tr
                 style={{
-                  background: 'rgba(255, 255, 255, 0.02)',
+                  background: '#f8fafc',
                   borderBottom: '1px solid var(--border-subtle)',
-                  color: 'var(--text-dim)',
+                  color: 'var(--text-muted)',
                   fontSize: '0.75rem',
                   textTransform: 'uppercase',
                   letterSpacing: '0.05em',
@@ -733,18 +733,18 @@ export const OffersPage: React.FC = () => {
               {loading ? (
                 <tr>
                   <td colSpan={8} style={{ padding: 48, textAlign: 'center', color: 'var(--text-muted)' }}>
-                    <RefreshCw size={24} className="spin" style={{ margin: '0 auto 12px', display: 'block' }} />
+                    <RefreshCw size={24} className="spin" style={{ margin: '0 auto 12px', display: 'block', color: 'var(--primary)' }} />
                     Loading offer records...
                   </td>
                 </tr>
               ) : offers.length === 0 ? (
                 <tr>
                   <td colSpan={8} style={{ padding: 48, textAlign: 'center', color: 'var(--text-muted)' }}>
-                    <Layers size={32} style={{ margin: '0 auto 12px', display: 'block', color: 'var(--text-dim)' }} />
-                    <div style={{ fontSize: '1rem', fontWeight: 600, color: '#fff', marginBottom: 4 }}>
+                    <Layers size={36} style={{ margin: '0 auto 12px', display: 'block', color: 'var(--text-dim)' }} />
+                    <div style={{ fontSize: '1rem', fontWeight: 700, color: '#0f172a', marginBottom: 4 }}>
                       No offers found
                     </div>
-                    <div style={{ fontSize: '0.8125rem' }}>
+                    <div style={{ fontSize: '0.8125rem', color: '#64748b' }}>
                       Try adjusting your search criteria or status filter.
                     </div>
                   </td>
@@ -754,30 +754,32 @@ export const OffersPage: React.FC = () => {
                   <tr
                     key={o.id}
                     style={{
-                      borderBottom: '1px solid rgba(255, 255, 255, 0.04)',
+                      borderBottom: '1px solid var(--border-subtle)',
                       transition: 'background 0.15s ease',
                     }}
-                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.02)')}
+                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#f8fafc')}
                     onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
                   >
                     {/* 1. Candidate Column */}
                     <td style={{ padding: '14px 18px' }}>
                       <div
                         style={{
-                          fontWeight: 600,
-                          color: '#fff',
+                          fontWeight: 700,
+                          color: '#0f172a',
                           cursor: 'pointer',
                           display: 'flex',
                           alignItems: 'center',
                           gap: 6,
+                          maxWidth: 240,
+                          wordBreak: 'break-word',
                         }}
                         onClick={() => handleView(o)}
                         title="Click to view offer details"
                       >
-                        <User size={14} style={{ color: 'var(--primary-light)' }} />
-                        <span>{o.candidateName}</span>
+                        <User size={14} style={{ color: 'var(--primary)', flexShrink: 0 }} />
+                        <span style={{ color: '#0f172a' }}>{o.candidateName}</span>
                       </div>
-                      <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: 2 }}>
+                      <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: 2, wordBreak: 'break-all' }}>
                         {o.email}
                       </div>
                       <div
@@ -793,32 +795,34 @@ export const OffersPage: React.FC = () => {
                     </td>
 
                     {/* 2. Position Column */}
-                    <td style={{ padding: '14px 16px' }}>
-                      <div style={{ fontWeight: 600, color: 'var(--text-bright)' }}>{o.position}</div>
+                    <td style={{ padding: '14px 16px', maxWidth: 220 }}>
+                      <div style={{ fontWeight: 600, color: '#0f172a', wordBreak: 'break-word' }}>{o.position}</div>
                       <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginTop: 3 }}>
-                        <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>{o.department}</span>
+                        <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{o.department}</span>
                         {o.bandGrade && (
                           <span
                             style={{
                               fontSize: '0.68rem',
-                              padding: '1px 5px',
+                              padding: '1px 6px',
                               borderRadius: 4,
-                              background: 'rgba(255, 255, 255, 0.06)',
-                              color: 'var(--text-muted)',
+                              background: '#f1f5f9',
+                              color: '#475569',
+                              border: '1px solid #e2e8f0',
+                              fontWeight: 600,
                             }}
                           >
                             {o.bandGrade}
                           </span>
                         )}
                       </div>
-                      <div style={{ fontSize: '0.72rem', color: 'var(--text-dim)', marginTop: 2 }}>
+                      <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 600, marginTop: 2 }}>
                         ${o.totalCtc?.toLocaleString()} {o.currency}
                       </div>
                     </td>
 
                     {/* 3. Offer Date Column */}
                     <td style={{ padding: '14px 14px' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: '0.8125rem' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: '0.8125rem', color: '#334155' }}>
                         <Calendar size={13} style={{ color: 'var(--text-dim)' }} />
                         <span>{formatDate(o.offerDate)}</span>
                       </div>
@@ -826,23 +830,25 @@ export const OffersPage: React.FC = () => {
 
                     {/* 4. Joining Date Column */}
                     <td style={{ padding: '14px 14px' }}>
-                      <div style={{ fontSize: '0.8125rem', fontWeight: o.joiningDate ? 500 : 400 }}>
+                      <div style={{ fontSize: '0.8125rem', fontWeight: o.joiningDate ? 600 : 400, color: '#334155' }}>
                         {formatDate(o.joiningDate)}
                       </div>
                     </td>
 
                     {/* 5. Template Column */}
                     <td style={{ padding: '14px 16px' }}>
-                      <div style={{ fontWeight: 500, fontSize: '0.8125rem' }}>{o.template}</div>
+                      <div style={{ fontWeight: 600, fontSize: '0.8125rem', color: '#0f172a' }}>{o.template}</div>
                       {o.templateCode && (
                         <span
                           style={{
                             display: 'inline-block',
                             fontSize: '0.68rem',
-                            padding: '1px 6px',
+                            fontWeight: 600,
+                            padding: '2px 7px',
                             borderRadius: 4,
-                            background: 'rgba(99, 102, 241, 0.1)',
-                            color: '#a5b4fc',
+                            background: '#eff6ff',
+                            color: '#1d4ed8',
+                            border: '1px solid #bfdbfe',
                             marginTop: 4,
                           }}
                         >
@@ -1008,7 +1014,7 @@ export const OffersPage: React.FC = () => {
             justifyContent: 'space-between',
             flexWrap: 'wrap',
             gap: 16,
-            background: 'rgba(255, 255, 255, 0.01)',
+            background: '#ffffff',
           }}
         >
           {/* Showing Count and Limit Selector */}

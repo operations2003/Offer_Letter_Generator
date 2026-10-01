@@ -130,9 +130,9 @@ export const Step10FinalHrReview: React.FC<Step10FinalHrReviewProps> = ({
           >
             10
           </span>
-          <h3 style={{ fontSize: '1.25rem', fontWeight: 800 }}>Final HR Review & Authority Authorization</h3>
+          <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0f172a' }}>Final HR Review & Authority Authorization</h3>
         </div>
-        <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem', marginTop: 4, marginLeft: 38 }}>
+        <p style={{ color: '#64748b', fontSize: '0.875rem', marginTop: 4, marginLeft: 38 }}>
           Comprehensive legal reconciliation: Review side-by-side data, audit human overrides, and sign off for binding offer issuance.
         </p>
       </div>
@@ -140,22 +140,21 @@ export const Step10FinalHrReview: React.FC<Step10FinalHrReviewProps> = ({
       {/* Pre-Generation Audit Status Banner */}
       {preGenAuditResult && (
         <div
-          className="glass-panel"
           style={{
             padding: '16px 20px',
-            borderRadius: 'var(--radius-md)',
+            borderRadius: 10,
             background:
               preGenAuditResult.status === 'PASS'
-                ? 'rgba(16, 185, 129, 0.08)'
+                ? '#ecfdf5'
                 : preGenAuditResult.status === 'WARNING'
-                ? 'rgba(245, 158, 11, 0.08)'
-                : 'rgba(239, 68, 68, 0.08)',
+                ? '#fffbeb'
+                : '#fef2f2',
             border: `1px solid ${
               preGenAuditResult.status === 'PASS'
-                ? 'rgba(16, 185, 129, 0.4)'
+                ? '#a7f3d0'
                 : preGenAuditResult.status === 'WARNING'
-                ? 'rgba(245, 158, 11, 0.4)'
-                : 'rgba(239, 68, 68, 0.4)'
+                ? '#fde68a'
+                : '#fca5a5'
             }`,
             display: 'flex',
             flexDirection: 'column',
@@ -165,15 +164,15 @@ export const Step10FinalHrReview: React.FC<Step10FinalHrReviewProps> = ({
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               {preGenAuditResult.status === 'PASS' ? (
-                <CheckCircle2 size={20} color="#10b981" />
+                <CheckCircle2 size={20} color="#059669" />
               ) : preGenAuditResult.status === 'WARNING' ? (
-                <AlertTriangle size={20} color="#f59e0b" />
+                <AlertTriangle size={20} color="#d97706" />
               ) : (
-                <AlertCircle size={20} color="#ef4444" />
+                <AlertCircle size={20} color="#dc2626" />
               )}
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <strong style={{ fontSize: '0.9375rem', color: '#fff' }}>
+                  <strong style={{ fontSize: '0.9375rem', color: '#0f172a' }}>
                     Pre-Generation Compliance Audit:
                   </strong>
                   <span
@@ -184,22 +183,22 @@ export const Step10FinalHrReview: React.FC<Step10FinalHrReviewProps> = ({
                       fontWeight: 800,
                       background:
                         preGenAuditResult.status === 'PASS'
-                          ? 'rgba(16, 185, 129, 0.2)'
+                          ? '#d1fae5'
                           : preGenAuditResult.status === 'WARNING'
-                          ? 'rgba(245, 158, 11, 0.2)'
-                          : 'rgba(239, 68, 68, 0.2)',
+                          ? '#fef3c7'
+                          : '#fee2e2',
                       color:
                         preGenAuditResult.status === 'PASS'
-                          ? '#34d399'
+                          ? '#047857'
                           : preGenAuditResult.status === 'WARNING'
-                          ? '#fbbf24'
-                          : '#f87171',
+                          ? '#b45309'
+                          : '#b91c1c',
                     }}
                   >
                     {preGenAuditResult.status}
                   </span>
                 </div>
-                <div style={{ fontSize: '0.8125rem', color: 'var(--text-muted)', marginTop: 2 }}>
+                <div style={{ fontSize: '0.8125rem', color: '#475569', marginTop: 2 }}>
                   {preGenAuditResult.summary}
                 </div>
               </div>
@@ -224,16 +223,17 @@ export const Step10FinalHrReview: React.FC<Step10FinalHrReviewProps> = ({
               style={{
                 marginTop: 6,
                 padding: '10px 14px',
-                background: 'rgba(239, 68, 68, 0.1)',
+                background: '#fef2f2',
                 borderRadius: 'var(--radius-sm)',
-                borderLeft: '3px solid #ef4444',
+                border: '1px solid #fecaca',
+                borderLeft: '3px solid #dc2626',
                 fontSize: '0.8125rem',
               }}
             >
-              <div style={{ color: '#fca5a5', fontWeight: 700, marginBottom: 4 }}>
+              <div style={{ color: '#991b1b', fontWeight: 700, marginBottom: 4 }}>
                 {preGenAuditResult.criticalIssuesCount} Blocking Issue(s) Detected (AI Flags Issues, Silently Modifies Nothing):
               </div>
-              <ul style={{ paddingLeft: 18, color: 'var(--text-main)', margin: 0 }}>
+              <ul style={{ paddingLeft: 18, color: '#334155', margin: 0 }}>
                 {preGenAuditResult.allIssues
                   .filter((i) => i.severity === 'CRITICAL')
                   .map((iss) => (
@@ -248,28 +248,28 @@ export const Step10FinalHrReview: React.FC<Step10FinalHrReviewProps> = ({
       )}
 
       {/* Side-by-Side Reconciliation Table */}
-      <div className="glass-panel" style={{ overflowX: 'auto', padding: 20 }}>
+      <div style={{ overflowX: 'auto', padding: 20, background: '#ffffff', borderRadius: 12, border: '1px solid var(--border-medium)', boxShadow: 'var(--shadow-sm)' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <FileText size={18} color="var(--primary)" />
-            <h4 style={{ fontSize: '1rem', fontWeight: 700 }}>Contractual Data Reconciliation Ledger</h4>
+            <h4 style={{ fontSize: '1rem', fontWeight: 700, color: '#0f172a' }}>Contractual Data Reconciliation Ledger</h4>
           </div>
-          <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>
+          <span style={{ fontSize: '0.75rem', color: '#64748b' }}>
             10 Key Legal Terms Reconciled
           </span>
         </div>
 
         <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.8125rem' }}>
           <thead>
-            <tr style={{ borderBottom: '1px solid var(--border-subtle)', background: 'var(--bg-tertiary)' }}>
-              <th style={{ padding: '10px 14px', color: 'var(--text-muted)' }}>Offer Parameter</th>
-              <th style={{ padding: '10px 14px', color: '#c084fc' }}>
+            <tr style={{ borderBottom: '1px solid var(--border-subtle)', background: '#f8fafc' }}>
+              <th style={{ padding: '10px 14px', color: '#475569', fontWeight: 600 }}>Offer Parameter</th>
+              <th style={{ padding: '10px 14px' }}>
                 <span className="ai-badge" style={{ fontSize: '0.6875rem' }}>AI Suggested (Advisory)</span>
               </th>
-              <th style={{ padding: '10px 14px', color: '#34d399' }}>
+              <th style={{ padding: '10px 14px' }}>
                 <span className="hr-badge" style={{ fontSize: '0.6875rem' }}>HR Confirmed (Legal Contract)</span>
               </th>
-              <th style={{ padding: '10px 14px', color: 'var(--text-muted)', textAlign: 'right' }}>Status</th>
+              <th style={{ padding: '10px 14px', color: '#475569', textAlign: 'right', fontWeight: 600 }}>Status</th>
             </tr>
           </thead>
           <tbody>
@@ -283,26 +283,26 @@ export const Step10FinalHrReview: React.FC<Step10FinalHrReviewProps> = ({
                     borderBottom: '1px solid var(--border-subtle)',
                     transition: 'background 0.15s',
                   }}
-                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--bg-card-hover)')}
+                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#f8fafc')}
                   onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
                 >
-                  <td style={{ padding: '12px 14px', fontWeight: 600, color: 'var(--text-muted)' }}>
+                  <td style={{ padding: '12px 14px', fontWeight: 600, color: '#475569' }}>
                     {item.label}
                   </td>
-                  <td style={{ padding: '12px 14px', color: 'var(--text-main)', fontFamily: 'var(--font-mono)' }}>
+                  <td style={{ padding: '12px 14px', color: '#334155', fontFamily: 'var(--font-mono)' }}>
                     {item.ai}
                   </td>
-                  <td style={{ padding: '12px 14px', color: '#fff', fontWeight: 700, fontFamily: 'var(--font-mono)' }}>
+                  <td style={{ padding: '12px 14px', color: '#0f172a', fontWeight: 700, fontFamily: 'var(--font-mono)' }}>
                     {item.hr}
                   </td>
                   <td style={{ padding: '12px 14px', textAlign: 'right' }}>
                     {isMatch ? (
-                      <span style={{ color: 'var(--success)', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                      <span style={{ color: '#059669', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
                         <CheckCircle2 size={13} />
                         <span>Accepted</span>
                       </span>
                     ) : (
-                      <span style={{ color: '#fbbf24', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                      <span style={{ color: '#b45309', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
                         <Edit2 size={13} />
                         <span>HR Modified</span>
                       </span>
@@ -318,16 +318,16 @@ export const Step10FinalHrReview: React.FC<Step10FinalHrReviewProps> = ({
       {/* Human Override Audit Trail */}
       {overrides.length > 0 && (
         <div
-          className="glass-panel"
           style={{
             padding: 20,
-            background: 'rgba(245, 158, 11, 0.04)',
-            border: '1px solid rgba(245, 158, 11, 0.3)',
+            background: '#fffbeb',
+            borderRadius: 12,
+            border: '1px solid #fde68a',
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-            <Clock size={16} color="#f59e0b" />
-            <h4 style={{ fontSize: '0.9375rem', fontWeight: 700, color: '#f59e0b' }}>
+            <Clock size={16} color="#d97706" />
+            <h4 style={{ fontSize: '0.9375rem', fontWeight: 700, color: '#92400e' }}>
               Immutable Human Override Audit Ledger ({overrides.length})
             </h4>
           </div>
@@ -341,17 +341,18 @@ export const Step10FinalHrReview: React.FC<Step10FinalHrReviewProps> = ({
                   alignItems: 'center',
                   justifyContent: 'space-between',
                   padding: '8px 12px',
-                  background: 'var(--bg-primary)',
+                  background: '#ffffff',
+                  border: '1px solid #fef3c7',
                   borderRadius: 'var(--radius-sm)',
                   fontSize: '0.8125rem',
                 }}
               >
                 <div>
-                  <strong style={{ color: '#fff' }}>{ov.fieldLabel}</strong>: Changed from{' '}
-                  <span style={{ textDecoration: 'line-through', color: '#f87171' }}>"{String(ov.aiValue)}"</span> to{' '}
-                  <span style={{ color: '#34d399', fontWeight: 700 }}>"{String(ov.hrValue)}"</span>
+                  <strong style={{ color: '#0f172a' }}>{ov.fieldLabel}</strong>: Changed from{' '}
+                  <span style={{ textDecoration: 'line-through', color: '#dc2626' }}>"{String(ov.aiValue)}"</span> to{' '}
+                  <span style={{ color: '#059669', fontWeight: 700 }}>"{String(ov.hrValue)}"</span>
                 </div>
-                <span style={{ fontSize: '0.6875rem', color: 'var(--text-dim)' }}>
+                <span style={{ fontSize: '0.6875rem', color: '#64748b' }}>
                   Reason: {ov.reason || 'Manual HR adjustment'}
                 </span>
               </div>
@@ -362,18 +363,20 @@ export const Step10FinalHrReview: React.FC<Step10FinalHrReviewProps> = ({
 
       {/* Sign-off & Authority Commitment Card */}
       <div
-        className="glass-panel"
         style={{
           padding: 24,
           display: 'flex',
           flexDirection: 'column',
           gap: 18,
-          background: 'var(--bg-tertiary)',
+          background: '#ffffff',
+          borderRadius: 12,
+          border: '1px solid var(--border-medium)',
+          boxShadow: 'var(--shadow-sm)',
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <ShieldCheck size={20} color="var(--success)" />
-          <h4 style={{ fontSize: '1.05rem', fontWeight: 700 }}>HR Authority Sign-Off & Approvers</h4>
+          <ShieldCheck size={20} color="#059669" />
+          <h4 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#0f172a' }}>HR Authority Sign-Off & Approvers</h4>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
@@ -422,9 +425,9 @@ export const Step10FinalHrReview: React.FC<Step10FinalHrReviewProps> = ({
             alignItems: 'flex-start',
             gap: 12,
             padding: '14px 16px',
-            background: 'var(--bg-primary)',
+            background: '#ecfdf5',
             borderRadius: 'var(--radius-md)',
-            border: '1px solid var(--hr-border)',
+            border: '1px solid #a7f3d0',
             cursor: 'pointer',
           }}
         >
@@ -434,7 +437,7 @@ export const Step10FinalHrReview: React.FC<Step10FinalHrReviewProps> = ({
             onChange={(e) => onUpdateSignOff({ recruiterId, approverId, approvalNotes, isConfirmed: e.target.checked })}
             style={{ marginTop: 3, cursor: 'pointer', accentColor: 'var(--success)' }}
           />
-          <div style={{ fontSize: '0.8125rem', color: '#f8fafc', lineHeight: 1.5 }}>
+          <div style={{ fontSize: '0.8125rem', color: '#065f46', lineHeight: 1.5 }}>
             <strong>I hereby ratify and authorize this employment offer:</strong> I certify that all AI extracted items have been verified, compensation adheres to approved pay bands, and this document represents the authoritative legal offer of Acme Technologies Inc.
           </div>
         </label>

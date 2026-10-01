@@ -230,7 +230,7 @@ export const DocumentHrReview: React.FC<DocumentHrReviewProps> = ({
                 >
                   {/* Field Name */}
                   <td style={{ padding: '14px 18px' }}>
-                    <div style={{ fontWeight: 600, fontSize: '0.875rem', color: '#fff' }}>
+                    <div style={{ fontWeight: 600, fontSize: '0.875rem', color: 'var(--text-main, #0f172a)' }}>
                       {field.label}
                     </div>
                     <div style={{ fontSize: '0.7rem', color: 'var(--text-dim)', textTransform: 'uppercase' }}>
@@ -287,7 +287,7 @@ export const DocumentHrReview: React.FC<DocumentHrReviewProps> = ({
                               padding: 6,
                               borderRadius: 'var(--radius-sm)',
                               background: decision === 'ACCEPTED' ? 'var(--success)' : 'var(--bg-secondary)',
-                              color: '#fff',
+                              color: decision === 'ACCEPTED' ? '#fff' : 'var(--text-main, #0f172a)',
                               border: '1px solid ' + (decision === 'ACCEPTED' ? 'var(--success)' : 'var(--border-subtle)'),
                             }}
                           >
@@ -303,7 +303,7 @@ export const DocumentHrReview: React.FC<DocumentHrReviewProps> = ({
                               padding: 6,
                               borderRadius: 'var(--radius-sm)',
                               background: decision === 'REJECTED' ? 'var(--danger)' : 'var(--bg-secondary)',
-                              color: '#fff',
+                              color: decision === 'REJECTED' ? '#fff' : 'var(--text-main, #0f172a)',
                               border: '1px solid ' + (decision === 'REJECTED' ? 'var(--danger)' : 'var(--border-subtle)'),
                             }}
                           >
@@ -386,7 +386,7 @@ export const DocumentHrReview: React.FC<DocumentHrReviewProps> = ({
           }}
         >
           <div className="glass-panel" style={{ width: 440, padding: 24, borderRadius: 'var(--radius-lg)' }}>
-            <h3 style={{ fontSize: '1rem', color: '#fff', marginBottom: 6 }}>
+            <h3 style={{ fontSize: '1rem', color: 'var(--text-main, #0f172a)', marginBottom: 6 }}>
               Log Human Override for "{activeOverrideModalKey}"
             </h3>
             <p style={{ fontSize: '0.8125rem', color: 'var(--text-muted)', marginBottom: 14 }}>

@@ -59,8 +59,18 @@ export const DocumentsPage: React.FC<DocumentsPageProps> = ({ createMode = false
       {isCreating ? (
         <DocumentCreationWizard
           onCancel={handleCancelCreate}
-          onSuccess={(doc) => {
-            // Document created
+          onSuccess={async (doc) => {
+            setIsCreating(false);
+            setSearchParams({});
+            try {
+              const typeDef = await DocumentEngineService.getDocumentTypeByCode(doc.documentTypeCode);
+              if (typeDef) {
+                setPreviewTypeDef(typeDef);
+                setSelectedDocForPreview(doc);
+              }
+            } catch {
+              setSelectedDocForPreview(null);
+            }
           }}
         />
       ) : selectedDocForPreview && previewTypeDef ? (

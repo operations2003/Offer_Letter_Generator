@@ -136,18 +136,18 @@ export const ImproveWithAi: React.FC<ImproveWithAiProps> = ({
           {/* Mandatory AI Guardrail Banner */}
           <div
             style={{
-              padding: '10px 14px',
+              padding: '12px 14px',
               borderRadius: 'var(--radius-sm)',
-              background: 'rgba(168, 85, 247, 0.08)',
+              background: 'rgba(124, 58, 237, 0.08)',
               border: '1px solid var(--ai-border)',
               display: 'flex',
               alignItems: 'center',
               gap: 10,
-              fontSize: '0.75rem',
-              color: '#f8fafc',
+              fontSize: '0.8125rem',
+              color: 'var(--text-main, #0f172a)',
             }}
           >
-            <ShieldAlert size={16} color="#c084fc" style={{ flexShrink: 0 }} />
+            <ShieldAlert size={18} color="var(--ai-purple, #7c3aed)" style={{ flexShrink: 0 }} />
             <span>
               <strong>GUARDRAIL:</strong> AI must not invent company policies or legal obligations. All improvements are advisory, editable, and require HR confirmation.
             </span>
@@ -217,7 +217,7 @@ export const ImproveWithAi: React.FC<ImproveWithAiProps> = ({
                     AI Proposed Revision
                   </span>
                   {improvedItem.variationNumber && improvedItem.variationNumber > 1 && (
-                    <span style={{ fontSize: '0.75rem', color: '#c084fc', fontWeight: 600 }}>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--ai-purple, #7c3aed)', fontWeight: 600 }}>
                       Variation #{improvedItem.variationNumber}
                     </span>
                   )}
@@ -233,7 +233,7 @@ export const ImproveWithAi: React.FC<ImproveWithAiProps> = ({
               </div>
 
               {improvedItem.changesSummary && (
-                <div style={{ fontSize: '0.75rem', color: '#c084fc', marginBottom: 8 }}>
+                <div style={{ fontSize: '0.75rem', color: 'var(--ai-purple, #7c3aed)', marginBottom: 8 }}>
                   <strong>Summary of Enhancements:</strong> {improvedItem.changesSummary}
                 </div>
               )}
@@ -251,10 +251,11 @@ export const ImproveWithAi: React.FC<ImproveWithAiProps> = ({
                   style={{
                     fontSize: '0.875rem',
                     lineHeight: 1.6,
-                    color: 'var(--text-main)',
-                    background: 'rgba(0, 0, 0, 0.2)',
+                    color: 'var(--text-main, #0f172a)',
+                    background: 'var(--bg-surface, #ffffff)',
                     padding: 12,
                     borderRadius: 'var(--radius-sm)',
+                    border: '1px solid var(--border-subtle, #e2e8f0)',
                   }}
                 >
                   {editableText}

@@ -373,14 +373,15 @@ export const OfferGeneratorWizard: React.FC<OfferGeneratorWizardProps> = ({
     <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
       {/* Top Stepper Navigation Bar */}
       <div
-        className="glass-panel"
         style={{
           padding: '16px 20px',
           display: 'flex',
           flexDirection: 'column',
           gap: 14,
-          backgroundColor: 'var(--bg-secondary)',
-          borderBottom: '2px solid var(--border-subtle)',
+          backgroundColor: '#ffffff',
+          borderRadius: 12,
+          border: '1px solid var(--border-medium)',
+          boxShadow: 'var(--shadow-sm)',
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -388,7 +389,7 @@ export const OfferGeneratorWizard: React.FC<OfferGeneratorWizardProps> = ({
             <span style={{ fontSize: '0.6875rem', fontWeight: 700, color: 'var(--primary)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
               OFFER GENERATION PIPELINE • STEP {currentStep} OF 11
             </span>
-            <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#fff', marginTop: 2 }}>
+            <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0f172a', marginTop: 2 }}>
               {stepTitles[currentStep - 1]?.title}
             </h2>
           </div>
@@ -444,19 +445,19 @@ export const OfferGeneratorWizard: React.FC<OfferGeneratorWizardProps> = ({
                   display: 'flex',
                   alignItems: 'center',
                   gap: 6,
-                  padding: '6px 10px',
+                  padding: '6px 12px',
                   borderRadius: 'var(--radius-full)',
                   background: isCurrent
                     ? 'var(--primary)'
                     : isDone
-                    ? 'rgba(16, 185, 129, 0.15)'
-                    : 'var(--bg-tertiary)',
+                    ? '#ecfdf5'
+                    : '#f8fafc',
                   border: isCurrent
-                    ? '1px solid var(--primary-hover)'
+                    ? '1px solid var(--primary)'
                     : isDone
-                    ? '1px solid rgba(16, 185, 129, 0.4)'
+                    ? '1px solid #a7f3d0'
                     : '1px solid var(--border-subtle)',
-                  color: isCurrent ? '#fff' : isDone ? '#34d399' : 'var(--text-dim)',
+                  color: isCurrent ? '#ffffff' : isDone ? '#047857' : '#64748b',
                   fontSize: '0.75rem',
                   fontWeight: isCurrent ? 700 : 500,
                   cursor: isDone || isCurrent ? 'pointer' : 'default',
@@ -471,11 +472,11 @@ export const OfferGeneratorWizard: React.FC<OfferGeneratorWizardProps> = ({
                     height: 18,
                     borderRadius: '50%',
                     background: isCurrent
-                      ? '#fff'
+                      ? '#ffffff'
                       : isDone
-                      ? 'var(--success)'
-                      : 'rgba(255, 255, 255, 0.1)',
-                    color: isCurrent ? 'var(--primary)' : '#fff',
+                      ? '#059669'
+                      : '#e2e8f0',
+                    color: isCurrent ? 'var(--primary)' : isDone ? '#ffffff' : '#475569',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -615,14 +616,15 @@ export const OfferGeneratorWizard: React.FC<OfferGeneratorWizardProps> = ({
       {/* Bottom Sticky Navigation Footer (Steps 1 through 10) */}
       {currentStep < 11 && (
         <div
-          className="glass-panel"
           style={{
             padding: '16px 24px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            background: 'var(--bg-secondary)',
-            borderTop: '1px solid var(--border-subtle)',
+            background: '#ffffff',
+            borderRadius: 12,
+            border: '1px solid var(--border-medium)',
+            boxShadow: '0 -4px 12px rgba(0, 0, 0, 0.05)',
             position: 'sticky',
             bottom: 0,
             zIndex: 20,
@@ -640,7 +642,7 @@ export const OfferGeneratorWizard: React.FC<OfferGeneratorWizardProps> = ({
           </button>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <span style={{ fontSize: '0.8125rem', color: 'var(--text-dim)' }}>
+            <span style={{ fontSize: '0.8125rem', color: '#64748b' }}>
               Step {currentStep} of 10
             </span>
 

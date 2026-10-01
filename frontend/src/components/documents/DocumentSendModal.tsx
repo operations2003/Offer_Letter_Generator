@@ -85,7 +85,7 @@ export const DocumentSendModal: React.FC<DocumentSendModalProps> = ({
               <Mail size={18} color="#fff" />
             </div>
             <div>
-              <h3 style={{ fontSize: '1.05rem', color: '#fff', fontWeight: 700 }}>
+              <h3 style={{ fontSize: '1.05rem', color: 'var(--text-main, #0f172a)', fontWeight: 700 }}>
                 Dispatch {typeDef.name}
               </h3>
               <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>
@@ -144,7 +144,7 @@ export const DocumentSendModal: React.FC<DocumentSendModalProps> = ({
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <FileText size={16} color="var(--primary)" />
-            <span style={{ fontSize: '0.8125rem', color: '#fff', fontWeight: 600 }}>
+            <span style={{ fontSize: '0.8125rem', color: 'var(--text-main, #0f172a)', fontWeight: 600 }}>
               {document.referenceNumber}_{typeDef.code}.pdf
             </span>
           </div>

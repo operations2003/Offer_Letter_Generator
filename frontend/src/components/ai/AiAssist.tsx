@@ -275,21 +275,21 @@ export const AiAssist: React.FC<AiAssistProps> = ({
             style={{
               padding: '12px 16px',
               borderRadius: 'var(--radius-md)',
-              background: 'rgba(168, 85, 247, 0.08)',
-              border: '1px solid var(--ai-border)',
+              background: '#f5f3ff',
+              border: '1px solid #ddd6fe',
               display: 'flex',
               alignItems: 'flex-start',
               gap: 12,
             }}
           >
-            <ShieldAlert size={18} color="#c084fc" style={{ flexShrink: 0, marginTop: 2 }} />
-            <div style={{ fontSize: '0.8125rem', color: '#f8fafc', lineHeight: 1.45 }}>
-              <strong>STRICT COMPLIANCE GUARDRAIL:</strong> AI must not invent company policies or legal obligations. All AI-generated content is strictly advisory, completely editable, and requires human HR review and acceptance before issuance.
+            <ShieldAlert size={18} color="#7c3aed" style={{ flexShrink: 0, marginTop: 2 }} />
+            <div style={{ fontSize: '0.8125rem', color: '#334155', lineHeight: 1.45 }}>
+              <strong style={{ color: '#0f172a' }}>STRICT COMPLIANCE GUARDRAIL:</strong> AI must not invent company policies or legal obligations. All AI-generated content is strictly advisory, completely editable, and requires human HR review and acceptance before issuance.
             </div>
           </div>
 
           {/* Mode Tabs: Generate vs Improve */}
-          <div style={{ display: 'flex', gap: 10, borderBottom: '1px solid var(--border-subtle)', paddingBottom: 10 }}>
+          <div style={{ display: 'flex', gap: 10, borderBottom: '1px solid var(--border-medium)', paddingBottom: 10 }}>
             <button
               type="button"
               onClick={() => setActiveTab('generate')}
@@ -314,7 +314,7 @@ export const AiAssist: React.FC<AiAssistProps> = ({
           {activeTab === 'generate' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
               <div>
-                <label className="form-label" style={{ marginBottom: 6, display: 'block' }}>
+                <label className="form-label" style={{ marginBottom: 6, display: 'block', fontWeight: 600, color: '#334155' }}>
                   Select Assistance Category:
                 </label>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 8 }}>
@@ -338,14 +338,14 @@ export const AiAssist: React.FC<AiAssistProps> = ({
                       }}
                     >
                       <span style={{ fontWeight: 700 }}>{opt.label}</span>
-                      <span style={{ fontSize: '0.6875rem', opacity: 0.8 }}>{opt.desc}</span>
+                      <span style={{ fontSize: '0.6875rem', opacity: 0.85 }}>{opt.desc}</span>
                     </button>
                   ))}
                 </div>
               </div>
 
               <div>
-                <label className="form-label" style={{ marginBottom: 6, display: 'block' }}>
+                <label className="form-label" style={{ marginBottom: 6, display: 'block', fontWeight: 600, color: '#334155' }}>
                   Drafting Guidance / Prompt:
                 </label>
                 <div style={{ display: 'flex', gap: 8 }}>
@@ -355,7 +355,7 @@ export const AiAssist: React.FC<AiAssistProps> = ({
                     value={genInstruction}
                     onChange={(e) => setGenInstruction(e.target.value)}
                     placeholder="Enter instructions for AI drafter..."
-                    style={{ flex: 1 }}
+                    style={{ flex: 1, background: '#ffffff' }}
                     disabled={isProcessing}
                   />
                   <Button
@@ -375,7 +375,7 @@ export const AiAssist: React.FC<AiAssistProps> = ({
           {activeTab === 'improve' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
               <div>
-                <label className="form-label" style={{ marginBottom: 6, display: 'block' }}>
+                <label className="form-label" style={{ marginBottom: 6, display: 'block', fontWeight: 600, color: '#334155' }}>
                   Improvement Objective:
                 </label>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 8 }}>
@@ -399,14 +399,14 @@ export const AiAssist: React.FC<AiAssistProps> = ({
                       }}
                     >
                       <span style={{ fontWeight: 700 }}>{g.label}</span>
-                      <span style={{ fontSize: '0.6875rem', opacity: 0.8 }}>{g.desc}</span>
+                      <span style={{ fontSize: '0.6875rem', opacity: 0.85 }}>{g.desc}</span>
                     </button>
                   ))}
                 </div>
               </div>
 
               <div>
-                <label className="form-label" style={{ marginBottom: 6, display: 'block' }}>
+                <label className="form-label" style={{ marginBottom: 6, display: 'block', fontWeight: 600, color: '#334155' }}>
                   Text to Improve:
                 </label>
                 <textarea
@@ -415,7 +415,7 @@ export const AiAssist: React.FC<AiAssistProps> = ({
                   value={textToImprove}
                   onChange={(e) => setTextToImprove(e.target.value)}
                   placeholder="Paste clause or paragraph to improve..."
-                  style={{ width: '100%', fontFamily: 'inherit', resize: 'vertical' }}
+                  style={{ width: '100%', fontFamily: 'inherit', resize: 'vertical', background: '#ffffff' }}
                   disabled={isProcessing}
                 />
               </div>
@@ -436,15 +436,15 @@ export const AiAssist: React.FC<AiAssistProps> = ({
           {/* AI OUTPUT REVIEW & EDITING CONSOLE */}
           {currentResult && (
             <div
-              className="glass-panel animate-fade-in"
+              className="card animate-fade-in"
               style={{
-                padding: '18px',
-                background: currentResult.reviewStatus === 'ACCEPTED' ? 'rgba(16, 185, 129, 0.05)' :
-                           currentResult.reviewStatus === 'REJECTED' ? 'rgba(239, 68, 68, 0.05)' :
-                           'rgba(168, 85, 247, 0.05)',
-                border: currentResult.reviewStatus === 'ACCEPTED' ? '1px solid var(--hr-border)' :
-                        currentResult.reviewStatus === 'REJECTED' ? '1px solid rgba(239, 68, 68, 0.3)' :
-                        '1px solid var(--ai-border)',
+                padding: '20px',
+                background: currentResult.reviewStatus === 'ACCEPTED' ? '#f0fdf4' :
+                           currentResult.reviewStatus === 'REJECTED' ? '#fef2f2' :
+                           '#fbfbfe',
+                border: currentResult.reviewStatus === 'ACCEPTED' ? '1px solid #a7f3d0' :
+                        currentResult.reviewStatus === 'REJECTED' ? '1px solid #fecaca' :
+                        '1px solid #ddd6fe',
                 display: 'flex',
                 flexDirection: 'column',
                 gap: 12,
@@ -456,17 +456,17 @@ export const AiAssist: React.FC<AiAssistProps> = ({
                     {currentResult.type.replace(/_/g, ' ').toUpperCase()}
                   </span>
                   {currentResult.variationNumber && currentResult.variationNumber > 1 && (
-                    <span style={{ fontSize: '0.75rem', color: '#c084fc', fontWeight: 600 }}>
+                    <span style={{ fontSize: '0.75rem', color: '#7c3aed', fontWeight: 600 }}>
                       Variation #{currentResult.variationNumber}
                     </span>
                   )}
                   {currentResult.reviewStatus === 'ACCEPTED' && (
-                    <span style={{ color: 'var(--success)', fontSize: '0.75rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <span style={{ color: '#059669', fontSize: '0.75rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 4 }}>
                       <CheckCircle2 size={14} /> Accepted by HR
                     </span>
                   )}
                   {currentResult.reviewStatus === 'REJECTED' && (
-                    <span style={{ color: 'var(--danger)', fontSize: '0.75rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <span style={{ color: '#dc2626', fontSize: '0.75rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 4 }}>
                       <XCircle size={14} /> Rejected by HR
                     </span>
                   )}
@@ -484,12 +484,12 @@ export const AiAssist: React.FC<AiAssistProps> = ({
                 </div>
               </div>
 
-              <h4 style={{ fontSize: '1rem', fontWeight: 700, color: '#fff' }}>
+              <h4 style={{ fontSize: '1rem', fontWeight: 700, color: '#0f172a', margin: 0 }}>
                 {currentResult.title}
               </h4>
 
               {currentResult.changesSummary && (
-                <div style={{ fontSize: '0.75rem', color: '#a78bfa', background: 'rgba(168, 85, 247, 0.1)', padding: '6px 10px', borderRadius: 4 }}>
+                <div style={{ fontSize: '0.75rem', color: '#6d28d9', background: '#ede9fe', padding: '6px 12px', borderRadius: 4 }}>
                   <strong>Changes Applied:</strong> {currentResult.changesSummary}
                 </div>
               )}
@@ -497,7 +497,7 @@ export const AiAssist: React.FC<AiAssistProps> = ({
               {/* Editable Text Area vs Read Mode */}
               {isEditing ? (
                 <div>
-                  <label className="form-label" style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                  <label className="form-label" style={{ fontSize: '0.75rem', color: '#64748b' }}>
                     HR In-Place Editor (Modifications will be saved upon Acceptance):
                   </label>
                   <textarea
@@ -505,18 +505,19 @@ export const AiAssist: React.FC<AiAssistProps> = ({
                     rows={5}
                     value={editableContent}
                     onChange={(e) => setEditableContent(e.target.value)}
-                    style={{ width: '100%', fontFamily: 'inherit', fontSize: '0.875rem', lineHeight: 1.6 }}
+                    style={{ width: '100%', fontFamily: 'inherit', fontSize: '0.875rem', lineHeight: 1.6, background: '#ffffff', color: '#0f172a' }}
                   />
                 </div>
               ) : (
                 <div
                   style={{
-                    padding: 14,
+                    padding: 16,
                     borderRadius: 'var(--radius-sm)',
-                    background: 'rgba(0, 0, 0, 0.25)',
+                    background: '#ffffff',
+                    border: '1px solid var(--border-medium)',
                     fontSize: '0.875rem',
                     lineHeight: 1.6,
-                    color: 'var(--text-main)',
+                    color: '#0f172a',
                   }}
                 >
                   {editableContent}
@@ -525,7 +526,7 @@ export const AiAssist: React.FC<AiAssistProps> = ({
 
               {/* Key points if present */}
               {currentResult.keyPoints && currentResult.keyPoints.length > 0 && (
-                <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>
+                <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
                   <strong>Key Elements:</strong> {currentResult.keyPoints.join(' • ')}
                 </div>
               )}

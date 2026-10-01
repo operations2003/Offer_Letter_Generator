@@ -13,6 +13,7 @@ import {
 import { Modal } from '../common/Modal.js';
 import { OfferTemplate, TemplateVersion } from '../../types/template.js';
 import { templateService } from '../../services/templateService.js';
+import { useToast } from '../../context/ToastContext.js';
 
 interface TemplateVersionHistoryModalProps {
   isOpen: boolean;
@@ -29,6 +30,7 @@ export const TemplateVersionHistoryModal: React.FC<TemplateVersionHistoryModalPr
   onRollbackSuccess,
   onPreviewVersion,
 }) => {
+  const { error, success } = useToast();
   const [versions, setVersions] = useState<TemplateVersion[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedVersion, setSelectedVersion] = useState<TemplateVersion | null>(null);
@@ -69,10 +71,11 @@ export const TemplateVersionHistoryModal: React.FC<TemplateVersionHistoryModalPr
     setRollbackLoading(true);
     try {
       const updated = await templateService.publishVersion(template.id, versionNumber);
+      success(`Successfully published Version ${versionNumber} for "${template.title}".`);
       onRollbackSuccess(updated);
       onClose();
     } catch (err: any) {
-      alert(err?.message || 'Failed to rollback version');
+      error(err?.message || 'Failed to rollback version', 'Version Error');
     } finally {
       setRollbackLoading(false);
     }
@@ -163,14 +166,14 @@ export const TemplateVersionHistoryModal: React.FC<TemplateVersionHistoryModalPr
                 <div
                   key={ver.id || ver.versionNumber}
                   onClick={() => setSelectedVersion(ver)}
-                  className="glass-panel"
+                  className="card"
                   style={{
                     padding: '12px 14px',
                     cursor: 'pointer',
                     borderRadius: 'var(--radius-md)',
                     border: '1px solid',
                     borderColor: isSelected ? 'var(--primary)' : 'var(--border-subtle)',
-                    backgroundColor: isSelected ? 'rgba(99, 102, 241, 0.12)' : 'var(--bg-tertiary)',
+                    backgroundColor: isSelected ? '#eff6ff' : '#ffffff',
                     transition: 'all 0.15s ease',
                   }}
                 >
@@ -179,24 +182,25 @@ export const TemplateVersionHistoryModal: React.FC<TemplateVersionHistoryModalPr
                       style={{
                         fontWeight: 800,
                         fontSize: '0.9375rem',
-                        color: isSelected ? '#818cf8' : '#fff',
+                        color: isSelected ? '#1d4ed8' : '#0f172a',
                       }}
                     >
                       v{ver.versionNumber}
                     </span>
 
                     {isCurrent ? (
-                      <span className="hr-badge" style={{ fontSize: '0.625rem', padding: '1px 6px' }}>
+                      <span className="hr-badge" style={{ fontSize: '0.625rem', padding: '2px 8px' }}>
                         Active
                       </span>
                     ) : (
                       <span
                         style={{
                           fontSize: '0.625rem',
-                          color: 'var(--text-dim)',
-                          background: 'rgba(255, 255, 255, 0.05)',
-                          padding: '1px 6px',
+                          color: '#64748b',
+                          background: '#f1f5f9',
+                          padding: '2px 6px',
                           borderRadius: 'var(--radius-sm)',
+                          border: '1px solid var(--border-subtle)',
                         }}
                       >
                         Archived
@@ -207,7 +211,7 @@ export const TemplateVersionHistoryModal: React.FC<TemplateVersionHistoryModalPr
                   <div
                     style={{
                       fontSize: '0.75rem',
-                      color: 'var(--text-muted)',
+                      color: '#475569',
                       lineHeight: 1.3,
                       marginBottom: 6,
                     }}
@@ -215,7 +219,7 @@ export const TemplateVersionHistoryModal: React.FC<TemplateVersionHistoryModalPr
                     {ver.changeSummary || 'Version revision'}
                   </div>
 
-                  <div style={{ fontSize: '0.6875rem', color: 'var(--text-dim)', display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <div style={{ fontSize: '0.6875rem', color: '#64748b', display: 'flex', alignItems: 'center', gap: 4 }}>
                     <Calendar size={11} />
                     <span>{new Date(ver.createdAt).toLocaleDateString()}</span>
                   </div>
@@ -229,26 +233,26 @@ export const TemplateVersionHistoryModal: React.FC<TemplateVersionHistoryModalPr
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               {/* Header Box */}
               <div
-                className="glass-panel"
+                className="card"
                 style={{
                   padding: 16,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'space-between',
-                  backgroundColor: 'var(--bg-tertiary)',
+                  backgroundColor: '#f8fafc',
                 }}
               >
                 <div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <h4 style={{ fontSize: '1.15rem' }}>Version {selectedVersion.versionNumber}</h4>
+                    <h4 style={{ fontSize: '1.15rem', color: '#0f172a', margin: 0 }}>Version {selectedVersion.versionNumber}</h4>
                     {selectedVersion.versionNumber === currentVersionNumber ? (
                       <span className="hr-badge">Live Published Version</span>
                     ) : (
-                      <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>Archived Snapshot</span>
+                      <span style={{ fontSize: '0.75rem', color: '#64748b' }}>Archived Snapshot</span>
                     )}
                   </div>
 
-                  <div style={{ fontSize: '0.8125rem', color: 'var(--text-muted)', marginTop: 4 }}>
+                  <div style={{ fontSize: '0.8125rem', color: '#64748b', marginTop: 4 }}>
                     {selectedVersion.changeSummary || 'Standard template release'}
                   </div>
                 </div>
@@ -282,16 +286,16 @@ export const TemplateVersionHistoryModal: React.FC<TemplateVersionHistoryModalPr
               </div>
 
               {/* View Tabs */}
-              <div style={{ display: 'flex', borderBottom: '1px solid var(--border-subtle)', gap: 16 }}>
+              <div style={{ display: 'flex', borderBottom: '1px solid var(--border-medium)', gap: 16 }}>
                 <button
                   type="button"
                   onClick={() => setActiveTab('details')}
                   style={{
-                    padding: '6px 0',
+                    padding: '8px 4px',
                     background: 'transparent',
                     border: 'none',
                     borderBottom: activeTab === 'details' ? '2px solid var(--primary)' : '2px solid transparent',
-                    color: activeTab === 'details' ? '#fff' : 'var(--text-muted)',
+                    color: activeTab === 'details' ? '#2563eb' : '#64748b',
                     fontWeight: 600,
                     fontSize: '0.8125rem',
                     cursor: 'pointer',
@@ -303,11 +307,11 @@ export const TemplateVersionHistoryModal: React.FC<TemplateVersionHistoryModalPr
                   type="button"
                   onClick={() => setActiveTab('diff')}
                   style={{
-                    padding: '6px 0',
+                    padding: '8px 4px',
                     background: 'transparent',
                     border: 'none',
                     borderBottom: activeTab === 'diff' ? '2px solid var(--primary)' : '2px solid transparent',
-                    color: activeTab === 'diff' ? '#fff' : 'var(--text-muted)',
+                    color: activeTab === 'diff' ? '#2563eb' : '#64748b',
                     fontWeight: 600,
                     fontSize: '0.8125rem',
                     cursor: 'pointer',
@@ -320,7 +324,7 @@ export const TemplateVersionHistoryModal: React.FC<TemplateVersionHistoryModalPr
               {/* Tab 1: Markup Content */}
               {activeTab === 'details' && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>
+                  <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
                     Placeholders recorded in this version ({selectedVersion.placeholdersSchema?.length || 0}):
                   </div>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
@@ -330,9 +334,10 @@ export const TemplateVersionHistoryModal: React.FC<TemplateVersionHistoryModalPr
                         style={{
                           fontSize: '0.6875rem',
                           fontFamily: 'var(--font-mono)',
-                          padding: '2px 8px',
-                          background: 'rgba(99, 102, 241, 0.1)',
-                          color: '#818cf8',
+                          padding: '3px 8px',
+                          background: '#eff6ff',
+                          color: '#2563eb',
+                          border: '1px solid #bfdbfe',
                           borderRadius: 'var(--radius-sm)',
                         }}
                       >
@@ -343,13 +348,13 @@ export const TemplateVersionHistoryModal: React.FC<TemplateVersionHistoryModalPr
 
                   <pre
                     style={{
-                      background: 'var(--bg-primary)',
+                      background: '#f8fafc',
                       border: '1px solid var(--border-subtle)',
                       borderRadius: 'var(--radius-md)',
                       padding: 14,
                       fontSize: '0.8125rem',
                       fontFamily: 'var(--font-mono)',
-                      color: 'var(--text-main)',
+                      color: '#0f172a',
                       maxHeight: 260,
                       overflowY: 'auto',
                       whiteSpace: 'pre-wrap',
@@ -365,8 +370,8 @@ export const TemplateVersionHistoryModal: React.FC<TemplateVersionHistoryModalPr
               {activeTab === 'diff' && (
                 <div
                   style={{
-                    background: 'var(--bg-primary)',
-                    border: '1px solid var(--border-subtle)',
+                    background: '#f8fafc',
+                    border: '1px solid var(--border-medium)',
                     borderRadius: 'var(--radius-md)',
                     padding: 12,
                     maxHeight: 320,
@@ -377,14 +382,14 @@ export const TemplateVersionHistoryModal: React.FC<TemplateVersionHistoryModalPr
                   }}
                 >
                   {selectedVersion.versionNumber === currentVersionNumber ? (
-                    <div style={{ color: 'var(--text-dim)', textAlign: 'center', padding: '24px 0' }}>
+                    <div style={{ color: '#64748b', textAlign: 'center', padding: '24px 0' }}>
                       This is the active version. No differences to compare.
                     </div>
                   ) : (
                     computeDiff().map((row, idx) => {
                       if (row.type === 'unchanged') {
                         return (
-                          <div key={idx} style={{ color: 'var(--text-dim)', padding: '1px 4px' }}>
+                          <div key={idx} style={{ color: '#64748b', padding: '2px 4px' }}>
                             &nbsp;&nbsp;{row.text}
                           </div>
                         );
@@ -394,9 +399,10 @@ export const TemplateVersionHistoryModal: React.FC<TemplateVersionHistoryModalPr
                           <div
                             key={idx}
                             style={{
-                              background: 'rgba(16, 185, 129, 0.15)',
-                              color: '#34d399',
-                              padding: '1px 4px',
+                              background: '#ecfdf5',
+                              color: '#059669',
+                              padding: '2px 6px',
+                              borderRadius: '2px',
                             }}
                           >
                             + {row.text}
@@ -408,9 +414,10 @@ export const TemplateVersionHistoryModal: React.FC<TemplateVersionHistoryModalPr
                           <div
                             key={idx}
                             style={{
-                              background: 'rgba(239, 68, 68, 0.15)',
-                              color: '#f87171',
-                              padding: '1px 4px',
+                              background: '#fef2f2',
+                              color: '#dc2626',
+                              padding: '2px 6px',
+                              borderRadius: '2px',
                             }}
                           >
                             - {row.text}
@@ -421,18 +428,20 @@ export const TemplateVersionHistoryModal: React.FC<TemplateVersionHistoryModalPr
                         <div key={idx}>
                           <div
                             style={{
-                              background: 'rgba(239, 68, 68, 0.15)',
-                              color: '#f87171',
-                              padding: '1px 4px',
+                              background: '#fef2f2',
+                              color: '#dc2626',
+                              padding: '2px 6px',
+                              borderRadius: '2px',
                             }}
                           >
                             - {row.oldText}
                           </div>
                           <div
                             style={{
-                              background: 'rgba(16, 185, 129, 0.15)',
-                              color: '#34d399',
-                              padding: '1px 4px',
+                              background: '#ecfdf5',
+                              color: '#059669',
+                              padding: '2px 6px',
+                              borderRadius: '2px',
                             }}
                           >
                             + {row.newText}

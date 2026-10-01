@@ -92,18 +92,21 @@ export const Step7TermsClauses: React.FC<Step7TermsClausesProps> = ({
           >
             7
           </span>
-          <h3 style={{ fontSize: '1.25rem', fontWeight: 800 }}>Terms, Policies & Legal Covenants</h3>
+          <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0f172a' }}>Terms, Policies & Legal Covenants</h3>
         </div>
-        <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem', marginTop: 4, marginLeft: 38 }}>
+        <p style={{ color: '#64748b', fontSize: '0.875rem', marginTop: 4, marginLeft: 38 }}>
           Configure statutory probation, termination notice thresholds, offer expiration dates, and protective covenants.
         </p>
       </div>
 
       {/* Numerical Terms Grid */}
       <div
-        className="glass-panel"
         style={{
           padding: 24,
+          background: '#ffffff',
+          borderRadius: 12,
+          border: '1px solid var(--border-medium)',
+          boxShadow: 'var(--shadow-sm)',
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
           gap: 20,
@@ -118,7 +121,7 @@ export const Step7TermsClauses: React.FC<Step7TermsClausesProps> = ({
             onChange={(e) => handleFieldChange('probationDurationDays', Number(e.target.value))}
             placeholder="e.g. 90"
           />
-          <span style={{ fontSize: '0.6875rem', color: 'var(--text-dim)', marginTop: 2, display: 'block' }}>
+          <span style={{ fontSize: '0.6875rem', color: '#64748b', marginTop: 2, display: 'block' }}>
             Standard US/Global: 90 calendar days
           </span>
         </div>
@@ -132,7 +135,7 @@ export const Step7TermsClauses: React.FC<Step7TermsClausesProps> = ({
             onChange={(e) => handleFieldChange('noticePeriodDays', Number(e.target.value))}
             placeholder="e.g. 30"
           />
-          <span style={{ fontSize: '0.6875rem', color: 'var(--text-dim)', marginTop: 2, display: 'block' }}>
+          <span style={{ fontSize: '0.6875rem', color: '#64748b', marginTop: 2, display: 'block' }}>
             Written resignation notice requirement
           </span>
         </div>
@@ -156,7 +159,7 @@ export const Step7TermsClauses: React.FC<Step7TermsClausesProps> = ({
             value={terms.offerValidUntil}
             onChange={(e) => handleFieldChange('offerValidUntil', e.target.value)}
           />
-          <span style={{ fontSize: '0.6875rem', color: 'var(--text-dim)', marginTop: 2, display: 'block' }}>
+          <span style={{ fontSize: '0.6875rem', color: '#64748b', marginTop: 2, display: 'block' }}>
             Candidate must accept prior to this deadline
           </span>
         </div>
@@ -164,9 +167,12 @@ export const Step7TermsClauses: React.FC<Step7TermsClausesProps> = ({
 
       {/* Legal Clauses Section */}
       <div
-        className="glass-panel"
         style={{
           padding: 24,
+          background: '#ffffff',
+          borderRadius: 12,
+          border: '1px solid var(--border-medium)',
+          boxShadow: 'var(--shadow-sm)',
           display: 'flex',
           flexDirection: 'column',
           gap: 16,
@@ -249,16 +255,17 @@ export const Step7TermsClauses: React.FC<Step7TermsClausesProps> = ({
             return (
               <div
                 key={clause.id}
-                className="glass-panel"
                 style={{
                   padding: 16,
+                  borderRadius: 10,
                   display: 'flex',
                   alignItems: 'flex-start',
                   justifyContent: 'space-between',
                   gap: 16,
                   border: '1px solid',
-                  borderColor: isConfirmed ? 'var(--border-subtle)' : 'rgba(255, 255, 255, 0.05)',
-                  backgroundColor: isConfirmed ? 'var(--bg-tertiary)' : 'rgba(0, 0, 0, 0.2)',
+                  borderColor: isConfirmed ? 'var(--border-subtle)' : '#e2e8f0',
+                  backgroundColor: isConfirmed ? '#ffffff' : '#f8fafc',
+                  boxShadow: isConfirmed ? 'var(--shadow-sm)' : 'none',
                   opacity: isConfirmed ? 1 : 0.6,
                 }}
               >
@@ -272,15 +279,15 @@ export const Step7TermsClauses: React.FC<Step7TermsClausesProps> = ({
 
                   <div style={{ flex: 1 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                      <strong style={{ fontSize: '0.9375rem', color: '#fff' }}>{clause.title}</strong>
+                      <strong style={{ fontSize: '0.9375rem', color: '#0f172a' }}>{clause.title}</strong>
                       {clause.isMandatory && (
                         <span
                           style={{
                             fontSize: '0.625rem',
                             padding: '1px 6px',
                             borderRadius: 'var(--radius-sm)',
-                            background: 'rgba(239, 68, 68, 0.15)',
-                            color: '#f87171',
+                            background: '#fee2e2',
+                            color: '#dc2626',
                             fontWeight: 700,
                             textTransform: 'uppercase',
                           }}
@@ -294,8 +301,8 @@ export const Step7TermsClauses: React.FC<Step7TermsClausesProps> = ({
                             fontSize: '0.625rem',
                             padding: '1px 6px',
                             borderRadius: 'var(--radius-sm)',
-                            background: 'rgba(99, 102, 241, 0.15)',
-                            color: '#818cf8',
+                            background: '#e0e7ff',
+                            color: '#4338ca',
                             fontWeight: 700,
                             textTransform: 'uppercase',
                           }}
@@ -308,7 +315,7 @@ export const Step7TermsClauses: React.FC<Step7TermsClausesProps> = ({
                     <div
                       style={{
                         fontSize: '0.8125rem',
-                        color: 'var(--text-muted)',
+                        color: '#475569',
                         marginTop: 6,
                         lineHeight: 1.5,
                       }}
@@ -322,7 +329,7 @@ export const Step7TermsClauses: React.FC<Step7TermsClausesProps> = ({
                     type="button"
                     className="btn btn-ghost"
                     onClick={() => handleDeleteCustomClause(clause.id)}
-                    style={{ padding: 6, color: '#f87171' }}
+                    style={{ padding: 6, color: '#dc2626' }}
                     title="Remove custom clause"
                   >
                     <Trash2 size={15} />

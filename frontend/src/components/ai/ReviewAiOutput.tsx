@@ -279,10 +279,10 @@ export const ReviewAiOutput: React.FC<ReviewAiOutputProps> = ({
         badgeColor = '#34d399';
         badgeText = `${confidencePct}% High Confidence`;
       } else if (confidencePct >= 60) {
-        badgeColor = '#fbbf24';
+        badgeColor = '#d97706';
         badgeText = `${confidencePct}% Medium`;
       } else {
-        badgeColor = '#f87171';
+        badgeColor = '#dc2626';
         badgeText = `${confidencePct}% Low Confidence`;
       }
     }
@@ -290,20 +290,28 @@ export const ReviewAiOutput: React.FC<ReviewAiOutputProps> = ({
     return (
       <div
         key={field.key}
+        className="card"
         style={{
           display: 'grid',
           gridTemplateColumns: '1.2fr 1fr',
           gap: 16,
-          padding: '14px 16px',
+          padding: '14px 18px',
           borderRadius: 'var(--radius-md)',
-          background: 'rgba(255, 255, 255, 0.02)',
+          backgroundColor:
+            decision === 'ACCEPTED'
+              ? '#f0fdf4'
+              : decision === 'EDITED'
+              ? '#fffbeb'
+              : decision === 'REJECTED'
+              ? '#fef2f2'
+              : '#ffffff',
           border:
             decision === 'ACCEPTED'
-              ? '1px solid rgba(16, 185, 129, 0.3)'
+              ? '1px solid #a7f3d0'
               : decision === 'EDITED'
-              ? '1px solid rgba(245, 158, 11, 0.3)'
+              ? '1px solid #fde68a'
               : decision === 'REJECTED'
-              ? '1px solid rgba(239, 68, 68, 0.25)'
+              ? '1px solid #fecaca'
               : '1px solid var(--border-subtle)',
           alignItems: 'center',
           transition: 'all 0.15s ease',
@@ -312,8 +320,8 @@ export const ReviewAiOutput: React.FC<ReviewAiOutputProps> = ({
         {/* Left: AI Extracted Suggestion */}
         <div>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
-            <span style={{ fontWeight: 600, fontSize: '0.85rem', color: '#fff' }}>
-              {field.label} {field.required && <span style={{ color: '#f87171' }}>*</span>}
+            <span style={{ fontWeight: 600, fontSize: '0.85rem', color: '#0f172a' }}>
+              {field.label} {field.required && <span style={{ color: '#dc2626' }}>*</span>}
             </span>
             <span
               style={{
@@ -322,7 +330,7 @@ export const ReviewAiOutput: React.FC<ReviewAiOutputProps> = ({
                 color: badgeColor,
                 padding: '2px 8px',
                 borderRadius: 9999,
-                background: 'rgba(255, 255, 255, 0.04)',
+                background: `${badgeColor}15`,
                 border: `1px solid ${badgeColor}33`,
               }}
             >
@@ -331,13 +339,13 @@ export const ReviewAiOutput: React.FC<ReviewAiOutputProps> = ({
           </div>
 
           {/* AI value or Not Detected note */}
-          <div style={{ fontSize: '0.85rem', color: isDetected ? '#c084fc' : 'var(--text-dim)', fontWeight: 500 }}>
+          <div style={{ fontSize: '0.85rem', color: isDetected ? '#7c3aed' : '#94a3b8', fontWeight: 600 }}>
             {isDetected ? (
               field.type === 'number'
                 ? `$${Number(meta?.value || 0).toLocaleString()} USD`
                 : String(meta?.value || '—')
             ) : (
-              <span style={{ color: 'var(--text-dim)', fontStyle: 'italic' }}>
+              <span style={{ color: '#94a3b8', fontStyle: 'italic', fontWeight: 400 }}>
                 Not detected in document — AI did not assume this value
               </span>
             )}
@@ -348,7 +356,7 @@ export const ReviewAiOutput: React.FC<ReviewAiOutputProps> = ({
             <div
               style={{
                 fontSize: '0.7rem',
-                color: 'var(--text-dim)',
+                color: '#64748b',
                 marginTop: 4,
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
@@ -371,13 +379,14 @@ export const ReviewAiOutput: React.FC<ReviewAiOutputProps> = ({
                 padding: '6px 10px',
                 fontSize: '0.8125rem',
                 flex: 1,
+                backgroundColor: '#ffffff',
                 borderColor:
                   decision === 'ACCEPTED'
-                    ? 'rgba(16, 185, 129, 0.5)'
+                    ? '#059669'
                     : decision === 'EDITED'
-                    ? 'rgba(245, 158, 11, 0.5)'
+                    ? '#d97706'
                     : decision === 'REJECTED'
-                    ? 'rgba(239, 68, 68, 0.4)'
+                    ? '#dc2626'
                     : 'var(--border-medium)',
               }}
               value={hrVal === null || hrVal === undefined ? '' : hrVal}
@@ -396,16 +405,17 @@ export const ReviewAiOutput: React.FC<ReviewAiOutputProps> = ({
               title="Accept AI suggestion"
               onClick={() => handleAccept(field.key)}
               style={{
-                background: decision === 'ACCEPTED' ? 'rgba(16, 185, 129, 0.25)' : 'rgba(255, 255, 255, 0.05)',
-                border: decision === 'ACCEPTED' ? '1px solid #10b981' : '1px solid var(--border-medium)',
-                color: decision === 'ACCEPTED' ? '#34d399' : 'var(--text-muted)',
+                background: decision === 'ACCEPTED' ? '#059669' : '#f1f5f9',
+                border: decision === 'ACCEPTED' ? '1px solid #059669' : '1px solid var(--border-medium)',
+                color: decision === 'ACCEPTED' ? '#ffffff' : '#475569',
                 borderRadius: 'var(--radius-sm)',
-                padding: '6px 8px',
+                padding: '6px 10px',
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
                 gap: 4,
                 fontSize: '0.75rem',
+                fontWeight: 600,
               }}
             >
               <Check size={14} />
@@ -418,16 +428,17 @@ export const ReviewAiOutput: React.FC<ReviewAiOutputProps> = ({
               title="Reject AI suggestion"
               onClick={() => handleReject(field.key)}
               style={{
-                background: decision === 'REJECTED' ? 'rgba(239, 68, 68, 0.2)' : 'rgba(255, 255, 255, 0.05)',
-                border: decision === 'REJECTED' ? '1px solid #ef4444' : '1px solid var(--border-medium)',
-                color: decision === 'REJECTED' ? '#f87171' : 'var(--text-muted)',
+                background: decision === 'REJECTED' ? '#dc2626' : '#f1f5f9',
+                border: decision === 'REJECTED' ? '1px solid #dc2626' : '1px solid var(--border-medium)',
+                color: decision === 'REJECTED' ? '#ffffff' : '#475569',
                 borderRadius: 'var(--radius-sm)',
-                padding: '6px 8px',
+                padding: '6px 10px',
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
                 gap: 4,
                 fontSize: '0.75rem',
+                fontWeight: 600,
               }}
             >
               <X size={14} />
@@ -439,22 +450,22 @@ export const ReviewAiOutput: React.FC<ReviewAiOutputProps> = ({
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <span style={{ fontSize: '0.68rem', fontWeight: 600 }}>
               {decision === 'ACCEPTED' && (
-                <span style={{ color: '#34d399', display: 'flex', alignItems: 'center', gap: 4 }}>
+                <span style={{ color: '#059669', display: 'flex', alignItems: 'center', gap: 4 }}>
                   <Check size={11} /> Accepted from AI
                 </span>
               )}
               {decision === 'EDITED' && (
-                <span style={{ color: '#fbbf24', display: 'flex', alignItems: 'center', gap: 4 }}>
+                <span style={{ color: '#d97706', display: 'flex', alignItems: 'center', gap: 4 }}>
                   <Edit2 size={11} /> Edited by HR (Override)
                 </span>
               )}
               {decision === 'REJECTED' && (
-                <span style={{ color: '#f87171', display: 'flex', alignItems: 'center', gap: 4 }}>
+                <span style={{ color: '#dc2626', display: 'flex', alignItems: 'center', gap: 4 }}>
                   <X size={11} /> Rejected by HR
                 </span>
               )}
               {decision === 'PENDING' && (
-                <span style={{ color: 'var(--text-dim)', display: 'flex', alignItems: 'center', gap: 4 }}>
+                <span style={{ color: '#64748b', display: 'flex', alignItems: 'center', gap: 4 }}>
                   <Info size={11} /> Pending HR review
                 </span>
               )}
@@ -470,11 +481,11 @@ export const ReviewAiOutput: React.FC<ReviewAiOutputProps> = ({
                 }
                 style={{
                   fontSize: '0.68rem',
-                  padding: '2px 6px',
-                  background: 'rgba(0, 0, 0, 0.3)',
-                  border: '1px solid var(--border-subtle)',
+                  padding: '3px 8px',
+                  background: '#ffffff',
+                  border: '1px solid var(--border-medium)',
                   borderRadius: 'var(--radius-sm)',
-                  color: 'var(--text-main)',
+                  color: '#0f172a',
                   width: '140px',
                 }}
               />
@@ -489,10 +500,10 @@ export const ReviewAiOutput: React.FC<ReviewAiOutputProps> = ({
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
       {/* Top Banner: Data Segregation & Stats Bar */}
       <div
-        className="glass-panel"
+        className="card"
         style={{
           padding: '16px 20px',
-          background: 'linear-gradient(90deg, rgba(168, 85, 247, 0.08) 0%, rgba(16, 185, 129, 0.08) 100%)',
+          background: 'linear-gradient(90deg, #f5f3ff 0%, #ecfdf5 100%)',
           border: '1px solid var(--border-medium)',
           display: 'flex',
           flexDirection: 'column',
@@ -502,7 +513,7 @@ export const ReviewAiOutput: React.FC<ReviewAiOutputProps> = ({
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <AiAdvisoryBadge confidence={aiData.overallConfidenceScore} label="AI Extracted" />
-            <ArrowRight size={16} color="var(--text-dim)" />
+            <ArrowRight size={16} color="#64748b" />
             <HrConfirmedBadge label="HR Review & Confirmed Data" />
           </div>
 
@@ -537,20 +548,20 @@ export const ReviewAiOutput: React.FC<ReviewAiOutputProps> = ({
 
         {/* Counter Pills */}
         <div style={{ display: 'flex', gap: 10, fontSize: '0.75rem', flexWrap: 'wrap' }}>
-          <span style={{ padding: '3px 10px', borderRadius: 9999, background: 'rgba(16, 185, 129, 0.15)', color: '#34d399', fontWeight: 600 }}>
+          <span style={{ padding: '3px 10px', borderRadius: 9999, background: '#ecfdf5', color: '#059669', border: '1px solid #a7f3d0', fontWeight: 600 }}>
             ✓ Accepted: {acceptedCount}
           </span>
-          <span style={{ padding: '3px 10px', borderRadius: 9999, background: 'rgba(245, 158, 11, 0.15)', color: '#fbbf24', fontWeight: 600 }}>
+          <span style={{ padding: '3px 10px', borderRadius: 9999, background: '#fffbeb', color: '#b45309', border: '1px solid #fde68a', fontWeight: 600 }}>
             ✎ Edited: {editedCount}
           </span>
-          <span style={{ padding: '3px 10px', borderRadius: 9999, background: 'rgba(239, 68, 68, 0.15)', color: '#f87171', fontWeight: 600 }}>
+          <span style={{ padding: '3px 10px', borderRadius: 9999, background: '#fef2f2', color: '#dc2626', border: '1px solid #fecaca', fontWeight: 600 }}>
             ✗ Rejected: {rejectedCount}
           </span>
-          <span style={{ padding: '3px 10px', borderRadius: 9999, background: 'rgba(255, 255, 255, 0.05)', color: 'var(--text-dim)', fontWeight: 600 }}>
+          <span style={{ padding: '3px 10px', borderRadius: 9999, background: '#f1f5f9', color: '#475569', border: '1px solid #e2e8f0', fontWeight: 600 }}>
             ⏳ Pending: {pendingCount}
           </span>
           {missingCount > 0 && (
-            <span style={{ padding: '3px 10px', borderRadius: 9999, background: 'rgba(245, 158, 11, 0.15)', color: '#f59e0b', fontWeight: 600 }}>
+            <span style={{ padding: '3px 10px', borderRadius: 9999, background: '#fffbeb', color: '#b45309', border: '1px solid #fde68a', fontWeight: 600 }}>
               ⚠️ Missing from Doc: {missingCount}
             </span>
           )}
@@ -562,21 +573,21 @@ export const ReviewAiOutput: React.FC<ReviewAiOutputProps> = ({
         <div
           style={{
             padding: '12px 16px',
-            borderRadius: 'var(--radius-sm)',
-            background: 'rgba(245, 158, 11, 0.06)',
-            border: '1px solid rgba(245, 158, 11, 0.3)',
+            borderRadius: 'var(--radius-md)',
+            background: '#fffbeb',
+            border: '1px solid #fde68a',
             display: 'flex',
             alignItems: 'flex-start',
             gap: 12,
             fontSize: '0.8rem',
-            color: 'var(--text-muted)',
+            color: '#475569',
           }}
         >
-          <AlertTriangle size={18} color="#fbbf24" style={{ flexShrink: 0, marginTop: 2 }} />
+          <AlertTriangle size={18} color="#d97706" style={{ flexShrink: 0, marginTop: 2 }} />
           <div>
-            <strong style={{ color: '#fbbf24' }}>AI Non-Assumption Rule Active:</strong> The following fields were
+            <strong style={{ color: '#92400e' }}>AI Non-Assumption Rule Active:</strong> The following fields were
             not explicitly found in the uploaded document and have <strong>not</strong> been guessed by the AI:{' '}
-            <span style={{ color: '#fff' }}>{aiData.missingFields.join(', ')}</span>.
+            <span style={{ color: '#0f172a', fontWeight: 600 }}>{aiData.missingFields.join(', ')}</span>.
             Please manually provide them if required for the final offer letter.
           </div>
         </div>
@@ -585,8 +596,8 @@ export const ReviewAiOutput: React.FC<ReviewAiOutputProps> = ({
       {/* Field Groups */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
         {/* 1. Candidate Personal & Contact */}
-        <div className="glass-panel" style={{ padding: 20 }}>
-          <h4 style={{ fontSize: '0.95rem', fontWeight: 700, marginBottom: 14, color: '#c084fc' }}>
+        <div className="card" style={{ padding: 22 }}>
+          <h4 style={{ fontSize: '0.95rem', fontWeight: 700, marginBottom: 14, color: '#7c3aed' }}>
             1. Candidate Profile & Contact Information
           </h4>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -595,8 +606,8 @@ export const ReviewAiOutput: React.FC<ReviewAiOutputProps> = ({
         </div>
 
         {/* 2. Qualification & Experience */}
-        <div className="glass-panel" style={{ padding: 20 }}>
-          <h4 style={{ fontSize: '0.95rem', fontWeight: 700, marginBottom: 14, color: '#c084fc' }}>
+        <div className="card" style={{ padding: 22 }}>
+          <h4 style={{ fontSize: '0.95rem', fontWeight: 700, marginBottom: 14, color: '#7c3aed' }}>
             2. Qualifications & Professional Background
           </h4>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -605,8 +616,8 @@ export const ReviewAiOutput: React.FC<ReviewAiOutputProps> = ({
         </div>
 
         {/* 3. Proposed Role & Organization */}
-        <div className="glass-panel" style={{ padding: 20 }}>
-          <h4 style={{ fontSize: '0.95rem', fontWeight: 700, marginBottom: 14, color: '#c084fc' }}>
+        <div className="card" style={{ padding: 22 }}>
+          <h4 style={{ fontSize: '0.95rem', fontWeight: 700, marginBottom: 14, color: '#7c3aed' }}>
             3. Proposed Role & Organizational Details
           </h4>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -615,12 +626,12 @@ export const ReviewAiOutput: React.FC<ReviewAiOutputProps> = ({
         </div>
 
         {/* 4. Compensation Terms */}
-        <div className="glass-panel" style={{ padding: 20 }}>
+        <div className="card" style={{ padding: 22 }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-            <h4 style={{ fontSize: '0.95rem', fontWeight: 700, color: '#34d399' }}>
+            <h4 style={{ fontSize: '0.95rem', fontWeight: 700, color: '#059669', margin: 0 }}>
               4. Confirmed Compensation Breakdown (USD)
             </h4>
-            <span style={{ fontSize: '0.8rem', color: 'var(--text-dim)' }}>
+            <span style={{ fontSize: '0.8rem', color: '#64748b' }}>
               Auto-calculates Total Annual CTC
             </span>
           </div>

@@ -85,25 +85,25 @@ export const Step3AiExtraction: React.FC<Step3AiExtractionProps> = ({
           >
             3
           </span>
-          <h3 style={{ fontSize: '1.25rem', fontWeight: 800 }}>AI Extraction & Parsing Telemetry</h3>
+          <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0f172a' }}>AI Extraction & Parsing Telemetry</h3>
         </div>
-        <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem', marginTop: 4, marginLeft: 38 }}>
+        <p style={{ color: '#64748b', fontSize: '0.875rem', marginTop: 4, marginLeft: 38 }}>
           Neural parsing engine processes unstructured resumes into structured, confidence-tagged attributes.
         </p>
       </div>
 
-      {/* Main Glass Card */}
+      {/* Main Card */}
       <div
-        className="glass-panel"
         style={{
           padding: 32,
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
           gap: 24,
-          background: 'rgba(15, 21, 35, 0.85)',
-          border: '1px solid var(--ai-border)',
-          boxShadow: '0 0 30px var(--ai-glow)',
+          background: '#ffffff',
+          borderRadius: 14,
+          border: '1px solid var(--border-medium)',
+          boxShadow: 'var(--shadow-md)',
         }}
       >
         {/* Animated AI Core Emblem */}
@@ -113,15 +113,15 @@ export const Step3AiExtraction: React.FC<Step3AiExtractionProps> = ({
               width: 76,
               height: 76,
               borderRadius: '50%',
-              background: 'var(--ai-gradient)',
+              background: 'linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              boxShadow: '0 0 30px var(--ai-glow)',
+              boxShadow: '0 8px 24px rgba(124, 58, 237, 0.25)',
               animation: extracting ? 'pulseGlow 2s infinite ease-in-out' : 'none',
             }}
           >
-            <Sparkles size={36} color="#fff" />
+            <Sparkles size={36} color="#ffffff" />
           </div>
 
           {extracting && (
@@ -131,7 +131,7 @@ export const Step3AiExtraction: React.FC<Step3AiExtractionProps> = ({
                 position: 'absolute',
                 inset: -6,
                 border: '3px solid transparent',
-                borderTopColor: '#c084fc',
+                borderTopColor: '#7c3aed',
                 borderRadius: '50%',
               }}
             />
@@ -139,10 +139,10 @@ export const Step3AiExtraction: React.FC<Step3AiExtractionProps> = ({
         </div>
 
         <div style={{ textAlign: 'center', maxWidth: 480 }}>
-          <h4 style={{ fontSize: '1.2rem', color: '#fff', fontWeight: 700 }}>
+          <h4 style={{ fontSize: '1.2rem', color: '#0f172a', fontWeight: 700 }}>
             {extracting ? 'Extracting Candidate Data Points...' : 'Extraction Successfully Completed'}
           </h4>
-          <p style={{ fontSize: '0.8125rem', color: 'var(--text-muted)', marginTop: 4 }}>
+          <p style={{ fontSize: '0.8125rem', color: '#64748b', marginTop: 4 }}>
             {extracting
               ? 'Model: Llama-3.3-70B-Versatile • Processing prompt tokens and applying guardrail filters.'
               : 'All candidate attributes parsed and tagged with confidence scores for HR confirmation.'}
@@ -154,7 +154,7 @@ export const Step3AiExtraction: React.FC<Step3AiExtractionProps> = ({
           <div
             style={{
               height: 8,
-              background: 'var(--bg-tertiary)',
+              background: '#f1f5f9',
               borderRadius: 'var(--radius-full)',
               overflow: 'hidden',
             }}
@@ -163,13 +163,13 @@ export const Step3AiExtraction: React.FC<Step3AiExtractionProps> = ({
               style={{
                 height: '100%',
                 width: `${progress}%`,
-                background: 'var(--ai-gradient)',
+                background: 'linear-gradient(90deg, #7c3aed, #4f46e5)',
                 borderRadius: 'var(--radius-full)',
                 transition: 'width 0.4s ease',
               }}
             />
           </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: 'var(--text-dim)', marginTop: 6 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: '#64748b', marginTop: 6 }}>
             <span>Neural Parsing Engine</span>
             <span>{progress}%</span>
           </div>
@@ -180,7 +180,7 @@ export const Step3AiExtraction: React.FC<Step3AiExtractionProps> = ({
           style={{
             width: '100%',
             maxWidth: 540,
-            background: 'var(--bg-primary)',
+            background: '#f8fafc',
             padding: '16px 20px',
             borderRadius: 'var(--radius-md)',
             border: '1px solid var(--border-subtle)',
@@ -189,18 +189,18 @@ export const Step3AiExtraction: React.FC<Step3AiExtractionProps> = ({
             gap: 10,
           }}
         >
-          <div style={{ fontSize: '0.6875rem', fontWeight: 700, color: 'var(--text-dim)', textTransform: 'uppercase' }}>
+          <div style={{ fontSize: '0.6875rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>
             Telemetry Log
           </div>
           {stepsDone.map((step, idx) => (
-            <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: '0.8125rem', color: '#34d399' }}>
+            <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: '0.8125rem', color: '#059669' }}>
               <CheckCircle2 size={15} style={{ flexShrink: 0 }} />
               <span>{step}</span>
             </div>
           ))}
           {extracting && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: '0.8125rem', color: '#c084fc' }}>
-              <div className="spinner" style={{ width: 14, height: 14, border: '2px solid rgba(192, 132, 252, 0.4)', borderTopColor: '#c084fc', borderRadius: '50%' }} />
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: '0.8125rem', color: '#7c3aed' }}>
+              <div className="spinner" style={{ width: 14, height: 14, border: '2px solid #ddd6fe', borderTopColor: '#7c3aed', borderRadius: '50%' }} />
               <span>Synthesizing entity values & matching against offer schema...</span>
             </div>
           )}
@@ -225,18 +225,18 @@ export const Step3AiExtraction: React.FC<Step3AiExtractionProps> = ({
                 gap: 20,
                 padding: '14px 20px',
                 borderRadius: 'var(--radius-md)',
-                background: 'rgba(99, 102, 241, 0.1)',
-                border: '1px solid rgba(99, 102, 241, 0.3)',
+                background: '#f5f3ff',
+                border: '1px solid #ddd6fe',
                 width: '100%',
                 justifyContent: 'space-around',
                 textAlign: 'center',
               }}
             >
               <div>
-                <div style={{ fontSize: '0.6875rem', color: 'var(--text-dim)', textTransform: 'uppercase', fontWeight: 700 }}>
+                <div style={{ fontSize: '0.6875rem', color: '#64748b', textTransform: 'uppercase', fontWeight: 700 }}>
                   Candidate Detected
                 </div>
-                <div style={{ fontSize: '1rem', fontWeight: 800, color: '#fff', marginTop: 2 }}>
+                <div style={{ fontSize: '1rem', fontWeight: 800, color: '#0f172a', marginTop: 2 }}>
                   {extractedData.candidateName.value}
                 </div>
               </div>
@@ -244,10 +244,10 @@ export const Step3AiExtraction: React.FC<Step3AiExtractionProps> = ({
               <div style={{ borderLeft: '1px solid var(--border-subtle)' }} />
 
               <div>
-                <div style={{ fontSize: '0.6875rem', color: 'var(--text-dim)', textTransform: 'uppercase', fontWeight: 700 }}>
+                <div style={{ fontSize: '0.6875rem', color: '#64748b', textTransform: 'uppercase', fontWeight: 700 }}>
                   Confidence Score
                 </div>
-                <div style={{ fontSize: '1rem', fontWeight: 800, color: '#c084fc', marginTop: 2 }}>
+                <div style={{ fontSize: '1rem', fontWeight: 800, color: '#6d28d9', marginTop: 2 }}>
                   {Math.round(extractedData.overallConfidenceScore * 100)}%
                 </div>
               </div>
@@ -255,10 +255,10 @@ export const Step3AiExtraction: React.FC<Step3AiExtractionProps> = ({
               <div style={{ borderLeft: '1px solid var(--border-subtle)' }} />
 
               <div>
-                <div style={{ fontSize: '0.6875rem', color: 'var(--text-dim)', textTransform: 'uppercase', fontWeight: 700 }}>
+                <div style={{ fontSize: '0.6875rem', color: '#64748b', textTransform: 'uppercase', fontWeight: 700 }}>
                   Target Salary
                 </div>
-                <div style={{ fontSize: '1rem', fontWeight: 800, color: '#34d399', marginTop: 2 }}>
+                <div style={{ fontSize: '1rem', fontWeight: 800, color: '#059669', marginTop: 2 }}>
                   ${extractedData.baseSalary.value?.toLocaleString()}
                 </div>
               </div>

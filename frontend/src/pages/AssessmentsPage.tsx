@@ -8,6 +8,7 @@ import {
   QuestionType,
 } from '../../../shared/types/assessment-engine';
 import { assessmentService } from '../services/assessmentService';
+import { useToast } from '../context/ToastContext';
 import {
   BrainCircuit,
   CheckCircle2,
@@ -29,6 +30,7 @@ import {
 } from 'lucide-react';
 
 export const AssessmentsPage: React.FC = () => {
+  const { error, success } = useToast();
   const [activeTab, setActiveTab] = useState<'tests' | 'bank' | 'results'>('tests');
   const [tests, setTests] = useState<AssessmentTest[]>([]);
   const [questions, setQuestions] = useState<AssessmentQuestion[]>([]);
@@ -147,8 +149,9 @@ export const AssessmentsPage: React.FC = () => {
 
       setTestResult(result);
       await loadData();
+      success('Assessment submitted and scored successfully!');
     } catch (err: any) {
-      alert(err.message || 'Submission failed');
+      error(err.message || 'Submission failed');
     } finally {
       setIsSubmitting(false);
     }
@@ -158,8 +161,9 @@ export const AssessmentsPage: React.FC = () => {
     try {
       await assessmentService.reviewQuestion(id, decision, currentUser.id);
       await loadData();
+      success(`Question successfully ${decision === 'PUBLISH' ? 'published' : 'rejected'}`);
     } catch (err: any) {
-      alert(err.message || 'Review failed');
+      error(err.message || 'Review failed');
     }
   };
 
@@ -176,8 +180,9 @@ export const AssessmentsPage: React.FC = () => {
       await loadData();
       setIsAiModalOpen(false);
       setActiveTab('bank');
+      success('AI generated questions successfully added to the item bank!');
     } catch (err: any) {
-      alert(err.message || 'AI generation failed');
+      error(err.message || 'AI generation failed');
     } finally {
       setAiGenerating(false);
     }

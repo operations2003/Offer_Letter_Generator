@@ -85,60 +85,60 @@ export const Step6Compensation: React.FC<Step6CompensationProps> = ({
           >
             6
           </span>
-          <h3 style={{ fontSize: '1.25rem', fontWeight: 800 }}>Compensation Structure & Total CTC</h3>
+          <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0f172a' }}>Compensation Structure & Total CTC</h3>
         </div>
-        <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem', marginTop: 4, marginLeft: 38 }}>
+        <p style={{ color: '#64748b', fontSize: '0.875rem', marginTop: 4, marginLeft: 38 }}>
           Configure base remuneration, guaranteed allowances, performance variables, and equity incentives.
         </p>
       </div>
 
       {/* Comparison & Market Benchmark Card */}
       <div
-        className="glass-panel"
         style={{
           padding: 18,
           display: 'grid',
           gridTemplateColumns: '1.2fr 1.2fr 1fr',
           gap: 16,
-          background: 'rgba(99, 102, 241, 0.05)',
-          border: '1px solid var(--border-subtle)',
+          background: '#f8fafc',
+          borderRadius: 10,
+          border: '1px solid var(--border-medium)',
         }}
       >
         <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#c084fc', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#6d28d9', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase' }}>
             <Sparkles size={13} />
             AI Extracted Expectation
           </div>
-          <div style={{ fontSize: '1.15rem', fontWeight: 800, color: '#fff', marginTop: 4 }}>
+          <div style={{ fontSize: '1.15rem', fontWeight: 800, color: '#0f172a', marginTop: 4 }}>
             ${aiExpectedSalary.toLocaleString()} {compensation.currency} Base
           </div>
-          <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)', marginTop: 2 }}>
+          <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: 2 }}>
             Total expectation ~${aiExpectedCtc.toLocaleString()}
           </div>
         </div>
 
         <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'var(--success)', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#047857', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase' }}>
             <ShieldCheck size={13} />
             HR Approved Total CTC
           </div>
-          <div style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--success)', marginTop: 4 }}>
+          <div style={{ fontSize: '1.15rem', fontWeight: 800, color: '#059669', marginTop: 4 }}>
             ${currentTotal.toLocaleString()} {compensation.currency}
           </div>
-          <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)', marginTop: 2 }}>
+          <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: 2 }}>
             Sum of all 5 guaranteed & variable components
           </div>
         </div>
 
         <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#818cf8', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#4338ca', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase' }}>
             <TrendingUp size={13} />
             Variance to Expectation
           </div>
-          <div style={{ fontSize: '1.15rem', fontWeight: 800, color: variancePercent >= 0 ? '#34d399' : '#f59e0b', marginTop: 4 }}>
+          <div style={{ fontSize: '1.15rem', fontWeight: 800, color: variancePercent >= 0 ? '#059669' : '#b45309', marginTop: 4 }}>
             {variancePercent >= 0 ? `+${variancePercent}%` : `${variancePercent}%`}
           </div>
-          <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)', marginTop: 2 }}>
+          <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: 2 }}>
             Within Staff Architect pay band (75th percentile)
           </div>
         </div>
@@ -146,9 +146,12 @@ export const Step6Compensation: React.FC<Step6CompensationProps> = ({
 
       {/* Compensation Components Form */}
       <div
-        className="glass-panel"
         style={{
           padding: 24,
+          background: '#ffffff',
+          borderRadius: 12,
+          border: '1px solid var(--border-medium)',
+          boxShadow: 'var(--shadow-sm)',
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
           gap: 20,
@@ -239,18 +242,20 @@ export const Step6Compensation: React.FC<Step6CompensationProps> = ({
 
       {/* Equity Incentive Section */}
       <div
-        className="glass-panel"
         style={{
           padding: 20,
           display: 'flex',
           flexDirection: 'column',
           gap: 16,
-          background: 'var(--bg-tertiary)',
+          background: '#ffffff',
+          borderRadius: 12,
+          border: '1px solid var(--border-medium)',
+          boxShadow: 'var(--shadow-sm)',
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <Award size={18} color="var(--primary)" />
-          <h4 style={{ fontSize: '1rem', fontWeight: 700 }}>Long-Term Incentive & Stock Option Grant</h4>
+          <h4 style={{ fontSize: '1rem', fontWeight: 700, color: '#0f172a' }}>Long-Term Incentive & Stock Option Grant</h4>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16 }}>

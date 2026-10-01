@@ -56,50 +56,50 @@ export const Step5JobEmploymentDetails: React.FC<Step5JobEmploymentDetailsProps>
           >
             5
           </span>
-          <h3 style={{ fontSize: '1.25rem', fontWeight: 800 }}>Job & Employment Architecture</h3>
+          <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0f172a' }}>Job & Employment Architecture</h3>
         </div>
-        <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem', marginTop: 4, marginLeft: 38 }}>
+        <p style={{ color: '#64748b', fontSize: '0.875rem', marginTop: 4, marginLeft: 38 }}>
           Specify corporate designation, department hierarchy, reporting relationships, and work arrangement.
         </p>
       </div>
 
       {/* Comparison Insight Callout */}
       <div
-        className="glass-panel"
         style={{
           padding: 16,
-          background: 'rgba(99, 102, 241, 0.05)',
-          border: '1px solid var(--border-subtle)',
+          background: '#f8fafc',
+          borderRadius: 10,
+          border: '1px solid var(--border-medium)',
           display: 'grid',
           gridTemplateColumns: '1fr 1fr',
           gap: 16,
         }}
       >
         <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
-          <Sparkles size={16} color="var(--ai-purple)" style={{ marginTop: 2, flexShrink: 0 }} />
+          <Sparkles size={16} color="#7c3aed" style={{ marginTop: 2, flexShrink: 0 }} />
           <div>
-            <div style={{ fontSize: '0.75rem', color: '#c084fc', fontWeight: 700, textTransform: 'uppercase' }}>
+            <div style={{ fontSize: '0.75rem', color: '#6d28d9', fontWeight: 700, textTransform: 'uppercase' }}>
               AI Extracted Target
             </div>
-            <div style={{ fontSize: '0.875rem', color: '#fff', marginTop: 2 }}>
+            <div style={{ fontSize: '0.875rem', color: '#0f172a', fontWeight: 600, marginTop: 2 }}>
               "{aiTitle}" in {aiDept}
             </div>
-            <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)', marginTop: 2 }}>
+            <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: 2 }}>
               Extracted from resume desired seniority & previous roles
             </div>
           </div>
         </div>
 
         <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
-          <ShieldCheck size={16} color="var(--success)" style={{ marginTop: 2, flexShrink: 0 }} />
+          <ShieldCheck size={16} color="#059669" style={{ marginTop: 2, flexShrink: 0 }} />
           <div>
-            <div style={{ fontSize: '0.75rem', color: 'var(--success)', fontWeight: 700, textTransform: 'uppercase' }}>
+            <div style={{ fontSize: '0.75rem', color: '#047857', fontWeight: 700, textTransform: 'uppercase' }}>
               HR Requisition Match
             </div>
-            <div style={{ fontSize: '0.875rem', color: '#fff', marginTop: 2 }}>
+            <div style={{ fontSize: '0.875rem', color: '#0f172a', fontWeight: 600, marginTop: 2 }}>
               {jobDetails.jobTitle || 'Unassigned'} • Band {jobDetails.bandGrade || 'L6'}
             </div>
-            <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)', marginTop: 2 }}>
+            <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: 2 }}>
               Approved headcount requisition within enterprise talent plan
             </div>
           </div>
@@ -108,9 +108,12 @@ export const Step5JobEmploymentDetails: React.FC<Step5JobEmploymentDetailsProps>
 
       {/* Form Fields Grid */}
       <div
-        className="glass-panel"
         style={{
           padding: 24,
+          background: '#ffffff',
+          borderRadius: 12,
+          border: '1px solid var(--border-medium)',
+          boxShadow: 'var(--shadow-sm)',
           display: 'grid',
           gridTemplateColumns: '1fr 1fr',
           gap: 20,
@@ -131,8 +134,8 @@ export const Step5JobEmploymentDetails: React.FC<Step5JobEmploymentDetailsProps>
               required
             />
           </div>
-          <span style={{ fontSize: '0.6875rem', color: 'var(--text-dim)', marginTop: 2, display: 'block' }}>
-            AI suggested: <span style={{ color: '#c084fc' }}>{aiTitle}</span>
+          <span style={{ fontSize: '0.6875rem', color: '#64748b', marginTop: 2, display: 'block' }}>
+            AI suggested: <span style={{ color: '#6d28d9', fontWeight: 600 }}>{aiTitle}</span>
           </span>
         </div>
 
@@ -147,8 +150,8 @@ export const Step5JobEmploymentDetails: React.FC<Step5JobEmploymentDetailsProps>
             placeholder="e.g. Cloud Infrastructure & Core Services"
             required
           />
-          <span style={{ fontSize: '0.6875rem', color: 'var(--text-dim)', marginTop: 2, display: 'block' }}>
-            AI suggested: <span style={{ color: '#c084fc' }}>{aiDept}</span>
+          <span style={{ fontSize: '0.6875rem', color: '#64748b', marginTop: 2, display: 'block' }}>
+            AI suggested: <span style={{ color: '#6d28d9', fontWeight: 600 }}>{aiDept}</span>
           </span>
         </div>
 
@@ -195,8 +198,8 @@ export const Step5JobEmploymentDetails: React.FC<Step5JobEmploymentDetailsProps>
             placeholder="e.g. San Francisco, CA (Hybrid - 3 days onsite)"
             required
           />
-          <span style={{ fontSize: '0.6875rem', color: 'var(--text-dim)', marginTop: 2, display: 'block' }}>
-            AI suggested: <span style={{ color: '#c084fc' }}>{aiLocation}</span>
+          <span style={{ fontSize: '0.6875rem', color: '#64748b', marginTop: 2, display: 'block' }}>
+            AI suggested: <span style={{ color: '#6d28d9', fontWeight: 600 }}>{aiLocation}</span>
           </span>
         </div>
 
@@ -210,8 +213,8 @@ export const Step5JobEmploymentDetails: React.FC<Step5JobEmploymentDetailsProps>
             onChange={(e) => handleChange('proposedJoiningDate', e.target.value)}
             required
           />
-          <span style={{ fontSize: '0.6875rem', color: 'var(--text-dim)', marginTop: 2, display: 'block' }}>
-            Candidate indicated availability: <span style={{ color: '#c084fc' }}>{aiJoining}</span>
+          <span style={{ fontSize: '0.6875rem', color: '#64748b', marginTop: 2, display: 'block' }}>
+            Candidate indicated availability: <span style={{ color: '#6d28d9', fontWeight: 600 }}>{aiJoining}</span>
           </span>
         </div>
 

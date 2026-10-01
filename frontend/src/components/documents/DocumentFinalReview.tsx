@@ -73,7 +73,7 @@ export const DocumentFinalReview: React.FC<DocumentFinalReviewProps> = ({
               Type: {typeDef.code}
             </span>
           </div>
-          <h2 style={{ fontSize: '1.4rem', color: '#fff', fontWeight: 800 }}>
+          <h2 style={{ fontSize: '1.4rem', color: 'var(--text-main, #0f172a)', fontWeight: 800 }}>
             {typeDef.name} for {recipientName}
           </h2>
           <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>
@@ -108,7 +108,7 @@ export const DocumentFinalReview: React.FC<DocumentFinalReviewProps> = ({
                 style={{
                   fontSize: '0.9375rem',
                   fontWeight: 700,
-                  color: '#fff',
+                  color: 'var(--text-main, #0f172a)',
                   marginBottom: 12,
                   display: 'flex',
                   alignItems: 'center',
@@ -154,7 +154,7 @@ export const DocumentFinalReview: React.FC<DocumentFinalReviewProps> = ({
                         style={{
                           fontWeight: 600,
                           fontSize: '0.875rem',
-                          color: '#fff',
+                          color: 'var(--text-main, #0f172a)',
                           marginTop: 2,
                           wordBreak: 'break-word',
                         }}

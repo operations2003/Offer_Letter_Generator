@@ -130,10 +130,10 @@ export const DynamicDocumentForm: React.FC<DynamicDocumentFormProps> = ({
               <Sparkles size={16} color="#fff" />
             </div>
             <div>
-              <div style={{ fontWeight: 700, fontSize: '0.875rem', color: '#fff' }}>
+              <div style={{ fontWeight: 700, fontSize: '0.875rem', color: 'var(--text-main, #0f172a)' }}>
                 AI Document Extraction & HRMS Ingestion
               </div>
-              <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted, #64748b)' }}>
                 Advisory parameters extracted strictly from source material or HRMS profile (Non-Assumption Rule).
               </div>
             </div>
@@ -231,7 +231,7 @@ export const DynamicDocumentForm: React.FC<DynamicDocumentFormProps> = ({
                 background: 'transparent',
                 border: 'none',
                 borderBottom: isActive ? '2px solid var(--primary)' : '2px solid transparent',
-                color: isActive ? '#fff' : 'var(--text-muted)',
+                color: isActive ? 'var(--primary, #2563eb)' : 'var(--text-muted, #64748b)',
                 fontWeight: isActive ? 600 : 500,
                 fontSize: '0.875rem',
                 cursor: 'pointer',
@@ -249,7 +249,8 @@ export const DynamicDocumentForm: React.FC<DynamicDocumentFormProps> = ({
                     padding: '1px 6px',
                     borderRadius: 'var(--radius-full)',
                     background: isActive ? 'var(--primary)' : 'var(--bg-tertiary)',
-                    color: '#fff',
+                    color: isActive ? '#fff' : 'var(--text-muted)',
+                    border: isActive ? 'none' : '1px solid var(--border-subtle)',
                   }}
                 >
                   {reqCount} req
@@ -291,7 +292,7 @@ export const DynamicDocumentForm: React.FC<DynamicDocumentFormProps> = ({
                     marginBottom: 4,
                   }}
                 >
-                  <label className="form-label" style={{ fontWeight: 600, color: '#fff' }}>
+                  <label className="form-label" style={{ fontWeight: 600, color: 'var(--text-main, #0f172a)' }}>
                     {field.label} {isRequired && <span style={{ color: 'var(--danger)' }}>*</span>}
                   </label>
 

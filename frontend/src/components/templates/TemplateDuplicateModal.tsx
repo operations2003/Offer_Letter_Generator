@@ -79,26 +79,26 @@ export const TemplateDuplicateModal: React.FC<TemplateDuplicateModalProps> = ({
             style={{
               padding: '10px 14px',
               borderRadius: 'var(--radius-md)',
-              background: 'rgba(239, 68, 68, 0.15)',
-              border: '1px solid rgba(239, 68, 68, 0.3)',
-              color: '#f87171',
+              background: '#fef2f2',
+              border: '1px solid #fecaca',
+              color: '#b91c1c',
               fontSize: '0.8125rem',
               display: 'flex',
               alignItems: 'center',
               gap: 8,
             }}
           >
-            <AlertCircle size={16} />
+            <AlertCircle size={16} color="#b91c1c" />
             <span>{error}</span>
           </div>
         )}
 
-        <div className="glass-panel" style={{ padding: 14, background: 'var(--bg-tertiary)' }}>
-          <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)', textTransform: 'uppercase', fontWeight: 700 }}>
+        <div className="card" style={{ padding: 14, background: '#f8fafc' }}>
+          <div style={{ fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase', fontWeight: 700 }}>
             Source Information
           </div>
-          <div style={{ fontWeight: 600, color: '#fff', marginTop: 4 }}>{template.title}</div>
-          <div style={{ fontSize: '0.8125rem', color: 'var(--text-muted)', marginTop: 2 }}>
+          <div style={{ fontWeight: 600, color: '#0f172a', marginTop: 4 }}>{template.title}</div>
+          <div style={{ fontSize: '0.8125rem', color: '#64748b', marginTop: 2 }}>
             Category: {template.category} • Current Version: v{template.currentVersion?.versionNumber || 1}
           </div>
         </div>

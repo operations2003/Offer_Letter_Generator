@@ -121,52 +121,53 @@ export const TemplatePreviewModal: React.FC<TemplatePreviewModalProps> = ({
         {/* Customize Sample Data Drawer (Expandable) */}
         {showCustomize && (
           <div
-            className="glass-panel animate-fade-in"
+            className="animate-fade-in"
             style={{
               padding: 16,
-              background: 'var(--bg-tertiary)',
+              background: '#f8fafc',
               border: '1px solid var(--border-medium)',
+              borderRadius: 'var(--radius-md)',
               display: 'grid',
               gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-              gap: 10,
+              gap: 12,
             }}
           >
             <div>
-              <label className="form-label" style={{ fontSize: '0.75rem' }}>Candidate Name</label>
+              <label className="form-label" style={{ fontSize: '0.75rem', fontWeight: 600, color: '#334155' }}>Candidate Name</label>
               <input
                 type="text"
                 className="form-input"
-                style={{ fontSize: '0.8125rem', padding: '6px 10px' }}
+                style={{ fontSize: '0.8125rem', padding: '6px 10px', background: '#ffffff' }}
                 value={candidateData.candidate_name || ''}
                 onChange={(e) => handleDataChange('candidate_name', e.target.value)}
               />
             </div>
             <div>
-              <label className="form-label" style={{ fontSize: '0.75rem' }}>Designation / Title</label>
+              <label className="form-label" style={{ fontSize: '0.75rem', fontWeight: 600, color: '#334155' }}>Designation / Title</label>
               <input
                 type="text"
                 className="form-input"
-                style={{ fontSize: '0.8125rem', padding: '6px 10px' }}
+                style={{ fontSize: '0.8125rem', padding: '6px 10px', background: '#ffffff' }}
                 value={candidateData.designation || ''}
                 onChange={(e) => handleDataChange('designation', e.target.value)}
               />
             </div>
             <div>
-              <label className="form-label" style={{ fontSize: '0.75rem' }}>Annual Salary</label>
+              <label className="form-label" style={{ fontSize: '0.75rem', fontWeight: 600, color: '#334155' }}>Annual Salary</label>
               <input
                 type="text"
                 className="form-input"
-                style={{ fontSize: '0.8125rem', padding: '6px 10px' }}
+                style={{ fontSize: '0.8125rem', padding: '6px 10px', background: '#ffffff' }}
                 value={candidateData.salary || ''}
                 onChange={(e) => handleDataChange('salary', e.target.value)}
               />
             </div>
             <div>
-              <label className="form-label" style={{ fontSize: '0.75rem' }}>Joining Date</label>
+              <label className="form-label" style={{ fontSize: '0.75rem', fontWeight: 600, color: '#334155' }}>Joining Date</label>
               <input
                 type="text"
                 className="form-input"
-                style={{ fontSize: '0.8125rem', padding: '6px 10px' }}
+                style={{ fontSize: '0.8125rem', padding: '6px 10px', background: '#ffffff' }}
                 value={candidateData.joining_date || ''}
                 onChange={(e) => handleDataChange('joining_date', e.target.value)}
               />
@@ -177,10 +178,10 @@ export const TemplatePreviewModal: React.FC<TemplatePreviewModalProps> = ({
         {/* Paper Document Container */}
         <div
           style={{
-            backgroundColor: '#070a12',
-            padding: '24px 16px',
+            backgroundColor: '#f1f5f9',
+            padding: '28px 16px',
             borderRadius: 'var(--radius-md)',
-            border: '1px solid var(--border-subtle)',
+            border: '1px solid var(--border-medium)',
             display: 'flex',
             justifyContent: 'center',
             overflowX: 'auto',
@@ -195,8 +196,9 @@ export const TemplatePreviewModal: React.FC<TemplatePreviewModalProps> = ({
               backgroundColor: '#ffffff',
               color: '#1f2937',
               padding: '48px 56px',
-              boxShadow: '0 10px 30px rgba(0, 0, 0, 0.4), 0 1px 3px rgba(0, 0, 0, 0.1)',
-              borderRadius: '2px',
+              boxShadow: '0 4px 16px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.04)',
+              border: '1px solid var(--border-subtle)',
+              borderRadius: '3px',
               fontSize: '13px',
               lineHeight: 1.65,
               position: 'relative',

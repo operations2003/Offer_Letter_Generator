@@ -1,135 +1,253 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  Clock,
   Sparkles,
-  ArrowUpRight,
   FileCheck2,
-  Layers,
-  CalendarCheck2,
-  Award,
-  Headphones,
-  Plus,
-  BookOpen,
-  UserCheck,
-  BrainCircuit,
-  ShieldCheck,
-  Users2,
-  GraduationCap,
   FileText,
+  Plus,
   Search,
   CheckCircle2,
   TrendingUp,
   AlertCircle,
+  Eye,
+  Send,
+  Download,
+  Upload,
+  Layers,
+  ArrowRight,
+  ShieldCheck,
+  Lock,
+  Clock,
+  User,
   ExternalLink,
+  ChevronRight,
+  Copy,
+  Briefcase,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.js';
 import { Button } from '../components/common/Button.js';
+import { OfferStatusBadge, AiAdvisoryBadge, HrConfirmedBadge } from '../components/common/Badge.js';
+import { offerService } from '../services/offerService.js';
+import { templateService } from '../services/templateService.js';
+import { OfferListItem, DashboardStatistics } from '../types/offer.js';
+import { OfferItem, OfferStatus } from '../types/index.js';
+import { OfferTemplate } from '../types/template.js';
+import { OfferDetailModal } from '../components/offers/OfferDetailModal.js';
+import { EmailSendModal } from '../components/offers/EmailSendModal.js';
+import { EmailHistoryModal } from '../components/offers/EmailHistoryModal.js';
+import { useToast } from '../context/ToastContext.js';
 
-interface CoreDocTypeItem {
-  code: string;
-  name: string;
-  desc: string;
-  sections: number;
-}
-
-const CORE_DOC_TYPES: CoreDocTypeItem[] = [
-  { code: 'OFFER_LETTER', name: 'Offer Letter', desc: 'Pre-hire terms, CTC, and joining date', sections: 5 },
-  { code: 'INTERNSHIP_LETTER', name: 'Internship Letter', desc: 'Stipend, project scope, and mentor assignment', sections: 4 },
-  { code: 'INCREMENT_LETTER', name: 'Increment Letter', desc: 'Performance appraisal and revised salary', sections: 4 },
-  { code: 'TERMINATION_LETTER', name: 'Termination Letter', desc: 'Formal notice and exit terms', sections: 4 },
-  { code: 'EXPERIENCE_LETTER', name: 'Experience Letter', desc: 'Tenure, designation, and service attestation', sections: 3 },
-  { code: 'RELIEVING_LETTER', name: 'Relieving Letter', desc: 'Official discharge and release confirmation', sections: 3 },
-  { code: 'FNF_SETTLEMENT', name: 'Full & Final Settlement', desc: 'Gratuity, leave encashment, and dues statement', sections: 5 },
-  { code: 'CONTRACT_LETTER', name: 'Contract Letter', desc: 'Fixed-term deliverables and scope of work', sections: 5 },
-  { code: 'MSA', name: 'Master Service Agreement', desc: 'Vendor SLAs, liability caps, and governance', sections: 6 },
-];
-
-const CORE_POLICIES = [
-  'Leave Policy',
-  'Attendance Policy',
-  'Work From Home Policy',
-  'Remote Work Policy',
-  'Hybrid Work Policy',
-  'Code of Conduct',
-  'Anti-Harassment Policy',
-  'IT / Acceptable Use Policy',
-  'Data Privacy Policy',
-  'Information Security Policy',
-  'Expense Policy',
-  'Travel Policy',
-  'Recruitment Policy',
-  'Onboarding Policy',
-  'Performance Management Policy',
-  'Probation Policy',
-  'Grievance Policy',
-  'Disciplinary Policy',
-  'Exit/Offboarding Policy',
+const INITIAL_OFFERS: OfferListItem[] = [
+  {
+    id: 'off_001',
+    referenceNumber: 'OFF-2026-0042',
+    candidateName: 'Jane Alexandra Doe',
+    email: 'jane.doe@example.com',
+    phone: '+1 (555) 234-5678',
+    position: 'Lead Platform Architect',
+    department: 'Cloud Infrastructure',
+    bandGrade: 'L6',
+    offerDate: '2026-09-28T10:00:00Z',
+    joiningDate: '2026-11-16T00:00:00Z',
+    template: 'Standard Full-Time Corporate Offer',
+    templateCode: 'FULL_TIME',
+    status: 'HR_REVIEW',
+    aiReviewStatus: 'VERIFIED_BY_HR',
+    totalCtc: 229000,
+    currency: 'USD',
+    currentVersionNumber: 1,
+  },
+  {
+    id: 'off_002',
+    referenceNumber: 'OFF-2026-0043',
+    candidateName: 'Carlos Rivera',
+    email: 'carlos.rivera@example.com',
+    phone: '+1 (555) 987-6543',
+    position: 'Senior AI Research Engineer',
+    department: 'Applied Machine Learning',
+    bandGrade: 'L5',
+    offerDate: '2026-09-27T14:15:00Z',
+    joiningDate: '2026-11-01T00:00:00Z',
+    template: 'Standard Full-Time Corporate Offer',
+    templateCode: 'FULL_TIME',
+    status: 'APPROVED',
+    aiReviewStatus: 'VERIFIED_BY_HR',
+    totalCtc: 195000,
+    currency: 'USD',
+    currentVersionNumber: 2,
+  },
+  {
+    id: 'off_003',
+    referenceNumber: 'OFF-2026-0044',
+    candidateName: 'Liam Alexander Vance',
+    email: 'liam.vance@stanford.edu',
+    phone: '+1 (555) 345-6789',
+    position: 'Applied AI Research Intern',
+    department: 'AI Research Labs',
+    bandGrade: 'INT',
+    offerDate: '2026-09-26T09:00:00Z',
+    joiningDate: '2026-10-15T00:00:00Z',
+    template: 'Internship & Trainee Agreement',
+    templateCode: 'INTERNSHIP',
+    status: 'ISSUED',
+    aiReviewStatus: 'VERIFIED_BY_HR',
+    totalCtc: 48000,
+    currency: 'USD',
+    currentVersionNumber: 1,
+  },
+  {
+    id: 'off_004',
+    referenceNumber: 'OFF-2026-0045',
+    candidateName: 'Emily Watson',
+    email: 'emily.watson@globalfin.org',
+    phone: '+1 (555) 789-0123',
+    position: 'VP of Engineering',
+    department: 'Executive Leadership',
+    bandGrade: 'EXEC',
+    offerDate: '2026-09-25T16:45:00Z',
+    joiningDate: '2026-12-01T00:00:00Z',
+    template: 'Executive Employment Agreement',
+    templateCode: 'EXECUTIVE',
+    status: 'ACCEPTED',
+    aiReviewStatus: 'OVERRIDDEN',
+    totalCtc: 345000,
+    currency: 'USD',
+    currentVersionNumber: 3,
+  },
+  {
+    id: 'off_005',
+    referenceNumber: 'OFF-2026-0046',
+    candidateName: 'Marcus Aurelius Vance',
+    email: 'marcus.vance@techscale.io',
+    phone: '+1 (555) 456-7890',
+    position: 'Staff DevOps & SRE Lead',
+    department: 'Cloud Infrastructure',
+    bandGrade: 'L6',
+    offerDate: '2026-09-24T11:20:00Z',
+    joiningDate: '2026-11-20T00:00:00Z',
+    template: 'Standard Full-Time Corporate Offer',
+    templateCode: 'FULL_TIME',
+    status: 'DRAFT_AI',
+    aiReviewStatus: 'PENDING_AI_REVIEW',
+    totalCtc: 215000,
+    currency: 'USD',
+    currentVersionNumber: 1,
+  },
 ];
 
 export const DashboardPage: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { success, error } = useToast();
 
-  const [activeTab, setActiveTab] = useState<
-    'documents' | 'policies' | 'onboarding' | 'learning' | 'assessments' | 'certificates'
-  >('documents');
+  const [stats, setStats] = useState<DashboardStatistics>({
+    total: 12,
+    draft: 3,
+    aiProcessing: 1,
+    awaitingReview: 4,
+    generated: 3,
+    sent: 3,
+    accepted: 2,
+    rejected: 0,
+    expired: 0,
+  });
 
-  // Unified 6 Pillars Statistics
-  const pillarStats = {
-    documents: { total: 9, activeCount: 24, label: '9 Core Document Types' },
-    policies: { total: 19, activeCount: 19, label: '19 Governance Policies' },
-    onboarding: { total: 3, pendingCount: 2, label: 'Active Cohort Candidates' },
-    learning: { total: 4, mandatoryCount: 2, label: 'Enterprise Curricula' },
-    assessments: { total: 3, questionBankCount: 12, label: 'Cognitive & Tech Tests' },
-    certificates: { total: 8, verifiedCount: 8, label: 'Issued Official Credentials' },
+  const [offers, setOffers] = useState<OfferListItem[]>(INITIAL_OFFERS);
+  const [templates, setTemplates] = useState<OfferTemplate[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('ALL');
+  const [loading, setLoading] = useState(false);
+
+  // Active Modals
+  const [selectedOfferForDetail, setSelectedOfferForDetail] = useState<OfferListItem | null>(null);
+  const [selectedOfferForEmail, setSelectedOfferForEmail] = useState<OfferListItem | null>(null);
+  const [selectedOfferForHistory, setSelectedOfferForHistory] = useState<OfferListItem | null>(null);
+
+  useEffect(() => {
+    loadDashboardData();
+  }, []);
+
+  const loadDashboardData = async () => {
+    setLoading(true);
+    try {
+      const [statsRes, offersRes, templatesRes] = await Promise.all([
+        offerService.getDashboardStatistics(),
+        offerService.listOffers({ limit: 10 }),
+        templateService.getTemplates(),
+      ]);
+
+      if (statsRes) setStats(statsRes);
+      if (offersRes?.items?.length) setOffers(offersRes.items);
+      if (templatesRes?.length) setTemplates(templatesRes);
+    } catch {
+      // Graceful fallback to initial seed
+    } finally {
+      setLoading(false);
+    }
   };
 
+  const filteredOffers = offers.filter((o) => {
+    if (statusFilter !== 'ALL' && o.status !== statusFilter) return false;
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      return (
+        o.candidateName.toLowerCase().includes(q) ||
+        o.position.toLowerCase().includes(q) ||
+        o.referenceNumber.toLowerCase().includes(q) ||
+        o.department.toLowerCase().includes(q)
+      );
+    }
+    return true;
+  });
+
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 24, paddingBottom: 60 }}>
       {/* 1. Executive Master Hero Banner */}
       <div
         style={{
-          background: 'linear-gradient(135deg, #090e1d 0%, #0d172e 100%)',
+          background: 'linear-gradient(135deg, #090e1d 0%, #1e1b4b 50%, #0f172a 100%)',
           borderRadius: 20,
           padding: '32px 36px',
           color: '#ffffff',
           position: 'relative',
           overflow: 'hidden',
-          boxShadow: '0 4px 20px -2px rgba(9, 14, 29, 0.25)',
+          boxShadow: '0 10px 30px -5px rgba(15, 23, 42, 0.3)',
+          border: '1px solid rgba(255, 255, 255, 0.1)',
         }}
       >
-        <div style={{ position: 'relative', zIndex: 2, maxWidth: 860 }}>
+        <div style={{ position: 'relative', zIndex: 2, maxWidth: 900 }}>
           <div
             style={{
               display: 'inline-flex',
               alignItems: 'center',
               gap: 8,
-              padding: '4px 12px',
+              padding: '4px 14px',
               borderRadius: 9999,
-              background: 'rgba(59, 130, 246, 0.15)',
-              border: '1px solid rgba(59, 130, 246, 0.25)',
-              color: '#93c5fd',
+              background: 'rgba(99, 102, 241, 0.2)',
+              border: '1px solid rgba(99, 102, 241, 0.35)',
+              color: '#c7d2fe',
               fontSize: '0.75rem',
-              fontWeight: 600,
+              fontWeight: 700,
+              letterSpacing: '0.04em',
               marginBottom: 16,
+              textTransform: 'uppercase',
             }}
           >
-            <Sparkles size={13} style={{ color: '#60a5fa' }} />
-            <span>TaskNera Enterprise HRMS &bull; Step 11 Unified Command Center</span>
+            <Sparkles size={13} style={{ color: '#818cf8' }} />
+            <span>TaskNera Enterprise &bull; Offer Letter Studio</span>
           </div>
 
           <h1
             style={{
               fontSize: '2rem',
-              fontWeight: 700,
+              fontWeight: 800,
               color: '#ffffff',
               letterSpacing: '-0.025em',
               marginBottom: 10,
               lineHeight: 1.2,
             }}
           >
-            Welcome back, {user?.firstName || 'Sakshi'}!
+            Offer Letter Command Center
           </h1>
 
           <p
@@ -137,692 +255,785 @@ export const DashboardPage: React.FC = () => {
               fontSize: '0.9375rem',
               color: '#94a3b8',
               lineHeight: 1.6,
-              maxWidth: 680,
-              marginBottom: 20,
+              maxWidth: 720,
+              marginBottom: 24,
             }}
           >
-            One unified platform connecting all 6 core pillars: HR Documents, Governance Policies,
-            Configurable Onboarding, L&D Academy, Aptitude & Technical Assessments, and Verifiable
-            Certificates.
+            Author, audit, verify, and dispatch legally binding, tamper-evident offer letters.
+            AI extraction provides structured recommendations while strict HR oversight ensures complete statutory compliance.
           </p>
 
           <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
             <Button
               variant="primary"
-              onClick={() => navigate('/documents')}
-              icon={<Plus size={16} />}
-              style={{ padding: '9px 18px', fontSize: '0.85rem' }}
-            >
-              Create HR Document
-            </Button>
-            <Button
-              variant="secondary"
-              onClick={() => navigate('/onboarding')}
-              icon={<UserCheck size={15} />}
+              onClick={() => navigate('/offers?create=true')}
               style={{
-                padding: '9px 18px',
-                fontSize: '0.85rem',
-                background: 'rgba(255, 255, 255, 0.08)',
-                color: '#ffffff',
-                borderColor: 'rgba(255, 255, 255, 0.18)',
+                padding: '10px 20px',
+                fontSize: '0.9rem',
+                boxShadow: '0 4px 18px var(--primary-glow)',
               }}
             >
-              Onboarding Portal
+              <Plus size={16} style={{ marginRight: 6 }} /> Create New Offer
             </Button>
+
             <Button
               variant="secondary"
-              onClick={() => navigate('/learning')}
-              icon={<Award size={15} />}
+              onClick={() => navigate('/templates')}
               style={{
-                padding: '9px 18px',
-                fontSize: '0.85rem',
+                padding: '10px 18px',
+                fontSize: '0.9rem',
                 background: 'rgba(255, 255, 255, 0.08)',
                 color: '#ffffff',
-                borderColor: 'rgba(255, 255, 255, 0.18)',
+                borderColor: 'rgba(255, 255, 255, 0.2)',
               }}
             >
-              L&D & Certificates
+              <FileText size={16} style={{ marginRight: 6 }} /> Offer Templates
             </Button>
+
             <Button
               variant="secondary"
-              onClick={() => navigate('/assessments')}
-              icon={<BrainCircuit size={15} />}
+              onClick={() => navigate('/audit-logs')}
               style={{
-                padding: '9px 18px',
-                fontSize: '0.85rem',
+                padding: '10px 18px',
+                fontSize: '0.9rem',
                 background: 'rgba(255, 255, 255, 0.08)',
                 color: '#ffffff',
-                borderColor: 'rgba(255, 255, 255, 0.18)',
+                borderColor: 'rgba(255, 255, 255, 0.2)',
               }}
             >
-              Assessments & Quizzes
+              <ShieldCheck size={16} style={{ marginRight: 6 }} /> Compliance Ledger
             </Button>
           </div>
         </div>
 
-        {/* Subtle background glow */}
+        {/* Decorative background glow */}
         <div
           style={{
             position: 'absolute',
-            top: -60,
             right: -60,
+            bottom: -60,
             width: 340,
             height: 340,
             borderRadius: '50%',
-            background: 'radial-gradient(circle, rgba(37, 99, 235, 0.25) 0%, transparent 70%)',
+            background: 'radial-gradient(circle, rgba(99, 102, 241, 0.25) 0%, transparent 70%)',
             pointerEvents: 'none',
           }}
         />
       </div>
 
-      {/* 2. Top Metric Cards — Exact TaskNera Operational Modules */}
+      {/* 2. Key Performance Indicators Bar */}
       <div
         style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(230px, 1fr))',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))',
           gap: 16,
         }}
       >
-        <div
-          className="glass-panel"
-          style={{
-            padding: '20px 24px',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            borderRadius: 16,
-            background: '#ffffff',
-            border: '1px solid #e2e8f0',
-          }}
-        >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-            <span style={{ fontSize: '0.7rem', fontWeight: 700, color: '#64748b', letterSpacing: '0.05em' }}>
-              MY ATTENDANCE
+        <div className="card" style={{ padding: '20px 22px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <span style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--text-muted)' }}>
+              Total Offers
             </span>
-            <div style={{ width: 34, height: 34, borderRadius: '50%', background: '#ecfdf5', color: '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Clock size={16} />
+            <div
+              style={{
+                width: 34,
+                height: 34,
+                borderRadius: 'var(--radius-sm)',
+                background: 'rgba(37, 99, 235, 0.1)',
+                color: '#2563eb',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <FileCheck2 size={18} />
             </div>
           </div>
-          <div>
-            <div style={{ fontSize: '1.35rem', fontWeight: 700, color: '#0f172a' }}>Live Log</div>
-            <div style={{ fontSize: '0.78125rem', color: '#64748b', marginTop: 4 }}>
-              Clock in/out & daily attendance
-            </div>
+          <div style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--text-main, #0f172a)', marginTop: 8 }}>
+            {stats.total}
+          </div>
+          <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)', marginTop: 4 }}>
+            All active & historical offers
           </div>
         </div>
 
-        <div
-          className="glass-panel"
-          style={{
-            padding: '20px 24px',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            borderRadius: 16,
-            background: '#ffffff',
-            border: '1px solid #e2e8f0',
-          }}
-        >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-            <span style={{ fontSize: '0.7rem', fontWeight: 700, color: '#64748b', letterSpacing: '0.05em' }}>
-              MY LEAVES
+        <div className="card" style={{ padding: '20px 22px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <span style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--text-muted)' }}>
+              Awaiting HR Review
             </span>
-            <div style={{ width: 34, height: 34, borderRadius: '50%', background: '#eff6ff', color: '#2563eb', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <CalendarCheck2 size={16} />
+            <div
+              style={{
+                width: 34,
+                height: 34,
+                borderRadius: 'var(--radius-sm)',
+                background: 'rgba(245, 158, 11, 0.12)',
+                color: '#f59e0b',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <Clock size={18} />
             </div>
           </div>
-          <div>
-            <div style={{ fontSize: '1.35rem', fontWeight: 700, color: '#0f172a' }}>Time Off</div>
-            <div style={{ fontSize: '0.78125rem', color: '#64748b', marginTop: 4 }}>
-              Check balances & submit requests
-            </div>
+          <div style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--text-main, #0f172a)', marginTop: 8 }}>
+            {stats.awaitingReview + stats.draft}
+          </div>
+          <div style={{ fontSize: '0.75rem', color: '#d97706', marginTop: 4, fontWeight: 500 }}>
+            {stats.awaitingReview} pending audit sign-off
           </div>
         </div>
 
-        <div
-          className="glass-panel"
-          style={{
-            padding: '20px 24px',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            borderRadius: 16,
-            background: '#ffffff',
-            border: '1px solid #e2e8f0',
-          }}
-        >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-            <span style={{ fontSize: '0.7rem', fontWeight: 700, color: '#64748b', letterSpacing: '0.05em' }}>
-              MY PERFORMANCE
+        <div className="card" style={{ padding: '20px 22px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <span style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--text-muted)' }}>
+              Approved & Ready
             </span>
-            <div style={{ width: 34, height: 34, borderRadius: '50%', background: '#f5f3ff', color: '#7c3aed', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Award size={16} />
+            <div
+              style={{
+                width: 34,
+                height: 34,
+                borderRadius: 'var(--radius-sm)',
+                background: 'rgba(99, 102, 241, 0.1)',
+                color: '#6366f1',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <CheckCircle2 size={18} />
             </div>
           </div>
-          <div>
-            <div style={{ fontSize: '1.35rem', fontWeight: 700, color: '#0f172a' }}>Reviews</div>
-            <div style={{ fontSize: '0.78125rem', color: '#64748b', marginTop: 4 }}>
-              Quarterly appraisals & objectives
-            </div>
+          <div style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--text-main, #0f172a)', marginTop: 8 }}>
+            {stats.generated}
+          </div>
+          <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)', marginTop: 4 }}>
+            Minted official documents
           </div>
         </div>
 
-        <div
-          className="glass-panel"
-          style={{
-            padding: '20px 24px',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            borderRadius: 16,
-            background: '#ffffff',
-            border: '1px solid #e2e8f0',
-          }}
-        >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-            <span style={{ fontSize: '0.7rem', fontWeight: 700, color: '#64748b', letterSpacing: '0.05em' }}>
-              HELPDESK & SUPPORT
+        <div className="card" style={{ padding: '20px 22px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <span style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--text-muted)' }}>
+              Dispatched & Issued
             </span>
-            <div style={{ width: 34, height: 34, borderRadius: '50%', background: '#fffbeb', color: '#d97706', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Headphones size={16} />
+            <div
+              style={{
+                width: 34,
+                height: 34,
+                borderRadius: 'var(--radius-sm)',
+                background: 'rgba(16, 185, 129, 0.1)',
+                color: '#059669',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <Send size={18} />
             </div>
           </div>
-          <div>
-            <div style={{ fontSize: '1.35rem', fontWeight: 700, color: '#0f172a' }}>Requests</div>
-            <div style={{ fontSize: '0.78125rem', color: '#64748b', marginTop: 4 }}>
-              Raise employee tickets & queries
+          <div style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--text-main, #0f172a)', marginTop: 8 }}>
+            {stats.sent}
+          </div>
+          <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)', marginTop: 4 }}>
+            Candidate portal token active
+          </div>
+        </div>
+
+        <div className="card" style={{ padding: '20px 22px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <span style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--text-muted)' }}>
+              Accepted Offers
+            </span>
+            <div
+              style={{
+                width: 34,
+                height: 34,
+                borderRadius: 'var(--radius-sm)',
+                background: 'rgba(16, 185, 129, 0.15)',
+                color: '#059669',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <TrendingUp size={18} />
             </div>
+          </div>
+          <div style={{ fontSize: '1.75rem', fontWeight: 800, color: '#059669', marginTop: 8 }}>
+            {stats.accepted}
+          </div>
+          <div style={{ fontSize: '0.75rem', color: '#059669', marginTop: 4, fontWeight: 600 }}>
+            {Math.round((stats.accepted / Math.max(1, stats.sent)) * 100)}% Acceptance rate
           </div>
         </div>
       </div>
 
-      {/* 3. STEP 11: THE 6 CORE PILLARS COMMAND CENTER */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-        {/* Hub Header */}
-        <div className="p-6 border-b border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="flex items-center gap-3.5">
-            <div className="w-11 h-11 rounded-xl bg-blue-100 flex items-center justify-center text-blue-600">
-              <Layers className="w-6 h-6" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h2 className="text-lg font-bold text-slate-900 tracking-tight">
-                  One Unified HRMS Master Dashboard
-                </h2>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
-                  Step 11 Unified Architecture
+      {/* 3. Action Launchpad & Flow Shortcuts */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 18 }}>
+        <div
+          className="card"
+          style={{
+            padding: 24,
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            borderLeft: '4px solid #2563eb',
+          }}
+        >
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+              <div
+                style={{
+                  width: 38,
+                  height: 38,
+                  borderRadius: 'var(--radius-sm)',
+                  background: 'rgba(37, 99, 235, 0.1)',
+                  color: '#2563eb',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <Upload size={18} />
+              </div>
+              <div>
+                <h3 style={{ fontSize: '1.05rem', fontWeight: 700, margin: 0, color: 'var(--text-main, #0f172a)' }}>
+                  Candidate CV Upload
+                </h3>
+                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                  Extract candidate details with AI
                 </span>
               </div>
-              <p className="text-xs text-slate-500 mt-0.5">
-                Centralized management across HR Documents, Policies, Onboarding, L&D, Assessments, and Certificates.
-              </p>
             </div>
+            <p style={{ fontSize: '0.8125rem', color: 'var(--text-muted)', lineHeight: 1.5, marginBottom: 16 }}>
+              Upload any candidate PDF, DOCX, or text file. The AI extraction parser structures names, contact details, experience, and proposed terms for strict HR confirmation.
+            </p>
           </div>
-
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => navigate('/documents')}
-              className="px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors shadow-sm flex items-center gap-1.5"
-            >
-              <Plus className="w-3.5 h-3.5" />
-              New HR Action
-            </button>
-          </div>
+          <Button
+            variant="primary"
+            onClick={() => navigate('/offers?create=true&step=2')}
+            style={{ width: '100%', justifyContent: 'center' }}
+          >
+            Upload Resume / Document <ArrowRight size={14} style={{ marginLeft: 6 }} />
+          </Button>
         </div>
 
-        {/* 6 Pillars Quick Overview Row */}
-        <div className="grid grid-cols-2 md:grid-cols-6 divide-x divide-y md:divide-y-0 divide-slate-100 bg-slate-50/60 border-b border-slate-200">
-          {/* Pillar 1: HR Documents */}
-          <div
-            onClick={() => setActiveTab('documents')}
-            className={`p-4 cursor-pointer transition-colors ${
-              activeTab === 'documents' ? 'bg-white shadow-sm' : 'hover:bg-slate-100/60'
-            }`}
-          >
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] font-bold text-slate-500 uppercase">Documents</span>
-              <FileCheck2 className="w-4 h-4 text-blue-600" />
+        <div
+          className="card"
+          style={{
+            padding: 24,
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            borderLeft: '4px solid #7c3aed',
+          }}
+        >
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+              <div
+                style={{
+                  width: 38,
+                  height: 38,
+                  borderRadius: 'var(--radius-sm)',
+                  background: 'rgba(124, 58, 237, 0.1)',
+                  color: '#7c3aed',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <FileText size={18} />
+              </div>
+              <div>
+                <h3 style={{ fontSize: '1.05rem', fontWeight: 700, margin: 0, color: 'var(--text-main, #0f172a)' }}>
+                  Approved Legal Templates
+                </h3>
+                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                  Standard corporate letter blueprints
+                </span>
+              </div>
             </div>
-            <p className="text-xl font-bold text-slate-900 mt-1">9 Types</p>
-            <p className="text-[10px] text-blue-600 font-medium mt-0.5">Offer to MSA</p>
+            <p style={{ fontSize: '0.8125rem', color: 'var(--text-muted)', lineHeight: 1.5, marginBottom: 16 }}>
+              Select an approved corporate template. Dynamic placeholder variables ensure candidate compensation, reporting lines, and probation terms are populated cleanly.
+            </p>
           </div>
-
-          {/* Pillar 2: Policies */}
-          <div
-            onClick={() => setActiveTab('policies')}
-            className={`p-4 cursor-pointer transition-colors ${
-              activeTab === 'policies' ? 'bg-white shadow-sm' : 'hover:bg-slate-100/60'
-            }`}
+          <Button
+            variant="secondary"
+            onClick={() => navigate('/templates')}
+            style={{ width: '100%', justifyContent: 'center' }}
           >
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] font-bold text-slate-500 uppercase">Policies</span>
-              <BookOpen className="w-4 h-4 text-emerald-600" />
-            </div>
-            <p className="text-xl font-bold text-slate-900 mt-1">19 Types</p>
-            <p className="text-[10px] text-emerald-600 font-medium mt-0.5">Version Controlled</p>
-          </div>
-
-          {/* Pillar 3: Onboarding */}
-          <div
-            onClick={() => setActiveTab('onboarding')}
-            className={`p-4 cursor-pointer transition-colors ${
-              activeTab === 'onboarding' ? 'bg-white shadow-sm' : 'hover:bg-slate-100/60'
-            }`}
-          >
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] font-bold text-slate-500 uppercase">Onboarding</span>
-              <Users2 className="w-4 h-4 text-indigo-600" />
-            </div>
-            <p className="text-xl font-bold text-slate-900 mt-1">Cohorts</p>
-            <p className="text-[10px] text-indigo-600 font-medium mt-0.5">Checklist & KYC</p>
-          </div>
-
-          {/* Pillar 4: L&D */}
-          <div
-            onClick={() => setActiveTab('learning')}
-            className={`p-4 cursor-pointer transition-colors ${
-              activeTab === 'learning' ? 'bg-white shadow-sm' : 'hover:bg-slate-100/60'
-            }`}
-          >
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] font-bold text-slate-500 uppercase">L&D Academy</span>
-              <GraduationCap className="w-4 h-4 text-purple-600" />
-            </div>
-            <p className="text-xl font-bold text-slate-900 mt-1">Courses</p>
-            <p className="text-[10px] text-purple-600 font-medium mt-0.5">Compliance Tracks</p>
-          </div>
-
-          {/* Pillar 5: Assessments */}
-          <div
-            onClick={() => setActiveTab('assessments')}
-            className={`p-4 cursor-pointer transition-colors ${
-              activeTab === 'assessments' ? 'bg-white shadow-sm' : 'hover:bg-slate-100/60'
-            }`}
-          >
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] font-bold text-slate-500 uppercase">Assessments</span>
-              <BrainCircuit className="w-4 h-4 text-amber-600" />
-            </div>
-            <p className="text-xl font-bold text-slate-900 mt-1">Quizzes</p>
-            <p className="text-[10px] text-amber-600 font-medium mt-0.5">Aptitude & Tech</p>
-          </div>
-
-          {/* Pillar 6: Certificates */}
-          <div
-            onClick={() => setActiveTab('certificates')}
-            className={`p-4 cursor-pointer transition-colors ${
-              activeTab === 'certificates' ? 'bg-white shadow-sm' : 'hover:bg-slate-100/60'
-            }`}
-          >
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] font-bold text-slate-500 uppercase">Certificates</span>
-              <Award className="w-4 h-4 text-rose-600" />
-            </div>
-            <p className="text-xl font-bold text-slate-900 mt-1">Verifiable</p>
-            <p className="text-[10px] text-rose-600 font-medium mt-0.5">SHA-256 Sealed</p>
-          </div>
+            Manage Templates Studio <ArrowRight size={14} style={{ marginLeft: 6 }} />
+          </Button>
         </div>
 
-        {/* Dynamic Pillar Tab Content */}
-        <div className="p-6">
-          {/* ================================================================= */}
-          {/* TAB 1: HR DOCUMENTS */}
-          {/* ================================================================= */}
-          {activeTab === 'documents' && (
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-sm font-bold text-slate-900">
-                    HR Documents Engine (All 9 Standard Formats)
-                  </h3>
-                  <p className="text-xs text-slate-500">
-                    Create, audit, and download PDF documents with strict AI assist and human confirmation
-                  </p>
-                </div>
-                <button
-                  onClick={() => navigate('/documents')}
-                  className="text-xs font-semibold text-blue-600 hover:text-blue-800 flex items-center gap-1"
-                >
-                  View All Documents <ArrowUpRight className="w-3.5 h-3.5" />
-                </button>
+        <div
+          className="card"
+          style={{
+            padding: 24,
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            borderLeft: '4px solid #059669',
+          }}
+        >
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+              <div
+                style={{
+                  width: 38,
+                  height: 38,
+                  borderRadius: 'var(--radius-sm)',
+                  background: 'rgba(5, 150, 105, 0.1)',
+                  color: '#059669',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <ShieldCheck size={18} />
               </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                {CORE_DOC_TYPES.map((doc) => (
-                  <div
-                    key={doc.code}
-                    className="p-3.5 rounded-xl border border-slate-200 hover:border-slate-300 bg-white hover:shadow-sm transition-all flex flex-col justify-between"
-                  >
-                    <div>
-                      <div className="flex items-center justify-between mb-1.5">
-                        <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-700">
-                          {doc.code}
-                        </span>
-                        <span className="text-[10px] font-medium text-slate-400">
-                          {doc.sections} Sections
-                        </span>
-                      </div>
-                      <h4 className="text-xs font-bold text-slate-900">{doc.name}</h4>
-                      <p className="text-[11px] text-slate-500 mt-1">{doc.desc}</p>
-                    </div>
-                    <div className="mt-3 pt-2 border-t border-slate-100 flex items-center justify-end">
-                      <button
-                        onClick={() => navigate(`/documents/create?type=${doc.code}`)}
-                        className="text-xs font-semibold text-blue-600 hover:text-blue-800"
-                      >
-                        Create Now &rarr;
-                      </button>
-                    </div>
-                  </div>
-                ))}
+              <div>
+                <h3 style={{ fontSize: '1.05rem', fontWeight: 700, margin: 0, color: 'var(--text-main, #0f172a)' }}>
+                  Compliance & Quality Audit
+                </h3>
+                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                  Arithmetic & statutory verification
+                </span>
               </div>
             </div>
-          )}
-
-          {/* ================================================================= */}
-          {/* TAB 2: GOVERNANCE POLICIES */}
-          {/* ================================================================= */}
-          {activeTab === 'policies' && (
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-sm font-bold text-slate-900">
-                    Governance Policies (19 Enterprise Policies)
-                  </h3>
-                  <p className="text-xs text-slate-500">
-                    Policy creation, approval workflows, employee acknowledgment, and version history
-                  </p>
-                </div>
-                <button
-                  onClick={() => navigate('/policies')}
-                  className="text-xs font-semibold text-emerald-600 hover:text-emerald-800 flex items-center gap-1"
-                >
-                  Manage Policies <ArrowUpRight className="w-3.5 h-3.5" />
-                </button>
-              </div>
-
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5">
-                {CORE_POLICIES.map((policyName) => (
-                  <div
-                    key={policyName}
-                    className="p-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 transition-colors flex items-center justify-between"
-                  >
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 rounded-full bg-emerald-500" />
-                      <span className="text-xs font-medium text-slate-800 truncate">
-                        {policyName}
-                      </span>
-                    </div>
-                    <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded">
-                      v1.0
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* ================================================================= */}
-          {/* TAB 3: ONBOARDING */}
-          {/* ================================================================= */}
-          {activeTab === 'onboarding' && (
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-sm font-bold text-slate-900">
-                    Configurable Onboarding Lifecycle
-                  </h3>
-                  <p className="text-xs text-slate-500">
-                    Personal details, KYC document collection, IT checklists, and verification progression
-                  </p>
-                </div>
-                <button
-                  onClick={() => navigate('/onboarding')}
-                  className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 flex items-center gap-1"
-                >
-                  Open Onboarding Center <ArrowUpRight className="w-3.5 h-3.5" />
-                </button>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                <div className="p-4 rounded-xl border border-slate-200 bg-white space-y-2">
-                  <span className="text-xs font-bold text-slate-900 block">
-                    Aditya Sen (Staff Full-Stack Architect)
-                  </span>
-                  <div className="flex items-center gap-2 text-[11px] text-slate-500">
-                    <span>Engineering</span> &bull; <span>Joining: 2026-10-15</span>
-                  </div>
-                  <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-                    <div className="bg-indigo-600 h-full rounded-full" style={{ width: '85%' }} />
-                  </div>
-                  <div className="flex items-center justify-between text-[10px] text-slate-500">
-                    <span>KYC & Checklist: 85%</span>
-                    <span className="font-bold text-indigo-600">VERIFIED</span>
-                  </div>
-                </div>
-
-                <div className="p-4 rounded-xl border border-slate-200 bg-white space-y-2">
-                  <span className="text-xs font-bold text-slate-900 block">
-                    Neha Kapoor (Senior People Operations Partner)
-                  </span>
-                  <div className="flex items-center gap-2 text-[11px] text-slate-500">
-                    <span>Human Resources</span> &bull; <span>Joining: 2026-10-20</span>
-                  </div>
-                  <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-                    <div className="bg-amber-500 h-full rounded-full" style={{ width: '45%' }} />
-                  </div>
-                  <div className="flex items-center justify-between text-[10px] text-slate-500">
-                    <span>Pending Bank & Declaration</span>
-                    <span className="font-bold text-amber-600">IN_PROGRESS</span>
-                  </div>
-                </div>
-
-                <div className="p-4 rounded-xl border border-slate-200 bg-white space-y-2">
-                  <span className="text-xs font-bold text-slate-900 block">
-                    Rahul Varma (DevOps Cloud Engineer)
-                  </span>
-                  <div className="flex items-center gap-2 text-[11px] text-slate-500">
-                    <span>Cloud Platform</span> &bull; <span>Joining: 2026-11-01</span>
-                  </div>
-                  <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-                    <div className="bg-emerald-600 h-full rounded-full" style={{ width: '100%' }} />
-                  </div>
-                  <div className="flex items-center justify-between text-[10px] text-slate-500">
-                    <span>Checklist Complete</span>
-                    <span className="font-bold text-emerald-600">READY_FOR_JOINING</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* ================================================================= */}
-          {/* TAB 4: L&D ACADEMY */}
-          {/* ================================================================= */}
-          {activeTab === 'learning' && (
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-sm font-bold text-slate-900">
-                    Learning & Development Academy Tracks
-                  </h3>
-                  <p className="text-xs text-slate-500">
-                    Mandatory corporate compliance, technical curricula, assignments, and progression
-                  </p>
-                </div>
-                <button
-                  onClick={() => navigate('/learning')}
-                  className="text-xs font-semibold text-purple-600 hover:text-purple-800 flex items-center gap-1"
-                >
-                  Explore Course Catalog <ArrowUpRight className="w-3.5 h-3.5" />
-                </button>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <div className="p-4 rounded-xl border border-slate-200 bg-white space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-50 text-blue-700">
-                      SECURITY
-                    </span>
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200">
-                      Mandatory
-                    </span>
-                  </div>
-                  <h4 className="text-xs font-bold text-slate-900">
-                    Enterprise Information Security & Data Privacy 2026
-                  </h4>
-                  <p className="text-[11px] text-slate-500 line-clamp-2">
-                    Phishing simulation, OWASP Top 10, zero-trust hygiene, and client data governance.
-                  </p>
-                  <div className="text-[11px] text-slate-400 pt-1">
-                    Instructor: Vikram Joshi &bull; Duration: 3 Hours
-                  </div>
-                </div>
-
-                <div className="p-4 rounded-xl border border-slate-200 bg-white space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-50 text-blue-700">
-                      TECHNICAL
-                    </span>
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-50 text-emerald-700">
-                      Certificate Eligible
-                    </span>
-                  </div>
-                  <h4 className="text-xs font-bold text-slate-900">
-                    Cloud Architecture & Multi-Tenant Database Design
-                  </h4>
-                  <p className="text-[11px] text-slate-500 line-clamp-2">
-                    High-concurrency microservices, PostgreSQL sharding, connection pooling, and consensus.
-                  </p>
-                  <div className="text-[11px] text-slate-400 pt-1">
-                    Instructor: Sakshi Koparde &bull; Duration: 2 Weeks
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* ================================================================= */}
-          {/* TAB 5: ASSESSMENTS & QUIZZES */}
-          {/* ================================================================= */}
-          {activeTab === 'assessments' && (
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-sm font-bold text-slate-900">
-                    Aptitude Tests & Cognitive Quizzes (Step 10)
-                  </h3>
-                  <p className="text-xs text-slate-500">
-                    Numerical reasoning, logical deduction, verbal aptitude, and technical screening
-                  </p>
-                </div>
-                <button
-                  onClick={() => navigate('/assessments')}
-                  className="text-xs font-semibold text-amber-600 hover:text-amber-800 flex items-center gap-1"
-                >
-                  Launch Assessment Center <ArrowUpRight className="w-3.5 h-3.5" />
-                </button>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <div className="p-4 rounded-xl border border-slate-200 bg-white space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-indigo-50 text-indigo-700">
-                      APTITUDE & LOGIC
-                    </span>
-                    <span className="text-[10px] font-medium text-slate-400">Pass: 70%</span>
-                  </div>
-                  <h4 className="text-xs font-bold text-slate-900">
-                    TaskNera General Aptitude Benchmark 2026
-                  </h4>
-                  <p className="text-[11px] text-slate-500">
-                    5 Questions &bull; 20 Mins Limit &bull; Max 2 Attempts &bull; Numerical, Logical & Verbal
-                  </p>
-                  <div className="pt-2 flex justify-end">
-                    <button
-                      onClick={() => navigate('/assessments')}
-                      className="px-3 py-1 text-xs font-semibold rounded bg-blue-50 text-blue-700 hover:bg-blue-100"
-                    >
-                      Start Test
-                    </button>
-                  </div>
-                </div>
-
-                <div className="p-4 rounded-xl border border-slate-200 bg-white space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-purple-50 text-purple-700">
-                      TECHNICAL
-                    </span>
-                    <span className="text-[10px] font-medium text-slate-400">Pass: 75%</span>
-                  </div>
-                  <h4 className="text-xs font-bold text-slate-900">
-                    Engineering Core Competency & Cloud Fundamentals
-                  </h4>
-                  <p className="text-[11px] text-slate-500">
-                    HTTP Protocols & ACID Transaction model multi-choice & multi-answers quiz.
-                  </p>
-                  <div className="pt-2 flex justify-end">
-                    <button
-                      onClick={() => navigate('/assessments')}
-                      className="px-3 py-1 text-xs font-semibold rounded bg-blue-50 text-blue-700 hover:bg-blue-100"
-                    >
-                      Start Quiz
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* ================================================================= */}
-          {/* TAB 6: CERTIFICATES */}
-          {/* ================================================================= */}
-          {activeTab === 'certificates' && (
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-sm font-bold text-slate-900">
-                    Verifiable Certificates Authority (Step 9)
-                  </h3>
-                  <p className="text-xs text-slate-500">
-                    Course completion, professional training, internship, participation, achievement & appreciation credentials
-                  </p>
-                </div>
-                <button
-                  onClick={() => navigate('/learning')}
-                  className="text-xs font-semibold text-rose-600 hover:text-rose-800 flex items-center gap-1"
-                >
-                  Certificate Registry <ArrowUpRight className="w-3.5 h-3.5" />
-                </button>
-              </div>
-
-              <div className="p-4 rounded-xl border border-slate-200 bg-white flex items-center justify-between">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-mono font-bold text-blue-700 text-xs">CERT-2026-8812</span>
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
-                      ISSUED
-                    </span>
-                  </div>
-                  <h4 className="text-xs font-bold text-slate-900 mt-1">
-                    Sakshi Koparde &bull; Enterprise Information Security 2026
-                  </h4>
-                  <p className="text-[11px] text-slate-400 font-mono mt-0.5">
-                    SHA-256: b163d087a866704a... &bull; Issued: 2026-09-10
-                  </p>
-                </div>
-
-                <button
-                  onClick={() => navigate('/learning')}
-                  className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-blue-600 text-white hover:bg-blue-700 shadow-sm"
-                >
-                  View Certificate PDF
-                </button>
-              </div>
-            </div>
-          )}
+            <p style={{ fontSize: '0.8125rem', color: 'var(--text-muted)', lineHeight: 1.5, marginBottom: 16 }}>
+              Automated 9-point compliance checks verify compensation math, minimum wage statutory limits, and enforce the Non-Assumption Rule before official PDF generation.
+            </p>
+          </div>
+          <Button
+            variant="secondary"
+            onClick={() => navigate('/audit-logs')}
+            style={{ width: '100%', justifyContent: 'center' }}
+          >
+            View Verification Logs <ArrowRight size={14} style={{ marginLeft: 6 }} />
+          </Button>
         </div>
       </div>
+
+      {/* 4. Active Offers Pipeline Table */}
+      <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+        <div
+          style={{
+            padding: '20px 24px',
+            borderBottom: '1px solid var(--border-subtle)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            gap: 14,
+          }}
+        >
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <h2 style={{ fontSize: '1.15rem', fontWeight: 800, margin: 0, color: 'var(--text-main, #0f172a)' }}>
+                Active Offers Pipeline
+              </h2>
+              <span
+                style={{
+                  padding: '2px 8px',
+                  borderRadius: 12,
+                  fontSize: '0.75rem',
+                  fontWeight: 700,
+                  background: 'rgba(37, 99, 235, 0.1)',
+                  color: '#2563eb',
+                }}
+              >
+                {filteredOffers.length} Offers
+              </span>
+            </div>
+            <p style={{ fontSize: '0.8125rem', color: 'var(--text-muted)', margin: '4px 0 0' }}>
+              Track lifecycle progression from draft to candidate signing and archival.
+            </p>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+            {/* Status Filter */}
+            <select
+              className="form-select"
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              style={{ fontSize: '0.8125rem', padding: '6px 12px', width: 'auto' }}
+            >
+              <option value="ALL">All Statuses</option>
+              <option value="DRAFT_AI">Draft (AI)</option>
+              <option value="HR_REVIEW">HR Review</option>
+              <option value="APPROVED">Approved</option>
+              <option value="ISSUED">Issued / Sent</option>
+              <option value="ACCEPTED">Accepted</option>
+            </select>
+
+            {/* Search Input */}
+            <div style={{ position: 'relative', width: 240 }}>
+              <Search
+                size={15}
+                style={{
+                  position: 'absolute',
+                  left: 10,
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  color: 'var(--text-dim)',
+                }}
+              />
+              <input
+                type="text"
+                className="form-input"
+                placeholder="Search candidate..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                style={{ paddingLeft: 32, fontSize: '0.8125rem', padding: '6px 12px 6px 32px' }}
+              />
+            </div>
+
+            <Button
+              variant="secondary"
+              onClick={() => navigate('/offers')}
+              style={{ fontSize: '0.8125rem', padding: '6px 14px' }}
+            >
+              View Full Pipeline <ChevronRight size={14} style={{ marginLeft: 4 }} />
+            </Button>
+          </div>
+        </div>
+
+        {/* Table Content */}
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+            <thead>
+              <tr style={{ background: '#f8fafc', borderBottom: '1px solid var(--border-subtle)' }}>
+                <th style={{ padding: '12px 20px', fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-dim)', textTransform: 'uppercase' }}>
+                  Candidate Details
+                </th>
+                <th style={{ padding: '12px 18px', fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-dim)', textTransform: 'uppercase' }}>
+                  Position & Band
+                </th>
+                <th style={{ padding: '12px 18px', fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-dim)', textTransform: 'uppercase' }}>
+                  Total Package (CTC)
+                </th>
+                <th style={{ padding: '12px 18px', fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-dim)', textTransform: 'uppercase' }}>
+                  Lifecycle Status
+                </th>
+                <th style={{ padding: '12px 18px', fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-dim)', textTransform: 'uppercase' }}>
+                  AI Review
+                </th>
+                <th style={{ padding: '12px 20px', fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-dim)', textTransform: 'uppercase', textAlign: 'right' }}>
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredOffers.length === 0 ? (
+                <tr>
+                  <td colSpan={6} style={{ padding: '40px 20px', textAlign: 'center', color: 'var(--text-muted)' }}>
+                    No offers found matching your filters.
+                  </td>
+                </tr>
+              ) : (
+                filteredOffers.map((o) => (
+                  <tr
+                    key={o.id}
+                    style={{
+                      borderBottom: '1px solid var(--border-subtle)',
+                      transition: 'background 0.15s ease',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = '#f8fafc';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = 'transparent';
+                    }}
+                  >
+                    <td style={{ padding: '14px 20px' }}>
+                      <div
+                        style={{
+                          fontWeight: 700,
+                          fontSize: '0.875rem',
+                          color: '#0f172a',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 6,
+                          maxWidth: 240,
+                          wordBreak: 'break-word',
+                        }}
+                        onClick={() => setSelectedOfferForDetail(o)}
+                      >
+                        <User size={14} style={{ color: 'var(--primary)', flexShrink: 0 }} />
+                        <span>{o.candidateName}</span>
+                      </div>
+                      <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: 2, wordBreak: 'break-all' }}>
+                        {o.email}
+                      </div>
+                      <div style={{ fontSize: '0.7rem', color: 'var(--text-dim)', fontFamily: 'var(--font-mono)', marginTop: 3 }}>
+                        Ref: {o.referenceNumber}
+                      </div>
+                    </td>
+
+                    <td style={{ padding: '14px 18px', maxWidth: 220 }}>
+                      <div style={{ fontWeight: 600, fontSize: '0.84rem', color: '#0f172a', wordBreak: 'break-word' }}>
+                        {o.position}
+                      </div>
+                      <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: 2 }}>
+                        {o.department} {o.bandGrade ? `• ${o.bandGrade}` : ''}
+                      </div>
+                    </td>
+
+                    <td style={{ padding: '14px 18px' }}>
+                      <div style={{ fontWeight: 700, fontSize: '0.875rem', color: '#0f172a' }}>
+                        ${o.totalCtc.toLocaleString()} {o.currency}
+                      </div>
+                      <div style={{ fontSize: '0.72rem', color: 'var(--text-dim)', marginTop: 2 }}>
+                        Anticipated Join: {o.joiningDate ? new Date(o.joiningDate).toLocaleDateString() : 'TBD'}
+                      </div>
+                    </td>
+
+                    <td style={{ padding: '14px 18px' }}>
+                      <OfferStatusBadge status={o.status as any} />
+                    </td>
+
+                    <td style={{ padding: '14px 18px' }}>
+                      {o.aiReviewStatus === 'VERIFIED_BY_HR' ? (
+                        <HrConfirmedBadge label="HR Verified" />
+                      ) : o.aiReviewStatus === 'OVERRIDDEN' ? (
+                        <HrConfirmedBadge label="HR Overridden" />
+                      ) : o.aiReviewStatus === 'PENDING_AI_REVIEW' ? (
+                        <AiAdvisoryBadge label="AI Draft Review" />
+                      ) : (
+                        <span style={{ fontSize: '0.75rem', color: '#64748b' }}>Standard</span>
+                      )}
+                    </td>
+
+                    <td style={{ padding: '14px 20px', textAlign: 'right' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 6 }}>
+                        <button
+                          type="button"
+                          className="btn btn-secondary"
+                          onClick={() => setSelectedOfferForDetail(o)}
+                          style={{ padding: '6px 10px', fontSize: '0.75rem' }}
+                          title="View offer hub & preview"
+                        >
+                          <Eye size={13} style={{ marginRight: 4 }} /> View
+                        </button>
+
+                        <button
+                          type="button"
+                          className="btn btn-secondary"
+                          onClick={() => setSelectedOfferForEmail(o)}
+                          style={{ padding: '6px 10px', fontSize: '0.75rem', color: '#2563eb' }}
+                          title="Send offer to candidate"
+                        >
+                          <Send size={13} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* 5. Approved Offer Templates Studio Showcase */}
+      <div className="card" style={{ padding: 24 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 18, flexWrap: 'wrap', gap: 12 }}>
+          <div>
+            <h3 style={{ fontSize: '1.15rem', fontWeight: 800, margin: 0, color: 'var(--text-main, #0f172a)' }}>
+              Corporate Offer Letter Blueprints
+            </h3>
+            <p style={{ fontSize: '0.8125rem', color: 'var(--text-muted)', margin: '4px 0 0' }}>
+              Standard legal templates equipped with dynamic compensation tokens and statutory clauses.
+            </p>
+          </div>
+          <Button
+            variant="secondary"
+            onClick={() => navigate('/templates')}
+            style={{ fontSize: '0.8125rem', padding: '6px 12px' }}
+          >
+            View All Templates &rarr;
+          </Button>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 16 }}>
+          {[
+            {
+              id: 'tmpl_full_time',
+              title: 'Standard Full-Time Offer',
+              category: 'FULL_TIME',
+              desc: 'Comprehensive full-time permanent corporate offer letter with salary breakdown and benefits.',
+              variables: 14,
+            },
+            {
+              id: 'tmpl_executive',
+              title: 'Executive Employment Agreement',
+              category: 'EXECUTIVE',
+              desc: 'High-level C-Suite and VP agreements featuring equity vesting, bonus targets, and covenants.',
+              variables: 18,
+            },
+            {
+              id: 'tmpl_internship',
+              title: 'Internship & Trainee Agreement',
+              category: 'INTERNSHIP',
+              desc: 'Fixed-term student internship blueprint detailing mentor allocation, stipend, and duration.',
+              variables: 11,
+            },
+            {
+              id: 'tmpl_consultant',
+              title: 'Independent Contractor Agreement',
+              category: 'CONTRACT',
+              desc: 'Consulting deliverables, invoicing milestones, IP assignment, and liability limits.',
+              variables: 13,
+            },
+          ].map((t) => (
+            <div
+              key={t.id}
+              style={{
+                padding: 18,
+                borderRadius: 'var(--radius-md)',
+                border: '1px solid var(--border-subtle)',
+                background: '#f8fafc',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+                transition: 'all 0.15s ease',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = '#93c5fd';
+                e.currentTarget.style.backgroundColor = '#ffffff';
+                e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.05)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = 'var(--border-subtle)';
+                e.currentTarget.style.backgroundColor = '#f8fafc';
+                e.currentTarget.style.boxShadow = 'none';
+              }}
+            >
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+                  <span
+                    style={{
+                      fontSize: '0.6875rem',
+                      fontWeight: 700,
+                      textTransform: 'uppercase',
+                      padding: '2px 8px',
+                      borderRadius: 4,
+                      background: '#eff6ff',
+                      color: '#2563eb',
+                      border: '1px solid #bfdbfe',
+                    }}
+                  >
+                    {t.category}
+                  </span>
+                  <span style={{ fontSize: '0.72rem', color: 'var(--text-dim)' }}>
+                    {t.variables} Placeholders
+                  </span>
+                </div>
+                <h4 style={{ fontSize: '0.95rem', fontWeight: 700, color: '#0f172a', margin: '0 0 6px' }}>
+                  {t.title}
+                </h4>
+                <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', lineHeight: 1.45, margin: 0 }}>
+                  {t.desc}
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => navigate(`/offers?create=true&template=${t.category}`)}
+                style={{
+                  marginTop: 16,
+                  padding: '7px 12px',
+                  borderRadius: 'var(--radius-sm)',
+                  background: '#ffffff',
+                  border: '1px solid var(--border-medium)',
+                  color: '#2563eb',
+                  fontWeight: 600,
+                  fontSize: '0.8125rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 6,
+                  cursor: 'pointer',
+                  transition: 'background 0.12s ease',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#eff6ff';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = '#ffffff';
+                }}
+              >
+                Use Template <ChevronRight size={13} />
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Detail / Preview Modal */}
+      {selectedOfferForDetail && (
+        <OfferDetailModal
+          offer={{
+            id: selectedOfferForDetail.id,
+            referenceNumber: selectedOfferForDetail.referenceNumber,
+            candidateName: selectedOfferForDetail.candidateName,
+            email: selectedOfferForDetail.email,
+            role: selectedOfferForDetail.position || selectedOfferForDetail.jobTitle || 'Role',
+            department: selectedOfferForDetail.department,
+            totalCtc: selectedOfferForDetail.totalCtc,
+            currency: selectedOfferForDetail.currency,
+            status: selectedOfferForDetail.status as OfferStatus,
+            aiConfidence: selectedOfferForDetail.aiReviewStatus === 'VERIFIED_BY_HR' ? 0.98 : 0.85,
+            createdAt: selectedOfferForDetail.offerDate || new Date().toISOString(),
+          }}
+          isOpen={true}
+          onClose={() => setSelectedOfferForDetail(null)}
+          onOfferUpdated={() => {
+            loadDashboardData();
+            setSelectedOfferForDetail(null);
+            success('Offer updated successfully.');
+          }}
+        />
+      )}
+
+      {/* Send Email Modal */}
+      {selectedOfferForEmail && (
+        <EmailSendModal
+          offerId={selectedOfferForEmail.id}
+          offerReferenceNumber={selectedOfferForEmail.referenceNumber}
+          isOpen={true}
+          onClose={() => setSelectedOfferForEmail(null)}
+          onSentSuccessfully={() => {
+            setOffers((prev) =>
+              prev.map((item) =>
+                item.id === selectedOfferForEmail.id ? { ...item, status: 'ISSUED' } : item
+              )
+            );
+            setSelectedOfferForEmail(null);
+            success(`Formal offer letter successfully dispatched to ${selectedOfferForEmail.candidateName}.`);
+          }}
+          onViewHistory={() => {
+            const toView = selectedOfferForEmail;
+            setSelectedOfferForEmail(null);
+            setSelectedOfferForHistory(toView);
+          }}
+        />
+      )}
+
+      {/* Email History Modal */}
+      {selectedOfferForHistory && (
+        <EmailHistoryModal
+          offerId={selectedOfferForHistory.id}
+          offerReferenceNumber={selectedOfferForHistory.referenceNumber}
+          candidateName={selectedOfferForHistory.candidateName}
+          isOpen={true}
+          onClose={() => setSelectedOfferForHistory(null)}
+        />
+      )}
     </div>
   );
 };

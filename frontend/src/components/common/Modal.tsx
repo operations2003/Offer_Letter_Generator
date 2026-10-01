@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { X } from 'lucide-react';
 
-interface ModalProps {
+export interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
   title: string;
@@ -9,6 +9,7 @@ interface ModalProps {
   children: React.ReactNode;
   footer?: React.ReactNode;
   maxWidth?: string;
+  className?: string;
 }
 
 export const Modal: React.FC<ModalProps> = ({
@@ -19,62 +20,54 @@ export const Modal: React.FC<ModalProps> = ({
   children,
   footer,
   maxWidth = '640px',
+  className = '',
 }) => {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && isOpen) onClose();
     };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+      window.addEventListener('keydown', handleKeyDown);
+    }
+
+    return () => {
+      document.body.style.overflow = 'unset';
+      window.removeEventListener('keydown', handleKeyDown);
+    };
   }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
   return (
     <div
-      style={{
-        position: 'fixed',
-        inset: 0,
-        zIndex: 50,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: 'rgba(5, 8, 16, 0.75)',
-        backdropFilter: 'blur(8px)',
-        padding: 20,
-      }}
+      className="modal-backdrop"
+      role="dialog"
+      aria-modal="true"
+      aria-label={title}
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
     >
       <div
-        className="glass-panel animate-fade-in"
+        className={`modal-content ${className}`}
         style={{
-          width: '100%',
           maxWidth,
-          maxHeight: '90vh',
-          display: 'flex',
-          flexDirection: 'column',
-          backgroundColor: 'var(--bg-secondary)',
-          border: '1px solid var(--border-medium)',
-          boxShadow: 'var(--shadow-lg)',
-          overflow: 'hidden',
+          backgroundColor: '#ffffff',
+          borderRadius: 'var(--radius-xl)',
+          border: '1px solid var(--border-subtle)',
+          boxShadow: 'var(--shadow-xl)',
         }}
       >
         {/* Header */}
-        <div
-          style={{
-            padding: '20px 24px',
-            borderBottom: '1px solid var(--border-subtle)',
-            display: 'flex',
-            alignItems: 'flex-start',
-            justifyContent: 'space-between',
-          }}
-        >
+        <div className="modal-header">
           <div>
-            <h3 style={{ fontSize: '1.25rem' }}>{title}</h3>
+            <h3 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#0f172a', margin: 0 }}>
+              {title}
+            </h3>
             {subtitle && (
-              <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem', marginTop: 4 }}>
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.8125rem', marginTop: 4, margin: 0 }}>
                 {subtitle}
               </p>
             )}
@@ -82,7 +75,16 @@ export const Modal: React.FC<ModalProps> = ({
           <button
             onClick={onClose}
             className="btn-ghost"
-            style={{ padding: 6, borderRadius: 'var(--radius-sm)' }}
+            style={{
+              padding: 6,
+              borderRadius: 'var(--radius-sm)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              border: 'none',
+              color: '#64748b',
+            }}
             aria-label="Close modal"
           >
             <X size={18} />
@@ -90,23 +92,12 @@ export const Modal: React.FC<ModalProps> = ({
         </div>
 
         {/* Body */}
-        <div style={{ padding: '24px', overflowY: 'auto', flex: 1 }}>{children}</div>
+        <div className="modal-body" style={{ color: 'var(--text-main)' }}>
+          {children}
+        </div>
 
         {/* Footer */}
-        {footer && (
-          <div
-            style={{
-              padding: '16px 24px',
-              borderTop: '1px solid var(--border-subtle)',
-              background: 'rgba(0, 0, 0, 0.2)',
-              display: 'flex',
-              justifyContent: 'flex-end',
-              gap: 12,
-            }}
-          >
-            {footer}
-          </div>
-        )}
+        {footer && <div className="modal-footer">{footer}</div>}
       </div>
     </div>
   );

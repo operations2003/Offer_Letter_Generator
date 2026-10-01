@@ -210,8 +210,8 @@ export const DocumentAiAssistance: React.FC<DocumentAiAssistanceProps> = ({
             padding: '8px 16px',
             borderRadius: 'var(--radius-md)',
             background: activeTab === 'hrms' ? 'var(--ai-gradient)' : 'var(--bg-secondary)',
-            color: '#fff',
-            border: 'none',
+            color: activeTab === 'hrms' ? '#fff' : 'var(--text-main, #0f172a)',
+            border: activeTab === 'hrms' ? 'none' : '1px solid var(--border-subtle)',
             display: 'flex',
             alignItems: 'center',
             gap: 6,
@@ -229,8 +229,8 @@ export const DocumentAiAssistance: React.FC<DocumentAiAssistanceProps> = ({
             padding: '8px 16px',
             borderRadius: 'var(--radius-md)',
             background: activeTab === 'generate' ? 'var(--ai-gradient)' : 'var(--bg-secondary)',
-            color: '#fff',
-            border: 'none',
+            color: activeTab === 'generate' ? '#fff' : 'var(--text-main, #0f172a)',
+            border: activeTab === 'generate' ? 'none' : '1px solid var(--border-subtle)',
             display: 'flex',
             alignItems: 'center',
             gap: 6,
@@ -248,8 +248,8 @@ export const DocumentAiAssistance: React.FC<DocumentAiAssistanceProps> = ({
             padding: '8px 16px',
             borderRadius: 'var(--radius-md)',
             background: activeTab === 'improve' ? 'var(--ai-gradient)' : 'var(--bg-secondary)',
-            color: '#fff',
-            border: 'none',
+            color: activeTab === 'improve' ? '#fff' : 'var(--text-main, #0f172a)',
+            border: activeTab === 'improve' ? 'none' : '1px solid var(--border-subtle)',
             display: 'flex',
             alignItems: 'center',
             gap: 6,
@@ -267,8 +267,8 @@ export const DocumentAiAssistance: React.FC<DocumentAiAssistanceProps> = ({
             padding: '8px 16px',
             borderRadius: 'var(--radius-md)',
             background: activeTab === 'missing' ? 'var(--ai-gradient)' : 'var(--bg-secondary)',
-            color: '#fff',
-            border: 'none',
+            color: activeTab === 'missing' ? '#fff' : 'var(--text-main, #0f172a)',
+            border: activeTab === 'missing' ? 'none' : '1px solid var(--border-subtle)',
             display: 'flex',
             alignItems: 'center',
             gap: 6,
@@ -326,7 +326,7 @@ export const DocumentAiAssistance: React.FC<DocumentAiAssistanceProps> = ({
               </div>
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <h4 style={{ margin: 0, color: '#fff', fontSize: '1rem', fontWeight: 600 }}>
+                  <h4 style={{ margin: 0, color: 'var(--text-main, #0f172a)', fontSize: '1rem', fontWeight: 600 }}>
                     TaskNera HRMS Data Bridge
                   </h4>
                   <span
@@ -351,7 +351,7 @@ export const DocumentAiAssistance: React.FC<DocumentAiAssistanceProps> = ({
             <Button
               variant="secondary"
               onClick={handleLoadTaskNeraProfile}
-              style={{ borderColor: 'var(--primary)', color: '#fff' }}
+              style={{ borderColor: 'var(--primary)', color: 'var(--primary)' }}
             >
               <UserCheck size={14} style={{ marginRight: 6 }} />
               Load Sakshi Koparde Profile
@@ -362,7 +362,7 @@ export const DocumentAiAssistance: React.FC<DocumentAiAssistanceProps> = ({
             {/* Left: HRMS Payload Inspector */}
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                <label className="form-label" style={{ fontWeight: 600, color: '#fff', margin: 0 }}>
+                <label className="form-label" style={{ fontWeight: 600, color: 'var(--text-main, #0f172a)', margin: 0 }}>
                   HRMS Employee Record (JSON)
                 </label>
                 <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>
@@ -414,7 +414,7 @@ export const DocumentAiAssistance: React.FC<DocumentAiAssistanceProps> = ({
               }}
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-                <div style={{ fontWeight: 600, fontSize: '0.875rem', color: '#fff' }}>
+                <div style={{ fontWeight: 600, fontSize: '0.875rem', color: 'var(--text-main, #0f172a)' }}>
                   Mapped Form Fields ({Object.keys(hrmsExtractedData).length})
                 </div>
                 <Button
@@ -453,7 +453,7 @@ export const DocumentAiAssistance: React.FC<DocumentAiAssistanceProps> = ({
                   >
                     <div>
                       <span style={{ color: 'var(--text-dim)', fontWeight: 500 }}>{k}: </span>
-                      <strong style={{ color: '#fff' }}>{String(v)}</strong>
+                      <strong style={{ color: 'var(--text-main, #0f172a)' }}>{String(v)}</strong>
                     </div>
                     <button
                       type="button"
@@ -503,7 +503,7 @@ export const DocumentAiAssistance: React.FC<DocumentAiAssistanceProps> = ({
         <div className="glass-panel" style={{ padding: 22, borderRadius: 'var(--radius-lg)' }}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
             <div>
-              <label className="form-label" style={{ fontWeight: 600, color: '#fff', marginBottom: 8, display: 'block' }}>
+              <label className="form-label" style={{ fontWeight: 600, color: 'var(--text-main, #0f172a)', marginBottom: 8, display: 'block' }}>
                 Select Generation Capability
               </label>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 16 }}>
@@ -519,13 +519,13 @@ export const DocumentAiAssistance: React.FC<DocumentAiAssistanceProps> = ({
                       background: selectedTask === t.taskCode ? 'rgba(139, 92, 246, 0.1)' : 'var(--bg-secondary)',
                     }}
                   >
-                    <div style={{ fontWeight: 600, fontSize: '0.875rem', color: '#fff' }}>{t.label}</div>
+                    <div style={{ fontWeight: 600, fontSize: '0.875rem', color: 'var(--text-main, #0f172a)' }}>{t.label}</div>
                     <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>{t.description}</div>
                   </div>
                 ))}
               </div>
 
-              <label className="form-label" style={{ fontWeight: 600, color: '#fff', marginBottom: 6, display: 'block' }}>
+              <label className="form-label" style={{ fontWeight: 600, color: 'var(--text-main, #0f172a)', marginBottom: 6, display: 'block' }}>
                 Prompt Customization
               </label>
               <input
@@ -548,7 +548,7 @@ export const DocumentAiAssistance: React.FC<DocumentAiAssistanceProps> = ({
             </div>
 
             <div>
-              <label className="form-label" style={{ fontWeight: 600, color: '#fff', marginBottom: 8, display: 'block' }}>
+              <label className="form-label" style={{ fontWeight: 600, color: 'var(--text-main, #0f172a)', marginBottom: 8, display: 'block' }}>
                 Generated Output Proposal (Advisory)
               </label>
               <div
@@ -560,7 +560,7 @@ export const DocumentAiAssistance: React.FC<DocumentAiAssistanceProps> = ({
                   border: '1px solid var(--border-subtle)',
                   fontSize: '0.8125rem',
                   lineHeight: 1.5,
-                  color: generatedText ? '#fff' : 'var(--text-muted)',
+                  color: generatedText ? 'var(--text-main, #0f172a)' : 'var(--text-muted)',
                   whiteSpace: 'pre-wrap',
                   marginBottom: 12,
                 }}
@@ -622,7 +622,7 @@ export const DocumentAiAssistance: React.FC<DocumentAiAssistanceProps> = ({
         <div className="glass-panel" style={{ padding: 22, borderRadius: 'var(--radius-lg)' }}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
             <div>
-              <label className="form-label" style={{ fontWeight: 600, color: '#fff', marginBottom: 8, display: 'block' }}>
+              <label className="form-label" style={{ fontWeight: 600, color: 'var(--text-main, #0f172a)', marginBottom: 8, display: 'block' }}>
                 Text to Polish or Rephrase
               </label>
               <textarea
@@ -633,7 +633,7 @@ export const DocumentAiAssistance: React.FC<DocumentAiAssistanceProps> = ({
                 style={{ fontSize: '0.8125rem', marginBottom: 12, resize: 'vertical' }}
               />
 
-              <label className="form-label" style={{ fontWeight: 600, color: '#fff', marginBottom: 6, display: 'block' }}>
+              <label className="form-label" style={{ fontWeight: 600, color: 'var(--text-main, #0f172a)', marginBottom: 6, display: 'block' }}>
                 Improvement Style
               </label>
               <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
@@ -651,7 +651,7 @@ export const DocumentAiAssistance: React.FC<DocumentAiAssistanceProps> = ({
                       textTransform: 'capitalize',
                       border: improvementGoal === g ? '1px solid var(--ai-purple)' : '1px solid var(--border-subtle)',
                       background: improvementGoal === g ? 'rgba(139, 92, 246, 0.2)' : 'var(--bg-secondary)',
-                      color: '#fff',
+                      color: improvementGoal === g ? 'var(--ai-purple)' : 'var(--text-main, #0f172a)',
                       cursor: 'pointer',
                     }}
                   >
@@ -671,7 +671,7 @@ export const DocumentAiAssistance: React.FC<DocumentAiAssistanceProps> = ({
             </div>
 
             <div>
-              <label className="form-label" style={{ fontWeight: 600, color: '#fff', marginBottom: 8, display: 'block' }}>
+              <label className="form-label" style={{ fontWeight: 600, color: 'var(--text-main, #0f172a)', marginBottom: 8, display: 'block' }}>
                 Polished Result
               </label>
               <div
@@ -683,7 +683,7 @@ export const DocumentAiAssistance: React.FC<DocumentAiAssistanceProps> = ({
                   border: '1px solid var(--border-subtle)',
                   fontSize: '0.8125rem',
                   lineHeight: 1.5,
-                  color: improvedText ? '#fff' : 'var(--text-muted)',
+                  color: improvedText ? 'var(--text-main, #0f172a)' : 'var(--text-muted)',
                   whiteSpace: 'pre-wrap',
                   marginBottom: 12,
                 }}
@@ -727,7 +727,7 @@ export const DocumentAiAssistance: React.FC<DocumentAiAssistanceProps> = ({
       {activeTab === 'missing' && (
         <div className="glass-panel" style={{ padding: 22, borderRadius: 'var(--radius-lg)' }}>
           <div style={{ marginBottom: 16 }}>
-            <h4 style={{ fontSize: '1rem', color: '#fff', marginBottom: 4 }}>
+            <h4 style={{ fontSize: '1rem', color: 'var(--text-main, #0f172a)', marginBottom: 4 }}>
               Mandatory Field Detection
             </h4>
             <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
@@ -746,7 +746,7 @@ export const DocumentAiAssistance: React.FC<DocumentAiAssistanceProps> = ({
               }}
             >
               <CheckCircle2 size={32} style={{ color: '#10b981', margin: '0 auto 10px' }} />
-              <div style={{ fontWeight: 600, color: '#fff', fontSize: '0.9rem' }}>
+              <div style={{ fontWeight: 600, color: 'var(--text-main, #0f172a)', fontSize: '0.9rem' }}>
                 All Mandatory Fields Completed!
               </div>
               <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)', marginTop: 4 }}>
@@ -769,7 +769,7 @@ export const DocumentAiAssistance: React.FC<DocumentAiAssistanceProps> = ({
                   }}
                 >
                   <div style={{ maxWidth: '60%' }}>
-                    <div style={{ fontWeight: 600, fontSize: '0.84rem', color: '#fff' }}>
+                    <div style={{ fontWeight: 600, fontSize: '0.84rem', color: 'var(--text-main, #0f172a)' }}>
                       {item.label}{' '}
                       <span style={{ color: '#f87171', fontSize: '0.75rem' }}>(Required)</span>
                     </div>

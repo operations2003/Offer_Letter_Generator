@@ -155,9 +155,9 @@ export const Step4ReviewAiData: React.FC<Step4ReviewAiDataProps> = ({
             >
               4
             </span>
-            <h3 style={{ fontSize: '1.25rem', fontWeight: 800 }}>Review, Confirm & Override AI Data</h3>
+            <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0f172a' }}>Review, Confirm & Override AI Data</h3>
           </div>
-          <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem', marginTop: 4, marginLeft: 38 }}>
+          <p style={{ color: '#64748b', fontSize: '0.875rem', marginTop: 4, marginLeft: 38 }}>
             Enforces strict separation: AI output is advisory. HR confirmed data carries legal authority.
           </p>
         </div>
@@ -170,7 +170,7 @@ export const Step4ReviewAiData: React.FC<Step4ReviewAiDataProps> = ({
             onClick={handleAcceptAll}
             style={{ fontSize: '0.8125rem' }}
           >
-            <CheckCheck size={15} color="var(--success)" />
+            <CheckCheck size={15} color="#059669" />
             <span>Accept All AI Values</span>
           </button>
         </div>
@@ -178,29 +178,31 @@ export const Step4ReviewAiData: React.FC<Step4ReviewAiDataProps> = ({
 
       {/* Metrics Banner */}
       <div
-        className="glass-panel"
         style={{
           padding: '14px 20px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          background: 'var(--bg-tertiary)',
+          background: '#ffffff',
+          borderRadius: 10,
+          border: '1px solid var(--border-medium)',
+          boxShadow: 'var(--shadow-sm)',
           flexWrap: 'wrap',
           gap: 12,
         }}
       >
         <div style={{ display: 'flex', gap: 24, alignItems: 'center' }}>
           <div>
-            <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>TOTAL FIELDS: </span>
-            <strong style={{ color: '#fff' }}>{REVIEW_FIELDS.length}</strong>
+            <span style={{ fontSize: '0.75rem', color: '#64748b' }}>TOTAL FIELDS: </span>
+            <strong style={{ color: '#0f172a' }}>{REVIEW_FIELDS.length}</strong>
           </div>
           <div>
-            <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>ACCEPTED: </span>
-            <strong style={{ color: 'var(--success)' }}>{acceptedCount}</strong>
+            <span style={{ fontSize: '0.75rem', color: '#64748b' }}>ACCEPTED: </span>
+            <strong style={{ color: '#059669' }}>{acceptedCount}</strong>
           </div>
           <div>
-            <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>HR OVERRIDES: </span>
-            <strong style={{ color: overriddenCount > 0 ? '#f59e0b' : 'var(--text-muted)' }}>
+            <span style={{ fontSize: '0.75rem', color: '#64748b' }}>HR OVERRIDES: </span>
+            <strong style={{ color: overriddenCount > 0 ? '#b45309' : '#64748b' }}>
               {overriddenCount}
             </strong>
           </div>
@@ -218,13 +220,13 @@ export const Step4ReviewAiData: React.FC<Step4ReviewAiDataProps> = ({
               type="button"
               onClick={() => setActiveTab(tab.id as any)}
               style={{
-                padding: '4px 10px',
+                padding: '5px 12px',
                 borderRadius: 'var(--radius-sm)',
                 fontSize: '0.75rem',
                 fontWeight: 600,
                 border: 'none',
-                backgroundColor: activeTab === tab.id ? 'var(--bg-card-hover)' : 'transparent',
-                color: activeTab === tab.id ? '#fff' : 'var(--text-dim)',
+                backgroundColor: activeTab === tab.id ? 'var(--primary)' : '#f1f5f9',
+                color: activeTab === tab.id ? '#ffffff' : '#475569',
                 cursor: 'pointer',
               }}
             >
@@ -248,7 +250,7 @@ export const Step4ReviewAiData: React.FC<Step4ReviewAiDataProps> = ({
             <Sparkles size={13} />
             AI Suggested (Advisory)
           </span>
-          <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>
+          <span style={{ fontSize: '0.75rem', color: '#64748b' }}>
             Extracted from document with neural confidence metrics
           </span>
         </div>
@@ -258,7 +260,7 @@ export const Step4ReviewAiData: React.FC<Step4ReviewAiDataProps> = ({
             <ShieldCheck size={13} />
             HR Confirmed (Legal Authority)
           </span>
-          <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>
+          <span style={{ fontSize: '0.75rem', color: '#64748b' }}>
             Final ratified terms for binding contract issuance
           </span>
         </div>
@@ -276,15 +278,16 @@ export const Step4ReviewAiData: React.FC<Step4ReviewAiDataProps> = ({
           return (
             <div
               key={field.key}
-              className="glass-panel"
               style={{
                 display: 'grid',
                 gridTemplateColumns: '1fr 1fr',
                 gap: 20,
                 padding: 16,
+                borderRadius: 10,
                 border: '1px solid',
-                borderColor: isOverridden ? 'rgba(245, 158, 11, 0.4)' : 'var(--border-subtle)',
-                backgroundColor: isOverridden ? 'rgba(245, 158, 11, 0.03)' : 'var(--bg-card)',
+                borderColor: isOverridden ? '#fcd34d' : 'var(--border-subtle)',
+                backgroundColor: isOverridden ? '#fffbeb' : '#ffffff',
+                boxShadow: 'var(--shadow-sm)',
                 transition: 'all 0.15s ease',
               }}
             >
@@ -299,7 +302,7 @@ export const Step4ReviewAiData: React.FC<Step4ReviewAiDataProps> = ({
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <span style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--text-muted)' }}>
+                  <span style={{ fontSize: '0.8125rem', fontWeight: 600, color: '#475569' }}>
                     {field.label}
                   </span>
 
@@ -307,10 +310,10 @@ export const Step4ReviewAiData: React.FC<Step4ReviewAiDataProps> = ({
                     style={{
                       fontSize: '0.6875rem',
                       fontWeight: 700,
-                      padding: '1px 6px',
+                      padding: '2px 8px',
                       borderRadius: 'var(--radius-full)',
-                      background: confidence >= 90 ? 'rgba(16, 185, 129, 0.15)' : 'rgba(245, 158, 11, 0.15)',
-                      color: confidence >= 90 ? '#34d399' : '#fbbf24',
+                      background: confidence >= 90 ? '#ecfdf5' : '#fef3c7',
+                      color: confidence >= 90 ? '#047857' : '#b45309',
                     }}
                   >
                     {confidence}% Confidence
@@ -321,10 +324,11 @@ export const Step4ReviewAiData: React.FC<Step4ReviewAiDataProps> = ({
                   style={{
                     padding: '8px 12px',
                     borderRadius: 'var(--radius-md)',
-                    background: 'rgba(139, 92, 246, 0.06)',
-                    border: '1px solid var(--ai-border)',
+                    background: '#f5f3ff',
+                    border: '1px solid #ddd6fe',
                     fontSize: '0.875rem',
-                    color: '#fff',
+                    color: '#0f172a',
+                    fontWeight: 500,
                     fontFamily: field.type === 'number' ? 'var(--font-mono)' : 'inherit',
                   }}
                 >
@@ -332,14 +336,14 @@ export const Step4ReviewAiData: React.FC<Step4ReviewAiDataProps> = ({
                     ? field.type === 'number'
                       ? `$${Number(aiField.value).toLocaleString()}`
                       : String(aiField.value)
-                    : <span style={{ color: 'var(--text-dim)', fontStyle: 'italic' }}>Not detected in document</span>}
+                    : <span style={{ color: '#94a3b8', fontStyle: 'italic' }}>Not detected in document</span>}
                 </div>
 
                 {aiField.sourceSnippet && (
                   <div
                     style={{
                       fontSize: '0.6875rem',
-                      color: 'var(--text-dim)',
+                      color: '#64748b',
                       fontStyle: 'italic',
                       lineHeight: 1.3,
                     }}
@@ -352,7 +356,7 @@ export const Step4ReviewAiData: React.FC<Step4ReviewAiDataProps> = ({
                   <div
                     style={{
                       fontSize: '0.6875rem',
-                      color: '#fbbf24',
+                      color: '#b45309',
                       display: 'flex',
                       alignItems: 'center',
                       gap: 4,
@@ -367,7 +371,7 @@ export const Step4ReviewAiData: React.FC<Step4ReviewAiDataProps> = ({
               {/* RIGHT COLUMN: HR CONFIRMED */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <span style={{ fontSize: '0.8125rem', fontWeight: 600, color: '#fff' }}>
+                  <span style={{ fontSize: '0.8125rem', fontWeight: 600, color: '#0f172a' }}>
                     HR Verified Value
                   </span>
 
@@ -376,10 +380,10 @@ export const Step4ReviewAiData: React.FC<Step4ReviewAiDataProps> = ({
                       style={{
                         fontSize: '0.6875rem',
                         fontWeight: 700,
-                        padding: '1px 6px',
+                        padding: '2px 8px',
                         borderRadius: 'var(--radius-full)',
-                        background: 'rgba(245, 158, 11, 0.15)',
-                        color: '#fbbf24',
+                        background: '#fef3c7',
+                        color: '#b45309',
                         display: 'flex',
                         alignItems: 'center',
                         gap: 3,
@@ -393,10 +397,10 @@ export const Step4ReviewAiData: React.FC<Step4ReviewAiDataProps> = ({
                       style={{
                         fontSize: '0.6875rem',
                         fontWeight: 700,
-                        padding: '1px 6px',
+                        padding: '2px 8px',
                         borderRadius: 'var(--radius-full)',
-                        background: 'rgba(16, 185, 129, 0.15)',
-                        color: '#34d399',
+                        background: '#ecfdf5',
+                        color: '#047857',
                         display: 'flex',
                         alignItems: 'center',
                         gap: 3,
@@ -413,9 +417,9 @@ export const Step4ReviewAiData: React.FC<Step4ReviewAiDataProps> = ({
                     type={field.type === 'number' ? 'number' : 'text'}
                     className="form-input"
                     style={{
-                      border: isOverridden ? '1px solid #f59e0b' : '1px solid var(--hr-border)',
-                      background: 'var(--bg-primary)',
-                      color: '#fff',
+                      border: isOverridden ? '1px solid #f59e0b' : '1px solid var(--border-medium)',
+                      background: '#ffffff',
+                      color: '#0f172a',
                       fontWeight: 600,
                     }}
                     value={hrVal !== null && hrVal !== undefined ? hrVal : ''}
@@ -441,7 +445,7 @@ export const Step4ReviewAiData: React.FC<Step4ReviewAiDataProps> = ({
                     type="button"
                     className="btn btn-ghost"
                     onClick={() => handleRejectField(field.key)}
-                    style={{ padding: '6px 8px', fontSize: '0.75rem', color: '#f87171' }}
+                    style={{ padding: '6px 8px', fontSize: '0.75rem', color: '#dc2626' }}
                     title="Reject value"
                   >
                     <X size={14} />
@@ -449,7 +453,7 @@ export const Step4ReviewAiData: React.FC<Step4ReviewAiDataProps> = ({
                 </div>
 
                 {isOverridden && (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.6875rem', color: '#f59e0b' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.6875rem', color: '#b45309' }}>
                     <Info size={12} />
                     <span>Audit: Logged as manual human override against AI advisory suggestion.</span>
                   </div>

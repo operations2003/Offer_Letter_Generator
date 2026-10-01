@@ -131,23 +131,25 @@ export const AiWordingSuggestionsModal: React.FC<AiWordingSuggestionsModalProps>
                 type="button"
                 onClick={() => setInstruction(preset.instruction)}
                 style={{
-                  padding: '4px 10px',
+                  padding: '5px 12px',
                   borderRadius: 'var(--radius-full)',
-                  background: 'var(--bg-tertiary)',
+                  background: '#f1f5f9',
                   border: '1px solid var(--border-subtle)',
-                  color: 'var(--text-muted)',
+                  color: '#475569',
                   fontSize: '0.75rem',
                   fontWeight: 500,
                   cursor: 'pointer',
                   transition: 'all 0.15s ease',
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = 'var(--ai-border)';
-                  e.currentTarget.style.color = '#fff';
+                  e.currentTarget.style.borderColor = '#c4b5fd';
+                  e.currentTarget.style.color = '#7c3aed';
+                  e.currentTarget.style.background = '#f5f3ff';
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.borderColor = 'var(--border-subtle)';
-                  e.currentTarget.style.color = 'var(--text-muted)';
+                  e.currentTarget.style.color = '#475569';
+                  e.currentTarget.style.background = '#f1f5f9';
                 }}
               >
                 + {preset.label}
@@ -159,7 +161,7 @@ export const AiWordingSuggestionsModal: React.FC<AiWordingSuggestionsModalProps>
         {/* Form Inputs: Instruction & Tone */}
         <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 12 }}>
           <div>
-            <label className="form-label">Drafting Instruction or Desired Clause Purpose</label>
+            <label className="form-label" style={{ fontWeight: 600, color: '#334155' }}>Drafting Instruction or Desired Clause Purpose</label>
             <input
               type="text"
               className="form-input"
@@ -173,7 +175,7 @@ export const AiWordingSuggestionsModal: React.FC<AiWordingSuggestionsModalProps>
           </div>
 
           <div>
-            <label className="form-label">Desired Tone</label>
+            <label className="form-label" style={{ fontWeight: 600, color: '#334155' }}>Desired Tone</label>
             <select
               className="form-select"
               value={tone}
@@ -189,7 +191,7 @@ export const AiWordingSuggestionsModal: React.FC<AiWordingSuggestionsModalProps>
 
         {/* Existing Clause (Optional) */}
         <div>
-          <label className="form-label">
+          <label className="form-label" style={{ fontWeight: 600, color: '#334155' }}>
             Existing Text to Refine or Replace (Leave blank to generate fresh clause)
           </label>
           <textarea
@@ -237,7 +239,7 @@ export const AiWordingSuggestionsModal: React.FC<AiWordingSuggestionsModalProps>
         {suggestions.length > 0 && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 4 }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <span style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--text-muted)' }}>
+              <span style={{ fontSize: '0.8125rem', fontWeight: 700, color: '#475569' }}>
                 AI GENERATED SUGGESTION:
               </span>
               <span className="ai-badge" style={{ fontSize: '0.7rem' }}>
@@ -248,11 +250,11 @@ export const AiWordingSuggestionsModal: React.FC<AiWordingSuggestionsModalProps>
             {suggestions.map((sugg, idx) => (
               <div
                 key={idx}
-                className="glass-panel"
+                className="card"
                 style={{
-                  padding: 16,
-                  border: '1px solid var(--ai-border)',
-                  background: 'rgba(139, 92, 246, 0.04)',
+                  padding: 18,
+                  border: '1px solid #ddd6fe',
+                  background: '#fbfbfe',
                   display: 'flex',
                   flexDirection: 'column',
                   gap: 12,
@@ -261,13 +263,13 @@ export const AiWordingSuggestionsModal: React.FC<AiWordingSuggestionsModalProps>
                 {/* Proposed Output Box */}
                 <div
                   style={{
-                    padding: '14px',
+                    padding: '16px',
                     borderRadius: 'var(--radius-md)',
-                    background: 'var(--bg-primary)',
-                    border: '1px solid var(--border-subtle)',
+                    background: '#ffffff',
+                    border: '1px solid var(--border-medium)',
                     fontSize: '0.875rem',
                     lineHeight: 1.6,
-                    color: '#f8fafc',
+                    color: '#0f172a',
                     fontFamily: 'var(--font-sans)',
                   }}
                   dangerouslySetInnerHTML={{ __html: sugg.suggestedClause }}
@@ -275,13 +277,13 @@ export const AiWordingSuggestionsModal: React.FC<AiWordingSuggestionsModalProps>
 
                 {/* Compliance Notes & Rationale */}
                 <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', fontSize: '0.75rem' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#c084fc' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#7c3aed', fontWeight: 500 }}>
                     <Sparkles size={14} />
                     <span>{sugg.rationale}</span>
                   </div>
 
                   {sugg.complianceNotes && (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'var(--success)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#059669', fontWeight: 600 }}>
                       <ShieldCheck size={14} />
                       <span>{sugg.complianceNotes}</span>
                     </div>

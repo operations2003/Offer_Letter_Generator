@@ -242,8 +242,8 @@ export const OfferDetailModal: React.FC<OfferDetailModalProps> = ({
       style={{
         position: 'fixed',
         inset: 0,
-        backgroundColor: 'rgba(5, 8, 16, 0.85)',
-        backdropFilter: 'blur(8px)',
+        backgroundColor: 'rgba(15, 23, 42, 0.6)',
+        backdropFilter: 'blur(6px)',
         zIndex: 1000,
         display: 'flex',
         alignItems: 'center',
@@ -260,9 +260,9 @@ export const OfferDetailModal: React.FC<OfferDetailModalProps> = ({
           maxHeight: '92vh',
           display: 'flex',
           flexDirection: 'column',
-          backgroundColor: '#0b0f19',
-          border: '1px solid rgba(255, 255, 255, 0.1)',
-          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.7)',
+          backgroundColor: '#ffffff',
+          border: '1px solid var(--border-subtle)',
+          boxShadow: 'var(--shadow-xl)',
           overflow: 'hidden',
           borderRadius: 'var(--radius-xl)',
         }}
@@ -275,7 +275,7 @@ export const OfferDetailModal: React.FC<OfferDetailModalProps> = ({
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0) 100%)',
+            background: '#ffffff',
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
@@ -284,12 +284,12 @@ export const OfferDetailModal: React.FC<OfferDetailModalProps> = ({
                 width: 44,
                 height: 44,
                 borderRadius: 'var(--radius-md)',
-                backgroundColor: 'rgba(99, 102, 241, 0.15)',
-                border: '1px solid rgba(99, 102, 241, 0.3)',
+                backgroundColor: '#eff6ff',
+                border: '1px solid #bfdbfe',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                color: '#818cf8',
+                color: '#2563eb',
               }}
             >
               <FileCheck2 size={24} />
@@ -297,17 +297,19 @@ export const OfferDetailModal: React.FC<OfferDetailModalProps> = ({
 
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <h3 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0 }}>
+                <h3 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0, color: '#0f172a', wordBreak: 'break-word' }}>
                   {offer.candidateName}
                 </h3>
                 <span
                   style={{
                     fontFamily: 'var(--font-mono)',
                     fontSize: '0.8125rem',
-                    color: 'var(--text-dim)',
-                    background: 'rgba(255, 255, 255, 0.05)',
+                    color: '#475569',
+                    background: '#f1f5f9',
+                    border: '1px solid #e2e8f0',
                     padding: '2px 8px',
                     borderRadius: '4px',
+                    fontWeight: 600,
                   }}
                 >
                   {offer.referenceNumber}
@@ -384,7 +386,7 @@ export const OfferDetailModal: React.FC<OfferDetailModalProps> = ({
         <div
           style={{
             padding: '12px 24px',
-            backgroundColor: '#070a12',
+            backgroundColor: '#f8fafc',
             borderBottom: '1px solid var(--border-subtle)',
             display: 'flex',
             alignItems: 'center',
@@ -395,7 +397,7 @@ export const OfferDetailModal: React.FC<OfferDetailModalProps> = ({
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <span style={{ color: 'var(--text-muted)', fontWeight: 600 }}>Generation Pipeline:</span>
+            <span style={{ color: '#475569', fontWeight: 600 }}>Generation Pipeline:</span>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
               {['DRAFT_AI', 'HR_REVIEW', 'APPROVED', 'ISSUED'].map((st, idx) => {
                 const current = previewData?.currentStatus || offer.status;
@@ -410,27 +412,27 @@ export const OfferDetailModal: React.FC<OfferDetailModalProps> = ({
                         padding: '3px 8px',
                         borderRadius: '4px',
                         fontSize: '0.6875rem',
-                        fontWeight: 600,
+                        fontWeight: 700,
                         backgroundColor: isCurrent
-                          ? 'rgba(99, 102, 241, 0.2)'
+                          ? '#eff6ff'
                           : isPassed
-                          ? 'rgba(16, 185, 129, 0.15)'
-                          : 'rgba(255, 255, 255, 0.03)',
+                          ? '#ecfdf5'
+                          : '#f1f5f9',
                         color: isCurrent
-                          ? '#818cf8'
+                          ? '#1d4ed8'
                           : isPassed
-                          ? 'var(--success)'
-                          : 'var(--text-dim)',
+                          ? '#047857'
+                          : '#64748b',
                         border: isCurrent
-                          ? '1px solid #818cf8'
+                          ? '1px solid #bfdbfe'
                           : isPassed
-                          ? '1px solid rgba(16, 185, 129, 0.3)'
-                          : '1px solid transparent',
+                          ? '1px solid #a7f3d0'
+                          : '1px solid #e2e8f0',
                       }}
                     >
                       {st.replace(/_/g, ' ')}
                     </span>
-                    {idx < 3 && <ChevronRight size={12} color="var(--text-dim)" />}
+                    {idx < 3 && <ChevronRight size={12} color="#94a3b8" />}
                   </React.Fragment>
                 );
               })}
@@ -476,7 +478,7 @@ export const OfferDetailModal: React.FC<OfferDetailModalProps> = ({
             gap: 2,
             padding: '0 24px',
             borderBottom: '1px solid var(--border-subtle)',
-            backgroundColor: 'rgba(255, 255, 255, 0.02)',
+            backgroundColor: '#ffffff',
           }}
         >
           <button
@@ -579,25 +581,26 @@ export const OfferDetailModal: React.FC<OfferDetailModalProps> = ({
                       width: '100%',
                       maxWidth: '780px',
                       padding: '10px 18px',
-                      background: 'rgba(255, 255, 255, 0.02)',
+                      background: '#f8fafc',
+                      border: '1px solid #e2e8f0',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'space-between',
                       fontSize: '0.75rem',
-                      color: 'var(--text-dim)',
+                      color: 'var(--text-muted)',
                     }}
                   >
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                       <Lock size={13} color="var(--success)" />
-                      <span>OFFER TOKEN:</span>
-                      <span style={{ fontFamily: 'var(--font-mono)', color: '#818cf8', fontWeight: 600 }}>
+                      <span style={{ fontWeight: 600 }}>OFFER TOKEN:</span>
+                      <span style={{ fontFamily: 'var(--font-mono)', color: '#2563eb', fontWeight: 700 }}>
                         {previewData?.verificationToken || 'VERIFIED-TOKEN-9281'}
                       </span>
                     </div>
 
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                       <ShieldCheck size={14} color="var(--success)" />
-                      <span>Version {previewData?.versionNumber || 1} • Immutable Document Ledger</span>
+                      <span style={{ fontWeight: 600, color: '#065f46' }}>Version {previewData?.versionNumber || 1} • Immutable Document Ledger</span>
                     </div>
                   </div>
 
@@ -610,8 +613,9 @@ export const OfferDetailModal: React.FC<OfferDetailModalProps> = ({
                       backgroundColor: '#ffffff',
                       color: '#1f2937',
                       padding: '48px 54px',
-                      borderRadius: '4px',
-                      boxShadow: '0 10px 30px rgba(0, 0, 0, 0.5)',
+                      borderRadius: '8px',
+                      border: '1px solid #cbd5e1',
+                      boxShadow: 'var(--shadow-lg)',
                       fontFamily: "'Inter', sans-serif",
                       fontSize: '13px',
                       lineHeight: 1.65,
@@ -634,15 +638,15 @@ export const OfferDetailModal: React.FC<OfferDetailModalProps> = ({
                       justifyContent: 'space-between',
                       flexWrap: 'wrap',
                       gap: 16,
-                      background: 'rgba(99, 102, 241, 0.05)',
-                      border: '1px solid rgba(99, 102, 241, 0.2)',
+                      background: '#eff6ff',
+                      border: '1px solid #bfdbfe',
                     }}
                   >
                     <div>
-                      <h4 style={{ fontSize: '1rem', fontWeight: 700, margin: '0 0 4px 0' }}>
+                      <h4 style={{ fontSize: '1rem', fontWeight: 700, margin: '0 0 4px 0', color: '#0f172a' }}>
                         Official Legal PDF Document
                       </h4>
-                      <p style={{ fontSize: '0.8125rem', color: 'var(--text-muted)', margin: 0 }}>
+                      <p style={{ fontSize: '0.8125rem', color: '#475569', margin: 0 }}>
                         Generated strictly from HR-confirmed terms with SHA-256 cryptographic integrity hash.
                       </p>
                     </div>
@@ -673,10 +677,10 @@ export const OfferDetailModal: React.FC<OfferDetailModalProps> = ({
                   {/* Simulated PDF Viewport */}
                   <div
                     style={{
-                      background: '#1a1f2e',
+                      background: '#f1f5f9',
                       padding: '32px',
                       borderRadius: 'var(--radius-lg)',
-                      border: '1px solid var(--border-subtle)',
+                      border: '1px solid var(--border-medium)',
                       display: 'flex',
                       flexDirection: 'column',
                       alignItems: 'center',
@@ -689,8 +693,9 @@ export const OfferDetailModal: React.FC<OfferDetailModalProps> = ({
                         backgroundColor: '#ffffff',
                         color: '#1f2937',
                         padding: '48px 52px',
-                        borderRadius: '2px',
-                        boxShadow: '0 8px 24px rgba(0, 0, 0, 0.4)',
+                        borderRadius: '6px',
+                        border: '1px solid #cbd5e1',
+                        boxShadow: 'var(--shadow-md)',
                         fontSize: '13px',
                       }}
                     >
@@ -705,7 +710,7 @@ export const OfferDetailModal: React.FC<OfferDetailModalProps> = ({
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div>
-                      <h4 style={{ fontSize: '1rem', fontWeight: 700, margin: '0 0 4px 0' }}>
+                      <h4 style={{ fontSize: '1rem', fontWeight: 700, margin: '0 0 4px 0', color: '#0f172a' }}>
                         Document Revision Timeline
                       </h4>
                       <p style={{ fontSize: '0.8125rem', color: 'var(--text-muted)', margin: 0 }}>
@@ -737,8 +742,8 @@ export const OfferDetailModal: React.FC<OfferDetailModalProps> = ({
                             display: 'flex',
                             alignItems: 'flex-start',
                             justifyContent: 'space-between',
-                            border: isLatest ? '1px solid rgba(99, 102, 241, 0.4)' : '1px solid var(--border-subtle)',
-                            background: isLatest ? 'rgba(99, 102, 241, 0.04)' : 'rgba(255, 255, 255, 0.02)',
+                            border: isLatest ? '1px solid #bfdbfe' : '1px solid var(--border-subtle)',
+                            background: isLatest ? '#eff6ff' : '#ffffff',
                           }}
                         >
                           <div style={{ display: 'flex', gap: 14 }}>
@@ -747,8 +752,8 @@ export const OfferDetailModal: React.FC<OfferDetailModalProps> = ({
                                 width: 38,
                                 height: 38,
                                 borderRadius: '50%',
-                                backgroundColor: isLatest ? 'var(--primary)' : 'rgba(255, 255, 255, 0.06)',
-                                color: isLatest ? '#fff' : 'var(--text-muted)',
+                                backgroundColor: isLatest ? 'var(--primary)' : '#f1f5f9',
+                                color: isLatest ? '#fff' : '#475569',
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
@@ -761,7 +766,7 @@ export const OfferDetailModal: React.FC<OfferDetailModalProps> = ({
 
                             <div>
                               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                <span style={{ fontWeight: 700, fontSize: '0.9375rem', color: '#fff' }}>
+                                <span style={{ fontWeight: 700, fontSize: '0.9375rem', color: '#0f172a' }}>
                                   Version {ver.versionNumber}
                                 </span>
                                 {isLatest && (
@@ -770,9 +775,10 @@ export const OfferDetailModal: React.FC<OfferDetailModalProps> = ({
                                       fontSize: '0.6875rem',
                                       padding: '2px 8px',
                                       borderRadius: '4px',
-                                      backgroundColor: 'rgba(99, 102, 241, 0.2)',
-                                      color: '#818cf8',
-                                      fontWeight: 600,
+                                      backgroundColor: '#eff6ff',
+                                      color: '#1d4ed8',
+                                      border: '1px solid #bfdbfe',
+                                      fontWeight: 700,
                                     }}
                                   >
                                     CURRENT ACTIVE
@@ -780,12 +786,12 @@ export const OfferDetailModal: React.FC<OfferDetailModalProps> = ({
                                 )}
                               </div>
 
-                              <p style={{ fontSize: '0.8125rem', color: 'var(--text-primary)', margin: '4px 0 6px 0' }}>
+                              <p style={{ fontSize: '0.8125rem', color: '#334155', margin: '4px 0 6px 0', fontWeight: 500 }}>
                                 {ver.changeReason || 'Standard document revision'}
                               </p>
 
-                              <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)', display: 'flex', gap: 14 }}>
-                                <span>Author: <strong>{ver.createdBy?.firstName || 'HR Operations'}</strong></span>
+                              <div style={{ fontSize: '0.75rem', color: '#64748b', display: 'flex', gap: 14 }}>
+                                <span>Author: <strong style={{ color: '#0f172a' }}>{ver.createdBy?.firstName || 'HR Operations'}</strong></span>
                                 <span>Date: {new Date(ver.createdAt).toLocaleString()}</span>
                               </div>
 
@@ -796,14 +802,15 @@ export const OfferDetailModal: React.FC<OfferDetailModalProps> = ({
                                     marginTop: 10,
                                     padding: '8px 12px',
                                     borderRadius: 'var(--radius-sm)',
-                                    background: 'rgba(0, 0, 0, 0.25)',
+                                    background: '#f8fafc',
+                                    border: '1px solid #e2e8f0',
                                     fontSize: '0.75rem',
                                   }}
                                 >
-                                  <span style={{ color: 'var(--text-dim)', fontWeight: 600 }}>Recorded Changes: </span>
+                                  <span style={{ color: '#64748b', fontWeight: 600 }}>Recorded Changes: </span>
                                   {Object.entries(ver.diffFromPrevious).map(([key, diff]: [string, any]) => (
                                     <span key={key} style={{ marginRight: 12 }}>
-                                      <code style={{ color: '#818cf8' }}>{key}</code>: {String(diff.before ?? 'None')} → <strong style={{ color: 'var(--success)' }}>{String(diff.after)}</strong>
+                                      <code style={{ color: '#2563eb', fontWeight: 600 }}>{key}</code>: {String(diff.before ?? 'None')} → <strong style={{ color: '#059669' }}>{String(diff.after)}</strong>
                                     </span>
                                   ))}
                                 </div>
@@ -911,37 +918,38 @@ export const OfferDetailModal: React.FC<OfferDetailModalProps> = ({
                         display: 'grid',
                         gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
                         gap: 12,
-                        padding: '12px 14px',
-                        background: 'rgba(0, 0, 0, 0.2)',
+                        padding: '14px 16px',
+                        background: '#f8fafc',
+                        border: '1px solid #e2e8f0',
                         borderRadius: 'var(--radius-md)',
                         fontSize: '0.8125rem',
                       }}
                     >
                       <div>
-                        <div style={{ color: 'var(--text-dim)', fontSize: '0.72rem', textTransform: 'uppercase' }}>Recipient</div>
-                        <div style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{offer.email || 'candidate@example.com'}</div>
+                        <div style={{ color: 'var(--text-muted)', fontSize: '0.72rem', textTransform: 'uppercase', fontWeight: 600 }}>Recipient</div>
+                        <div style={{ fontWeight: 600, color: '#0f172a' }}>{offer.email || 'candidate@example.com'}</div>
                       </div>
                       <div>
-                        <div style={{ color: 'var(--text-dim)', fontSize: '0.72rem', textTransform: 'uppercase' }}>Security Protocol</div>
-                        <div style={{ fontWeight: 600, color: 'var(--success)' }}>14-Day Ephemeral Token</div>
+                        <div style={{ color: 'var(--text-muted)', fontSize: '0.72rem', textTransform: 'uppercase', fontWeight: 600 }}>Security Protocol</div>
+                        <div style={{ fontWeight: 600, color: '#047857' }}>14-Day Ephemeral Token</div>
                       </div>
                       <div>
-                        <div style={{ color: 'var(--text-dim)', fontSize: '0.72rem', textTransform: 'uppercase' }}>Attachment</div>
-                        <div style={{ fontWeight: 600, color: 'var(--text-primary)' }}>Signed PDF + SHA-256 Checksum</div>
+                        <div style={{ color: 'var(--text-muted)', fontSize: '0.72rem', textTransform: 'uppercase', fontWeight: 600 }}>Attachment</div>
+                        <div style={{ fontWeight: 600, color: '#0f172a' }}>Signed PDF + SHA-256 Checksum</div>
                       </div>
                       <div>
-                        <div style={{ color: 'var(--text-dim)', fontSize: '0.72rem', textTransform: 'uppercase' }}>Automation Guardrail</div>
-                        <div style={{ fontWeight: 600, color: '#f59e0b' }}>AI Blocked • HR Authorized Only</div>
+                        <div style={{ color: 'var(--text-muted)', fontSize: '0.72rem', textTransform: 'uppercase', fontWeight: 600 }}>Automation Guardrail</div>
+                        <div style={{ fontWeight: 600, color: '#b45309' }}>AI Blocked • HR Authorized Only</div>
                       </div>
                     </div>
                   </div>
 
                   {/* Transition History Table */}
                   <div className="glass-panel" style={{ padding: 20 }}>
-                    <h5 style={{ fontSize: '0.875rem', fontWeight: 600, marginBottom: 12 }}>Status Transition Logs</h5>
+                    <h5 style={{ fontSize: '0.875rem', fontWeight: 700, marginBottom: 12, color: '#0f172a' }}>Status Transition Logs</h5>
                     <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8125rem' }}>
                       <thead>
-                        <tr style={{ borderBottom: '1px solid var(--border-subtle)', color: 'var(--text-dim)', textAlign: 'left' }}>
+                        <tr style={{ borderBottom: '1px solid var(--border-subtle)', color: 'var(--text-muted)', textAlign: 'left', background: '#f8fafc' }}>
                           <th style={{ padding: '8px 12px' }}>Timestamp</th>
                           <th style={{ padding: '8px 12px' }}>Previous</th>
                           <th style={{ padding: '8px 12px' }}>New State</th>
@@ -951,20 +959,20 @@ export const OfferDetailModal: React.FC<OfferDetailModalProps> = ({
                       </thead>
                       <tbody>
                         {(statusDetails?.statusLogs || []).map((log) => (
-                          <tr key={log.id} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.03)' }}>
-                            <td style={{ padding: '10px 12px', color: 'var(--text-dim)' }}>
+                          <tr key={log.id} style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+                            <td style={{ padding: '10px 12px', color: 'var(--text-muted)' }}>
                               {new Date(log.createdAt).toLocaleString()}
                             </td>
                             <td style={{ padding: '10px 12px' }}>
-                              <span style={{ color: 'var(--text-muted)' }}>{log.previousStatus}</span>
+                              <span style={{ color: '#475569', fontWeight: 500 }}>{log.previousStatus}</span>
                             </td>
                             <td style={{ padding: '10px 12px' }}>
                               <OfferStatusBadge status={log.newStatus as any} />
                             </td>
-                            <td style={{ padding: '10px 12px', color: 'var(--text-primary)' }}>
+                            <td style={{ padding: '10px 12px', color: '#0f172a', fontWeight: 500 }}>
                               {log.reason || log.notes || 'Status progressed'}
                             </td>
-                            <td style={{ padding: '10px 12px', color: 'var(--text-dim)' }}>
+                            <td style={{ padding: '10px 12px', color: 'var(--text-muted)' }}>
                               {log.changedBy ? `${log.changedBy.firstName} ${log.changedBy.lastName}` : 'System'}
                             </td>
                           </tr>
@@ -1048,7 +1056,8 @@ export const OfferDetailModal: React.FC<OfferDetailModalProps> = ({
           style={{
             position: 'fixed',
             inset: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+            backgroundColor: 'rgba(15, 23, 42, 0.6)',
+            backdropFilter: 'blur(6px)',
             zIndex: 1100,
             display: 'flex',
             alignItems: 'center',
@@ -1061,10 +1070,11 @@ export const OfferDetailModal: React.FC<OfferDetailModalProps> = ({
             style={{
               width: '100%',
               maxWidth: '520px',
-              backgroundColor: '#0f172a',
+              backgroundColor: '#ffffff',
               padding: '24px',
-              borderRadius: 'var(--radius-lg)',
-              border: '1px solid rgba(255, 255, 255, 0.15)',
+              borderRadius: 'var(--radius-xl)',
+              border: '1px solid var(--border-subtle)',
+              boxShadow: 'var(--shadow-xl)',
               display: 'flex',
               flexDirection: 'column',
               gap: 16,
@@ -1073,7 +1083,7 @@ export const OfferDetailModal: React.FC<OfferDetailModalProps> = ({
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                 <RefreshCw size={18} color="var(--primary)" />
-                <h4 style={{ margin: 0, fontSize: '1.125rem', fontWeight: 700 }}>
+                <h4 style={{ margin: 0, fontSize: '1.125rem', fontWeight: 700, color: '#0f172a' }}>
                   Regenerate Legal Offer Letter
                 </h4>
               </div>

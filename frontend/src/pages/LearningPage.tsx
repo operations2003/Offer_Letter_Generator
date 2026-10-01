@@ -10,6 +10,7 @@ import { learningService, CreateCoursePayload } from '../services/learningServic
 import { CourseCreationModal } from '../components/learning/CourseCreationModal';
 import { CertificateGeneratorModal } from '../components/learning/CertificateGeneratorModal';
 import { CertificatePreview } from '../components/learning/CertificatePreview';
+import { useToast } from '../context/ToastContext';
 import {
   Award,
   BookOpen,
@@ -31,6 +32,7 @@ import {
 } from 'lucide-react';
 
 export const LearningPage: React.FC = () => {
+  const { error, success } = useToast();
   const [activeTab, setActiveTab] = useState<'catalog' | 'my_learning' | 'certificates' | 'verify'>('catalog');
   const [courses, setCourses] = useState<CourseItem[]>([]);
   const [enrollments, setEnrollments] = useState<CourseEnrollment[]>([]);
@@ -107,9 +109,10 @@ export const LearningPage: React.FC = () => {
         department: currentUser.department,
       });
       await loadAllData();
+      success('Successfully enrolled in course!');
       setActiveTab('my_learning');
     } catch (err: any) {
-      alert(err.message || 'Enrollment failed');
+      error(err.message || 'Enrollment failed');
     }
   };
 
@@ -117,8 +120,9 @@ export const LearningPage: React.FC = () => {
     try {
       await learningService.updateProgress(enrollmentId, newProgress);
       await loadAllData();
+      success(`Course progress updated to ${newProgress}%`);
     } catch (err: any) {
-      alert(err.message || 'Failed to update progress');
+      error(err.message || 'Failed to update progress');
     }
   };
 
@@ -128,9 +132,9 @@ export const LearningPage: React.FC = () => {
     try {
       await learningService.submitAssignment(enrollmentId, text);
       await loadAllData();
-      alert('Assignment submitted and automatically evaluated with passing honors!');
+      success('Assignment submitted and automatically evaluated with passing honors!');
     } catch (err: any) {
-      alert(err.message || 'Submission failed');
+      error(err.message || 'Submission failed');
     }
   };
 

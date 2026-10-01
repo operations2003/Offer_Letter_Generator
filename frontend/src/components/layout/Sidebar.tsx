@@ -16,6 +16,7 @@ import {
   ChevronRight,
   Award,
   BrainCircuit,
+  ExternalLink,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext.js';
 
@@ -35,68 +36,38 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
       roles: ['SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER', 'APPROVER', 'AUDITOR'],
     },
     {
-      to: '/onboarding',
-      label: 'Onboarding',
-      icon: <Users2 size={18} />,
-      roles: ['SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER', 'APPROVER'],
-      badge: 'Active',
-      badgeColor: '#059669',
-    },
-    {
-      to: '/documents',
-      label: 'HR Documents',
-      icon: <Layers size={18} />,
-      roles: ['SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER', 'APPROVER'],
-      badge: '9 Types',
-      badgeColor: '#2563eb',
-    },
-    {
-      to: '/policies',
-      label: 'HR Policies',
-      icon: <BookOpen size={18} />,
-      roles: ['SUPER_ADMIN', 'HR_MANAGER', 'APPROVER', 'AUDITOR'],
-      badge: '19 Policies',
-      badgeColor: '#059669',
-    },
-    {
-      to: '/learning',
-      label: 'L&D & Certificates',
-      icon: <Award size={18} />,
-      roles: ['SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER', 'APPROVER', 'AUDITOR'],
-      badge: 'Step 8 & 9',
-      badgeColor: '#2563eb',
-    },
-    {
-      to: '/assessments',
-      label: 'Assessments & Quizzes',
-      icon: <BrainCircuit size={18} />,
-      roles: ['SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER', 'APPROVER', 'AUDITOR'],
-      badge: 'Step 10',
-      badgeColor: '#7c3aed',
-    },
-    {
       to: '/offers',
       label: 'Offers Pipeline',
       icon: <FileCheck2 size={18} />,
       roles: ['SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER', 'APPROVER'],
+      badge: 'Active',
+      badgeColor: '#059669',
     },
     {
       to: '/templates',
       label: 'Offer Templates',
       icon: <FileText size={18} />,
       roles: ['SUPER_ADMIN', 'HR_MANAGER'],
+      badge: 'Standard',
+      badgeColor: '#2563eb',
+    },
+    {
+      to: '/documents',
+      label: 'HR Documents',
+      icon: <Layers size={18} />,
+      roles: ['SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER', 'APPROVER'],
     },
     {
       to: '/ai-studio',
-      label: 'AI & HRMS Studio',
+      label: 'AI Studio',
       icon: <Sparkles size={18} />,
       roles: ['SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER'],
-      badge: 'Live',
+      badge: 'Assistance',
       badgeColor: '#7c3aed',
     },
     {
       to: '/audit-logs',
-      label: 'Compliance Ledger',
+      label: 'Audit & Compliance',
       icon: <ShieldCheck size={18} />,
       roles: ['SUPER_ADMIN', 'HR_MANAGER', 'AUDITOR'],
     },
@@ -197,50 +168,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           </nav>
         </div>
 
-        {/* TaskNera HRMS Connected Pillars */}
-        <div>
-          <div
-            style={{
-              fontSize: '0.6875rem',
-              textTransform: 'uppercase',
-              letterSpacing: '0.08em',
-              color: '#94a3b8',
-              padding: '0 12px 8px',
-              fontWeight: 700,
-            }}
-          >
-            Connected HRMS
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            {[
-              { label: 'Attendance & Leave', icon: <CalendarCheck2 size={16} /> },
-              { label: 'Performance & Growth', icon: <TrendingUp size={16} /> },
-              { label: 'People & Directory', icon: <Users2 size={16} /> },
-              { label: 'Payroll & Finance', icon: <Wallet size={16} /> },
-            ].map((mod) => (
-              <div
-                key={mod.label}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  padding: '7px 12px',
-                  borderRadius: '6px',
-                  color: '#64748b',
-                  fontSize: '0.8125rem',
-                  opacity: 0.85,
-                  cursor: 'default',
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
-                  <span style={{ color: '#94a3b8' }}>{mod.icon}</span>
-                  <span>{mod.label}</span>
-                </div>
-                <ChevronRight size={14} style={{ color: '#cbd5e1' }} />
-              </div>
-            ))}
-          </div>
-        </div>
 
         {/* TaskNera Enterprise Banner Card */}
         <div

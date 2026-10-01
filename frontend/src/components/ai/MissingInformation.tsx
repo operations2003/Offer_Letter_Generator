@@ -69,13 +69,13 @@ export const MissingInformation: React.FC<MissingInformationProps> = ({
       className="glass-panel"
       style={{
         padding: 20,
-        border: '1px solid rgba(245, 158, 11, 0.3)',
-        background: 'rgba(245, 158, 11, 0.04)',
+        border: '1px solid rgba(217, 119, 6, 0.3)',
+        background: 'rgba(245, 158, 11, 0.06)',
       }}
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-        <AlertCircle size={18} style={{ color: 'var(--warning)' }} />
-        <h4 style={{ fontSize: '0.9375rem', color: '#fbbf24' }}>
+        <AlertCircle size={18} style={{ color: 'var(--warning, #d97706)' }} />
+        <h4 style={{ fontSize: '0.9375rem', fontWeight: 600, color: 'var(--warning-dark, #b45309)' }}>
           Unassumed Missing Information ({missingItems.length} fields)
         </h4>
       </div>
@@ -92,15 +92,16 @@ export const MissingInformation: React.FC<MissingInformationProps> = ({
               display: 'flex',
               flexDirection: 'column',
               gap: 8,
-              padding: '10px 14px',
+              padding: '12px 14px',
               borderRadius: 'var(--radius-md)',
-              background: 'var(--bg-secondary)',
-              border: '1px solid var(--border-subtle)',
+              background: 'var(--bg-surface, #ffffff)',
+              border: '1px solid var(--border-subtle, #e2e8f0)',
+              boxShadow: 'var(--shadow-sm)',
             }}
           >
             <div>
-              <div style={{ fontWeight: 600, fontSize: '0.8125rem', color: '#fff' }}>{item.label}</div>
-              <div style={{ fontSize: '0.72rem', color: 'var(--text-dim)' }}>{item.issue}</div>
+              <div style={{ fontWeight: 600, fontSize: '0.8125rem', color: 'var(--text-main, #0f172a)' }}>{item.label}</div>
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted, #64748b)' }}>{item.issue}</div>
             </div>
 
             <div style={{ display: 'flex', gap: 8 }}>

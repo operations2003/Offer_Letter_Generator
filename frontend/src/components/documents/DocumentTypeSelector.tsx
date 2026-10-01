@@ -177,7 +177,7 @@ export const DocumentTypeSelector: React.FC<DocumentTypeSelectorProps> = ({
                     {TYPE_ICONS[t.code] || <FileText size={22} />}
                   </div>
                   <div>
-                    <h3 style={{ fontSize: '1rem', fontWeight: 700, color: '#fff', marginBottom: 2 }}>
+                    <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-main, #0f172a)', marginBottom: 2 }}>
                       {t.name}
                     </h3>
                     <span

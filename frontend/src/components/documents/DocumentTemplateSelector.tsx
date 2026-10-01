@@ -32,7 +32,7 @@ export const DocumentTemplateSelector: React.FC<DocumentTemplateSelectorProps> =
       {/* Template List */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
         <div style={{ marginBottom: 4 }}>
-          <h3 style={{ fontSize: '1rem', fontWeight: 700, color: '#fff' }}>
+          <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-main, #0f172a)' }}>
             Available Templates ({templates.length})
           </h3>
           <p style={{ fontSize: '0.8125rem', color: 'var(--text-muted)' }}>
@@ -57,14 +57,14 @@ export const DocumentTemplateSelector: React.FC<DocumentTemplateSelectorProps> =
                 border: isSelected
                   ? '2px solid var(--primary)'
                   : '1px solid var(--border-subtle)',
-                background: isSelected ? 'rgba(99, 102, 241, 0.1)' : 'var(--bg-secondary)',
+                background: isSelected ? '#eff6ff' : 'var(--bg-surface, #ffffff)',
                 transition: 'all 0.2s',
               }}
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   <FileCode size={18} color="var(--primary)" />
-                  <span style={{ fontWeight: 600, fontSize: '0.9375rem', color: '#fff' }}>
+                  <span style={{ fontWeight: 600, fontSize: '0.9375rem', color: 'var(--text-main, #0f172a)' }}>
                     {tmpl.name}
                   </span>
                 </div>
@@ -116,16 +116,17 @@ export const DocumentTemplateSelector: React.FC<DocumentTemplateSelectorProps> =
           style={{
             padding: 16,
             borderRadius: 'var(--radius-md)',
-            background: 'rgba(15, 21, 35, 0.6)',
+            background: 'var(--bg-secondary, #f8fafc)',
+            border: '1px solid var(--border-subtle, #e2e8f0)',
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
             <Layers size={16} color="var(--ai-purple)" />
-            <h4 style={{ fontSize: '0.875rem', color: '#fff' }}>
+            <h4 style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--text-main, #0f172a)' }}>
               Dynamic Template Placeholders ({typeDef.placeholders?.length || 0})
             </h4>
           </div>
-          <p style={{ fontSize: '0.75rem', color: 'var(--text-dim)', marginBottom: 10 }}>
+          <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: 10 }}>
             These tokens will automatically map to HR-confirmed values during PDF compilation:
           </p>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
@@ -137,9 +138,9 @@ export const DocumentTemplateSelector: React.FC<DocumentTemplateSelectorProps> =
                   fontFamily: 'var(--font-mono)',
                   padding: '2px 8px',
                   borderRadius: 'var(--radius-sm)',
-                  backgroundColor: 'var(--bg-tertiary)',
-                  border: '1px solid var(--border-subtle)',
-                  color: p.isRequired ? '#c084fc' : 'var(--text-muted)',
+                  backgroundColor: 'var(--bg-surface, #ffffff)',
+                  border: '1px solid var(--border-subtle, #e2e8f0)',
+                  color: p.isRequired ? 'var(--ai-purple, #7c3aed)' : 'var(--text-muted)',
                 }}
                 title={`${p.description} (e.g. ${p.sampleValue})`}
               >
@@ -159,7 +160,8 @@ export const DocumentTemplateSelector: React.FC<DocumentTemplateSelectorProps> =
           display: 'flex',
           flexDirection: 'column',
           maxHeight: 560,
-          background: 'var(--bg-secondary)',
+          background: 'var(--bg-surface, #ffffff)',
+          border: '1px solid var(--border-subtle, #e2e8f0)',
         }}
       >
         <div
@@ -169,16 +171,16 @@ export const DocumentTemplateSelector: React.FC<DocumentTemplateSelectorProps> =
             justifyContent: 'space-between',
             marginBottom: 14,
             paddingBottom: 10,
-            borderBottom: '1px solid var(--border-subtle)',
+            borderBottom: '1px solid var(--border-subtle, #e2e8f0)',
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <Eye size={18} color="var(--primary)" />
-            <span style={{ fontWeight: 600, fontSize: '0.875rem', color: '#fff' }}>
+            <span style={{ fontWeight: 600, fontSize: '0.875rem', color: 'var(--text-main, #0f172a)' }}>
               Template Content Preview
             </span>
           </div>
-          <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>
+          <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
             {previewTemplate?.version}
           </span>
         </div>
@@ -191,11 +193,11 @@ export const DocumentTemplateSelector: React.FC<DocumentTemplateSelectorProps> =
             fontFamily: 'var(--font-mono)',
             fontSize: '0.8125rem',
             lineHeight: 1.6,
-            color: 'var(--text-muted)',
-            backgroundColor: 'rgba(0,0,0,0.25)',
+            color: 'var(--text-main, #0f172a)',
+            backgroundColor: '#f8fafc',
             padding: 16,
             borderRadius: 'var(--radius-sm)',
-            border: '1px solid var(--border-subtle)',
+            border: '1px solid var(--border-subtle, #e2e8f0)',
           }}
         >
           {previewTemplate?.content || 'No template selected.'}

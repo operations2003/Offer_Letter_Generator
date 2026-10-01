@@ -32,6 +32,7 @@ import { PlaceholderManagerModal } from './PlaceholderManagerModal.js';
 import { AiPlaceholderSuggestionsModal } from './AiPlaceholderSuggestionsModal.js';
 import { AiWordingSuggestionsModal } from './AiWordingSuggestionsModal.js';
 import { TemplatePreviewModal } from './TemplatePreviewModal.js';
+import { useToast } from '../../context/ToastContext.js';
 
 interface TemplateEditorProps {
   template?: OfferTemplate | null;
@@ -44,6 +45,7 @@ export const TemplateEditor: React.FC<TemplateEditorProps> = ({
   onSave,
   onCancel,
 }) => {
+  const { error, success } = useToast();
   const isEditing = !!template;
 
   // Metadata
@@ -153,11 +155,11 @@ ul { padding-left: 20px; margin: 12px 0; }`
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim()) {
-      alert('Template title is required');
+      error('Template title is required', 'Validation Error');
       return;
     }
     if (!contentMarkup.trim()) {
-      alert('Template body markup cannot be empty');
+      error('Template body markup cannot be empty', 'Validation Error');
       return;
     }
 
@@ -175,6 +177,7 @@ ul { padding-left: 20px; margin: 12px 0; }`
           changeSummary: changeSummary.trim() || 'Template modified via editor',
         };
         const updated = await templateService.updateTemplate(template.id, updateInput);
+        success(`Template "${updated.title}" updated successfully.`);
         onSave(updated);
       } else {
         const createInput: CreateTemplateInput = {
@@ -187,10 +190,11 @@ ul { padding-left: 20px; margin: 12px 0; }`
           styleCss: styleCss.trim() || undefined,
         };
         const created = await templateService.createTemplate(createInput);
+        success(`Template "${created.title}" created successfully.`);
         onSave(created);
       }
     } catch (err: any) {
-      alert(err?.message || 'Failed to save template');
+      error(err?.message || 'Failed to save template', 'Template Error');
     } finally {
       setSaving(false);
     }
@@ -276,17 +280,17 @@ ul { padding-left: 20px; margin: 12px 0; }`
 
       {/* Template Metadata Header Form */}
       <div
-        className="glass-panel"
+        className="card"
         style={{
           padding: '20px 24px',
           display: 'grid',
           gridTemplateColumns: isEditing ? '2fr 1.2fr 1.5fr 2fr' : '2fr 1.2fr 2.5fr',
           gap: 16,
-          backgroundColor: 'var(--bg-tertiary)',
+          backgroundColor: '#ffffff',
         }}
       >
         <div>
-          <label className="form-label">Template Title *</label>
+          <label className="form-label" style={{ fontWeight: 600, color: '#334155' }}>Template Title *</label>
           <input
             type="text"
             className="form-input"
@@ -298,7 +302,7 @@ ul { padding-left: 20px; margin: 12px 0; }`
         </div>
 
         <div>
-          <label className="form-label">Category</label>
+          <label className="form-label" style={{ fontWeight: 600, color: '#334155' }}>Category</label>
           <select
             className="form-select"
             value={category}
@@ -314,7 +318,7 @@ ul { padding-left: 20px; margin: 12px 0; }`
         </div>
 
         <div>
-          <label className="form-label">Description / Guidance</label>
+          <label className="form-label" style={{ fontWeight: 600, color: '#334155' }}>Description / Guidance</label>
           <input
             type="text"
             className="form-input"
@@ -326,7 +330,7 @@ ul { padding-left: 20px; margin: 12px 0; }`
 
         {isEditing && (
           <div>
-            <label className="form-label">
+            <label className="form-label" style={{ fontWeight: 600, color: '#334155' }}>
               Version Change Summary (v{(template?.currentVersion?.versionNumber || 1) + 1})
             </label>
             <input
@@ -350,13 +354,13 @@ ul { padding-left: 20px; margin: 12px 0; }`
         }}
       >
         {/* Left Pane: Editor */}
-        <div className="glass-panel" style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+        <div className="card" style={{ padding: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
           {/* Sub-tab Navigation */}
           <div
             style={{
               padding: '10px 16px',
               borderBottom: '1px solid var(--border-subtle)',
-              backgroundColor: 'var(--bg-secondary)',
+              backgroundColor: '#f8fafc',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
@@ -370,34 +374,38 @@ ul { padding-left: 20px; margin: 12px 0; }`
                 { id: 'header', label: 'Header / Letterhead' },
                 { id: 'footer', label: 'Footer & Disclaimer' },
                 { id: 'css', label: 'Custom Styling (CSS)' },
-              ].map((tab) => (
-                <button
-                  key={tab.id}
-                  type="button"
-                  onClick={() => setActiveTab(tab.id as any)}
-                  style={{
-                    padding: '6px 12px',
-                    borderRadius: 'var(--radius-sm)',
-                    fontSize: '0.8125rem',
-                    fontWeight: 600,
-                    border: 'none',
-                    backgroundColor: activeTab === tab.id ? 'var(--bg-tertiary)' : 'transparent',
-                    color: activeTab === tab.id ? '#fff' : 'var(--text-muted)',
-                    cursor: 'pointer',
-                  }}
-                >
-                  {tab.label}
-                </button>
-              ))}
+              ].map((tab) => {
+                const isActive = activeTab === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    type="button"
+                    onClick={() => setActiveTab(tab.id as any)}
+                    style={{
+                      padding: '6px 12px',
+                      borderRadius: 'var(--radius-sm)',
+                      fontSize: '0.8125rem',
+                      fontWeight: 600,
+                      border: isActive ? '1px solid var(--border-medium)' : '1px solid transparent',
+                      backgroundColor: isActive ? '#ffffff' : 'transparent',
+                      color: isActive ? '#1d4ed8' : '#64748b',
+                      boxShadow: isActive ? '0 1px 2px rgba(0,0,0,0.05)' : 'none',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    {tab.label}
+                  </button>
+                );
+              })}
             </div>
 
             {/* Quick Action Tools */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
               <button
                 type="button"
-                className="btn btn-ghost"
+                className="btn btn-secondary"
                 onClick={() => setShowPlaceholdersModal(true)}
-                style={{ padding: '4px 8px', fontSize: '0.75rem', color: '#818cf8' }}
+                style={{ padding: '5px 10px', fontSize: '0.75rem', color: '#4f46e5' }}
                 title="Browse variable placeholders catalog"
               >
                 <BookOpen size={14} />
@@ -406,9 +414,9 @@ ul { padding-left: 20px; margin: 12px 0; }`
 
               <button
                 type="button"
-                className="btn btn-ghost"
+                className="btn btn-secondary"
                 onClick={() => setShowAiPlaceholdersModal(true)}
-                style={{ padding: '4px 8px', fontSize: '0.75rem', color: '#c084fc' }}
+                style={{ padding: '5px 10px', fontSize: '0.75rem', color: '#7c3aed' }}
                 title="AI detects hardcoded names, salaries, roles and suggests tokens"
               >
                 <Sparkles size={14} />
@@ -417,9 +425,9 @@ ul { padding-left: 20px; margin: 12px 0; }`
 
               <button
                 type="button"
-                className="btn btn-ghost"
+                className="btn btn-secondary"
                 onClick={() => setShowAiWordingModal(true)}
-                style={{ padding: '4px 8px', fontSize: '0.75rem', color: '#a855f7' }}
+                style={{ padding: '5px 10px', fontSize: '0.75rem', color: '#7c3aed' }}
                 title="Draft or elevate clauses using AI language assistant"
               >
                 <Wand2 size={14} />
@@ -433,14 +441,14 @@ ul { padding-left: 20px; margin: 12px 0; }`
             style={{
               padding: '8px 16px',
               borderBottom: '1px solid var(--border-subtle)',
-              background: 'rgba(0, 0, 0, 0.25)',
+              background: '#f8fafc',
               display: 'flex',
               alignItems: 'center',
               gap: 8,
               overflowX: 'auto',
             }}
           >
-            <span style={{ fontSize: '0.6875rem', color: 'var(--text-dim)', textTransform: 'uppercase', fontWeight: 700 }}>
+            <span style={{ fontSize: '0.6875rem', color: '#64748b', textTransform: 'uppercase', fontWeight: 700 }}>
               Insert:
             </span>
             {[
@@ -462,15 +470,17 @@ ul { padding-left: 20px; margin: 12px 0; }`
                 type="button"
                 onClick={() => handleInsertToken(tok)}
                 style={{
-                  padding: '2px 8px',
+                  padding: '3px 8px',
                   borderRadius: 'var(--radius-sm)',
-                  background: 'var(--bg-tertiary)',
-                  border: '1px solid var(--border-subtle)',
-                  color: '#818cf8',
+                  background: '#ffffff',
+                  border: '1px solid var(--border-medium)',
+                  color: '#4f46e5',
                   fontSize: '0.6875rem',
                   fontFamily: 'var(--font-mono)',
                   cursor: 'pointer',
                   whiteSpace: 'nowrap',
+                  fontWeight: 500,
+                  boxShadow: '0 1px 2px rgba(0,0,0,0.03)',
                 }}
                 title={`Click to insert ${tok} at cursor`}
               >
@@ -492,8 +502,8 @@ ul { padding-left: 20px; margin: 12px 0; }`
                   lineHeight: 1.6,
                   resize: 'vertical',
                   width: '100%',
-                  background: 'var(--bg-primary)',
-                  color: 'var(--text-main)',
+                  background: '#ffffff',
+                  color: '#0f172a',
                 }}
                 value={contentMarkup}
                 onChange={(e) => setContentMarkup(e.target.value)}
@@ -503,13 +513,13 @@ ul { padding-left: 20px; margin: 12px 0; }`
 
             {activeTab === 'header' && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>
+                <span style={{ fontSize: '0.75rem', color: '#64748b' }}>
                   Rendered at the top of the generated letterhead:
                 </span>
                 <textarea
                   className="form-textarea"
                   rows={14}
-                  style={{ fontFamily: 'var(--font-mono)', fontSize: '0.8125rem', background: 'var(--bg-primary)' }}
+                  style={{ fontFamily: 'var(--font-mono)', fontSize: '0.8125rem', background: '#ffffff', color: '#0f172a' }}
                   value={headerMarkup}
                   onChange={(e) => setHeaderMarkup(e.target.value)}
                   placeholder="Enter header letterhead markup..."
@@ -519,13 +529,13 @@ ul { padding-left: 20px; margin: 12px 0; }`
 
             {activeTab === 'footer' && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>
+                <span style={{ fontSize: '0.75rem', color: '#64748b' }}>
                   Rendered at the bottom of the offer letter pages:
                 </span>
                 <textarea
                   className="form-textarea"
                   rows={14}
-                  style={{ fontFamily: 'var(--font-mono)', fontSize: '0.8125rem', background: 'var(--bg-primary)' }}
+                  style={{ fontFamily: 'var(--font-mono)', fontSize: '0.8125rem', background: '#ffffff', color: '#0f172a' }}
                   value={footerMarkup}
                   onChange={(e) => setFooterMarkup(e.target.value)}
                   placeholder="Enter footer and disclaimer markup..."
@@ -535,13 +545,13 @@ ul { padding-left: 20px; margin: 12px 0; }`
 
             {activeTab === 'css' && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>
+                <span style={{ fontSize: '0.75rem', color: '#64748b' }}>
                   Custom print and typography stylesheet rules:
                 </span>
                 <textarea
                   className="form-textarea"
                   rows={14}
-                  style={{ fontFamily: 'var(--font-mono)', fontSize: '0.8125rem', background: 'var(--bg-primary)' }}
+                  style={{ fontFamily: 'var(--font-mono)', fontSize: '0.8125rem', background: '#ffffff', color: '#0f172a' }}
                   value={styleCss}
                   onChange={(e) => setStyleCss(e.target.value)}
                   placeholder="Enter custom CSS rules..."
@@ -555,7 +565,7 @@ ul { padding-left: 20px; margin: 12px 0; }`
             style={{
               padding: '10px 16px',
               borderTop: '1px solid var(--border-subtle)',
-              background: 'rgba(0, 0, 0, 0.3)',
+              background: '#f8fafc',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
@@ -565,14 +575,14 @@ ul { padding-left: 20px; margin: 12px 0; }`
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'var(--success)' }}>
-                <CheckCircle2 size={14} />
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#059669', fontWeight: 600 }}>
+                <CheckCircle2 size={14} color="#059669" />
                 <span>{validation.valid.length} Tokens Active</span>
               </div>
 
               {validation.missingRequired.length > 0 && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#f59e0b' }}>
-                  <AlertTriangle size={14} />
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#d97706', fontWeight: 500 }}>
+                  <AlertTriangle size={14} color="#d97706" />
                   <span>Missing {validation.missingRequired.length} required: {validation.missingRequired.slice(0, 3).join(', ')}</span>
                 </div>
               )}
@@ -580,9 +590,9 @@ ul { padding-left: 20px; margin: 12px 0; }`
 
             <button
               type="button"
-              className="btn btn-ghost"
+              className="btn btn-secondary"
               onClick={() => setShowPlaceholdersModal(true)}
-              style={{ fontSize: '0.75rem', padding: '2px 8px' }}
+              style={{ fontSize: '0.75rem', padding: '3px 10px' }}
             >
               Open Variable Registry
             </button>
@@ -592,11 +602,12 @@ ul { padding-left: 20px; margin: 12px 0; }`
         {/* Right Pane: Live Document Preview (when split view enabled) */}
         {splitView && (
           <div
-            className="glass-panel"
+            className="card"
             style={{
+              padding: 0,
               display: 'flex',
               flexDirection: 'column',
-              backgroundColor: '#0a0d16',
+              backgroundColor: '#f8fafc',
               overflow: 'hidden',
             }}
           >
@@ -604,7 +615,7 @@ ul { padding-left: 20px; margin: 12px 0; }`
               style={{
                 padding: '10px 16px',
                 borderBottom: '1px solid var(--border-subtle)',
-                backgroundColor: 'var(--bg-secondary)',
+                backgroundColor: '#ffffff',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
@@ -612,9 +623,9 @@ ul { padding-left: 20px; margin: 12px 0; }`
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <FileText size={16} color="var(--primary)" />
-                <span style={{ fontWeight: 600, fontSize: '0.8125rem' }}>Live Candidate Merged Preview</span>
+                <span style={{ fontWeight: 600, fontSize: '0.8125rem', color: '#0f172a' }}>Live Candidate Merged Preview</span>
               </div>
-              <span style={{ fontSize: '0.6875rem', color: 'var(--text-dim)' }}>
+              <span style={{ fontSize: '0.6875rem', color: '#64748b' }}>
                 Sample: Jane Alexandra Doe ($165k)
               </span>
             </div>
@@ -626,7 +637,7 @@ ul { padding-left: 20px; margin: 12px 0; }`
                 maxHeight: '680px',
                 display: 'flex',
                 justifyContent: 'center',
-                backgroundColor: '#070a12',
+                backgroundColor: '#f1f5f9',
               }}
             >
               {/* Paper Preview Sheet */}
@@ -637,8 +648,9 @@ ul { padding-left: 20px; margin: 12px 0; }`
                   backgroundColor: '#ffffff',
                   color: '#1f2937',
                   padding: '36px 40px',
-                  boxShadow: '0 8px 24px rgba(0, 0, 0, 0.4)',
-                  borderRadius: '2px',
+                  boxShadow: '0 4px 14px rgba(0, 0, 0, 0.08)',
+                  border: '1px solid var(--border-subtle)',
+                  borderRadius: '3px',
                   fontSize: '12px',
                   lineHeight: 1.6,
                   fontFamily: "'Inter', sans-serif",

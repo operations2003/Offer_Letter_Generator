@@ -10,6 +10,7 @@ import { AuditLogsPage } from './pages/AuditLogsPage.js';
 import { OnboardingPage } from './pages/OnboardingPage.js';
 import { LearningPage } from './pages/LearningPage.js';
 import { AssessmentsPage } from './pages/AssessmentsPage.js';
+import { PoliciesPage } from './pages/PoliciesPage.js';
 import { AppLayout } from './components/layout/AppLayout.js';
 import { ProtectedRoute } from './components/layout/ProtectedRoute.js';
 import { EmptyState } from './components/common/FeedbackStates.js';
@@ -33,6 +34,7 @@ export const App: React.FC = () => {
         <Route path="onboarding" element={<OnboardingPage />} />
         <Route path="learning" element={<LearningPage />} />
         <Route path="assessments" element={<AssessmentsPage />} />
+        <Route path="policies" element={<PoliciesPage />} />
         <Route path="documents" element={<DocumentsPage />} />
         <Route path="documents/create" element={<DocumentsPage createMode={true} />} />
         <Route path="offers" element={<OffersPage />} />

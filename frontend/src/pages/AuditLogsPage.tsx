@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ShieldCheck, History, Search, Filter, Eye, Cpu, User } from 'lucide-react';
 import { Modal } from '../components/common/Modal.js';
 import { Button } from '../components/common/Button.js';
@@ -152,7 +152,7 @@ export const AuditLogsPage: React.FC = () => {
                 <tr
                   key={log.id}
                   style={{
-                    borderBottom: '1px solid rgba(255, 255, 255, 0.03)',
+                    borderBottom: '1px solid var(--border-subtle, #e2e8f0)',
                   }}
                 >
                   <td style={{ padding: '14px', color: 'var(--text-muted)', fontSize: '0.8125rem' }}>
@@ -161,32 +161,38 @@ export const AuditLogsPage: React.FC = () => {
                   <td style={{ padding: '14px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                       {log.actorType === 'AI_WORKER' ? (
-                        <Cpu size={14} style={{ color: '#c084fc' }} />
+                        <Cpu size={14} style={{ color: 'var(--ai-purple, #7c3aed)' }} />
                       ) : (
                         <User size={14} style={{ color: 'var(--primary)' }} />
                       )}
-                      <span style={{ fontWeight: 600 }}>{log.actorName}</span>
+                      <span style={{ fontWeight: 600, color: 'var(--text-main, #0f172a)' }}>{log.actorName}</span>
                     </div>
                   </td>
                   <td style={{ padding: '14px' }}>
                     <span
                       style={{
-                        padding: '2px 8px',
+                        padding: '3px 8px',
                         borderRadius: 4,
                         fontSize: '0.75rem',
                         fontWeight: 700,
                         backgroundColor:
                           log.action === 'CREATE'
-                            ? 'rgba(16, 185, 129, 0.15)'
+                            ? '#ecfdf5'
                             : log.action === 'UPDATE'
-                            ? 'rgba(99, 102, 241, 0.15)'
-                            : 'rgba(245, 158, 11, 0.15)',
+                            ? '#eff6ff'
+                            : '#fffbeb',
                         color:
                           log.action === 'CREATE'
-                            ? '#34d399'
+                            ? '#059669'
                             : log.action === 'UPDATE'
-                            ? '#818cf8'
-                            : '#fbbf24',
+                            ? '#2563eb'
+                            : '#d97706',
+                        border:
+                          log.action === 'CREATE'
+                            ? '1px solid #a7f3d0'
+                            : log.action === 'UPDATE'
+                            ? '1px solid #bfdbfe'
+                            : '1px solid #fde68a',
                       }}
                     >
                       {log.action}

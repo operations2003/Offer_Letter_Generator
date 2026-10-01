@@ -72,14 +72,14 @@ export const TemplateList: React.FC<TemplateListProps> = ({
   const getCategoryBadge = (cat: TemplateCategory) => {
     switch (cat) {
       case 'EXECUTIVE':
-        return { bg: 'rgba(168, 85, 247, 0.15)', color: '#c084fc', border: 'rgba(168, 85, 247, 0.4)' };
+        return { bg: '#f3e8ff', color: '#7c3aed', border: '#d8b4fe' };
       case 'CONTRACT':
-        return { bg: 'rgba(59, 130, 246, 0.15)', color: '#60a5fa', border: 'rgba(59, 130, 246, 0.4)' };
+        return { bg: '#eff6ff', color: '#2563eb', border: '#bfdbfe' };
       case 'INTERNSHIP':
-        return { bg: 'rgba(236, 72, 153, 0.15)', color: '#f472b6', border: 'rgba(236, 72, 153, 0.4)' };
+        return { bg: '#fdf2f8', color: '#db2777', border: '#fbcfe8' };
       case 'FULL_TIME':
       default:
-        return { bg: 'rgba(16, 185, 129, 0.15)', color: '#34d399', border: 'rgba(16, 185, 129, 0.4)' };
+        return { bg: '#ecfdf5', color: '#059669', border: '#a7f3d0' };
     }
   };
 
@@ -99,50 +99,50 @@ export const TemplateList: React.FC<TemplateListProps> = ({
           gap: 16,
         }}
       >
-        <div className="glass-panel" style={{ padding: '18px 20px', background: 'var(--bg-tertiary)' }}>
-          <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)', textTransform: 'uppercase', fontWeight: 700 }}>
+        <div className="card" style={{ padding: '18px 20px' }}>
+          <div style={{ fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase', fontWeight: 700 }}>
             Total Template Library
           </div>
-          <div style={{ fontSize: '1.75rem', fontWeight: 800, color: '#fff', marginTop: 4 }}>
+          <div style={{ fontSize: '1.75rem', fontWeight: 800, color: '#0f172a', marginTop: 4 }}>
             {templates.length}
           </div>
-          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: 2 }}>
+          <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: 2 }}>
             Across all employment categories
           </div>
         </div>
 
-        <div className="glass-panel" style={{ padding: '18px 20px', background: 'var(--bg-tertiary)' }}>
-          <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)', textTransform: 'uppercase', fontWeight: 700 }}>
+        <div className="card" style={{ padding: '18px 20px' }}>
+          <div style={{ fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase', fontWeight: 700 }}>
             Active in Production
           </div>
-          <div style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--success)', marginTop: 4 }}>
+          <div style={{ fontSize: '1.75rem', fontWeight: 800, color: '#059669', marginTop: 4 }}>
             {totalActive}
           </div>
-          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: 2 }}>
+          <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: 2 }}>
             Available for instant candidate offer generation
           </div>
         </div>
 
-        <div className="glass-panel" style={{ padding: '18px 20px', background: 'var(--bg-tertiary)' }}>
-          <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)', textTransform: 'uppercase', fontWeight: 700 }}>
+        <div className="card" style={{ padding: '18px 20px' }}>
+          <div style={{ fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase', fontWeight: 700 }}>
             Avg Tokens Per Template
           </div>
-          <div style={{ fontSize: '1.75rem', fontWeight: 800, color: '#818cf8', marginTop: 4 }}>
+          <div style={{ fontSize: '1.75rem', fontWeight: 800, color: '#4f46e5', marginTop: 4 }}>
             ~{avgPlaceholders}
           </div>
-          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: 2 }}>
+          <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: 2 }}>
             Automated merge data points
           </div>
         </div>
 
-        <div className="glass-panel" style={{ padding: '18px 20px', background: 'var(--bg-tertiary)' }}>
-          <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)', textTransform: 'uppercase', fontWeight: 700 }}>
+        <div className="card" style={{ padding: '18px 20px' }}>
+          <div style={{ fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase', fontWeight: 700 }}>
             Version Audit
           </div>
-          <div style={{ fontSize: '1.75rem', fontWeight: 800, color: '#c084fc', marginTop: 4 }}>
+          <div style={{ fontSize: '1.75rem', fontWeight: 800, color: '#7c3aed', marginTop: 4 }}>
             Immutable
           </div>
-          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: 2 }}>
+          <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: 2 }}>
             Complete rollback & diff tracking
           </div>
         </div>
@@ -200,7 +200,7 @@ export const TemplateList: React.FC<TemplateListProps> = ({
           <div
             style={{
               display: 'flex',
-              background: 'var(--bg-tertiary)',
+              background: '#f1f5f9',
               padding: 3,
               borderRadius: 'var(--radius-md)',
               border: '1px solid var(--border-subtle)',
@@ -209,12 +209,17 @@ export const TemplateList: React.FC<TemplateListProps> = ({
             <button
               type="button"
               onClick={() => setViewMode('grid')}
-              className="btn-ghost"
               style={{
                 padding: '6px 10px',
                 borderRadius: 'var(--radius-sm)',
-                backgroundColor: viewMode === 'grid' ? 'var(--bg-card-hover)' : 'transparent',
-                color: viewMode === 'grid' ? '#fff' : 'var(--text-dim)',
+                border: 'none',
+                cursor: 'pointer',
+                backgroundColor: viewMode === 'grid' ? '#ffffff' : 'transparent',
+                color: viewMode === 'grid' ? '#0f172a' : '#64748b',
+                boxShadow: viewMode === 'grid' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                fontWeight: viewMode === 'grid' ? 600 : 400,
+                display: 'flex',
+                alignItems: 'center',
               }}
               title="Grid View"
             >
@@ -223,12 +228,17 @@ export const TemplateList: React.FC<TemplateListProps> = ({
             <button
               type="button"
               onClick={() => setViewMode('table')}
-              className="btn-ghost"
               style={{
                 padding: '6px 10px',
                 borderRadius: 'var(--radius-sm)',
-                backgroundColor: viewMode === 'table' ? 'var(--bg-card-hover)' : 'transparent',
-                color: viewMode === 'table' ? '#fff' : 'var(--text-dim)',
+                border: 'none',
+                cursor: 'pointer',
+                backgroundColor: viewMode === 'table' ? '#ffffff' : 'transparent',
+                color: viewMode === 'table' ? '#0f172a' : '#64748b',
+                boxShadow: viewMode === 'table' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                fontWeight: viewMode === 'table' ? 600 : 400,
+                display: 'flex',
+                alignItems: 'center',
               }}
               title="Table View"
             >
@@ -246,27 +256,31 @@ export const TemplateList: React.FC<TemplateListProps> = ({
 
       {/* Category Tabs */}
       <div style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 4 }}>
-        {categories.map((cat) => (
-          <button
-            key={cat.id}
-            onClick={() => setSelectedCategory(cat.id)}
-            style={{
-              padding: '6px 14px',
-              borderRadius: 'var(--radius-full)',
-              fontSize: '0.8125rem',
-              fontWeight: 600,
-              border: '1px solid',
-              borderColor: selectedCategory === cat.id ? 'var(--primary)' : 'var(--border-subtle)',
-              backgroundColor: selectedCategory === cat.id ? 'rgba(99, 102, 241, 0.15)' : 'var(--bg-tertiary)',
-              color: selectedCategory === cat.id ? '#818cf8' : 'var(--text-muted)',
-              cursor: 'pointer',
-              whiteSpace: 'nowrap',
-              transition: 'all 0.15s ease',
-            }}
-          >
-            {cat.label}
-          </button>
-        ))}
+        {categories.map((cat) => {
+          const isActive = selectedCategory === cat.id;
+          return (
+            <button
+              key={cat.id}
+              onClick={() => setSelectedCategory(cat.id)}
+              style={{
+                padding: '7px 16px',
+                borderRadius: 'var(--radius-full)',
+                fontSize: '0.8125rem',
+                fontWeight: 600,
+                border: '1px solid',
+                borderColor: isActive ? 'var(--primary)' : 'var(--border-subtle)',
+                backgroundColor: isActive ? '#eff6ff' : '#ffffff',
+                color: isActive ? '#1d4ed8' : '#64748b',
+                cursor: 'pointer',
+                whiteSpace: 'nowrap',
+                boxShadow: isActive ? '0 1px 2px rgba(37,99,235,0.1)' : 'none',
+                transition: 'all 0.15s ease',
+              }}
+            >
+              {cat.label}
+            </button>
+          );
+        })}
       </div>
 
       {/* Templates Content: Grid View or Table View */}
@@ -307,16 +321,15 @@ export const TemplateList: React.FC<TemplateListProps> = ({
             return (
               <div
                 key={tpl.id}
-                className="glass-panel"
+                className="card"
                 style={{
-                  padding: 20,
+                  padding: 22,
                   display: 'flex',
                   flexDirection: 'column',
                   justifyContent: 'space-between',
                   gap: 16,
-                  border: '1px solid var(--border-subtle)',
                   transition: 'all 0.2s ease',
-                  backgroundColor: 'var(--bg-card)',
+                  backgroundColor: '#ffffff',
                 }}
               >
                 <div>
@@ -326,7 +339,7 @@ export const TemplateList: React.FC<TemplateListProps> = ({
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'space-between',
-                      marginBottom: 10,
+                      marginBottom: 12,
                     }}
                   >
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -334,7 +347,7 @@ export const TemplateList: React.FC<TemplateListProps> = ({
                         style={{
                           fontSize: '0.6875rem',
                           fontWeight: 700,
-                          padding: '2px 8px',
+                          padding: '3px 9px',
                           borderRadius: 'var(--radius-full)',
                           background: badgeStyle.bg,
                           color: badgeStyle.color,
@@ -350,10 +363,11 @@ export const TemplateList: React.FC<TemplateListProps> = ({
                         style={{
                           fontSize: '0.6875rem',
                           fontWeight: 700,
-                          padding: '2px 6px',
+                          padding: '3px 8px',
                           borderRadius: 'var(--radius-sm)',
-                          background: 'rgba(99, 102, 241, 0.12)',
-                          color: '#818cf8',
+                          background: '#f1f5f9',
+                          color: '#475569',
+                          border: '1px solid var(--border-subtle)',
                         }}
                       >
                         v{versionNum}
@@ -364,7 +378,7 @@ export const TemplateList: React.FC<TemplateListProps> = ({
                       type="button"
                       onClick={() => onToggleActive(tpl)}
                       className="btn-ghost"
-                      style={{ padding: '2px 4px', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: 4 }}
+                      style={{ padding: '2px 6px', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: 6 }}
                       title={tpl.isActive ? 'Active (Click to disable)' : 'Inactive (Click to activate)'}
                     >
                       {tpl.isActive ? (
@@ -374,28 +388,28 @@ export const TemplateList: React.FC<TemplateListProps> = ({
                               width: 8,
                               height: 8,
                               borderRadius: '50%',
-                              backgroundColor: 'var(--success)',
-                              boxShadow: '0 0 6px var(--success)',
+                              backgroundColor: '#059669',
+                              boxShadow: '0 0 6px rgba(5, 150, 105, 0.4)',
                             }}
                           />
-                          <span style={{ fontSize: '0.75rem', color: 'var(--success)', fontWeight: 600 }}>Active</span>
+                          <span style={{ fontSize: '0.75rem', color: '#059669', fontWeight: 600 }}>Active</span>
                         </>
                       ) : (
                         <>
-                          <div style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: 'var(--text-dim)' }} />
-                          <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>Disabled</span>
+                          <div style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: '#94a3b8' }} />
+                          <span style={{ fontSize: '0.75rem', color: '#64748b' }}>Disabled</span>
                         </>
                       )}
                     </button>
                   </div>
 
                   {/* Title & Description */}
-                  <h4 style={{ fontSize: '1.05rem', color: '#fff', marginBottom: 6 }}>{tpl.title}</h4>
+                  <h4 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#0f172a', marginBottom: 6 }}>{tpl.title}</h4>
                   <p
                     style={{
                       fontSize: '0.8125rem',
-                      color: 'var(--text-muted)',
-                      lineHeight: 1.45,
+                      color: '#64748b',
+                      lineHeight: 1.5,
                       display: '-webkit-box',
                       WebkitLineClamp: 2,
                       WebkitBoxOrient: 'vertical',
@@ -407,18 +421,18 @@ export const TemplateList: React.FC<TemplateListProps> = ({
                 </div>
 
                 {/* Footer Metrics & Actions */}
-                <div style={{ borderTop: '1px solid var(--border-subtle)', paddingTop: 12 }}>
+                <div style={{ borderTop: '1px solid var(--border-subtle)', paddingTop: 14 }}>
                   <div
                     style={{
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'space-between',
-                      fontSize: '0.6875rem',
-                      color: 'var(--text-dim)',
+                      fontSize: '0.75rem',
+                      color: '#64748b',
                       marginBottom: 12,
                     }}
                   >
-                    <span>
+                    <span style={{ fontWeight: 500 }}>
                       {tpl.currentVersion?.placeholdersSchema?.length || 8} dynamic tokens
                     </span>
                     <span>Updated {new Date(tpl.updatedAt).toLocaleDateString()}</span>
@@ -428,7 +442,7 @@ export const TemplateList: React.FC<TemplateListProps> = ({
                     <button
                       type="button"
                       className="btn btn-secondary"
-                      style={{ flex: 1, padding: '6px 10px', fontSize: '0.75rem' }}
+                      style={{ flex: 1, padding: '7px 12px', fontSize: '0.75rem' }}
                       onClick={() => onSelectEdit(tpl)}
                     >
                       <Edit3 size={13} />
@@ -438,7 +452,7 @@ export const TemplateList: React.FC<TemplateListProps> = ({
                     <button
                       type="button"
                       className="btn btn-secondary"
-                      style={{ padding: '6px 10px', fontSize: '0.75rem' }}
+                      style={{ padding: '7px 10px', fontSize: '0.75rem' }}
                       onClick={() => onSelectPreview(tpl)}
                       title="Preview formatted offer letter"
                     >
@@ -449,7 +463,7 @@ export const TemplateList: React.FC<TemplateListProps> = ({
                     <button
                       type="button"
                       className="btn btn-secondary"
-                      style={{ padding: '6px 10px', fontSize: '0.75rem' }}
+                      style={{ padding: '7px 10px', fontSize: '0.75rem' }}
                       onClick={() => onSelectDuplicate(tpl)}
                       title="Duplicate template"
                     >
@@ -459,7 +473,7 @@ export const TemplateList: React.FC<TemplateListProps> = ({
                     <button
                       type="button"
                       className="btn btn-secondary"
-                      style={{ padding: '6px 10px', fontSize: '0.75rem' }}
+                      style={{ padding: '7px 10px', fontSize: '0.75rem' }}
                       onClick={() => onSelectHistory(tpl)}
                       title="View immutable revision history"
                     >
@@ -473,16 +487,16 @@ export const TemplateList: React.FC<TemplateListProps> = ({
         </div>
       ) : (
         /* Table View */
-        <div className="glass-panel" style={{ overflowX: 'auto' }}>
+        <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem', textAlign: 'left' }}>
             <thead>
-              <tr style={{ borderBottom: '1px solid var(--border-subtle)', background: 'var(--bg-tertiary)' }}>
-                <th style={{ padding: '14px 18px', fontWeight: 600, color: 'var(--text-muted)' }}>Template Title</th>
-                <th style={{ padding: '14px 18px', fontWeight: 600, color: 'var(--text-muted)' }}>Category</th>
-                <th style={{ padding: '14px 18px', fontWeight: 600, color: 'var(--text-muted)' }}>Version</th>
-                <th style={{ padding: '14px 18px', fontWeight: 600, color: 'var(--text-muted)' }}>Status</th>
-                <th style={{ padding: '14px 18px', fontWeight: 600, color: 'var(--text-muted)' }}>Last Modified</th>
-                <th style={{ padding: '14px 18px', fontWeight: 600, color: 'var(--text-muted)', textAlign: 'right' }}>
+              <tr style={{ borderBottom: '1px solid var(--border-medium)', background: '#f8fafc' }}>
+                <th style={{ padding: '14px 18px', fontWeight: 600, color: '#475569' }}>Template Title</th>
+                <th style={{ padding: '14px 18px', fontWeight: 600, color: '#475569' }}>Category</th>
+                <th style={{ padding: '14px 18px', fontWeight: 600, color: '#475569' }}>Version</th>
+                <th style={{ padding: '14px 18px', fontWeight: 600, color: '#475569' }}>Status</th>
+                <th style={{ padding: '14px 18px', fontWeight: 600, color: '#475569' }}>Last Modified</th>
+                <th style={{ padding: '14px 18px', fontWeight: 600, color: '#475569', textAlign: 'right' }}>
                   Actions
                 </th>
               </tr>
@@ -497,12 +511,12 @@ export const TemplateList: React.FC<TemplateListProps> = ({
                       borderBottom: '1px solid var(--border-subtle)',
                       transition: 'background-color 0.15s',
                     }}
-                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--bg-card-hover)')}
+                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#f8fafc')}
                     onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
                   >
                     <td style={{ padding: '14px 18px' }}>
-                      <div style={{ fontWeight: 600, color: '#fff' }}>{tpl.title}</div>
-                      <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)', marginTop: 2 }}>
+                      <div style={{ fontWeight: 600, color: '#0f172a' }}>{tpl.title}</div>
+                      <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: 2 }}>
                         {tpl.description || 'No description'}
                       </div>
                     </td>
@@ -529,10 +543,11 @@ export const TemplateList: React.FC<TemplateListProps> = ({
                         style={{
                           fontSize: '0.75rem',
                           fontFamily: 'var(--font-mono)',
-                          padding: '2px 6px',
+                          padding: '3px 8px',
                           borderRadius: 'var(--radius-sm)',
-                          background: 'rgba(99, 102, 241, 0.15)',
-                          color: '#818cf8',
+                          background: '#f1f5f9',
+                          color: '#475569',
+                          border: '1px solid var(--border-subtle)',
                         }}
                       >
                         v{tpl.currentVersion?.versionNumber || 1}
@@ -551,16 +566,16 @@ export const TemplateList: React.FC<TemplateListProps> = ({
                             width: 8,
                             height: 8,
                             borderRadius: '50%',
-                            backgroundColor: tpl.isActive ? 'var(--success)' : 'var(--text-dim)',
+                            backgroundColor: tpl.isActive ? '#059669' : '#94a3b8',
                           }}
                         />
-                        <span style={{ fontSize: '0.75rem', color: tpl.isActive ? 'var(--success)' : 'var(--text-dim)' }}>
+                        <span style={{ fontSize: '0.75rem', color: tpl.isActive ? '#059669' : '#64748b', fontWeight: 600 }}>
                           {tpl.isActive ? 'Active' : 'Disabled'}
                         </span>
                       </button>
                     </td>
 
-                    <td style={{ padding: '14px 18px', color: 'var(--text-muted)', fontSize: '0.8125rem' }}>
+                    <td style={{ padding: '14px 18px', color: '#64748b', fontSize: '0.8125rem' }}>
                       {new Date(tpl.updatedAt).toLocaleDateString()}
                     </td>
 

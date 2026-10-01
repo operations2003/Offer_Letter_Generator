@@ -147,9 +147,9 @@ export const Step9AiQualityCheck: React.FC<Step9AiQualityCheckProps> = ({
             >
               9
             </span>
-            <h3 style={{ fontSize: '1.25rem', fontWeight: 800 }}>AI Pre-Generation Quality & Consistency Audit</h3>
+            <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0f172a' }}>AI Pre-Generation Quality & Consistency Audit</h3>
           </div>
-          <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem', marginTop: 4, marginLeft: 38 }}>
+          <p style={{ color: '#64748b', fontSize: '0.875rem', marginTop: 4, marginLeft: 38 }}>
             Rigorous pre-flight check across 9 required categories before final offer letter generation.
           </p>
         </div>
@@ -173,14 +173,14 @@ export const Step9AiQualityCheck: React.FC<Step9AiQualityCheckProps> = ({
           alignItems: 'center',
           gap: 12,
           padding: '12px 18px',
-          background: 'rgba(59, 130, 246, 0.08)',
-          borderRadius: 'var(--radius-md)',
-          border: '1px solid rgba(59, 130, 246, 0.3)',
+          background: '#eff6ff',
+          borderRadius: 8,
+          border: '1px solid #bfdbfe',
           fontSize: '0.8125rem',
-          color: '#93c5fd',
+          color: '#1e40af',
         }}
       >
-        <Info size={18} style={{ flexShrink: 0 }} />
+        <Info size={18} style={{ flexShrink: 0, color: '#2563eb' }} />
         <span>
           <strong>AI Safety Principle:</strong> AI flags issues, data inconsistencies, and legal contradictions for human HR review. AI never silently modifies or alters the offer.
         </span>
@@ -199,8 +199,8 @@ export const Step9AiQualityCheck: React.FC<Step9AiQualityCheckProps> = ({
               margin: '0 auto 16px',
             }}
           />
-          <h4 style={{ color: '#fff', fontSize: '1.1rem' }}>Running 9-Category Pre-Generation Audit...</h4>
-          <p style={{ color: 'var(--text-muted)', fontSize: '0.8125rem', marginTop: 4 }}>
+          <h4 style={{ color: '#0f172a', fontSize: '1.1rem', fontWeight: 700 }}>Running 9-Category Pre-Generation Audit...</h4>
+          <p style={{ color: '#64748b', fontSize: '0.8125rem', marginTop: 4 }}>
             Verifying required fields, date coherence, compensation math, missing clauses, placeholders, and term contradictions.
           </p>
         </div>
@@ -208,21 +208,22 @@ export const Step9AiQualityCheck: React.FC<Step9AiQualityCheckProps> = ({
         <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
           {/* Main Verdict Card */}
           <div
-            className="glass-panel"
             style={{
               padding: 24,
+              borderRadius: 12,
               display: 'grid',
               gridTemplateColumns: '170px 1fr',
               gap: 24,
               alignItems: 'center',
               background: isPass
-                ? 'rgba(16, 185, 129, 0.08)'
+                ? '#ecfdf5'
                 : isWarning
-                ? 'rgba(245, 158, 11, 0.08)'
-                : 'rgba(239, 68, 68, 0.08)',
+                ? '#fffbeb'
+                : '#fef2f2',
               border: `2px solid ${
                 isPass ? '#10b981' : isWarning ? '#f59e0b' : '#ef4444'
               }`,
+              boxShadow: 'var(--shadow-sm)',
             }}
           >
             {/* Status Emblem */}
@@ -232,10 +233,10 @@ export const Step9AiQualityCheck: React.FC<Step9AiQualityCheckProps> = ({
                 height: 140,
                 borderRadius: '50%',
                 background: isPass
-                  ? 'rgba(16, 185, 129, 0.15)'
+                  ? '#d1fae5'
                   : isWarning
-                  ? 'rgba(245, 158, 11, 0.15)'
-                  : 'rgba(239, 68, 68, 0.15)',
+                  ? '#fef3c7'
+                  : '#fee2e2',
                 border: `4px solid ${
                   isPass ? '#10b981' : isWarning ? '#f59e0b' : '#ef4444'
                 }`,
@@ -251,13 +252,13 @@ export const Step9AiQualityCheck: React.FC<Step9AiQualityCheckProps> = ({
                 style={{
                   fontSize: '1.25rem',
                   fontWeight: 900,
-                  color: isPass ? '#34d399' : isWarning ? '#fbbf24' : '#f87171',
+                  color: isPass ? '#047857' : isWarning ? '#b45309' : '#b91c1c',
                   letterSpacing: '0.04em',
                 }}
               >
                 {status}
               </div>
-              <div style={{ fontSize: '0.6875rem', color: 'var(--text-muted)', marginTop: 4 }}>
+              <div style={{ fontSize: '0.6875rem', color: '#64748b', marginTop: 4 }}>
                 {isPass
                   ? 'Ready for Final Generation'
                   : isWarning
@@ -276,26 +277,26 @@ export const Step9AiQualityCheck: React.FC<Step9AiQualityCheckProps> = ({
                     fontWeight: 800,
                     textTransform: 'uppercase',
                     background: isPass
-                      ? 'rgba(16, 185, 129, 0.2)'
+                      ? '#d1fae5'
                       : isWarning
-                      ? 'rgba(245, 158, 11, 0.2)'
-                      : 'rgba(239, 68, 68, 0.2)',
-                    color: isPass ? '#34d399' : isWarning ? '#fbbf24' : '#f87171',
+                      ? '#fef3c7'
+                      : '#fee2e2',
+                    color: isPass ? '#047857' : isWarning ? '#b45309' : '#b91c1c',
                   }}
                 >
                   PRE-GENERATION STATUS: {status}
                 </span>
 
-                <span style={{ fontSize: '0.8125rem', color: 'var(--text-muted)' }}>
-                  Total Flagged Issues: <strong>{auditData.totalIssuesCount}</strong> ({auditData.criticalIssuesCount} Critical, {auditData.warningsCount} Warnings)
+                <span style={{ fontSize: '0.8125rem', color: '#64748b' }}>
+                  Total Flagged Issues: <strong style={{ color: '#0f172a' }}>{auditData.totalIssuesCount}</strong> ({auditData.criticalIssuesCount} Critical, {auditData.warningsCount} Warnings)
                 </span>
               </div>
 
-              <h4 style={{ fontSize: '1.2rem', color: '#fff', marginTop: 10, fontWeight: 700 }}>
+              <h4 style={{ fontSize: '1.2rem', color: '#0f172a', marginTop: 10, fontWeight: 700 }}>
                 {auditData.summary}
               </h4>
 
-              <p style={{ fontSize: '0.8125rem', color: 'var(--text-muted)', marginTop: 4 }}>
+              <p style={{ fontSize: '0.8125rem', color: '#475569', marginTop: 4 }}>
                 {isPass
                   ? 'All 9 compliance categories verified. No blocking contradictions, missing clauses, or placeholder errors found.'
                   : isWarning
@@ -371,23 +372,24 @@ export const Step9AiQualityCheck: React.FC<Step9AiQualityCheckProps> = ({
                 return (
                   <div
                     key={catKey}
-                    className="glass-panel"
                     style={{
                       padding: 18,
-                      background: 'var(--bg-tertiary)',
+                      borderRadius: 10,
+                      background: '#ffffff',
+                      boxShadow: 'var(--shadow-sm)',
                       border: `1px solid ${
                         catRev
-                          ? 'rgba(239, 68, 68, 0.4)'
+                          ? '#fca5a5'
                           : catWarn
-                          ? 'rgba(245, 158, 11, 0.4)'
-                          : 'rgba(16, 185, 129, 0.3)'
+                          ? '#fde68a'
+                          : '#a7f3d0'
                       }`,
                     }}
                   >
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10 }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                         {categoryIcons[catKey]}
-                        <strong style={{ fontSize: '0.9375rem', color: '#fff' }}>
+                        <strong style={{ fontSize: '0.9375rem', color: '#0f172a' }}>
                           {cat.categoryTitle}
                         </strong>
                       </div>
@@ -400,17 +402,17 @@ export const Step9AiQualityCheck: React.FC<Step9AiQualityCheckProps> = ({
                             fontSize: '0.6875rem',
                             fontWeight: 800,
                             background: catPass
-                              ? 'rgba(16, 185, 129, 0.15)'
+                              ? '#ecfdf5'
                               : catWarn
-                              ? 'rgba(245, 158, 11, 0.15)'
-                              : 'rgba(239, 68, 68, 0.15)',
-                            color: catPass ? '#34d399' : catWarn ? '#fbbf24' : '#f87171',
+                              ? '#fef3c7'
+                              : '#fef2f2',
+                            color: catPass ? '#047857' : catWarn ? '#b45309' : '#b91c1c',
                             border: `1px solid ${
                               catPass
-                                ? 'rgba(16, 185, 129, 0.3)'
+                                ? '#a7f3d0'
                                 : catWarn
-                                ? 'rgba(245, 158, 11, 0.3)'
-                                : 'rgba(239, 68, 68, 0.3)'
+                                ? '#fde68a'
+                                : '#fca5a5'
                             }`,
                           }}
                         >
@@ -433,7 +435,7 @@ export const Step9AiQualityCheck: React.FC<Step9AiQualityCheckProps> = ({
 
                     {/* Passed notice */}
                     {catPass && (
-                      <div style={{ marginTop: 10, fontSize: '0.8125rem', color: '#34d399', display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <div style={{ marginTop: 10, fontSize: '0.8125rem', color: '#059669', display: 'flex', alignItems: 'center', gap: 6 }}>
                         <CheckCircle2 size={15} />
                         <span>All checks in this category verified and compliant.</span>
                       </div>
@@ -447,27 +449,28 @@ export const Step9AiQualityCheck: React.FC<Step9AiQualityCheckProps> = ({
                             key={iss.id}
                             style={{
                               padding: '10px 14px',
-                              background: 'var(--bg-primary)',
+                              background: '#f8fafc',
                               borderRadius: 'var(--radius-sm)',
+                              border: '1px solid #e2e8f0',
                               borderLeft: `3px solid ${
                                 iss.severity === 'CRITICAL' ? '#ef4444' : '#f59e0b'
                               }`,
                             }}
                           >
                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
-                              <strong style={{ fontSize: '0.8125rem', color: iss.severity === 'CRITICAL' ? '#fca5a5' : '#fde047' }}>
+                              <strong style={{ fontSize: '0.8125rem', color: iss.severity === 'CRITICAL' ? '#b91c1c' : '#b45309' }}>
                                 {iss.title}
                               </strong>
                               {iss.fieldOrLocation && (
-                                <span style={{ fontSize: '0.6875rem', color: 'var(--text-dim)', fontFamily: 'var(--font-mono)' }}>
+                                <span style={{ fontSize: '0.6875rem', color: '#64748b', fontFamily: 'var(--font-mono)' }}>
                                   {iss.fieldOrLocation}
                                 </span>
                               )}
                             </div>
-                            <div style={{ fontSize: '0.8125rem', color: 'var(--text-muted)', marginTop: 4 }}>
+                            <div style={{ fontSize: '0.8125rem', color: '#475569', marginTop: 4 }}>
                               {iss.issue}
                             </div>
-                            <div style={{ fontSize: '0.75rem', color: '#93c5fd', marginTop: 4 }}>
+                            <div style={{ fontSize: '0.75rem', color: '#1d4ed8', marginTop: 4 }}>
                               <strong>Recommendation:</strong> {iss.recommendation}
                             </div>
                           </div>

@@ -122,7 +122,7 @@ export const EmailSendModal: React.FC<EmailSendModalProps> = ({
         left: 0,
         right: 0,
         bottom: 0,
-        backgroundColor: 'rgba(0, 0, 0, 0.75)',
+        backgroundColor: 'rgba(15, 23, 42, 0.6)',
         backdropFilter: 'blur(6px)',
         display: 'flex',
         alignItems: 'center',
@@ -140,9 +140,10 @@ export const EmailSendModal: React.FC<EmailSendModalProps> = ({
           display: 'flex',
           flexDirection: 'column',
           overflow: 'hidden',
-          borderRadius: 14,
-          boxShadow: '0 24px 64px rgba(0, 0, 0, 0.6)',
-          border: '1px solid var(--border-medium)',
+          borderRadius: 'var(--radius-xl)',
+          boxShadow: 'var(--shadow-xl)',
+          backgroundColor: '#ffffff',
+          border: '1px solid var(--border-subtle)',
         }}
       >
         {/* Modal Header */}
@@ -153,7 +154,7 @@ export const EmailSendModal: React.FC<EmailSendModalProps> = ({
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            background: 'rgba(255, 255, 255, 0.02)',
+            background: '#ffffff',
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -162,23 +163,24 @@ export const EmailSendModal: React.FC<EmailSendModalProps> = ({
                 width: 38,
                 height: 38,
                 borderRadius: 10,
-                background: 'rgba(99, 102, 241, 0.15)',
+                background: '#eff6ff',
+                border: '1px solid #bfdbfe',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                color: '#818cf8',
+                color: '#2563eb',
               }}
             >
               <Send size={18} />
             </div>
             <div>
-              <h3 style={{ fontSize: '1.15rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 8 }}>
+              <h3 style={{ fontSize: '1.15rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 8, color: '#0f172a', margin: 0 }}>
                 <span>Send Formal Offer Email</span>
-                <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)', fontWeight: 400 }}>
+                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 500 }}>
                   ({offerReferenceNumber})
                 </span>
               </h3>
-              <p style={{ fontSize: '0.8125rem', color: 'var(--text-muted)' }}>
+              <p style={{ fontSize: '0.8125rem', color: 'var(--text-muted)', margin: '2px 0 0' }}>
                 Review email content, secure token link, and PDF attachment before final dispatch.
               </p>
             </div>
@@ -197,7 +199,7 @@ export const EmailSendModal: React.FC<EmailSendModalProps> = ({
         <div style={{ padding: 24, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 20 }}>
           {loading ? (
             <div style={{ padding: 60, textAlign: 'center', color: 'var(--text-muted)' }}>
-              <RefreshCw size={24} className="spin" style={{ margin: '0 auto 12px', display: 'block' }} />
+              <RefreshCw size={24} className="spin" style={{ margin: '0 auto 12px', display: 'block', color: 'var(--primary)' }} />
               Loading email confirmation details...
             </div>
           ) : (
@@ -207,19 +209,19 @@ export const EmailSendModal: React.FC<EmailSendModalProps> = ({
                 style={{
                   padding: '12px 16px',
                   borderRadius: 8,
-                  background: 'rgba(99, 102, 241, 0.08)',
-                  border: '1px solid rgba(99, 102, 241, 0.25)',
+                  background: '#f5f3ff',
+                  border: '1px solid #ddd6fe',
                   display: 'flex',
                   alignItems: 'flex-start',
                   gap: 12,
                 }}
               >
-                <ShieldCheck size={18} style={{ color: '#818cf8', flexShrink: 0, marginTop: 2 }} />
+                <ShieldCheck size={18} style={{ color: '#7c3aed', flexShrink: 0, marginTop: 2 }} />
                 <div>
-                  <div style={{ fontSize: '0.8125rem', fontWeight: 600, color: '#c7d2fe' }}>
+                  <div style={{ fontSize: '0.8125rem', fontWeight: 700, color: '#5b21b6' }}>
                     Human Verification Required (AI Prohibition Guardrail)
                   </div>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: 2 }}>
+                  <div style={{ fontSize: '0.75rem', color: '#475569', marginTop: 2 }}>
                     AI agents and background routines are strictly prohibited from dispatching offers.
                     You are sending as authorized HR user <strong>{preview?.senderName}</strong> ({preview?.senderEmail}).
                   </div>
@@ -229,18 +231,18 @@ export const EmailSendModal: React.FC<EmailSendModalProps> = ({
               {/* Recipient & Subject Form Fields */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
                 <div>
-                  <label className="form-label" style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>
+                  <label className="form-label" style={{ fontSize: '0.75rem', color: '#475569', fontWeight: 600 }}>
                     Candidate Recipient
                   </label>
                   <div
                     style={{
                       padding: '9px 12px',
-                      background: 'rgba(255, 255, 255, 0.03)',
+                      background: '#f8fafc',
                       borderRadius: 6,
                       border: '1px solid var(--border-subtle)',
                       fontSize: '0.875rem',
-                      fontWeight: 500,
-                      color: '#fff',
+                      fontWeight: 600,
+                      color: '#0f172a',
                     }}
                   >
                     {preview?.recipientName} ({preview?.recipientEmail})
@@ -248,17 +250,18 @@ export const EmailSendModal: React.FC<EmailSendModalProps> = ({
                 </div>
 
                 <div>
-                  <label className="form-label" style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>
+                  <label className="form-label" style={{ fontSize: '0.75rem', color: '#475569', fontWeight: 600 }}>
                     Target Role & Department
                   </label>
                   <div
                     style={{
                       padding: '9px 12px',
-                      background: 'rgba(255, 255, 255, 0.03)',
+                      background: '#f8fafc',
                       borderRadius: 6,
                       border: '1px solid var(--border-subtle)',
                       fontSize: '0.875rem',
-                      color: 'var(--text-bright)',
+                      color: '#0f172a',
+                      fontWeight: 600,
                     }}
                   >
                     {preview?.jobTitle} • {preview?.department}
@@ -303,18 +306,18 @@ export const EmailSendModal: React.FC<EmailSendModalProps> = ({
                   gap: 16,
                   padding: 16,
                   borderRadius: 8,
-                  background: 'rgba(255, 255, 255, 0.02)',
+                  background: '#f8fafc',
                   border: '1px solid var(--border-subtle)',
                 }}
               >
                 {/* PDF Attachment Section */}
                 <div>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-                    <span style={{ fontSize: '0.8125rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 }}>
-                      <Paperclip size={14} style={{ color: 'var(--primary-light)' }} />
+                    <span style={{ fontSize: '0.8125rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6, color: '#0f172a' }}>
+                      <Paperclip size={14} style={{ color: 'var(--primary)' }} />
                       <span>PDF Attachment</span>
                     </span>
-                    <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.75rem', cursor: 'pointer' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.75rem', cursor: 'pointer', color: '#475569' }}>
                       <input
                         type="checkbox"
                         checked={includePdfAttachment}
@@ -324,14 +327,14 @@ export const EmailSendModal: React.FC<EmailSendModalProps> = ({
                     </label>
                   </div>
                   {preview?.hasPdfAttachment ? (
-                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                      <div style={{ color: '#fff', fontWeight: 500 }}>{preview.pdfFileName}</div>
-                      <div style={{ fontSize: '0.7rem', color: 'var(--text-dim)', marginTop: 2 }}>
+                    <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
+                      <div style={{ color: '#0f172a', fontWeight: 600 }}>{preview.pdfFileName}</div>
+                      <div style={{ fontSize: '0.7rem', color: '#64748b', marginTop: 2 }}>
                         SHA-256: {preview.pdfChecksum?.slice(0, 16)}...
                       </div>
                     </div>
                   ) : (
-                    <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>
+                    <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
                       PDF will be rendered & attached automatically upon dispatch.
                     </div>
                   )}
@@ -340,8 +343,8 @@ export const EmailSendModal: React.FC<EmailSendModalProps> = ({
                 {/* Cryptographic Secure Portal Link Section */}
                 <div>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-                    <span style={{ fontSize: '0.8125rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 }}>
-                      <Lock size={14} style={{ color: '#34d399' }} />
+                    <span style={{ fontSize: '0.8125rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6, color: '#0f172a' }}>
+                      <Lock size={14} style={{ color: '#059669' }} />
                       <span>Secure Candidate Link</span>
                     </span>
                     <button
@@ -355,9 +358,13 @@ export const EmailSendModal: React.FC<EmailSendModalProps> = ({
                   </div>
                   <div
                     style={{
-                      fontSize: '0.72rem',
+                      fontSize: '0.75rem',
                       fontFamily: 'var(--font-mono)',
-                      color: 'var(--text-dim)',
+                      color: '#334155',
+                      background: '#ffffff',
+                      padding: '4px 8px',
+                      borderRadius: 4,
+                      border: '1px solid var(--border-subtle)',
                       overflow: 'hidden',
                       textOverflow: 'ellipsis',
                       whiteSpace: 'nowrap',
@@ -365,7 +372,7 @@ export const EmailSendModal: React.FC<EmailSendModalProps> = ({
                   >
                     {preview?.securePortalUrl}
                   </div>
-                  <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: 4 }}>
+                  <div style={{ fontSize: '0.7rem', color: '#64748b', marginTop: 4 }}>
                     Validity: 14 days (Expires {new Date(preview?.portalTokenExpiresAt || '').toLocaleDateString()})
                   </div>
                 </div>
@@ -373,7 +380,7 @@ export const EmailSendModal: React.FC<EmailSendModalProps> = ({
 
               {/* Full Email HTML Preview Box */}
               <div>
-                <label className="form-label" style={{ fontSize: '0.75rem', color: 'var(--text-dim)', display: 'flex', alignItems: 'center', gap: 6 }}>
+                <label className="form-label" style={{ fontSize: '0.75rem', color: '#334155', display: 'flex', alignItems: 'center', gap: 6 }}>
                   <Eye size={13} />
                   <span>Email Content Preview</span>
                 </label>
@@ -400,17 +407,17 @@ export const EmailSendModal: React.FC<EmailSendModalProps> = ({
                   justifyContent: 'space-between',
                   padding: '10px 14px',
                   borderRadius: 6,
-                  background: 'rgba(239, 68, 68, 0.04)',
-                  border: '1px dashed rgba(239, 68, 68, 0.25)',
+                  background: '#fef2f2',
+                  border: '1px dashed #fecaca',
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <AlertTriangle size={14} style={{ color: '#f87171' }} />
-                  <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                  <AlertTriangle size={14} style={{ color: '#dc2626' }} />
+                  <span style={{ fontSize: '0.75rem', color: '#991b1b' }}>
                     Simulate SMTP failure (tests Failed Status and Retry capabilities)
                   </span>
                 </div>
-                <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.75rem', cursor: 'pointer' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.75rem', cursor: 'pointer', color: '#7f1d1d' }}>
                   <input
                     type="checkbox"
                     checked={simulateFailure}
@@ -431,7 +438,7 @@ export const EmailSendModal: React.FC<EmailSendModalProps> = ({
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            background: 'rgba(255, 255, 255, 0.01)',
+            background: '#f8fafc',
           }}
         >
           {onViewHistory ? (

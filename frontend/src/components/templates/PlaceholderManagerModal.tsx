@@ -151,52 +151,56 @@ export const PlaceholderManagerModal: React.FC<PlaceholderManagerModalProps> = (
 
         {/* Category Pills */}
         <div style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 4 }}>
-          {categories.map((cat) => (
-            <button
-              key={cat.id}
-              onClick={() => setSelectedCategory(cat.id)}
-              style={{
-                padding: '6px 14px',
-                borderRadius: 'var(--radius-full)',
-                fontSize: '0.8125rem',
-                fontWeight: 600,
-                border: '1px solid',
-                borderColor: selectedCategory === cat.id ? 'var(--primary)' : 'var(--border-subtle)',
-                backgroundColor: selectedCategory === cat.id ? 'rgba(99, 102, 241, 0.15)' : 'var(--bg-tertiary)',
-                color: selectedCategory === cat.id ? '#818cf8' : 'var(--text-muted)',
-                cursor: 'pointer',
-                whiteSpace: 'nowrap',
-                transition: 'all 0.15s ease',
-              }}
-            >
-              {cat.label}
-              {cat.id === 'custom' && customPlaceholders.length > 0 && (
-                <span
-                  style={{
-                    marginLeft: 6,
-                    padding: '1px 6px',
-                    borderRadius: 'var(--radius-full)',
-                    background: 'var(--primary)',
-                    color: '#fff',
-                    fontSize: '0.6875rem',
-                  }}
-                >
-                  {customPlaceholders.length}
-                </span>
-              )}
-            </button>
-          ))}
+          {categories.map((cat) => {
+            const isActive = selectedCategory === cat.id;
+            return (
+              <button
+                key={cat.id}
+                onClick={() => setSelectedCategory(cat.id)}
+                style={{
+                  padding: '6px 14px',
+                  borderRadius: 'var(--radius-full)',
+                  fontSize: '0.8125rem',
+                  fontWeight: 600,
+                  border: '1px solid',
+                  borderColor: isActive ? 'var(--primary)' : 'var(--border-subtle)',
+                  backgroundColor: isActive ? '#eff6ff' : '#ffffff',
+                  color: isActive ? '#1d4ed8' : '#64748b',
+                  cursor: 'pointer',
+                  whiteSpace: 'nowrap',
+                  boxShadow: isActive ? '0 1px 2px rgba(37,99,235,0.1)' : 'none',
+                  transition: 'all 0.15s ease',
+                }}
+              >
+                {cat.label}
+                {cat.id === 'custom' && customPlaceholders.length > 0 && (
+                  <span
+                    style={{
+                      marginLeft: 6,
+                      padding: '1px 6px',
+                      borderRadius: 'var(--radius-full)',
+                      background: 'var(--primary)',
+                      color: '#fff',
+                      fontSize: '0.6875rem',
+                    }}
+                  >
+                    {customPlaceholders.length}
+                  </span>
+                )}
+              </button>
+            );
+          })}
         </div>
 
         {/* Custom Placeholder Creation Form */}
         {showAddCustom && (
           <form
             onSubmit={handleCreateCustom}
-            className="glass-panel"
+            className="card"
             style={{
               padding: 18,
               border: '1px dashed var(--primary)',
-              background: 'rgba(99, 102, 241, 0.05)',
+              background: '#f8fafc',
               display: 'flex',
               flexDirection: 'column',
               gap: 12,
@@ -204,27 +208,29 @@ export const PlaceholderManagerModal: React.FC<PlaceholderManagerModalProps> = (
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <Tag size={16} color="var(--primary)" />
-              <strong style={{ fontSize: '0.9375rem' }}>Create Custom Company Token</strong>
+              <strong style={{ fontSize: '0.9375rem', color: '#0f172a' }}>Create Custom Company Token</strong>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
               <div>
-                <label className="form-label">Key Name (e.g. stock_options)</label>
+                <label className="form-label" style={{ fontWeight: 600, color: '#334155' }}>Key Name (e.g. stock_options)</label>
                 <input
                   type="text"
                   placeholder="e.g. equity_shares"
                   className="form-input"
+                  style={{ background: '#ffffff' }}
                   value={newKey}
                   onChange={(e) => setNewKey(e.target.value)}
                   required
                 />
               </div>
               <div>
-                <label className="form-label">Human Label</label>
+                <label className="form-label" style={{ fontWeight: 600, color: '#334155' }}>Human Label</label>
                 <input
                   type="text"
                   placeholder="e.g. Stock Options Grant"
                   className="form-input"
+                  style={{ background: '#ffffff' }}
                   value={newLabel}
                   onChange={(e) => setNewLabel(e.target.value)}
                   required
@@ -234,21 +240,23 @@ export const PlaceholderManagerModal: React.FC<PlaceholderManagerModalProps> = (
 
             <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 12 }}>
               <div>
-                <label className="form-label">Description / Guidance</label>
+                <label className="form-label" style={{ fontWeight: 600, color: '#334155' }}>Description / Guidance</label>
                 <input
                   type="text"
                   placeholder="e.g. Number of ISO stock options granted under 2026 plan"
                   className="form-input"
+                  style={{ background: '#ffffff' }}
                   value={newDescription}
                   onChange={(e) => setNewDescription(e.target.value)}
                 />
               </div>
               <div>
-                <label className="form-label">Sample Preview Value</label>
+                <label className="form-label" style={{ fontWeight: 600, color: '#334155' }}>Sample Preview Value</label>
                 <input
                   type="text"
                   placeholder="e.g. 25,000 ISO Shares"
                   className="form-input"
+                  style={{ background: '#ffffff' }}
                   value={newExample}
                   onChange={(e) => setNewExample(e.target.value)}
                 />
@@ -258,7 +266,7 @@ export const PlaceholderManagerModal: React.FC<PlaceholderManagerModalProps> = (
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 4 }}>
               <button
                 type="button"
-                className="btn btn-ghost"
+                className="btn btn-secondary"
                 onClick={() => setShowAddCustom(false)}
                 style={{ fontSize: '0.8125rem' }}
               >
@@ -285,24 +293,27 @@ export const PlaceholderManagerModal: React.FC<PlaceholderManagerModalProps> = (
           {filtered.map((item) => (
             <div
               key={item.key}
-              className="glass-panel"
+              className="card"
               style={{
-                padding: '12px 14px',
+                padding: '14px 16px',
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'space-between',
                 gap: 10,
-                backgroundColor: 'var(--bg-tertiary)',
-                border: '1px solid var(--border-subtle)',
+                backgroundColor: '#ffffff',
               }}
             >
               <div>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
                   <span
                     style={{
                       fontFamily: 'var(--font-mono)',
-                      fontSize: '0.8125rem',
-                      color: 'var(--primary)',
+                      fontSize: '0.75rem',
+                      color: '#2563eb',
+                      background: '#eff6ff',
+                      border: '1px solid #bfdbfe',
+                      padding: '2px 6px',
+                      borderRadius: 'var(--radius-sm)',
                       fontWeight: 700,
                     }}
                   >
@@ -312,10 +323,11 @@ export const PlaceholderManagerModal: React.FC<PlaceholderManagerModalProps> = (
                     <span
                       style={{
                         fontSize: '0.625rem',
-                        padding: '1px 5px',
+                        padding: '2px 6px',
                         borderRadius: 'var(--radius-sm)',
-                        background: 'rgba(239, 68, 68, 0.15)',
-                        color: '#f87171',
+                        background: '#fef2f2',
+                        border: '1px solid #fecaca',
+                        color: '#dc2626',
                         fontWeight: 700,
                         textTransform: 'uppercase',
                       }}
@@ -325,13 +337,13 @@ export const PlaceholderManagerModal: React.FC<PlaceholderManagerModalProps> = (
                   )}
                 </div>
 
-                <div style={{ fontWeight: 600, fontSize: '0.875rem', color: '#fff' }}>
+                <div style={{ fontWeight: 600, fontSize: '0.875rem', color: '#0f172a' }}>
                   {item.label}
                 </div>
                 <div
                   style={{
                     fontSize: '0.75rem',
-                    color: 'var(--text-muted)',
+                    color: '#64748b',
                     marginTop: 3,
                     lineHeight: 1.4,
                   }}
@@ -353,7 +365,7 @@ export const PlaceholderManagerModal: React.FC<PlaceholderManagerModalProps> = (
                 <div
                   style={{
                     fontSize: '0.6875rem',
-                    color: 'var(--text-dim)',
+                    color: '#64748b',
                     overflow: 'hidden',
                     textOverflow: 'ellipsis',
                     whiteSpace: 'nowrap',
@@ -368,12 +380,12 @@ export const PlaceholderManagerModal: React.FC<PlaceholderManagerModalProps> = (
                   <button
                     type="button"
                     onClick={() => handleCopy(item.token)}
-                    className="btn btn-ghost"
+                    className="btn btn-secondary"
                     style={{ padding: '4px 8px', fontSize: '0.75rem' }}
                     title="Copy token to clipboard"
                   >
                     {copiedToken === item.token ? (
-                      <Check size={13} color="var(--success)" />
+                      <Check size={13} color="#059669" />
                     ) : (
                       <Copy size={13} />
                     )}

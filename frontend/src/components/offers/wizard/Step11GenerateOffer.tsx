@@ -92,8 +92,10 @@ export const Step11GenerateOffer: React.FC<Step11GenerateOfferProps> = ({
         className="glass-panel animate-fade-in"
         style={{
           padding: '24px 28px',
-          background: 'rgba(16, 185, 129, 0.08)',
-          border: '1px solid var(--hr-border)',
+          background: 'linear-gradient(135deg, #ecfdf5 0%, #f0fdf4 100%)',
+          border: '1px solid #a7f3d0',
+          borderRadius: 'var(--radius-lg)',
+          boxShadow: 'var(--shadow-sm)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
@@ -107,28 +109,28 @@ export const Step11GenerateOffer: React.FC<Step11GenerateOfferProps> = ({
               width: 48,
               height: 48,
               borderRadius: '50%',
-              background: 'var(--hr-gradient-subtle)',
-              border: '2px solid var(--success)',
+              background: '#d1fae5',
+              border: '2px solid #059669',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              boxShadow: '0 0 20px var(--hr-glow)',
+              boxShadow: '0 2px 8px rgba(5, 150, 105, 0.15)',
             }}
           >
-            <CheckCircle2 size={26} color="var(--success)" />
+            <CheckCircle2 size={26} color="#059669" />
           </div>
 
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#fff' }}>
+              <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0f172a', margin: 0 }}>
                 Offer Letter Successfully Generated!
               </h3>
               <span className="hr-badge" style={{ fontSize: '0.6875rem' }}>
                 Status: {generatedOffer.currentStatus}
               </span>
             </div>
-            <div style={{ fontSize: '0.8125rem', color: 'var(--text-muted)', marginTop: 2 }}>
-              Reference Number: <strong style={{ color: '#fff', fontFamily: 'var(--font-mono)' }}>{generatedOffer.referenceNumber}</strong> • Version {generatedOffer.versionNumber}
+            <div style={{ fontSize: '0.8125rem', color: '#475569', marginTop: 4 }}>
+              Reference Number: <strong style={{ color: '#0f172a', fontFamily: 'var(--font-mono)' }}>{generatedOffer.referenceNumber}</strong> • Version {generatedOffer.versionNumber}
             </div>
           </div>
         </div>
@@ -198,25 +200,27 @@ export const Step11GenerateOffer: React.FC<Step11GenerateOfferProps> = ({
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          background: 'var(--bg-tertiary)',
+          background: '#f8fafc',
+          border: '1px solid var(--border-subtle)',
+          borderRadius: 'var(--radius-md)',
           fontSize: '0.75rem',
-          color: 'var(--text-dim)',
+          color: '#64748b',
           flexWrap: 'wrap',
           gap: 12,
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-          <Lock size={14} color="var(--success)" />
-          <span>VERIFICATION TOKEN:</span>
-          <span style={{ fontFamily: 'var(--font-mono)', color: '#818cf8', fontWeight: 600 }}>
+          <Lock size={14} color="#059669" />
+          <span style={{ fontWeight: 600, color: '#475569' }}>VERIFICATION TOKEN:</span>
+          <span style={{ fontFamily: 'var(--font-mono)', color: '#4f46e5', fontWeight: 600 }}>
             {generatedOffer.verificationToken || 'Verified'}
           </span>
           {generatedOffer.sha256Checksum && (
             <>
               <span style={{ color: 'var(--border-subtle)' }}>•</span>
-              <Hash size={13} color="var(--text-muted)" />
+              <Hash size={13} color="#64748b" />
               <span>SHA-256:</span>
-              <span style={{ fontFamily: 'var(--font-mono)', color: 'var(--text-muted)' }} title={generatedOffer.sha256Checksum}>
+              <span style={{ fontFamily: 'var(--font-mono)', color: '#64748b' }} title={generatedOffer.sha256Checksum}>
                 {generatedOffer.sha256Checksum.substring(0, 16)}...
               </span>
             </>
@@ -229,8 +233,8 @@ export const Step11GenerateOffer: React.FC<Step11GenerateOfferProps> = ({
           )}
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          <ShieldCheck size={14} color="var(--success)" />
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#059669', fontWeight: 600 }}>
+          <ShieldCheck size={14} color="#059669" />
           <span>Logged to Immutable Tenant Audit Ledger (v{generatedOffer.versionNumber})</span>
         </div>
       </div>
@@ -238,26 +242,28 @@ export const Step11GenerateOffer: React.FC<Step11GenerateOfferProps> = ({
       {/* Rendered Letterhead Document (Paper Viewport) */}
       <div
         style={{
-          backgroundColor: '#070a12',
-          padding: '32px 16px',
+          backgroundColor: '#f1f5f9',
+          padding: '36px 16px',
           borderRadius: 'var(--radius-lg)',
-          border: '1px solid var(--border-subtle)',
+          border: '1px solid var(--border-medium)',
           display: 'flex',
           justifyContent: 'center',
           overflowX: 'auto',
+          boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.03)',
         }}
       >
         <div
           id="final-offer-paper"
           style={{
             width: '100%',
-            maxWidth: '740px',
+            maxWidth: '780px',
             minHeight: '920px',
             backgroundColor: '#ffffff',
-            color: '#1f2937',
+            color: '#1e293b',
             padding: '54px 60px',
-            boxShadow: '0 12px 36px rgba(0, 0, 0, 0.45)',
-            borderRadius: '2px',
+            boxShadow: '0 4px 20px -2px rgba(0, 0, 0, 0.08), 0 2px 6px -1px rgba(0, 0, 0, 0.04)',
+            border: '1px solid var(--border-subtle)',
+            borderRadius: '4px',
             fontSize: '13px',
             lineHeight: 1.65,
             position: 'relative',

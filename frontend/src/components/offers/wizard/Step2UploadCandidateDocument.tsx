@@ -81,9 +81,9 @@ export const Step2UploadCandidateDocument: React.FC<Step2UploadCandidateDocument
             >
               2
             </span>
-            <h3 style={{ fontSize: '1.25rem', fontWeight: 800 }}>Upload Candidate Document</h3>
+            <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0f172a' }}>Upload Candidate Document</h3>
           </div>
-          <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem', marginTop: 4, marginLeft: 38 }}>
+          <p style={{ color: '#64748b', fontSize: '0.875rem', marginTop: 4, marginLeft: 38 }}>
             Provide candidate resume, CV, or interview evaluation notes. AI will extract structured fields in Step 3.
           </p>
         </div>
@@ -109,8 +109,8 @@ export const Step2UploadCandidateDocument: React.FC<Step2UploadCandidateDocument
             padding: '6px 14px',
             borderRadius: 'var(--radius-sm)',
             border: 'none',
-            background: activeInputMode === 'upload' ? 'var(--bg-tertiary)' : 'transparent',
-            color: activeInputMode === 'upload' ? '#fff' : 'var(--text-muted)',
+            background: activeInputMode === 'upload' ? 'var(--primary)' : '#f1f5f9',
+            color: activeInputMode === 'upload' ? '#ffffff' : '#475569',
             fontWeight: 600,
             fontSize: '0.8125rem',
             cursor: 'pointer',
@@ -125,8 +125,8 @@ export const Step2UploadCandidateDocument: React.FC<Step2UploadCandidateDocument
             padding: '6px 14px',
             borderRadius: 'var(--radius-sm)',
             border: 'none',
-            background: activeInputMode === 'paste' ? 'var(--bg-tertiary)' : 'transparent',
-            color: activeInputMode === 'paste' ? '#fff' : 'var(--text-muted)',
+            background: activeInputMode === 'paste' ? 'var(--primary)' : '#f1f5f9',
+            color: activeInputMode === 'paste' ? '#ffffff' : '#475569',
             fontWeight: 600,
             fontSize: '0.8125rem',
             cursor: 'pointer',
@@ -146,12 +146,11 @@ export const Step2UploadCandidateDocument: React.FC<Step2UploadCandidateDocument
             }}
             onDragLeave={() => setDragActive(false)}
             onDrop={handleDrop}
-            className="glass-panel"
             style={{
               padding: '48px 24px',
               textAlign: 'center',
-              border: `2px dashed ${dragActive ? 'var(--primary)' : 'var(--border-medium)'}`,
-              backgroundColor: dragActive ? 'rgba(99, 102, 241, 0.08)' : 'var(--bg-secondary)',
+              border: `2px dashed ${dragActive ? 'var(--primary)' : '#cbd5e1'}`,
+              backgroundColor: dragActive ? '#eff6ff' : '#ffffff',
               borderRadius: 'var(--radius-lg)',
               cursor: 'pointer',
               transition: 'all 0.2s ease',
@@ -175,7 +174,7 @@ export const Step2UploadCandidateDocument: React.FC<Step2UploadCandidateDocument
                 width: 52,
                 height: 52,
                 borderRadius: '50%',
-                background: 'rgba(99, 102, 241, 0.1)',
+                background: '#e0e7ff',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -185,10 +184,10 @@ export const Step2UploadCandidateDocument: React.FC<Step2UploadCandidateDocument
               <Upload size={24} color="var(--primary)" />
             </div>
 
-            <h4 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#fff' }}>
+            <h4 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#0f172a' }}>
               Drag & Drop Candidate Resume or Click to Browse
             </h4>
-            <p style={{ color: 'var(--text-muted)', fontSize: '0.8125rem', marginTop: 4 }}>
+            <p style={{ color: '#64748b', fontSize: '0.8125rem', marginTop: 4 }}>
               Supports PDF, DOCX, or plain text up to 15MB. Encrypted locally and processed under strict tenant data isolation.
             </p>
           </div>
@@ -196,23 +195,24 @@ export const Step2UploadCandidateDocument: React.FC<Step2UploadCandidateDocument
           {/* Uploaded File Badge Banner */}
           {documentMeta && (
             <div
-              className="glass-panel animate-fade-in"
+              className="animate-fade-in"
               style={{
                 padding: '12px 18px',
+                borderRadius: 8,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
-                background: 'rgba(16, 185, 129, 0.08)',
-                border: '1px solid rgba(16, 185, 129, 0.3)',
+                background: '#ecfdf5',
+                border: '1px solid #a7f3d0',
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <FileCheck2 size={20} color="var(--success)" />
+                <FileCheck2 size={20} color="#059669" />
                 <div>
-                  <div style={{ fontWeight: 600, fontSize: '0.875rem', color: '#fff' }}>
+                  <div style={{ fontWeight: 600, fontSize: '0.875rem', color: '#0f172a' }}>
                     {documentMeta.name}
                   </div>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>
+                  <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
                     {(documentMeta.sizeBytes / 1024).toFixed(1)} KB • Text extracted and ready for AI analysis
                   </div>
                 </div>
@@ -224,8 +224,8 @@ export const Step2UploadCandidateDocument: React.FC<Step2UploadCandidateDocument
                   fontWeight: 700,
                   padding: '2px 8px',
                   borderRadius: 'var(--radius-full)',
-                  background: 'rgba(16, 185, 129, 0.2)',
-                  color: '#34d399',
+                  background: '#d1fae5',
+                  color: '#065f46',
                   textTransform: 'uppercase',
                 }}
               >
@@ -244,7 +244,9 @@ export const Step2UploadCandidateDocument: React.FC<Step2UploadCandidateDocument
               fontFamily: 'var(--font-mono)',
               fontSize: '0.8125rem',
               lineHeight: 1.6,
-              background: 'var(--bg-primary)',
+              background: '#ffffff',
+              color: '#0f172a',
+              border: '1px solid var(--border-medium)',
             }}
             placeholder="Paste raw resume, CV, or interview feedback text here..."
             value={pastedContent}
@@ -257,7 +259,7 @@ export const Step2UploadCandidateDocument: React.FC<Step2UploadCandidateDocument
               });
             }}
           />
-          <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>
+          <span style={{ fontSize: '0.75rem', color: '#64748b' }}>
             Characters: {pastedContent.length} • Words: {pastedContent.trim() ? pastedContent.trim().split(/\s+/).length : 0}
           </span>
         </div>

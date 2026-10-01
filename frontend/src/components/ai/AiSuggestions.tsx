@@ -82,13 +82,15 @@ export const AiSuggestions: React.FC<AiSuggestionsProps> = ({
                 display: 'flex',
                 flexDirection: 'column',
                 gap: 8,
-                background: 'rgba(255, 255, 255, 0.02)',
+                background: 'var(--bg-surface, #ffffff)',
+                border: '1px solid var(--ai-border)',
+                boxShadow: 'var(--shadow-sm)',
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   <Icon size={16} color={iconColor} />
-                  <span style={{ fontWeight: 600, fontSize: '0.875rem' }}>{item.title}</span>
+                  <span style={{ fontWeight: 600, fontSize: '0.875rem', color: 'var(--text-main, #0f172a)' }}>{item.title}</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                   <span
@@ -99,9 +101,9 @@ export const AiSuggestions: React.FC<AiSuggestionsProps> = ({
                       borderRadius: 4,
                       background:
                         item.impact === 'HIGH'
-                          ? 'rgba(239, 68, 68, 0.2)'
-                          : 'rgba(245, 158, 11, 0.2)',
-                      color: item.impact === 'HIGH' ? '#f87171' : '#fbbf24',
+                          ? 'rgba(239, 68, 68, 0.15)'
+                          : 'rgba(245, 158, 11, 0.15)',
+                      color: item.impact === 'HIGH' ? '#dc2626' : '#d97706',
                     }}
                   >
                     {item.impact} IMPACT
@@ -118,7 +120,7 @@ export const AiSuggestions: React.FC<AiSuggestionsProps> = ({
                   alignItems: 'center',
                   justifyContent: 'space-between',
                   paddingTop: 8,
-                  borderTop: '1px solid rgba(255, 255, 255, 0.05)',
+                  borderTop: '1px solid var(--border-subtle, #e2e8f0)',
                 }}
               >
                 <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>

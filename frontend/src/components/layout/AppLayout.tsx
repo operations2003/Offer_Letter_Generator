@@ -8,7 +8,23 @@ export const AppLayout: React.FC = () => {
 
   return (
     <div className="app-layout">
+      {/* Mobile backdrop */}
+      {sidebarOpen && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            backgroundColor: 'rgba(15, 23, 42, 0.4)',
+            zIndex: 35,
+            backdropFilter: 'blur(2px)',
+          }}
+          onClick={() => setSidebarOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+
       <div className="main-content">
         <Header onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
         <main className="page-container animate-fade-in">

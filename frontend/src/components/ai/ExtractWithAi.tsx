@@ -372,8 +372,8 @@ export const ExtractWithAi: React.FC<ExtractWithAiProps> = ({
                 onDrop={handleFileDrop}
                 onClick={() => fileInputRef.current?.click()}
                 style={{
-                  border: isDragOver ? '2px dashed var(--ai-purple)' : '2px dashed var(--border-medium)',
-                  background: isDragOver ? 'rgba(168, 85, 247, 0.08)' : 'rgba(255, 255, 255, 0.01)',
+                  border: isDragOver ? '2px dashed var(--primary)' : '2px dashed var(--border-medium)',
+                  background: isDragOver ? '#eff6ff' : '#f8fafc',
                   borderRadius: 'var(--radius-md)',
                   padding: '36px 20px',
                   textAlign: 'center',
@@ -387,24 +387,24 @@ export const ExtractWithAi: React.FC<ExtractWithAiProps> = ({
                       width: 52,
                       height: 52,
                       borderRadius: '50%',
-                      background: 'rgba(168, 85, 247, 0.1)',
+                      background: '#eff6ff',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      color: 'var(--ai-purple)',
+                      color: 'var(--primary)',
                     }}
                   >
                     <UploadCloud size={28} />
                   </div>
                 </div>
 
-                <div style={{ fontWeight: 600, fontSize: '0.95rem', color: '#fff', marginBottom: 6 }}>
+                <div style={{ fontWeight: 600, fontSize: '0.95rem', color: '#0f172a', marginBottom: 6 }}>
                   Click to select or drag & drop candidate file
                 </div>
-                <div style={{ fontSize: '0.8rem', color: 'var(--text-dim)', marginBottom: 12 }}>
+                <div style={{ fontSize: '0.8rem', color: '#64748b', marginBottom: 12 }}>
                   Supported formats: <strong>PDF (.pdf)</strong>, <strong>Word (.docx)</strong>, <strong>Plain Text (.txt)</strong>
                 </div>
-                <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>
+                <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
                   Maximum file size: 15MB
                 </div>
               </div>
@@ -413,22 +413,22 @@ export const ExtractWithAi: React.FC<ExtractWithAiProps> = ({
                 <div
                   style={{
                     marginTop: 12,
-                    padding: '10px 14px',
-                    borderRadius: 'var(--radius-sm)',
-                    background: 'rgba(16, 185, 129, 0.08)',
-                    border: '1px solid var(--hr-border)',
+                    padding: '12px 16px',
+                    borderRadius: 'var(--radius-md)',
+                    background: '#ecfdf5',
+                    border: '1px solid #a7f3d0',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
                   }}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <FileType size={18} color="#34d399" />
+                    <FileType size={18} color="#059669" />
                     <div>
-                      <div style={{ fontWeight: 600, fontSize: '0.85rem', color: '#fff' }}>
+                      <div style={{ fontWeight: 600, fontSize: '0.875rem', color: '#0f172a' }}>
                         {selectedFile.name}
                       </div>
-                      <div style={{ fontSize: '0.72rem', color: 'var(--text-dim)' }}>
+                      <div style={{ fontSize: '0.75rem', color: '#059669' }}>
                         {(selectedFile.size / 1024).toFixed(1)} KB • {selectedFile.type || 'Plain Text'}
                       </div>
                     </div>
@@ -439,7 +439,7 @@ export const ExtractWithAi: React.FC<ExtractWithAiProps> = ({
                       e.stopPropagation();
                       setSelectedFile(null);
                     }}
-                    style={{ background: 'none', border: 'none', color: 'var(--text-dim)', cursor: 'pointer' }}
+                    style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer' }}
                   >
                     <X size={16} />
                   </button>
@@ -450,7 +450,7 @@ export const ExtractWithAi: React.FC<ExtractWithAiProps> = ({
             /* Text Input Zone */
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               <div>
-                <label className="form-label" style={{ marginBottom: 6, display: 'block' }}>
+                <label className="form-label" style={{ marginBottom: 6, display: 'block', fontWeight: 600, color: '#334155' }}>
                   Load Sample Document:
                 </label>
                 <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
@@ -471,14 +471,14 @@ export const ExtractWithAi: React.FC<ExtractWithAiProps> = ({
               </div>
 
               <div className="form-group" style={{ margin: 0 }}>
-                <label className="form-label">Resume / Feedback Memo Content:</label>
+                <label className="form-label" style={{ fontWeight: 600, color: '#334155' }}>Resume / Feedback Memo Content:</label>
                 <textarea
                   className="form-textarea"
                   rows={8}
                   value={inputText}
                   onChange={(e) => setInputText(e.target.value)}
                   placeholder="Paste candidate resume, email debrief, or interview feedback text here..."
-                  style={{ fontFamily: 'var(--font-mono)', fontSize: '0.8125rem' }}
+                  style={{ fontFamily: 'var(--font-mono)', fontSize: '0.8125rem', background: '#ffffff', color: '#0f172a' }}
                   disabled={isExtracting}
                 />
               </div>
@@ -487,8 +487,8 @@ export const ExtractWithAi: React.FC<ExtractWithAiProps> = ({
 
           {/* Progress Indicator */}
           {isExtracting && (
-            <div className="ai-box animate-fade-in" style={{ borderColor: 'var(--ai-purple)' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, color: '#c084fc', fontWeight: 600 }}>
+            <div className="ai-box animate-fade-in" style={{ borderColor: '#c4b5fd', background: '#f5f3ff' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, color: '#7c3aed', fontWeight: 600 }}>
                 <Sparkles size={16} className="spinner" />
                 <span style={{ fontSize: '0.875rem' }}>{currentStep}</span>
               </div>
@@ -498,20 +498,20 @@ export const ExtractWithAi: React.FC<ExtractWithAiProps> = ({
           {/* Non-assumption and Data Segregation Notice */}
           <div
             style={{
-              padding: '10px 14px',
-              borderRadius: 'var(--radius-sm)',
-              background: 'rgba(255, 255, 255, 0.02)',
-              border: '1px solid var(--border-subtle)',
+              padding: '12px 16px',
+              borderRadius: 'var(--radius-md)',
+              background: '#f8fafc',
+              border: '1px solid var(--border-medium)',
               fontSize: '0.75rem',
-              color: 'var(--text-dim)',
+              color: '#475569',
               display: 'flex',
               flexDirection: 'column',
               gap: 4,
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <AlertTriangle size={14} color="#f59e0b" />
-              <strong style={{ color: '#fff' }}>Strict Guardrail & Data Segregation Notice:</strong>
+              <AlertTriangle size={14} color="#d97706" />
+              <strong style={{ color: '#0f172a' }}>Strict Guardrail & Data Segregation Notice:</strong>
             </div>
             <span>
               1. <strong>Zero Assumption Rule:</strong> If information (e.g. reporting manager, location, address) is missing from the document, the AI will leave it empty with 0% confidence. It will never guess.
