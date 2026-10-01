@@ -37,103 +37,7 @@ import { EmailSendModal } from '../components/offers/EmailSendModal.js';
 import { EmailHistoryModal } from '../components/offers/EmailHistoryModal.js';
 import { useToast } from '../context/ToastContext.js';
 
-const INITIAL_OFFERS: OfferListItem[] = [
-  {
-    id: 'off_001',
-    referenceNumber: 'OFF-2026-0042',
-    candidateName: 'Jane Alexandra Doe',
-    email: 'jane.doe@example.com',
-    phone: '+1 (555) 234-5678',
-    position: 'Lead Platform Architect',
-    department: 'Cloud Infrastructure',
-    bandGrade: 'L6',
-    offerDate: '2026-09-28T10:00:00Z',
-    joiningDate: '2026-11-16T00:00:00Z',
-    template: 'Standard Full-Time Corporate Offer',
-    templateCode: 'FULL_TIME',
-    status: 'HR_REVIEW',
-    aiReviewStatus: 'VERIFIED_BY_HR',
-    totalCtc: 229000,
-    currency: 'USD',
-    currentVersionNumber: 1,
-  },
-  {
-    id: 'off_002',
-    referenceNumber: 'OFF-2026-0043',
-    candidateName: 'Carlos Rivera',
-    email: 'carlos.rivera@example.com',
-    phone: '+1 (555) 987-6543',
-    position: 'Senior AI Research Engineer',
-    department: 'Applied Machine Learning',
-    bandGrade: 'L5',
-    offerDate: '2026-09-27T14:15:00Z',
-    joiningDate: '2026-11-01T00:00:00Z',
-    template: 'Standard Full-Time Corporate Offer',
-    templateCode: 'FULL_TIME',
-    status: 'APPROVED',
-    aiReviewStatus: 'VERIFIED_BY_HR',
-    totalCtc: 195000,
-    currency: 'USD',
-    currentVersionNumber: 2,
-  },
-  {
-    id: 'off_003',
-    referenceNumber: 'OFF-2026-0044',
-    candidateName: 'Liam Alexander Vance',
-    email: 'liam.vance@stanford.edu',
-    phone: '+1 (555) 345-6789',
-    position: 'Applied AI Research Intern',
-    department: 'AI Research Labs',
-    bandGrade: 'INT',
-    offerDate: '2026-09-26T09:00:00Z',
-    joiningDate: '2026-10-15T00:00:00Z',
-    template: 'Internship & Trainee Agreement',
-    templateCode: 'INTERNSHIP',
-    status: 'ISSUED',
-    aiReviewStatus: 'VERIFIED_BY_HR',
-    totalCtc: 48000,
-    currency: 'USD',
-    currentVersionNumber: 1,
-  },
-  {
-    id: 'off_004',
-    referenceNumber: 'OFF-2026-0045',
-    candidateName: 'Emily Watson',
-    email: 'emily.watson@globalfin.org',
-    phone: '+1 (555) 789-0123',
-    position: 'VP of Engineering',
-    department: 'Executive Leadership',
-    bandGrade: 'EXEC',
-    offerDate: '2026-09-25T16:45:00Z',
-    joiningDate: '2026-12-01T00:00:00Z',
-    template: 'Executive Employment Agreement',
-    templateCode: 'EXECUTIVE',
-    status: 'ACCEPTED',
-    aiReviewStatus: 'OVERRIDDEN',
-    totalCtc: 345000,
-    currency: 'USD',
-    currentVersionNumber: 3,
-  },
-  {
-    id: 'off_005',
-    referenceNumber: 'OFF-2026-0046',
-    candidateName: 'Marcus Aurelius Vance',
-    email: 'marcus.vance@techscale.io',
-    phone: '+1 (555) 456-7890',
-    position: 'Staff DevOps & SRE Lead',
-    department: 'Cloud Infrastructure',
-    bandGrade: 'L6',
-    offerDate: '2026-09-24T11:20:00Z',
-    joiningDate: '2026-11-20T00:00:00Z',
-    template: 'Standard Full-Time Corporate Offer',
-    templateCode: 'FULL_TIME',
-    status: 'DRAFT_AI',
-    aiReviewStatus: 'PENDING_AI_REVIEW',
-    totalCtc: 215000,
-    currency: 'USD',
-    currentVersionNumber: 1,
-  },
-];
+const INITIAL_OFFERS: OfferListItem[] = [];
 
 export const DashboardPage: React.FC = () => {
   const { user } = useAuth();
@@ -141,13 +45,13 @@ export const DashboardPage: React.FC = () => {
   const { success, error } = useToast();
 
   const [stats, setStats] = useState<DashboardStatistics>({
-    total: 12,
-    draft: 3,
-    aiProcessing: 1,
-    awaitingReview: 4,
-    generated: 3,
-    sent: 3,
-    accepted: 2,
+    total: 0,
+    draft: 0,
+    aiProcessing: 0,
+    awaitingReview: 0,
+    generated: 0,
+    sent: 0,
+    accepted: 0,
     rejected: 0,
     expired: 0,
   });
@@ -177,10 +81,14 @@ export const DashboardPage: React.FC = () => {
       ]);
 
       if (statsRes) setStats(statsRes);
-      if (offersRes?.items?.length) setOffers(offersRes.items);
-      if (templatesRes?.length) setTemplates(templatesRes);
+      if (offersRes && Array.isArray(offersRes.items)) {
+        setOffers(offersRes.items);
+      }
+      if (templatesRes && Array.isArray(templatesRes)) {
+        setTemplates(templatesRes);
+      }
     } catch {
-      // Graceful fallback to initial seed
+      // Graceful fallback
     } finally {
       setLoading(false);
     }
@@ -729,8 +637,37 @@ export const DashboardPage: React.FC = () => {
             <tbody>
               {filteredOffers.length === 0 ? (
                 <tr>
-                  <td colSpan={6} style={{ padding: '40px 20px', textAlign: 'center', color: 'var(--text-muted)' }}>
-                    No offers found matching your filters.
+                  <td colSpan={6} style={{ padding: '60px 20px', textAlign: 'center' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
+                      <div
+                        style={{
+                          width: 48,
+                          height: 48,
+                          borderRadius: '50%',
+                          background: '#f1f5f9',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          color: '#94a3b8',
+                        }}
+                      >
+                        <FileText size={24} />
+                      </div>
+                      <div style={{ fontWeight: 600, color: 'var(--text-main)', fontSize: '0.9375rem' }}>
+                        No offers generated yet
+                      </div>
+                      <p style={{ color: 'var(--text-muted)', fontSize: '0.8125rem', maxWidth: 360, margin: 0 }}>
+                        Get started by creating a new offer letter or uploading candidate documents through the verified workflow.
+                      </p>
+                      <Button
+                        variant="primary"
+                        onClick={() => navigate('/offers?create=true')}
+                        style={{ marginTop: 8 }}
+                        icon={<Plus size={16} />}
+                      >
+                        Create First Offer
+                      </Button>
+                    </div>
                   </td>
                 </tr>
               ) : (

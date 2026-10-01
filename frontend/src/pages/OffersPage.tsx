@@ -41,152 +41,7 @@ import { EmailSendModal } from '../components/offers/EmailSendModal.js';
 import { EmailHistoryModal } from '../components/offers/EmailHistoryModal.js';
 import { offerService } from '../services/offerService.js';
 
-const INITIAL_MOCK_OFFERS: OfferListItem[] = [
-  {
-    id: 'off_001',
-    referenceNumber: 'OFF-2026-0042',
-    candidateName: 'Jane Doe',
-    email: 'jane.doe@example.com',
-    phone: '+1 (555) 234-5678',
-    position: 'Lead Platform Architect',
-    department: 'Engineering',
-    bandGrade: 'L6',
-    offerDate: '2026-09-26T08:30:00Z',
-    joiningDate: '2026-11-16T00:00:00Z',
-    template: 'Standard Full-Time Offer',
-    templateCode: 'FULL_TIME',
-    status: 'HR_REVIEW',
-    aiReviewStatus: 'VERIFIED_BY_HR',
-    totalCtc: 229000,
-    currency: 'USD',
-  },
-  {
-    id: 'off_002',
-    referenceNumber: 'OFF-2026-0041',
-    candidateName: 'Carlos Rivera',
-    email: 'carlos.rivera@designtech.io',
-    phone: '+1 (555) 345-6789',
-    position: 'Staff Design Systems Engineer',
-    department: 'Product Experience',
-    bandGrade: 'L5',
-    offerDate: '2026-09-25T14:15:00Z',
-    joiningDate: '2026-11-01T00:00:00Z',
-    template: 'Design Engineering Offer',
-    templateCode: 'FULL_TIME',
-    status: 'DRAFT_AI',
-    aiReviewStatus: 'PENDING_AI_REVIEW',
-    totalCtc: 195000,
-    currency: 'USD',
-  },
-  {
-    id: 'off_003',
-    referenceNumber: 'OFF-2026-0040',
-    candidateName: 'Priya Sharma',
-    email: 'priya.s@techlead.org',
-    phone: '+1 (555) 456-7890',
-    position: 'Director of Machine Learning',
-    department: 'AI Research',
-    bandGrade: 'L7',
-    offerDate: '2026-09-24T11:00:00Z',
-    joiningDate: '2026-12-01T00:00:00Z',
-    template: 'Executive Employment Agreement',
-    templateCode: 'EXECUTIVE',
-    status: 'PENDING_APPROVAL',
-    aiReviewStatus: 'OVERRIDDEN',
-    totalCtc: 285000,
-    currency: 'USD',
-  },
-  {
-    id: 'off_004',
-    referenceNumber: 'OFF-2026-0039',
-    candidateName: 'Liam O’Connor',
-    email: 'liam.oc@cloudops.net',
-    phone: '+1 (555) 567-8901',
-    position: 'Senior DevOps Specialist',
-    department: 'Cloud Infrastructure',
-    bandGrade: 'L4',
-    offerDate: '2026-09-22T09:45:00Z',
-    joiningDate: '2026-10-15T00:00:00Z',
-    template: 'Standard Full-Time Offer',
-    templateCode: 'FULL_TIME',
-    status: 'APPROVED',
-    aiReviewStatus: 'VERIFIED_BY_HR',
-    totalCtc: 165000,
-    currency: 'USD',
-  },
-  {
-    id: 'off_005',
-    referenceNumber: 'OFF-2026-0038',
-    candidateName: 'Emily Watson',
-    email: 'emily.w@fintech.co',
-    phone: '+1 (555) 678-9012',
-    position: 'VP of Product Engineering',
-    department: 'Executive',
-    bandGrade: 'E1',
-    offerDate: '2026-09-20T16:20:00Z',
-    joiningDate: '2026-11-01T00:00:00Z',
-    template: 'Executive Employment Agreement',
-    templateCode: 'EXECUTIVE',
-    status: 'ISSUED',
-    aiReviewStatus: 'VERIFIED_BY_HR',
-    totalCtc: 320000,
-    currency: 'USD',
-  },
-  {
-    id: 'off_006',
-    referenceNumber: 'OFF-2026-0037',
-    candidateName: 'Marcus Aurelius',
-    email: 'marcus.a@rome-security.org',
-    phone: '+1 (555) 789-0123',
-    position: 'Security Infrastructure Lead',
-    department: 'Platform Engineering',
-    bandGrade: 'L6',
-    offerDate: '2026-09-18T10:00:00Z',
-    joiningDate: '2026-10-20T00:00:00Z',
-    template: 'Standard Full-Time Offer',
-    templateCode: 'FULL_TIME',
-    status: 'ACCEPTED',
-    aiReviewStatus: 'VERIFIED_BY_HR',
-    totalCtc: 240000,
-    currency: 'USD',
-  },
-  {
-    id: 'off_007',
-    referenceNumber: 'OFF-2026-0036',
-    candidateName: 'Sarah Connor',
-    email: 's.connor@cyberdyne.io',
-    phone: '+1 (555) 890-1234',
-    position: 'Autonomous Systems Engineer',
-    department: 'AI Research',
-    bandGrade: 'L5',
-    offerDate: '2026-09-15T14:30:00Z',
-    joiningDate: '2026-10-01T00:00:00Z',
-    template: 'Standard Full-Time Offer',
-    templateCode: 'FULL_TIME',
-    status: 'DECLINED',
-    aiReviewStatus: 'STANDARD',
-    totalCtc: 198000,
-    currency: 'USD',
-  },
-  {
-    id: 'off_008',
-    referenceNumber: 'OFF-2026-0035',
-    candidateName: 'Alex Mercer',
-    email: 'alex.m@biotech-innovations.com',
-    phone: '+1 (555) 901-2345',
-    position: 'Computational Biologist',
-    department: 'Research',
-    bandGrade: 'L4',
-    offerDate: '2026-08-10T09:00:00Z',
-    joiningDate: '2026-09-01T00:00:00Z',
-    template: 'Specialized Consultant Agreement',
-    templateCode: 'CONSULTANT',
-    status: 'EXPIRED',
-    aiReviewStatus: 'STANDARD',
-    totalCtc: 155000,
-    currency: 'USD',
-  },
-];
+const INITIAL_MOCK_OFFERS: OfferListItem[] = [];
 
 const DEPARTMENTS = [
   'ALL',
@@ -207,7 +62,7 @@ export const OffersPage: React.FC = () => {
 
   // State: Offers data
   const [offers, setOffers] = useState<OfferListItem[]>(INITIAL_MOCK_OFFERS);
-  const [totalCount, setTotalCount] = useState<number>(INITIAL_MOCK_OFFERS.length);
+  const [totalCount, setTotalCount] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
 
   // Filters & Search State
@@ -252,48 +107,20 @@ export const OffersPage: React.FC = () => {
         limit,
       });
 
-      if (response && response.items && response.items.length > 0) {
+      if (response && Array.isArray(response.items)) {
         setOffers(response.items);
-        setTotalCount(response.total);
-        setTotalPages(response.totalPages);
-      } else if (response && response.total === 0 && (searchTerm || selectedStatus !== 'ALL' || selectedDepartment !== 'ALL')) {
+        setTotalCount(response.total ?? response.items.length);
+        setTotalPages(response.totalPages ?? 1);
+      } else {
         setOffers([]);
         setTotalCount(0);
         setTotalPages(1);
-      } else {
-        // Fallback filtering in memory for mock / offline development
-        let filtered = [...INITIAL_MOCK_OFFERS];
-        if (selectedStatus !== 'ALL') {
-          if (selectedStatus === 'AWAITING_REVIEW') {
-            filtered = filtered.filter((o) => ['HR_REVIEW', 'PENDING_APPROVAL'].includes(o.status));
-          } else if (selectedStatus === 'REJECTED') {
-            filtered = filtered.filter((o) => ['DECLINED', 'WITHDRAWN'].includes(o.status));
-          } else {
-            filtered = filtered.filter((o) => o.status === selectedStatus);
-          }
-        }
-        if (selectedDepartment !== 'ALL') {
-          filtered = filtered.filter((o) => o.department === selectedDepartment);
-        }
-        if (selectedAiReviewStatus !== 'ALL') {
-          filtered = filtered.filter((o) => o.aiReviewStatus === selectedAiReviewStatus);
-        }
-        if (searchTerm.trim()) {
-          const q = searchTerm.toLowerCase();
-          filtered = filtered.filter(
-            (o) =>
-              o.candidateName.toLowerCase().includes(q) ||
-              o.email.toLowerCase().includes(q) ||
-              o.position.toLowerCase().includes(q) ||
-              o.referenceNumber.toLowerCase().includes(q)
-          );
-        }
-        setTotalCount(filtered.length);
-        setTotalPages(Math.ceil(filtered.length / limit) || 1);
-        setOffers(filtered.slice((page - 1) * limit, page * limit));
       }
     } catch (err: any) {
-      console.warn('Backend list offers unavailable, using local mock data', err);
+      console.warn('Backend list offers unavailable:', err);
+      setOffers([]);
+      setTotalCount(0);
+      setTotalPages(1);
     } finally {
       setLoading(false);
     }

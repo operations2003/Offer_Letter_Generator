@@ -16,54 +16,7 @@ interface AuditItem {
   timestamp: string;
 }
 
-const MOCK_AUDIT_LOGS: AuditItem[] = [
-  {
-    id: 'aud_001',
-    actorType: 'USER',
-    actorName: 'Sarah Jenkins (HR Manager)',
-    action: 'UPDATE',
-    entityType: 'Offer',
-    entityId: 'off_001',
-    actionDescription: 'HR confirmed terms: Overrode base salary from $145,000 to $155,000',
-    previousState: { baseSalary: 145000, totalCtc: 219000, source: 'AI_SUGGESTED' },
-    newState: { baseSalary: 155000, totalCtc: 229000, source: 'HR_CONFIRMED' },
-    timestamp: '2026-09-26T10:45:12Z',
-  },
-  {
-    id: 'aud_002',
-    actorType: 'AI_WORKER',
-    actorName: 'AI Extraction Engine (Llama 3.3)',
-    action: 'CREATE',
-    entityType: 'AiExtractedData',
-    entityId: 'ext_092',
-    actionDescription: 'Extracted candidate details from resume (Confidence: 94%, Latency: 142ms)',
-    newState: { candidate: 'Jane Doe', role: 'Lead Platform Architect', confidenceScore: 0.94 },
-    timestamp: '2026-09-26T10:42:01Z',
-  },
-  {
-    id: 'aud_003',
-    actorType: 'USER',
-    actorName: 'Alex Vance (Super Admin)',
-    action: 'CREATE',
-    entityType: 'User',
-    entityId: 'usr_rec_003',
-    actionDescription: 'Created user David Kim with role RECRUITER',
-    newState: { email: 'recruiter@acme.com', roles: ['RECRUITER'] },
-    timestamp: '2026-09-25T16:10:00Z',
-  },
-  {
-    id: 'aud_004',
-    actorType: 'USER',
-    actorName: 'Sarah Jenkins (HR Manager)',
-    action: 'APPROVE',
-    entityType: 'Offer',
-    entityId: 'off_004',
-    actionDescription: 'Approved offer terms for Liam O’Connor',
-    previousState: { status: 'PENDING_APPROVAL' },
-    newState: { status: 'APPROVED' },
-    timestamp: '2026-09-24T12:00:00Z',
-  },
-];
+const MOCK_AUDIT_LOGS: AuditItem[] = [];
 
 export const AuditLogsPage: React.FC = () => {
   const [logs, setLogs] = useState<AuditItem[]>(MOCK_AUDIT_LOGS);
@@ -83,7 +36,7 @@ export const AuditLogsPage: React.FC = () => {
         });
         if (res.ok) {
           const json = await res.json();
-          if (json.data && Array.isArray(json.data.items) && json.data.items.length > 0) {
+          if (json.data && Array.isArray(json.data.items)) {
             const mapped: AuditItem[] = json.data.items.map((item: any) => ({
               id: item.id,
               actorType: item.actorType || 'USER',
@@ -97,10 +50,14 @@ export const AuditLogsPage: React.FC = () => {
               timestamp: item.createdAt || new Date().toISOString(),
             }));
             setLogs(mapped);
+          } else {
+            setLogs([]);
           }
+        } else {
+          setLogs([]);
         }
       } catch {
-        // Fallback to MOCK_AUDIT_LOGS in offline demo mode
+        setLogs([]);
       } finally {
         setLoading(false);
       }
@@ -148,7 +105,35 @@ export const AuditLogsPage: React.FC = () => {
               </tr>
             </thead>
             <tbody>
-              {logs.map((log) => (
+              {logs.length === 0 ? (
+                <tr>
+                  <td colSpan={6} style={{ padding: '60px 20px', textAlign: 'center' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
+                      <div
+                        style={{
+                          width: 48,
+                          height: 48,
+                          borderRadius: '50%',
+                          background: '#f1f5f9',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          color: '#94a3b8',
+                        }}
+                      >
+                        <ShieldCheck size={24} />
+                      </div>
+                      <div style={{ fontWeight: 600, color: 'var(--text-main, #0f172a)', fontSize: '0.9375rem' }}>
+                        No audit events recorded
+                      </div>
+                      <p style={{ color: 'var(--text-muted)', fontSize: '0.8125rem', maxWidth: 360, margin: 0 }}>
+                        System actions, AI processing events, and HR confirmations will appear here in real-time.
+                      </p>
+                    </div>
+                  </td>
+                </tr>
+              ) : (
+                logs.map((log) => (
                 <tr
                   key={log.id}
                   style={{
@@ -215,7 +200,7 @@ export const AuditLogsPage: React.FC = () => {
                     </Button>
                   </td>
                 </tr>
-              ))}
+              )))}
             </tbody>
           </table>
         </div>
