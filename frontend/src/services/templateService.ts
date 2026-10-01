@@ -235,34 +235,34 @@ export const SAMPLE_CANDIDATE_DATA: Record<string, string> = {
   notice_period: '30 calendar days in writing',
   working_hours: 'Monday to Friday, 9:00 AM – 5:30 PM (40 hours/week)',
   offer_validity_date: 'October 15, 2026 at 5:00 PM PST',
-  company_name: 'Acme Technologies Global Corp.',
-  signatory_name: 'Sarah Jenkins',
-  signatory_title: 'VP of Global Talent & People Operations',
+  company_name: 'TaskNera',
+  signatory_name: 'Sheetal Bedi',
+  signatory_title: 'CEO & FOUNDER',
 };
 
 // In-Memory / LocalStorage Seed Templates
 const INITIAL_TEMPLATES: OfferTemplate[] = [
   {
-    id: 'tpl_std_fulltime_001',
-    companyId: 'cmp_acme_001',
-    title: 'Standard Full-Time Offer Letter',
-    description: 'Default offer template for full-time regular employees across engineering, product, and corporate roles.',
+    id: 'tpl_tasknera_official_001',
+    companyId: 'cmp_tasknera_001',
+    title: 'TaskNera Official Corporate Letterhead Offer',
+    description: 'Official TaskNera corporate letterhead template with verified brand styling, contact details, and executive signatory.',
     category: 'FULL_TIME',
     isActive: true,
-    currentVersionId: 'ver_std_002',
-    createdBy: 'usr_hr_002',
-    creator: { firstName: 'Sarah', lastName: 'Jenkins', email: 'hr@acme.com' },
-    createdAt: new Date(Date.now() - 86400000 * 14).toISOString(),
-    updatedAt: new Date(Date.now() - 86400000 * 2).toISOString(),
-    _count: { versions: 2 },
+    currentVersionId: 'ver_tasknera_001',
+    createdBy: 'usr_tasknera_admin',
+    creator: { firstName: 'Sheetal', lastName: 'Bedi', email: 'careers@tasknera.com' },
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    _count: { versions: 1 },
     currentVersion: {
-      id: 'ver_std_002',
-      templateId: 'tpl_std_fulltime_001',
-      versionNumber: 2,
+      id: 'ver_tasknera_001',
+      templateId: 'tpl_tasknera_official_001',
+      versionNumber: 1,
       isPublished: true,
-      changeSummary: 'Updated remote working policy and refreshed standard intellectual property assignment clauses',
-      createdAt: new Date(Date.now() - 86400000 * 2).toISOString(),
-      creator: { firstName: 'Sarah', lastName: 'Jenkins', email: 'hr@acme.com' },
+      changeSummary: 'TaskNera official letterhead with corporate header, contact block, and CEO signatory',
+      createdAt: new Date().toISOString(),
+      creator: { firstName: 'Sheetal', lastName: 'Bedi', email: 'careers@tasknera.com' },
       placeholdersSchema: [
         'candidate_name',
         'candidate_address',
@@ -273,40 +273,55 @@ const INITIAL_TEMPLATES: OfferTemplate[] = [
         'salary',
         'total_ctc',
         'probation_period',
-        'notice_period',
-        'reporting_manager',
         'company_name',
         'signatory_name',
         'signatory_title',
         'offer_validity_date',
       ],
-      headerMarkup: `<div style="display:flex; justify-content:space-between; align-items:flex-start; border-bottom:2px solid #6366f1; padding-bottom:16px; margin-bottom:24px;">
-  <div>
-    <h2 style="margin:0; font-size:20px; color:#1e1b4b; font-weight:800; letter-spacing:-0.02em;">ACME TECHNOLOGIES GLOBAL</h2>
-    <p style="margin:4px 0 0; font-size:12px; color:#6b7280;">100 Innovation Way, Suite 400 • San Francisco, CA 94105</p>
+      headerMarkup: `<div style="position:relative; margin-bottom:24px; font-family:'Inter',system-ui,sans-serif;">
+  <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
+    <div style="width:280px; height:18px; background:#fae1c3; border-bottom-right-radius:14px;"></div>
+    <div style="width:220px; height:8px; background:#9c7a82;"></div>
   </div>
-  <div style="text-align:right;">
-    <span style="display:inline-block; background:#e0e7ff; color:#3730a3; padding:4px 10px; border-radius:4px; font-size:11px; font-weight:700; text-transform:uppercase;">Confidential Employment Offer</span>
+  <div style="display:flex; justify-content:space-between; align-items:center; padding:0 12px 14px;">
+    <div style="display:flex; align-items:center; gap:12px;">
+      <img src="/logo.png" alt="TaskNera" style="width:40px; height:40px; object-fit:contain;" />
+      <span style="font-size:24px; font-weight:800; color:#0f172a; letter-spacing:0.02em;">TASKNERA</span>
+    </div>
+    <div style="border-left:2px solid #0f172a; padding-left:14px; font-size:11px; line-height:1.5; color:#1e293b;">
+      <div><strong>Phone:</strong> +91 7065278229</div>
+      <div><strong>Email:</strong> careers@tasknera.com</div>
+      <div><strong>ADD:</strong> D-57 Dilshad Colony, Delhi, 110095</div>
+    </div>
   </div>
+  <div style="height:3px; background:#1e293b; width:100%;"></div>
 </div>`,
-      footerMarkup: `<div style="border-top:1px solid #e5e7eb; padding-top:14px; margin-top:36px; display:flex; justify-content:space-between; font-size:11px; color:#9ca3af;">
-  <div>Acme Technologies Inc. — Confidential & Proprietary Document</div>
-  <div>Page 1 of 1 • Ref # {{offer_validity_date}}</div>
+      footerMarkup: `<div style="margin-top:40px; position:relative; font-family:'Inter',system-ui,sans-serif;">
+  <div style="display:flex; justify-content:flex-end; margin-bottom:32px; padding-right:12px;">
+    <div style="text-align:right;">
+      <div style="font-weight:700; font-size:14px; color:#0f172a;">Sheetal Bedi</div>
+      <div style="font-size:12px; font-weight:600; color:#475569;">CEO &amp; FOUNDER</div>
+      <div style="font-size:11px; color:#94a3b8;">TaskNera</div>
+    </div>
+  </div>
+  <div style="display:flex; justify-content:center;">
+    <div style="width:240px; height:16px; background:#9c7a82; border-top-left-radius:12px; border-top-right-radius:12px;"></div>
+  </div>
 </div>`,
       styleCss: `body { font-family: 'Inter', system-ui, sans-serif; line-height: 1.6; color: #1f2937; }
 h1, h2, h3 { color: #111827; }
-.highlight-box { background: #f9fafb; border-left: 4px solid #6366f1; padding: 12px 16px; margin: 16px 0; border-radius: 0 6px 6px 0; }
-.terms-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13px; }
-.terms-table td { padding: 8px 12px; border-bottom: 1px solid #f3f4f6; }
-.terms-table td.label { font-weight: 600; color: #4b5563; width: 35%; background: #f9fafb; }`,
+.highlight-box { background: #f8fafc; border-left: 4px solid #9c7a82; padding: 14px 18px; margin: 18px 0; border-radius: 0 8px 8px 0; }
+.terms-table { width: 100%; border-collapse: collapse; margin: 8px 0; font-size: 13px; }
+.terms-table td { padding: 9px 12px; border-bottom: 1px solid #f1f5f9; }
+.terms-table td.label { font-weight: 600; color: #475569; width: 35%; background: #f8fafc; }`,
       contentMarkup: `<p><strong>Date:</strong> {{offer_validity_date}}</p>
 <p><strong>To:</strong><br />
-{{candidate_name}}<br />
+<strong>{{candidate_name}}</strong><br />
 {{candidate_address}}</p>
 
 <p>Dear <strong>{{candidate_name}}</strong>,</p>
 
-<p>On behalf of <strong>{{company_name}}</strong>, we are thrilled to offer you the position of <strong>{{designation}}</strong> within our <strong>{{department}}</strong> department. We were thoroughly impressed by your professional accomplishments and believe your capabilities will be instrumental in scaling our next-generation mission.</p>
+<p>On behalf of <strong>{{company_name}}</strong>, we are delighted to extend to you this formal offer of employment for the position of <strong>{{designation}}</strong> within our <strong>{{department}}</strong> team. We were thoroughly impressed by your background and are excited about the capabilities and leadership you bring to TaskNera.</p>
 
 <div class="highlight-box">
   <table class="terms-table">
@@ -316,87 +331,41 @@ h1, h2, h3 { color: #111827; }
         <td><strong>{{designation}}</strong></td>
       </tr>
       <tr>
-        <td class="label">Department / Unit</td>
+        <td class="label">Department</td>
         <td>{{department}}</td>
       </tr>
       <tr>
-        <td class="label">Reporting Manager</td>
-        <td>{{reporting_manager}}</td>
-      </tr>
-      <tr>
-        <td class="label">Work Arrangement / Location</td>
+        <td class="label">Work Arrangement &amp; Location</td>
         <td>{{location}}</td>
       </tr>
       <tr>
-        <td class="label">Anticipated Start Date</td>
+        <td class="label">Anticipated Joining Date</td>
         <td><strong>{{joining_date}}</strong></td>
       </tr>
       <tr>
-        <td class="label">Annual Base Salary</td>
-        <td><strong>{{salary}}</strong> (paid semi-monthly subject to tax withholdings)</td>
-      </tr>
-      <tr>
-        <td class="label">Total Annual Package (CTC)</td>
+        <td class="label">Total Compensation (CTC)</td>
         <td><strong>{{total_ctc}}</strong></td>
       </tr>
       <tr>
         <td class="label">Probation Period</td>
         <td>{{probation_period}}</td>
       </tr>
-      <tr>
-        <td class="label">Notice Period</td>
-        <td>{{notice_period}}</td>
-      </tr>
     </tbody>
   </table>
 </div>
 
-<h3 style="font-size:15px; margin-top:20px; color:#1e1b4b;">1. Terms of Employment & At-Will Status</h3>
-<p>Your employment with {{company_name}} is for no specified period and constitutes at-will employment. As a result, you are free to resign at any time, for any reason or for no reason, upon provision of the required {{notice_period}}. Similarly, the Company is free to conclude the employment relationship at any time, with or without cause.</p>
-
-<h3 style="font-size:15px; margin-top:16px; color:#1e1b4b;">2. Confidentiality & Intellectual Property</h3>
-<p>As a condition of employment, you agree to execute our standard Employee Proprietary Information and Inventions Agreement prior to your joining date. You will maintain strict confidentiality regarding all company trade secrets, source code, candidate data, and strategic blueprints.</p>
-
-<h3 style="font-size:15px; margin-top:16px; color:#1e1b4b;">3. Acceptance and Expiration</h3>
-<p>This offer is valid until <strong>{{offer_validity_date}}</strong>. To formally accept this offer, please countersign below and return this executed copy to People Operations.</p>
-
-<p style="margin-top:28px;">Sincerely,</p>
-
-<table style="width:100%; margin-top:12px;">
-  <tr>
-    <td style="width:50%; vertical-align:top;">
-      <div style="border-bottom:1px solid #1f2937; width:220px; height:32px; margin-bottom:6px;"></div>
-      <strong>{{signatory_name}}</strong><br />
-      <span style="font-size:12px; color:#4b5563;">{{signatory_title}}<br />{{company_name}}</span>
-    </td>
-    <td style="width:50%; vertical-align:top;">
-      <div style="border-bottom:1px dashed #9ca3af; width:220px; height:32px; margin-bottom:6px;"></div>
-      <strong>Accepted by {{candidate_name}}</strong><br />
-      <span style="font-size:12px; color:#6b7280;">Date: ________________________</span>
-    </td>
-  </tr>
-</table>`,
+<p>Please signify your acceptance of this offer by signing and returning this document. We look forward to an impactful and rewarding journey together at TaskNera.</p>`,
     },
     versions: [
       {
-        id: 'ver_std_002',
-        templateId: 'tpl_std_fulltime_001',
-        versionNumber: 2,
-        isPublished: true,
-        changeSummary: 'Updated remote working policy and refreshed standard intellectual property assignment clauses',
-        createdAt: new Date(Date.now() - 86400000 * 2).toISOString(),
-        placeholdersSchema: ['candidate_name', 'designation', 'salary', 'joining_date'],
-        contentMarkup: '',
-      },
-      {
-        id: 'ver_std_001',
-        templateId: 'tpl_std_fulltime_001',
+        id: 'ver_tasknera_001',
+        templateId: 'tpl_tasknera_official_001',
         versionNumber: 1,
-        isPublished: false,
-        changeSummary: 'Initial baseline draft',
-        createdAt: new Date(Date.now() - 86400000 * 14).toISOString(),
-        placeholdersSchema: ['candidate_name', 'designation', 'salary'],
-        contentMarkup: `<p>Dear {{candidate_name}}, we are pleased to offer you the role of {{designation}} with salary {{salary}} starting on {{joining_date}}.</p>`,
+        isPublished: true,
+        changeSummary: 'TaskNera official letterhead baseline template',
+        createdAt: new Date().toISOString(),
+        placeholdersSchema: ['candidate_name', 'designation', 'department', 'total_ctc', 'joining_date'],
+        contentMarkup: '',
       },
     ],
   },

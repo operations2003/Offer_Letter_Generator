@@ -35,6 +35,7 @@ import { OfferTemplate } from '../types/template.js';
 import { OfferDetailModal } from '../components/offers/OfferDetailModal.js';
 import { EmailSendModal } from '../components/offers/EmailSendModal.js';
 import { EmailHistoryModal } from '../components/offers/EmailHistoryModal.js';
+import { QuickTemplateOfferModal } from '../components/offers/QuickTemplateOfferModal.js';
 import { useToast } from '../context/ToastContext.js';
 
 const INITIAL_OFFERS: OfferListItem[] = [];
@@ -63,6 +64,7 @@ export const DashboardPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
 
   // Active Modals
+  const [isQuickModalOpen, setIsQuickModalOpen] = useState(false);
   const [selectedOfferForDetail, setSelectedOfferForDetail] = useState<OfferListItem | null>(null);
   const [selectedOfferForEmail, setSelectedOfferForEmail] = useState<OfferListItem | null>(null);
   const [selectedOfferForHistory, setSelectedOfferForHistory] = useState<OfferListItem | null>(null);
@@ -174,14 +176,15 @@ export const DashboardPage: React.FC = () => {
           <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
             <Button
               variant="primary"
-              onClick={() => navigate('/offers?create=true')}
+              onClick={() => setIsQuickModalOpen(true)}
               style={{
-                padding: '10px 20px',
+                padding: '10px 22px',
                 fontSize: '0.9rem',
                 boxShadow: '0 4px 18px var(--primary-glow)',
               }}
+              icon={<Sparkles size={16} />}
             >
-              <Plus size={16} style={{ marginRight: 6 }} /> Create New Offer
+              Generate from Company Template (2-Step)
             </Button>
 
             <Button
@@ -661,11 +664,11 @@ export const DashboardPage: React.FC = () => {
                       </p>
                       <Button
                         variant="primary"
-                        onClick={() => navigate('/offers?create=true')}
+                        onClick={() => setIsQuickModalOpen(true)}
                         style={{ marginTop: 8 }}
-                        icon={<Plus size={16} />}
+                        icon={<Sparkles size={16} />}
                       >
-                        Create First Offer
+                        Create Offer with Company Letterhead
                       </Button>
                     </div>
                   </td>
@@ -971,6 +974,13 @@ export const DashboardPage: React.FC = () => {
           onClose={() => setSelectedOfferForHistory(null)}
         />
       )}
+
+      {/* 2-Step Company Template Offer Generator Modal */}
+      <QuickTemplateOfferModal
+        isOpen={isQuickModalOpen}
+        onClose={() => setIsQuickModalOpen(false)}
+        onSuccess={() => loadDashboardData()}
+      />
     </div>
   );
 };

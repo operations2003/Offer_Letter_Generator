@@ -1,3 +1,5 @@
+import fs from 'node:fs';
+import path from 'node:path';
 import PDFDocument from 'pdfkit';
 import { AppError } from '../../errors/app-error.js';
 
@@ -98,47 +100,74 @@ export class PdfGeneratorService {
         };
 
         // ---------------------------------------------------------------------
-        // 1. TOP CORPORATE BANNER & HEADER
+        // 1. TOP CORPORATE BANNER & HEADER (TaskNera Official Letterhead)
         // ---------------------------------------------------------------------
-        // Accent Bar
-        doc.rect(0, 0, doc.page.width, 6).fill('#1e3a8a');
+        // Top-left beige rounded block
+        doc.roundedRect(0, 0, 310, 22, 6).fill('#fae1c3');
+        // Top-right mauve block
+        doc.rect(340, 0, doc.page.width - 340, 10).fill('#9c7a82');
 
-        // Company Details (Left)
-        doc
-          .fillColor('#0f172a')
-          .fontSize(18)
-          .font('Helvetica-Bold')
-          .text(options.company.legalName || options.company.name, 45, 30);
+        // Logo & Brand (Left)
+        const logoPath = path.resolve(process.cwd(), 'src/assets/logo.png');
+        if (fs.existsSync(logoPath)) {
+          try {
+            doc.image(logoPath, 45, 34, { width: 34, height: 34 });
+            doc
+              .fillColor('#0f172a')
+              .fontSize(16)
+              .font('Helvetica-Bold')
+              .text('TASKNERA', 88, 42);
+          } catch {
+            doc
+              .fillColor('#0f172a')
+              .fontSize(18)
+              .font('Helvetica-Bold')
+              .text('TASKNERA', 45, 40);
+          }
+        } else {
+          doc
+            .fillColor('#0f172a')
+            .fontSize(18)
+            .font('Helvetica-Bold')
+            .text('TASKNERA', 45, 40);
+        }
 
+        // Contact Block (Right) with vertical divider bar
         doc
-          .fontSize(8.5)
-          .font('Helvetica')
-          .fillColor('#64748b')
-          .text(options.company.domain ? `Corporate Portal: ${options.company.domain}` : 'Official Corporate Office', 45, 52);
-
-        // Document Reference & Date (Right)
-        doc
-          .fontSize(9)
-          .font('Helvetica-Bold')
-          .fillColor('#0f172a')
-          .text(`Ref: ${options.job.referenceNumber}`, 340, 30, { align: 'right', width: 210 });
-
-        doc
-          .fontSize(8.5)
-          .font('Helvetica')
-          .fillColor('#64748b')
-          .text(`Date of Issuance: ${new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}`, 340, 44, { align: 'right', width: 210 })
-          .text(`Version: ${options.versionNumber}.0 (Official HR Confirmed)`, 340, 56, { align: 'right', width: 210 });
-
-        // Divider
-        doc
-          .strokeColor('#cbd5e1')
-          .lineWidth(1)
-          .moveTo(45, 74)
-          .lineTo(550, 74)
+          .strokeColor('#0f172a')
+          .lineWidth(1.2)
+          .moveTo(375, 30)
+          .lineTo(375, 78)
           .stroke();
 
-        let y = 90;
+        doc
+          .fontSize(7.5)
+          .font('Helvetica-Bold')
+          .fillColor('#0f172a')
+          .text('Phone: ', 382, 32, { continued: true })
+          .font('Helvetica')
+          .fillColor('#334155')
+          .text('+91 7065278229')
+          .font('Helvetica-Bold')
+          .fillColor('#0f172a')
+          .text('Email: ', 382, 44, { continued: true })
+          .font('Helvetica')
+          .fillColor('#334155')
+          .text('careers@tasknera.com')
+          .font('Helvetica-Bold')
+          .fillColor('#0f172a')
+          .text('ADD: ', 382, 56, { continued: true })
+          .font('Helvetica')
+          .fillColor('#334155')
+          .text('D-57 Dilshad Colony,')
+          .text('Delhi, 110095', 382, 67);
+
+        // Dark Horizontal Dividing Bar
+        doc
+          .rect(0, 84, doc.page.width, 2.5)
+          .fill('#1e293b');
+
+        let y = 100;
 
         // ---------------------------------------------------------------------
         // 2. CANDIDATE APPOINTMENT SALUTATION
@@ -354,8 +383,8 @@ export class PdfGeneratorService {
         doc.fontSize(8.5).font('Helvetica-Bold').fillColor('#0f172a').text(`For ${options.company.name}`, 55, y + 10);
         doc.fontSize(8).font('Helvetica-Oblique').fillColor('#64748b').text('Authorized Signature (Corporate Signatory)', 55, y + 48);
         doc.strokeColor('#94a3b8').lineWidth(0.5).moveTo(55, y + 68).lineTo(265, y + 68).stroke();
-        doc.fontSize(8.5).font('Helvetica-Bold').fillColor('#0f172a').text(options.company.signatoryName, 55, y + 74);
-        doc.fontSize(8).font('Helvetica').fillColor('#64748b').text(options.company.signatoryTitle, 55, y + 86);
+        doc.fontSize(8.5).font('Helvetica-Bold').fillColor('#0f172a').text(options.company.signatoryName || 'Sheetal Bedi', 55, y + 74);
+        doc.fontSize(8).font('Helvetica').fillColor('#64748b').text(options.company.signatoryTitle || 'CEO & FOUNDER', 55, y + 86);
 
         // Candidate Acceptance Box (Right)
         doc.rect(310, y, 240, 110).strokeColor('#cbd5e1').lineWidth(0.5).stroke();
@@ -378,8 +407,8 @@ export class PdfGeneratorService {
           doc
             .strokeColor('#e2e8f0')
             .lineWidth(0.5)
-            .moveTo(45, 800)
-            .lineTo(550, 800)
+            .moveTo(45, 796)
+            .lineTo(550, 796)
             .stroke();
 
           // Left Footer: Cryptographic verification token
@@ -387,14 +416,17 @@ export class PdfGeneratorService {
             .fontSize(7)
             .font('Helvetica')
             .fillColor('#64748b')
-            .text(`CRYPTOGRAPHIC INTEGRITY TOKEN: ${options.verificationToken} • VERIFIED HR APPOINTMENT`, 45, 806);
+            .text(`CRYPTOGRAPHIC INTEGRITY TOKEN: ${options.verificationToken} • VERIFIED HR APPOINTMENT`, 45, 802);
 
           // Right Footer: Pagination
           doc
             .fontSize(7)
             .font('Helvetica-Bold')
             .fillColor('#475569')
-            .text(`Page ${i + 1} of ${totalPages}`, 450, 806, { align: 'right', width: 100 });
+            .text(`Page ${i + 1} of ${totalPages}`, 450, 802, { align: 'right', width: 100 });
+
+          // Bottom decorative TaskNera letterhead block
+          doc.roundedRect(190, 824, 210, 18, 6).fill('#9c7a82');
         }
 
         // Finalize document stream

@@ -39,6 +39,7 @@ import { OfferGeneratorWizard } from '../components/offers/wizard/OfferGenerator
 import { OfferDetailModal } from '../components/offers/OfferDetailModal.js';
 import { EmailSendModal } from '../components/offers/EmailSendModal.js';
 import { EmailHistoryModal } from '../components/offers/EmailHistoryModal.js';
+import { QuickTemplateOfferModal } from '../components/offers/QuickTemplateOfferModal.js';
 import { offerService } from '../services/offerService.js';
 
 const INITIAL_MOCK_OFFERS: OfferListItem[] = [];
@@ -78,6 +79,7 @@ export const OffersPage: React.FC = () => {
   const [totalPages, setTotalPages] = useState<number>(1);
 
   // Modals & Action States
+  const [isQuickModalOpen, setIsQuickModalOpen] = useState(false);
   const [isWizardOpen, setIsWizardOpen] = useState(() => searchParams.get('create') === 'true');
   const [selectedOfferForDetail, setSelectedOfferForDetail] = useState<OfferItem | null>(null);
   const [detailModalTab, setDetailModalTab] = useState<'preview' | 'pdf' | 'versions' | 'status'>('preview');
@@ -391,9 +393,17 @@ export const OffersPage: React.FC = () => {
           <Button
             variant="primary"
             icon={<Sparkles size={16} />}
-            onClick={() => setIsWizardOpen(true)}
+            onClick={() => setIsQuickModalOpen(true)}
           >
-            Generate Offer (11-Step Flow)
+            Generate from Company Template (2-Step)
+          </Button>
+          <Button
+            variant="secondary"
+            icon={<FileCheck2 size={15} />}
+            onClick={() => setIsWizardOpen(true)}
+            style={{ fontSize: '0.8125rem' }}
+          >
+            11-Step Deep Wizard
           </Button>
           <ExtractWithAi onExtractionComplete={handleExtraction} triggerButtonText="AI Quick Extract" />
         </div>
@@ -983,6 +993,13 @@ export const OffersPage: React.FC = () => {
           }}
         />
       )}
+
+      {/* 2-Step Company Template Offer Generator Modal */}
+      <QuickTemplateOfferModal
+        isOpen={isQuickModalOpen}
+        onClose={() => setIsQuickModalOpen(false)}
+        onSuccess={() => fetchOffers()}
+      />
     </div>
   );
 };
