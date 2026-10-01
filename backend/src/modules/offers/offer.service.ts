@@ -45,6 +45,20 @@ export class OfferService {
     });
 
     if (existing) {
+      // If existing template version is missing TaskNera branding, upgrade it
+      if (existing.headerMarkup && !existing.headerMarkup.includes('TASKNERA')) {
+        const defaultMarkup = OfferTemplateUtil.getDefaultTemplateMarkup();
+        await prisma.templateVersion.update({
+          where: { id: existing.id },
+          data: {
+            contentMarkup: defaultMarkup.contentMarkup,
+            headerMarkup: defaultMarkup.headerMarkup,
+            footerMarkup: defaultMarkup.footerMarkup,
+            styleCss: defaultMarkup.styleCss,
+            changeSummary: 'Upgraded to TaskNera Official Corporate Letterhead',
+          },
+        });
+      }
       return existing.id;
     }
 
@@ -53,8 +67,8 @@ export class OfferService {
     const template = await prisma.offerTemplate.create({
       data: {
         companyId,
-        title: 'Standard Employment Agreement Template',
-        description: 'Default organization template with full compensation and terms schedule',
+        title: 'TaskNera Official Corporate Letterhead Offer',
+        description: 'Official TaskNera corporate letterhead template with verified brand styling, contact details, and executive signatory.',
         category: TemplateCategory.FULL_TIME,
         isActive: true,
         createdBy: userId,

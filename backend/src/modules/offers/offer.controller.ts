@@ -1,8 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
 import { OfferService } from './offer.service.js';
 import { OfferEmailService } from './offer-email.service.js';
+import { PdfToStructuredLetterService } from './pdf-to-structured-letter.service.js';
+import { BadRequestError } from '../../errors/app-error.js';
 
 export class OfferController {
+
   /**
    * POST /api/v1/offers
    * Creates a formal offer
@@ -726,4 +729,30 @@ export class OfferController {
       next(error);
     }
   }
+
+  /**
+   * POST /api/v1/offers/pdf-to-structured-letter
+   * Accepts a PDF, extracts page-by-page text with Python/Node, and formats into TaskNera multi-page HTML
+   */
+  static async convertPdfToStructuredLetter(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      if (!req.file || !req.file.buffer) {
+        throw new BadRequestError('No PDF file uploaded. Please upload a .pdf document.');
+      }
+
+      const result = await PdfToStructuredLetterService.processPdf(
+        req.file.buffer,
+        req.file.originalname || 'document.pdf'
+      );
+
+      res.status(200).json({
+        success: true,
+        message: `Successfully extracted ${result.totalPages} pages into structured TaskNera letterhead format.`,
+        data: result,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 }
+

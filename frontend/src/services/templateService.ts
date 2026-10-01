@@ -369,129 +369,6 @@ h1, h2, h3 { color: #111827; }
       },
     ],
   },
-  {
-    id: 'tpl_exec_leadership_002',
-    companyId: 'cmp_acme_001',
-    title: 'Executive Leadership & Officer Offer',
-    description: 'Tailored for VP, Director, and C-Suite hires including board covenants, performance bonus, and stock option vesting.',
-    category: 'EXECUTIVE',
-    isActive: true,
-    currentVersionId: 'ver_exec_001',
-    createdBy: 'usr_admin_001',
-    creator: { firstName: 'Alex', lastName: 'Vance', email: 'admin@acme.com' },
-    createdAt: new Date(Date.now() - 86400000 * 10).toISOString(),
-    updatedAt: new Date(Date.now() - 86400000 * 10).toISOString(),
-    _count: { versions: 1 },
-    currentVersion: {
-      id: 'ver_exec_001',
-      templateId: 'tpl_exec_leadership_002',
-      versionNumber: 1,
-      isPublished: true,
-      changeSummary: 'Initial executive leadership offer framework',
-      createdAt: new Date(Date.now() - 86400000 * 10).toISOString(),
-      creator: { firstName: 'Alex', lastName: 'Vance', email: 'admin@acme.com' },
-      placeholdersSchema: [
-        'candidate_name',
-        'designation',
-        'department',
-        'salary',
-        'performance_bonus',
-        'joining_bonus',
-        'total_ctc',
-        'joining_date',
-        'reporting_manager',
-        'company_name',
-        'signatory_name',
-        'signatory_title',
-      ],
-      headerMarkup: `<div style="text-align:center; border-bottom:2px solid #111827; padding-bottom:12px; margin-bottom:20px;">
-  <h2 style="margin:0; font-size:22px; font-weight:900; letter-spacing:0.05em; text-transform:uppercase;">ACME TECHNOLOGIES CORP.</h2>
-  <p style="margin:4px 0 0; font-size:12px; color:#4b5563; font-weight:600;">EXECUTIVE APPOINTMENT & COMPENSATION AGREEMENT</p>
-</div>`,
-      footerMarkup: `<div style="border-top:1px solid #d1d5db; padding-top:10px; margin-top:30px; text-align:center; font-size:10px; color:#6b7280;">
-  STRICTLY CONFIDENTIAL — EXCLUSIVELY FOR THE ATTENTION OF {{candidate_name}}
-</div>`,
-      styleCss: `body { font-family: 'Times New Roman', serif; font-size: 14px; line-height: 1.7; color: #111; }
-h1, h2, h3 { font-family: 'Inter', sans-serif; font-weight: 700; color: #000; }`,
-      contentMarkup: `<p>Dear <strong>{{candidate_name}}</strong>,</p>
-
-<p>The Board of Directors and Executive Committee of <strong>{{company_name}}</strong> are delighted to extend this formal offer for the position of <strong>{{designation}}</strong>, reporting directly to <strong>{{reporting_manager}}</strong>.</p>
-
-<p><strong>1. Executive Compensation:</strong><br />
-Your initial base compensation will be <strong>{{salary}}</strong> annualized. In addition, you will be eligible for an annual executive performance incentive targeted at <strong>{{performance_bonus}}</strong>, based upon meeting corporate milestones established by the Board. A one-time executive transition bonus of <strong>{{joining_bonus}}</strong> will be issued with your initial payroll cycle.</p>
-
-<p><strong>2. Equity Grant:</strong><br />
-Subject to Board approval, you will be recommended for a stock option grant under our Equity Incentive Plan, featuring a 4-year vesting schedule with a 1-year cliff.</p>
-
-<p><strong>3. Commencement & Relocation:</strong><br />
-Your official duties will commence on <strong>{{joining_date}}</strong>. Executive healthcare, D&O liability insurance coverage, and custom pension contributions will take effect immediately upon commencement.</p>
-
-<p>Please review and sign below by <strong>{{offer_validity_date}}</strong> to seal this partnership.</p>
-
-<div style="margin-top:40px;">
-  <p>Sincerely,</p>
-  <p><strong>{{signatory_name}}</strong><br />{{signatory_title}}<br />{{company_name}}</p>
-</div>`,
-    },
-    versions: [],
-  },
-  {
-    id: 'tpl_contract_tech_003',
-    companyId: 'cmp_acme_001',
-    title: 'Technical Contractor & Consultant Agreement',
-    description: 'Agreement for specialized independent consultants and freelance technical contributors.',
-    category: 'CONTRACT',
-    isActive: true,
-    currentVersionId: 'ver_cnt_001',
-    createdBy: 'usr_hr_002',
-    creator: { firstName: 'Sarah', lastName: 'Jenkins', email: 'hr@acme.com' },
-    createdAt: new Date(Date.now() - 86400000 * 7).toISOString(),
-    updatedAt: new Date(Date.now() - 86400000 * 7).toISOString(),
-    _count: { versions: 1 },
-    currentVersion: {
-      id: 'ver_cnt_001',
-      templateId: 'tpl_contract_tech_003',
-      versionNumber: 1,
-      isPublished: true,
-      changeSummary: 'Standard technical contractor agreement with milestone clauses',
-      createdAt: new Date(Date.now() - 86400000 * 7).toISOString(),
-      creator: { firstName: 'Sarah', lastName: 'Jenkins', email: 'hr@acme.com' },
-      placeholdersSchema: ['candidate_name', 'designation', 'salary', 'joining_date', 'notice_period'],
-      contentMarkup: `<p>Dear <strong>{{candidate_name}}</strong>,</p>
-<p>This Statement of Work and Contractor Offer establishes your engagement as an independent contractor performing the role of <strong>{{designation}}</strong> starting on <strong>{{joining_date}}</strong>.</p>
-<p><strong>Compensation:</strong> You will be compensated at the agreed rate of <strong>{{salary}}</strong> upon monthly timesheet approval. This engagement does not constitute common-law employment.</p>
-<p><strong>Termination:</strong> Either party may conclude this statement of work upon providing {{notice_period}}.</p>`,
-    },
-    versions: [],
-  },
-  {
-    id: 'tpl_intern_univ_004',
-    companyId: 'cmp_acme_001',
-    title: 'Engineering Internship Fellowship Offer',
-    description: 'Designed for summer and semester student interns with mentor pairing and educational objectives.',
-    category: 'INTERNSHIP',
-    isActive: true,
-    currentVersionId: 'ver_int_001',
-    createdBy: 'usr_rec_003',
-    creator: { firstName: 'David', lastName: 'Kim', email: 'recruiter@acme.com' },
-    createdAt: new Date(Date.now() - 86400000 * 5).toISOString(),
-    updatedAt: new Date(Date.now() - 86400000 * 5).toISOString(),
-    _count: { versions: 1 },
-    currentVersion: {
-      id: 'ver_int_001',
-      templateId: 'tpl_intern_univ_004',
-      versionNumber: 1,
-      isPublished: true,
-      changeSummary: 'Fellowship internship curriculum template',
-      createdAt: new Date(Date.now() - 86400000 * 5).toISOString(),
-      creator: { firstName: 'David', lastName: 'Kim', email: 'recruiter@acme.com' },
-      placeholdersSchema: ['candidate_name', 'designation', 'salary', 'joining_date', 'reporting_manager'],
-      contentMarkup: `<p>Dear <strong>{{candidate_name}}</strong>,</p>
-<p>Congratulations! We are delighted to offer you a spot in the {{company_name}} Engineering Fellowship as an <strong>{{designation}}</strong>.</p>
-<p>Your internship will commence on <strong>{{joining_date}}</strong> under the mentorship of <strong>{{reporting_manager}}</strong>, with a monthly educational stipend of <strong>{{salary}}</strong>.</p>`,
-    },
-    versions: [],
-  },
 ];
 
 class TemplateServiceClass {
@@ -505,8 +382,24 @@ class TemplateServiceClass {
     const saved = localStorage.getItem('offergen_templates');
     if (saved) {
       try {
-        this.templates = JSON.parse(saved);
-        return;
+        const parsed: OfferTemplate[] = JSON.parse(saved);
+        // Purge dummy / acme templates
+        const cleaned = parsed.filter(
+          (t) =>
+            t.id === 'tpl_tasknera_official_001' ||
+            (!t.id.includes('exec_leadership') &&
+              !t.id.includes('contract_tech') &&
+              !t.id.includes('intern_univ') &&
+              !t.companyId?.includes('acme') &&
+              !t.title?.toLowerCase().includes('acme') &&
+              !t.title?.toLowerCase().includes('dummy'))
+        );
+        if (cleaned.length > 0) {
+          const hasTasknera = cleaned.some((t) => t.id === 'tpl_tasknera_official_001');
+          this.templates = hasTasknera ? cleaned : [INITIAL_TEMPLATES[0], ...cleaned];
+          this.saveToStorage();
+          return;
+        }
       } catch {
         // Fall back to seed
       }

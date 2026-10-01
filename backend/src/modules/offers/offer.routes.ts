@@ -3,6 +3,7 @@ import { OfferController } from './offer.controller.js';
 import { AiController } from '../ai/ai.controller.js';
 import { authenticate, requireRoles } from '../../middleware/auth.js';
 import { validateRequest } from '../../middleware/validate.js';
+import { uploadDocumentMiddleware } from '../../middleware/upload.js';
 import {
   createOfferSchema,
   saveDraftSchema,
@@ -414,4 +415,15 @@ router.get(
   OfferController.listOfferDocuments
 );
 
+/**
+ * AI PDF to Structured Letter: Accepts PDF, extracts page-by-page text, formats into TaskNera multi-page HTML
+ */
+router.post(
+  '/pdf-to-structured-letter',
+  requireRoles('SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER'),
+  uploadDocumentMiddleware,
+  OfferController.convertPdfToStructuredLetter
+);
+
 export default router;
+

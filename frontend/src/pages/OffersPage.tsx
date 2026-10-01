@@ -395,7 +395,15 @@ export const OffersPage: React.FC = () => {
             icon={<Sparkles size={16} />}
             onClick={() => setIsQuickModalOpen(true)}
           >
-            Generate from Company Template (2-Step)
+            Generate Letter in TaskNera Letterhead
+          </Button>
+          <Button
+            variant="secondary"
+            icon={<FileText size={15} />}
+            onClick={() => navigate('/pdf-to-letter')}
+            style={{ fontSize: '0.8125rem', borderColor: '#a35d39', color: '#a35d39' }}
+          >
+            AI PDF to Structured Letter
           </Button>
           <Button
             variant="secondary"

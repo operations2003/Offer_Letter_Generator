@@ -1478,7 +1478,51 @@ class OfferServiceClass {
   }
 
   /**
+   * AI PDF to Structured Letter: Uploads a PDF to backend Python/Node engine,
+   * extracts page-by-page text, and returns multi-page TaskNera HTML.
+   */
+  async convertPdfToStructuredLetter(file: File): Promise<{
+    success: boolean;
+    fileName: string;
+    totalPages: number;
+    totalDetectedTables?: number;
+    detectedVariables: string[];
+    extractedValues: Record<string, string>;
+    pages: Array<{ pageNumber: number; rawText: string; htmlMarkup: string; tableCount?: number }>;
+    fullStructuredHtml: string;
+    sections: Array<{ number: number; title: string; content: string }>;
+  }> {
+    const formData = new FormData();
+    formData.append('document', file);
+
+    const token =
+      localStorage.getItem('offergen_token') ||
+      localStorage.getItem('token') ||
+      localStorage.getItem('auth_token') ||
+      'demo_jwt_token_sample';
+    const headers: HeadersInit = {
+      Authorization: `Bearer ${token}`,
+    };
+
+    const response = await fetch('/api/v1/offers/pdf-to-structured-letter', {
+      method: 'POST',
+      headers,
+      body: formData,
+    });
+
+
+    if (!response.ok) {
+      const errorJson = await response.json().catch(() => ({}));
+      throw new Error(errorJson.message || `Failed to process PDF (${response.status} ${response.statusText})`);
+    }
+
+    const json = await response.json();
+    return json.data;
+  }
+
+  /**
    * GET EMAIL HISTORY:
+
    * Retrieves chronological email dispatch ledger, timestamps, statuses, and retries
    */
   async getEmailHistory(offerId: string): Promise<EmailHistoryResponse> {
@@ -1496,4 +1540,6 @@ class OfferServiceClass {
   }
 }
 
+
 export const offerService = new OfferServiceClass();
+

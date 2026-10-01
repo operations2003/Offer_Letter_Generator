@@ -44,6 +44,14 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
       badgeColor: '#059669',
     },
     {
+      to: '/pdf-to-letter',
+      label: 'AI PDF to Letter',
+      icon: <Sparkles size={18} />,
+      roles: ['SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER'],
+      badge: 'Multi-Page',
+      badgeColor: '#a35d39',
+    },
+    {
       to: '/templates',
       label: 'Offer Templates',
       icon: <FileText size={18} />,

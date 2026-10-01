@@ -46,6 +46,7 @@ export class GroqAdapter implements IAiProviderAdapter {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${this.apiKey}`,
+          'User-Agent': 'OfferLetterGenerator/1.0',
         },
         body: JSON.stringify(body),
       });

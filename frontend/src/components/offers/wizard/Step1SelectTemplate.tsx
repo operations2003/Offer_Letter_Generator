@@ -84,12 +84,13 @@ export const Step1SelectTemplate: React.FC<Step1SelectTemplateProps> = ({
     reader.readAsText(file);
   };
 
+  const availableCategories = Array.from(new Set(templates.map((t) => t.category)));
   const categories = [
     { id: 'ALL', label: 'All Templates' },
-    { id: 'FULL_TIME', label: 'Full-Time Regular' },
-    { id: 'EXECUTIVE', label: 'Executive' },
-    { id: 'CONTRACT', label: 'Contractor' },
-    { id: 'INTERNSHIP', label: 'Internship' },
+    ...availableCategories.map((c) => ({
+      id: c,
+      label: c === 'FULL_TIME' ? 'Full-Time Regular' : c.replace(/_/g, ' '),
+    })),
   ];
 
   const filtered = templates.filter(

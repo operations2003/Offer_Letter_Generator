@@ -11,6 +11,7 @@ import { OnboardingPage } from './pages/OnboardingPage.js';
 import { LearningPage } from './pages/LearningPage.js';
 import { AssessmentsPage } from './pages/AssessmentsPage.js';
 import { PoliciesPage } from './pages/PoliciesPage.js';
+import { PdfToStructuredLetterPage } from './pages/PdfToStructuredLetterPage.js';
 import { AppLayout } from './components/layout/AppLayout.js';
 import { ProtectedRoute } from './components/layout/ProtectedRoute.js';
 import { EmptyState } from './components/common/FeedbackStates.js';
@@ -39,6 +40,7 @@ export const App: React.FC = () => {
         <Route path="documents/create" element={<DocumentsPage createMode={true} />} />
         <Route path="offers" element={<OffersPage />} />
         <Route path="offers/create" element={<Navigate to="/offers?create=true" replace />} />
+        <Route path="pdf-to-letter" element={<PdfToStructuredLetterPage />} />
         <Route path="templates" element={<TemplatesPage />} />
         <Route path="ai-studio" element={<AiStudioPage />} />
         <Route

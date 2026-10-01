@@ -184,7 +184,7 @@ export const DashboardPage: React.FC = () => {
               }}
               icon={<Sparkles size={16} />}
             >
-              Generate from Company Template (2-Step)
+              Generate Letter in TaskNera Letterhead
             </Button>
 
             <Button

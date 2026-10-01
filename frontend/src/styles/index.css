@@ -1118,3 +1118,123 @@ button, input, select, textarea {
     padding: 20px 16px;
   }
 }
+
+/* ==============================================================================
+   PRINT STYLESHEET (LETTERHEAD PDF / MULTI-PAGE DOCUMENT ISOLATION)
+   ============================================================================== */
+.document-page-sheet {
+  background: #ffffff;
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.08), 0 2px 6px -1px rgba(0, 0, 0, 0.04);
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  padding: 44px 50px;
+  margin-bottom: 32px;
+  position: relative;
+  box-sizing: border-box;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  color: #1e293b;
+  line-height: 1.6;
+}
+
+.tasknera-a4-page {
+  box-sizing: border-box;
+  max-width: 100% !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+.interactive-field-pill {
+  user-select: text;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.interactive-field-pill:hover {
+  transform: translateY(-1px);
+  filter: brightness(0.96);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+}
+
+.interactive-field-pill.unpopulated:hover {
+  background-color: #fef3c7 !important;
+  border-color: #b45309 !important;
+}
+
+.interactive-field-pill.populated:hover {
+  background-color: #bbf7d0 !important;
+  border-color: #15803d !important;
+}
+
+@keyframes pulseHighlight {
+  0% { outline: 3px solid #f59e0b; background-color: #fef3c7; }
+  50% { outline: 3px solid #e11d48; background-color: #ffe4e6; }
+  100% { outline: 3px solid transparent; }
+}
+
+.pulse-highlight {
+  animation: pulseHighlight 2s ease-in-out;
+  border-radius: 4px;
+}
+
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 8mm 10mm;
+  }
+
+  /* Hide entire application shell and modal chrome */
+  body * {
+    visibility: hidden;
+  }
+
+  /* Isolate printable document container */
+  #printable-offer-document,
+  #printable-offer-document *,
+  .printable-letterhead-paper,
+  .printable-letterhead-paper *,
+  .document-page-sheet,
+  .document-page-sheet * {
+    visibility: visible !important;
+  }
+
+  #printable-offer-document,
+  .printable-letterhead-paper {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    background: #ffffff !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .document-page-sheet,
+  .tasknera-a4-page {
+    box-shadow: none !important;
+    border: none !important;
+    margin: 0 !important;
+    page-break-after: always !important;
+    break-after: page !important;
+    box-sizing: border-box !important;
+    width: 100% !important;
+    min-height: 100vh !important;
+    padding: 20mm 20mm 15mm 20mm !important;
+    background: #ffffff !important;
+  }
+
+  .document-page-sheet:last-child,
+  .tasknera-a4-page:last-child {
+    page-break-after: auto !important;
+    break-after: auto !important;
+  }
+
+  /* Hide print buttons / action bars inside printable paper if any */
+  .no-print {
+    display: none !important;
+  }
+}
+
