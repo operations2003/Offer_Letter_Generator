@@ -87,13 +87,18 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           background: '#ffffff',
         }}
       >
-        {/* Modern TaskNera Folded Polygon Ribbon SVG */}
+        {/* Brand Logo */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <svg width="30" height="30" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M5 6C5 5.44772 5.44772 5 6 5H18L13 14H5V6Z" fill="#1e40af" />
-            <path d="M14 5H26C26.5523 5 27 5.44772 27 6V13C27 13.5523 26.5523 14 26 14H17L14 5Z" fill="#3b82f6" />
-            <path d="M11 14H18V26C18 26.5523 17.5523 27 17 27H12C11.4477 27 11 26.5523 11 26V14Z" fill="#2563eb" />
-          </svg>
+          <img
+            src="/logo.png"
+            alt="Logo"
+            style={{
+              width: 32,
+              height: 32,
+              objectFit: 'contain',
+              borderRadius: 6,
+            }}
+          />
         </div>
         <div>
           <div style={{ fontWeight: 800, fontSize: '1.15rem', color: '#0f172a', letterSpacing: '-0.02em', lineHeight: 1.1 }}>

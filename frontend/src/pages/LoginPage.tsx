@@ -64,11 +64,16 @@ export const LoginPage: React.FC = () => {
         {/* Brand header */}
         <div style={{ textAlign: 'center', marginBottom: 28 }}>
           <div style={{ display: 'inline-flex', marginBottom: 12 }}>
-            <svg width="42" height="42" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M5 6C5 5.44772 5.44772 5 6 5H18L13 14H5V6Z" fill="#1e40af" />
-              <path d="M14 5H26C26.5523 5 27 5.44772 27 6V13C27 13.5523 26.5523 14 26 14H17L14 5Z" fill="#3b82f6" />
-              <path d="M11 14H18V26C18 26.5523 17.5523 27 17 27H12C11.4477 27 11 26.5523 11 26V14Z" fill="#2563eb" />
-            </svg>
+            <img
+              src="/logo.png"
+              alt="Logo"
+              style={{
+                width: 48,
+                height: 48,
+                objectFit: 'contain',
+                borderRadius: 8,
+              }}
+            />
           </div>
           <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#0f172a', letterSpacing: '-0.02em', marginBottom: 4 }}>
             TaskNera HRMS
