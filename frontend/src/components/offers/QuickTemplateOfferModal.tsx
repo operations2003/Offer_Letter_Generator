@@ -56,7 +56,7 @@ export interface DocumentAnnexureRow {
   defaultValue: string;
 }
 
-// Default TaskNera 7-Section Legal Structure (From Official Contract)
+// Default TaskNera 18-Section Legal Structure (From Official Contract)
 const DEFAULT_OFFER_SECTIONS: DocumentSectionItem[] = [
   {
     id: 'sec_1',
@@ -127,6 +127,98 @@ const DEFAULT_OFFER_SECTIONS: DocumentSectionItem[] = [
     paragraphs: [
       'Where an allegation of misconduct is raised, the Company may investigate the matter and take proportionate disciplinary action based on the facts, evidence, seriousness of the conduct, prior record and applicable law. Depending on the circumstances, disciplinary action may include counselling, warning, performance/behavioural improvement measures, suspension where legally permissible, recovery of proven losses where legally permissible, or termination.',
       'In cases of serious misconduct, the Company may terminate employment without notice or payment in lieu where permitted by the employment terms and applicable law. Where a disciplinary enquiry, show-cause opportunity, hearing, statutory approval or other procedural safeguard is required by applicable law, the Company will follow the applicable procedure.',
+      'Where serious misconduct, negligence, default, unauthorised conduct or breach causes proven loss or damage to TaskNera, the Company may seek recovery and/or make deductions only to the extent permitted by applicable law, after following any required notice or opportunity to respond. Any recovery shall be limited to the amount lawfully recoverable and shall not be an arbitrary or punitive deduction.',
+      'Salary and dues on termination: Termination for misconduct does not, by itself, extinguish wages or other statutory/contractual amounts that have already been legally earned. The Company will pay amounts legally due for work/attendance up to the effective date of separation, subject to lawful deductions, statutory adjustments, recoveries permitted by law, and applicable payroll/F&F procedures. No provision of this Offer Letter shall be interpreted as waiving an employee\'s non-waivable statutory rights.',
+    ],
+  },
+  {
+    id: 'sec_8',
+    number: 8,
+    title: 'Notice Period and Separation',
+    paragraphs: [
+      'During probation, either party may terminate employment by giving {{probation_notice_days}} days\' written notice or salary in lieu thereof, subject to applicable law and the Company\'s rights under the employment terms. After confirmation, the notice period shall be {{notice_period}} unless otherwise specified in writing. Termination for misconduct may be effected without notice where legally permissible and in accordance with the applicable disciplinary process.',
+      'On separation, the employee must immediately return Company/client property, documents, credentials, devices, records and confidential information and complete all applicable exit formalities. Wages and other amounts legally due shall be processed within the time required by applicable law. Where a statutory wage-payment deadline is shorter than an internal administrative timeline, the statutory deadline shall prevail. Non-wage administrative reconciliation may be completed separately where legally permissible. No provision of this Offer Letter authorises withholding of non-waivable statutory dues.',
+    ],
+  },
+  {
+    id: 'sec_9',
+    number: 9,
+    title: 'Attendance, Productivity and Work Avoidance',
+    paragraphs: [
+      'You are required to remain available and actively engaged during official working hours except during approved breaks or authorised absence. Refusal to perform assigned duties, deliberate delay, remaining idle without work-related activity, ignoring lawful work instructions, failure to respond to official communications without reasonable justification, or repeated unjustified claims of inability to perform assigned duties may constitute work avoidance and may result in disciplinary action, including termination during probation, in accordance with the HR Policy and applicable law.',
+    ],
+  },
+  {
+    id: 'sec_10',
+    number: 10,
+    title: 'Final Settlement, Recovery and Lawful Deductions',
+    paragraphs: [
+      'On separation, TaskNera will calculate and pay wages and other amounts that are legally due within the time required by applicable law. The Company will not contractually postpone statutory wage payments for 30–45 days where a shorter statutory deadline applies. Administrative reconciliation of non-wage items may continue separately where legally permissible.',
+      'Where serious misconduct, negligence, default, unauthorised use, loss or damage causes a proven financial loss to TaskNera, the Company may seek recovery and/or make deductions only to the extent permitted by applicable law and after any required show-cause or disciplinary procedure. Deductions will not be arbitrary or punitive and will be limited to amounts lawfully recoverable, including applicable notice-pay adjustments, advances or proven damage/loss where permitted.',
+    ],
+  },
+  {
+    id: 'sec_11',
+    number: 11,
+    title: 'Confidentiality and Intellectual Property',
+    paragraphs: [
+      'You shall maintain strict confidentiality of all Company, client, candidate, employee, commercial, financial, technical and operational information. All TaskNera Project IP and other work product created in connection with employment is governed by the attached Confidentiality, Non-Disclosure & Intellectual Property Agreement, which forms part of this Offer Letter.',
+    ],
+  },
+  {
+    id: 'sec_12',
+    number: 12,
+    title: 'Company Property, Data and Information Security',
+    paragraphs: [
+      'All Company property and information must be used only for authorised business purposes. You must comply with Company information-security, data-protection, IT, acceptable-use and access-control requirements. On separation or request, all Company property and confidential information must be returned or securely deleted as directed.',
+    ],
+  },
+  {
+    id: 'sec_13',
+    number: 13,
+    title: 'Conflict of Interest and Outside Engagements',
+    paragraphs: [
+      'You must disclose actual or potential conflicts of interest and must not undertake outside employment, consulting or other engagement that conflicts with your duties, confidentiality obligations, working hours or Company interests without prior written approval, where such approval is required by Company policy.',
+    ],
+  },
+  {
+    id: 'sec_14',
+    number: 14,
+    title: 'Anti-Harassment, Equal Opportunity and Grievances',
+    paragraphs: [
+      'TaskNera expects a respectful workplace and maintains zero tolerance for discrimination and harassment. Employees may use the Company\'s grievance and complaint channels. Complaints, including those relating to sexual harassment, will be handled under the applicable law and Company procedure, including the POSH framework where applicable.',
+    ],
+  },
+  {
+    id: 'sec_15',
+    number: 15,
+    title: 'Company Policies and Policy Changes',
+    paragraphs: [
+      'You acknowledge that you have access to and agree to comply with TaskNera\'s HR policies and procedures, including the Code of Conduct, Attendance, Leave, Compensation, Confidentiality & Intellectual Property, IT & Cybersecurity, Grievance, Anti-Harassment, Employee Separation and other applicable policies. The current HR Policy Document is TaskNera \u2013 HR Policy Document (v1.2), Reference ID TASK/HR POLICY DOCUMENT/2026/0026/v1.2. The Company may amend, modify, interpret, suspend or withdraw policy provisions to meet business, operational or legal requirements, with effect from the date notified, subject always to applicable law.',
+    ],
+  },
+  {
+    id: 'sec_16',
+    number: 16,
+    title: 'Statutory and Legal Compliance',
+    paragraphs: [
+      'Nothing in this Offer Letter is intended to exclude, reduce or contract out of any mandatory requirement under applicable central or state employment, wage, social-security, workplace-safety, anti-harassment, privacy or other laws. If any provision conflicts with a mandatory legal requirement, the mandatory legal requirement will prevail to the extent of the conflict.',
+    ],
+  },
+  {
+    id: 'sec_17',
+    number: 17,
+    title: 'Governing Law and Jurisdiction',
+    paragraphs: [
+      'This Offer Letter shall be governed by the laws applicable in India. Subject to any mandatory jurisdiction or dispute-resolution requirement under applicable law, disputes shall be subject to the competent courts having jurisdiction over the Company\'s registered office.',
+    ],
+  },
+  {
+    id: 'sec_18',
+    number: 18,
+    title: 'Entire Understanding',
+    paragraphs: [
+      'This Offer Letter, its Annexures, and applicable Company policies constitute the employment terms communicated to you and supersede prior inconsistent written or oral representations concerning the matters covered herein, subject to any subsequently issued appointment letter or written amendment signed/issued by the Company.',
     ],
   },
 ];
@@ -241,6 +333,47 @@ const MANDATORY_DOCS = [
   'Any additional documents reasonably required for lawful onboarding or background verification.',
 ];
 
+const TaskNeraSecondaryHeader: React.FC = () => (
+  <div
+    style={{
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingBottom: 10,
+      marginBottom: 16,
+      borderBottom: '1px solid #e2d3ca',
+    }}
+  >
+    <img src="/logo.png" alt="TaskNera" style={{ width: 36, height: 36, objectFit: 'contain' }} />
+    <div style={{ textAlign: 'right' }}>
+      <div style={{ fontSize: '18px', fontWeight: 800, color: '#a35d39', fontFamily: 'Georgia, serif' }}>
+        TaskNera
+      </div>
+      <div style={{ fontSize: '11px', color: '#64748b' }}>
+        D-57 F1 Dilshad Colony, Shahdara, Delhi &ndash; 110095
+      </div>
+      <div style={{ fontSize: '11px', color: '#64748b' }}>
+        Email: careers@tasknera.com
+      </div>
+    </div>
+  </div>
+);
+
+const TaskNeraFooter: React.FC<{ pageNum: number }> = ({ pageNum }) => (
+  <div
+    style={{
+      marginTop: 'auto',
+      borderTop: '1px solid #e2e8f0',
+      paddingTop: 10,
+      textAlign: 'center',
+      fontSize: '11px',
+      color: '#94a3b8',
+    }}
+  >
+    TaskNera | Page {pageNum} of 11
+  </div>
+);
+
 export const QuickTemplateOfferModal: React.FC<QuickTemplateOfferModalProps> = ({
   isOpen,
   onClose,
@@ -313,6 +446,13 @@ export const QuickTemplateOfferModal: React.FC<QuickTemplateOfferModalProps> = (
     department: 'Platform Engineering',
     annual_ctc: '18,00,000',
     salary: '18,00,000',
+    ctc_per_month: '1,50,000',
+    basic_salary: '60,000',
+    hra: '30,000',
+    special_allowance: '60,000',
+    gross_monthly: '1,50,000',
+    employer_contributions: 'NA',
+    total_ctc_per_annum: '18,00,000',
     work_location: 'Remote / On-site / Hybrid',
     location: 'Remote / On-site / Hybrid',
     probation_period: '6 Months',
@@ -325,6 +465,28 @@ export const QuickTemplateOfferModal: React.FC<QuickTemplateOfferModalProps> = (
     offer_validity_date: new Date(Date.now() + 86400000 * 14).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' }),
     reference_number: `TASK/${new Date().getFullYear()}/${Math.floor(100 + Math.random() * 900)}`,
   });
+
+  // Automatically recalculate monthly breakdown when annual CTC changes
+  const handleCtcChange = (ctcStr: string) => {
+    const numeric = parseFloat(ctcStr.replace(/[^0-9.]/g, '')) || 0;
+    const formatINR = (n: number) => new Intl.NumberFormat('en-IN').format(n);
+    const monthly = Math.round(numeric / 12);
+    const basic = Math.round(monthly * 0.40);
+    const hra = Math.round(monthly * 0.20);
+    const special = Math.max(0, monthly - (basic + hra));
+
+    setValues((prev) => ({
+      ...prev,
+      annual_ctc: ctcStr,
+      salary: ctcStr,
+      ctc_per_month: formatINR(monthly),
+      basic_salary: formatINR(basic),
+      hra: formatINR(hra),
+      special_allowance: formatINR(special),
+      gross_monthly: formatINR(monthly),
+      total_ctc_per_annum: ctcStr,
+    }));
+  };
 
   // Step 1 Editor sub-tab
   const [editorTab, setEditorTab] = useState<'structured' | 'smart_paste'>('structured');
@@ -508,6 +670,12 @@ export const QuickTemplateOfferModal: React.FC<QuickTemplateOfferModalProps> = (
       working_days_shift: values['working_days_shift'] || '6 working days and a 9-hour shift (may vary depending on business requirements)',
       reference_number: values['reference_number'] || 'TASK/2026/102',
       date: values['date'] || '01/10/2026',
+      basic_salary: values['basic_salary'] || '60,000',
+      hra: values['hra'] || '30,000',
+      special_allowance: values['special_allowance'] || '60,000',
+      gross_monthly: values['gross_monthly'] || '1,50,000',
+      ctc_per_month: values['ctc_per_month'] || '1,50,000',
+      employer_contributions: values['employer_contributions'] || 'NA',
     };
 
     // Replace {{key}}
@@ -531,9 +699,18 @@ export const QuickTemplateOfferModal: React.FC<QuickTemplateOfferModalProps> = (
       [/\[Mr\.\/Ms\.\]/gi, allMap.salutation],
       [/\[6\]/gi, allMap.probation_period.replace(/[^0-9]/g, '') || '6'],
       [/\[45\]/gi, allMap.notice_period.replace(/[^0-9]/g, '') || '45'],
+      [/\[2\]/gi, '2'],
+      [/\[30\]/gi, '30'],
       [/\[9\]/gi, '9'],
       [/\[TASK\/YYYY\/000\]/gi, allMap.reference_number],
       [/\[DD\/MM\/YYYY\]/gi, allMap.date],
+      [/\[Basic Salary\]/gi, allMap.basic_salary],
+      [/\[HRA\]/gi, allMap.hra],
+      [/\[Special \/ Other Allowance\]/gi, allMap.special_allowance],
+      [/\[Gross Monthly Salary\]/gi, allMap.gross_monthly],
+      [/\[Employer Contributions\]/gi, allMap.employer_contributions],
+      [/\[Total Fixed CTC \(Per Month\)\]/gi, allMap.ctc_per_month],
+      [/\[Total Fixed CTC \(Per Annum\)\]/gi, allMap.annual_ctc],
     ];
 
     for (const [pattern, val] of bracketReplacements) {
@@ -1218,13 +1395,7 @@ export const QuickTemplateOfferModal: React.FC<QuickTemplateOfferModalProps> = (
                         className="form-input"
                         placeholder="e.g. 18,00,000"
                         value={values['annual_ctc'] || ''}
-                        onChange={(e) =>
-                          setValues({
-                            ...values,
-                            annual_ctc: e.target.value,
-                            salary: e.target.value,
-                          })
-                        }
+                        onChange={(e) => handleCtcChange(e.target.value)}
                         style={{ paddingLeft: 36 }}
                       />
                     </div>
@@ -1248,6 +1419,79 @@ export const QuickTemplateOfferModal: React.FC<QuickTemplateOfferModalProps> = (
                         }
                         style={{ paddingLeft: 36 }}
                       />
+                    </div>
+                  </div>
+
+                  {/* Salary Breakdown (Annexure III) Preview & Customizer */}
+                  <div
+                    style={{
+                      gridColumn: '1 / -1',
+                      background: '#f8fafc',
+                      border: '1px solid #e2e8f0',
+                      borderRadius: 8,
+                      padding: 16,
+                      marginTop: 4,
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10, flexWrap: 'wrap', gap: 6 }}>
+                      <span style={{ fontSize: '13px', fontWeight: 700, color: '#0f172a' }}>
+                        Annexure III &ndash; Salary Breakdown (Auto-Calculated)
+                      </span>
+                      <span style={{ fontSize: '11px', color: '#64748b' }}>
+                        Formula: Basic (40%), HRA (20%), Special Allowance (Balance)
+                      </span>
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: 10 }}>
+                      <div>
+                        <label style={{ fontSize: '11px', fontWeight: 600, color: '#475569', display: 'block', marginBottom: 4 }}>Monthly CTC</label>
+                        <input
+                          type="text"
+                          className="form-input"
+                          style={{ fontSize: '12px', padding: '6px 10px' }}
+                          value={values['ctc_per_month'] || ''}
+                          onChange={(e) => setValues({ ...values, ctc_per_month: e.target.value, gross_monthly: e.target.value })}
+                        />
+                      </div>
+                      <div>
+                        <label style={{ fontSize: '11px', fontWeight: 600, color: '#475569', display: 'block', marginBottom: 4 }}>Basic Salary (40%)</label>
+                        <input
+                          type="text"
+                          className="form-input"
+                          style={{ fontSize: '12px', padding: '6px 10px' }}
+                          value={values['basic_salary'] || ''}
+                          onChange={(e) => setValues({ ...values, basic_salary: e.target.value })}
+                        />
+                      </div>
+                      <div>
+                        <label style={{ fontSize: '11px', fontWeight: 600, color: '#475569', display: 'block', marginBottom: 4 }}>HRA (20%)</label>
+                        <input
+                          type="text"
+                          className="form-input"
+                          style={{ fontSize: '12px', padding: '6px 10px' }}
+                          value={values['hra'] || ''}
+                          onChange={(e) => setValues({ ...values, hra: e.target.value })}
+                        />
+                      </div>
+                      <div>
+                        <label style={{ fontSize: '11px', fontWeight: 600, color: '#475569', display: 'block', marginBottom: 4 }}>Special Allowance</label>
+                        <input
+                          type="text"
+                          className="form-input"
+                          style={{ fontSize: '12px', padding: '6px 10px' }}
+                          value={values['special_allowance'] || ''}
+                          onChange={(e) => setValues({ ...values, special_allowance: e.target.value })}
+                        />
+                      </div>
+                      <div>
+                        <label style={{ fontSize: '11px', fontWeight: 600, color: '#475569', display: 'block', marginBottom: 4 }}>Employer Contrib.</label>
+                        <input
+                          type="text"
+                          className="form-input"
+                          style={{ fontSize: '12px', padding: '6px 10px' }}
+                          value={values['employer_contributions'] || 'NA'}
+                          onChange={(e) => setValues({ ...values, employer_contributions: e.target.value })}
+                        />
+                      </div>
                     </div>
                   </div>
 
@@ -1398,12 +1642,12 @@ export const QuickTemplateOfferModal: React.FC<QuickTemplateOfferModalProps> = (
                 </div>
               </div>
 
-              {/* MULTI-PAGE PRINTABLE CONTAINER */}
+              {/* MULTI-PAGE PRINTABLE CONTAINER (EXACT 11-PAGE OFFICIAL TASKNERA CONTRACT) */}
               <div id="printable-offer-document" className="printable-letterhead-paper">
                 {/* ========================================================
-                    PAGE 1: LETTERHEAD BANNER, TOP META, CLAUSES 1 TO 5
+                    PAGE 1: LETTERHEAD BANNER, TOP META, CLAUSES 1 TO 5 (PART 1)
                     ======================================================== */}
-                <div className="document-page-sheet">
+                <div className="document-page-sheet" style={{ display: 'flex', flexDirection: 'column', minHeight: '1120px' }}>
                   {/* Official TaskNera Top Header Banner */}
                   <div style={{ position: 'relative', marginBottom: 20 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
@@ -1477,7 +1721,7 @@ export const QuickTemplateOfferModal: React.FC<QuickTemplateOfferModalProps> = (
                       fontSize: '22px',
                       fontWeight: 700,
                       color: '#a35d39',
-                      margin: '24px 0 20px',
+                      margin: '18px 0 16px',
                       fontFamily: "'Georgia', serif",
                       letterSpacing: '0.02em',
                     }}
@@ -1486,7 +1730,7 @@ export const QuickTemplateOfferModal: React.FC<QuickTemplateOfferModalProps> = (
                   </h2>
 
                   {/* Salutation & Subject */}
-                  <p style={{ marginBottom: 12, fontSize: '13.5px', color: '#1e293b' }}>
+                  <p style={{ marginBottom: 10, fontSize: '13px', color: '#1e293b' }}>
                     Dear{' '}
                     <span
                       dangerouslySetInnerHTML={{
@@ -1505,26 +1749,26 @@ export const QuickTemplateOfferModal: React.FC<QuickTemplateOfferModalProps> = (
                     ,
                   </p>
 
-                  <p style={{ marginBottom: 14, fontWeight: 700, fontSize: '13.5px', color: '#0f172a' }}>
+                  <p style={{ marginBottom: 12, fontWeight: 700, fontSize: '13px', color: '#0f172a' }}>
                     {subjectText}
                   </p>
 
                   <p
-                    style={{ marginBottom: 20, fontSize: '13px', lineHeight: 1.65, textAlign: 'justify', color: '#334155' }}
+                    style={{ marginBottom: 16, fontSize: '12.5px', lineHeight: 1.6, textAlign: 'justify', color: '#334155' }}
                     dangerouslySetInnerHTML={{ __html: interpolateText(introParagraph, highlightPlaceholders) }}
                   />
 
-                  {/* Sections 1 to 5 */}
-                  {sections.slice(0, 5).map((sec) => (
-                    <div key={sec.id} style={{ marginBottom: 18 }}>
+                  {/* Sections 1 to 4 */}
+                  {sections.slice(0, 4).map((sec) => (
+                    <div key={sec.id} style={{ marginBottom: 14 }}>
                       <h3
                         style={{
-                          fontSize: '14px',
+                          fontSize: '13.5px',
                           fontWeight: 700,
                           color: '#a35d39',
                           borderBottom: '1px solid #e2d3ca',
-                          paddingBottom: 4,
-                          marginBottom: 8,
+                          paddingBottom: 3,
+                          marginBottom: 6,
                           fontFamily: "'Georgia', serif",
                         }}
                       >
@@ -1534,10 +1778,10 @@ export const QuickTemplateOfferModal: React.FC<QuickTemplateOfferModalProps> = (
                         <p
                           key={pIdx}
                           style={{
-                            fontSize: '13px',
-                            lineHeight: 1.65,
+                            fontSize: '12.5px',
+                            lineHeight: 1.6,
                             color: '#334155',
-                            marginBottom: pIdx === sec.paragraphs.length - 1 ? 0 : 8,
+                            marginBottom: pIdx === sec.paragraphs.length - 1 ? 0 : 6,
                             textAlign: 'justify',
                           }}
                           dangerouslySetInnerHTML={{ __html: interpolateText(p, highlightPlaceholders) }}
@@ -1546,104 +1790,243 @@ export const QuickTemplateOfferModal: React.FC<QuickTemplateOfferModalProps> = (
                     </div>
                   ))}
 
-                  {/* Page 1 Footer */}
-                  <div
-                    style={{
-                      marginTop: 36,
-                      borderTop: '1px solid #e2e8f0',
-                      paddingTop: 10,
-                      textAlign: 'center',
-                      fontSize: '11px',
-                      color: '#94a3b8',
-                    }}
-                  >
-                    TaskNera | Page 1 of 3
-                  </div>
-                </div>
-
-                {/* ========================================================
-                    PAGE 2: SECONDARY HEADER, CLAUSES 6 & 7, SIGNATURES
-                    ======================================================== */}
-                <div className="document-page-sheet">
-                  {/* Official Secondary Page Header */}
-                  <div
-                    style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      paddingBottom: 12,
-                      marginBottom: 20,
-                      borderBottom: '1px solid #e2d3ca',
-                    }}
-                  >
-                    <img src="/logo.png" alt="TaskNera" style={{ width: 36, height: 36, objectFit: 'contain' }} />
-                    <div style={{ textAlign: 'right' }}>
-                      <div style={{ fontSize: '18px', fontWeight: 800, color: '#a35d39', fontFamily: 'Georgia, serif' }}>
-                        TaskNera
-                      </div>
-                      <div style={{ fontSize: '11px', color: '#64748b' }}>
-                        D-57 F1 Dilshad Colony, Shahdara, Delhi &ndash; 110095
-                      </div>
-                      <div style={{ fontSize: '11px', color: '#64748b' }}>
-                        Email: careers@tasknera.com
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Sections 6 & 7 */}
-                  {sections.slice(5).map((sec) => (
-                    <div key={sec.id} style={{ marginBottom: 20 }}>
+                  {/* Section 5 (First Paragraph) */}
+                  {sections[4] && (
+                    <div style={{ marginBottom: 14 }}>
                       <h3
                         style={{
-                          fontSize: '14px',
+                          fontSize: '13.5px',
                           fontWeight: 700,
                           color: '#a35d39',
                           borderBottom: '1px solid #e2d3ca',
-                          paddingBottom: 4,
-                          marginBottom: 8,
+                          paddingBottom: 3,
+                          marginBottom: 6,
                           fontFamily: "'Georgia', serif",
                         }}
                       >
-                        {sec.number}. {sec.title}
+                        {sections[4].number}. {sections[4].title}
                       </h3>
-                      {sec.paragraphs.map((p, pIdx) => (
+                      <p
+                        style={{
+                          fontSize: '12.5px',
+                          lineHeight: 1.6,
+                          color: '#334155',
+                          marginBottom: 0,
+                          textAlign: 'justify',
+                        }}
+                        dangerouslySetInnerHTML={{
+                          __html: interpolateText(sections[4].paragraphs[0] || '', highlightPlaceholders),
+                        }}
+                      />
+                    </div>
+                  )}
+
+                  {/* Page 1 Footer */}
+                  <TaskNeraFooter pageNum={1} />
+                </div>
+
+                {/* ========================================================
+                    PAGE 2: SECONDARY HEADER, SECTION 5 (CONT), SECTION 6 (CODE OF CONDUCT), SECTION 7 (DISCIPLINARY)
+                    ======================================================== */}
+                <div className="document-page-sheet" style={{ display: 'flex', flexDirection: 'column', minHeight: '1120px' }}>
+                  <TaskNeraSecondaryHeader />
+
+                  {/* Section 5 Second Paragraph */}
+                  {sections[4]?.paragraphs[1] && (
+                    <p
+                      style={{
+                        fontSize: '12.5px',
+                        lineHeight: 1.6,
+                        color: '#334155',
+                        marginBottom: 16,
+                        textAlign: 'justify',
+                      }}
+                      dangerouslySetInnerHTML={{
+                        __html: interpolateText(sections[4].paragraphs[1], highlightPlaceholders),
+                      }}
+                    />
+                  )}
+
+                  {/* Section 6: Code of Conduct – Zero Tolerance */}
+                  {sections[5] && (
+                    <div style={{ marginBottom: 16 }}>
+                      <h3
+                        style={{
+                          fontSize: '13.5px',
+                          fontWeight: 700,
+                          color: '#a35d39',
+                          borderBottom: '1px solid #e2d3ca',
+                          paddingBottom: 3,
+                          marginBottom: 6,
+                          fontFamily: "'Georgia', serif",
+                        }}
+                      >
+                        {sections[5].number}. {sections[5].title}
+                      </h3>
+                      {sections[5].paragraphs.map((p, pIdx) => (
                         <p
                           key={pIdx}
-                          style={{
-                            fontSize: '13px',
-                            lineHeight: 1.65,
-                            color: '#334155',
-                            marginBottom: 8,
-                            textAlign: 'justify',
-                          }}
+                          style={{ fontSize: '12.5px', lineHeight: 1.6, color: '#334155', marginBottom: 6, textAlign: 'justify' }}
                           dangerouslySetInnerHTML={{ __html: interpolateText(p, highlightPlaceholders) }}
                         />
                       ))}
-                      {sec.bullets && (
-                        <ul style={{ fontSize: '12.5px', color: '#475569', lineHeight: 1.65, paddingLeft: 22, margin: '6px 0 10px' }}>
-                          {sec.bullets.map((b, bIdx) => (
-                            <li key={bIdx} style={{ marginBottom: 4 }}>
+                      {sections[5].bullets && (
+                        <ul style={{ fontSize: '12px', color: '#475569', lineHeight: 1.6, paddingLeft: 22, margin: '6px 0 8px' }}>
+                          {sections[5].bullets.map((b, bIdx) => (
+                            <li key={bIdx} style={{ marginBottom: 3 }}>
                               {b}
                             </li>
                           ))}
                         </ul>
                       )}
-                      {sec.footnote && (
-                        <p style={{ fontSize: '12px', color: '#64748b', fontStyle: 'italic', margin: 0 }}>
-                          {sec.footnote}
+                      {sections[5].footnote && (
+                        <p style={{ fontSize: '12px', color: '#64748b', fontStyle: 'italic', margin: '4px 0 0' }}>
+                          {sections[5].footnote}
                         </p>
                       )}
                     </div>
+                  )}
+
+                  {/* Section 7: Disciplinary Action & Misconduct */}
+                  {sections[6] && (
+                    <div style={{ marginBottom: 16 }}>
+                      <h3
+                        style={{
+                          fontSize: '13.5px',
+                          fontWeight: 700,
+                          color: '#a35d39',
+                          borderBottom: '1px solid #e2d3ca',
+                          paddingBottom: 3,
+                          marginBottom: 6,
+                          fontFamily: "'Georgia', serif",
+                        }}
+                      >
+                        {sections[6].number}. {sections[6].title}
+                      </h3>
+                      {sections[6].paragraphs.slice(0, 3).map((p, pIdx) => (
+                        <p
+                          key={pIdx}
+                          style={{ fontSize: '12.5px', lineHeight: 1.6, color: '#334155', marginBottom: 6, textAlign: 'justify' }}
+                          dangerouslySetInnerHTML={{ __html: interpolateText(p, highlightPlaceholders) }}
+                        />
+                      ))}
+                      <div style={{ marginTop: 10 }}>
+                        <p style={{ fontWeight: 700, fontSize: '12.5px', color: '#0f172a', margin: '4px 0' }}>
+                          Salary and dues on termination:
+                        </p>
+                        <p style={{ fontSize: '12.5px', lineHeight: 1.6, color: '#334155', margin: 0, textAlign: 'justify' }}>
+                          Termination for misconduct does not, by itself, extinguish wages or other statutory/contractual amounts that have already been legally earned. The Company will pay amounts legally due for work/attendance up to the effective date of
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Page 2 Footer */}
+                  <TaskNeraFooter pageNum={2} />
+                </div>
+
+                {/* ========================================================
+                    PAGE 3: SECONDARY HEADER, CLAUSES 7(CONT), 8, 9, 10, 11, 12
+                    ======================================================== */}
+                <div className="document-page-sheet" style={{ display: 'flex', flexDirection: 'column', minHeight: '1120px' }}>
+                  <TaskNeraSecondaryHeader />
+
+                  {/* Section 7 continuation paragraph */}
+                  <p style={{ fontSize: '12.5px', lineHeight: 1.6, color: '#334155', marginBottom: 16, textAlign: 'justify' }}>
+                    separation, subject to lawful deductions, statutory adjustments, recoveries permitted by law, and applicable payroll/F&amp;F procedures. No provision of this Offer Letter shall be interpreted as waiving an employee's non-waivable statutory rights.
+                  </p>
+
+                  {/* Sections 8 to 12 */}
+                  {sections.slice(7, 12).map((sec) => (
+                    <div key={sec.id} style={{ marginBottom: 14 }}>
+                      <h3
+                        style={{
+                          fontSize: '13.5px',
+                          fontWeight: 700,
+                          color: '#a35d39',
+                          borderBottom: '1px solid #e2d3ca',
+                          paddingBottom: 3,
+                          marginBottom: 6,
+                          fontFamily: "'Georgia', serif",
+                        }}
+                      >
+                        {sec.number}. {sec.title}
+                      </h3>
+                      {sec.paragraphs.map((p, pIdx) => (
+                        <p
+                          key={pIdx}
+                          style={{
+                            fontSize: '12.5px',
+                            lineHeight: 1.6,
+                            color: '#334155',
+                            marginBottom: pIdx === sec.paragraphs.length - 1 ? 0 : 6,
+                            textAlign: 'justify',
+                          }}
+                          dangerouslySetInnerHTML={{ __html: interpolateText(p, highlightPlaceholders) }}
+                        />
+                      ))}
+                    </div>
                   ))}
 
-                  {/* Dual Signatures Block */}
-                  <div style={{ marginTop: 36, marginBottom: 28 }}>
-                    <div style={{ marginBottom: 36 }}>
-                      <p style={{ fontWeight: 700, color: '#a35d39', fontSize: '14px', margin: '0 0 20px', fontFamily: "'Georgia', serif" }}>
+                  {/* Page 3 Footer */}
+                  <TaskNeraFooter pageNum={3} />
+                </div>
+
+                {/* ========================================================
+                    PAGE 4: SECONDARY HEADER, CLAUSES 13, 14, 15, 16, 17, 18
+                    ======================================================== */}
+                <div className="document-page-sheet" style={{ display: 'flex', flexDirection: 'column', minHeight: '1120px' }}>
+                  <TaskNeraSecondaryHeader />
+
+                  {/* Sections 13 to 18 */}
+                  {sections.slice(12, 18).map((sec) => (
+                    <div key={sec.id} style={{ marginBottom: 16 }}>
+                      <h3
+                        style={{
+                          fontSize: '13.5px',
+                          fontWeight: 700,
+                          color: '#a35d39',
+                          borderBottom: '1px solid #e2d3ca',
+                          paddingBottom: 3,
+                          marginBottom: 6,
+                          fontFamily: "'Georgia', serif",
+                        }}
+                      >
+                        {sec.number}. {sec.title}
+                      </h3>
+                      {sec.paragraphs.map((p, pIdx) => (
+                        <p
+                          key={pIdx}
+                          style={{
+                            fontSize: '12.5px',
+                            lineHeight: 1.6,
+                            color: '#334155',
+                            marginBottom: pIdx === sec.paragraphs.length - 1 ? 0 : 6,
+                            textAlign: 'justify',
+                          }}
+                          dangerouslySetInnerHTML={{ __html: interpolateText(p, highlightPlaceholders) }}
+                        />
+                      ))}
+                    </div>
+                  ))}
+
+                  {/* Page 4 Footer */}
+                  <TaskNeraFooter pageNum={4} />
+                </div>
+
+                {/* ========================================================
+                    PAGE 5: SECONDARY HEADER, DUAL SIGNATURES BLOCK
+                    ======================================================== */}
+                <div className="document-page-sheet" style={{ display: 'flex', flexDirection: 'column', minHeight: '1120px' }}>
+                  <TaskNeraSecondaryHeader />
+
+                  <div style={{ marginTop: 20 }}>
+                    <div style={{ marginBottom: 44 }}>
+                      <p style={{ fontWeight: 700, color: '#a35d39', fontSize: '14px', margin: '0 0 24px', fontFamily: "'Georgia', serif" }}>
                         For TaskNera
                       </p>
-                      <div style={{ width: 280, borderBottom: '1px solid #334155', marginBottom: 10 }}></div>
-                      <div style={{ fontSize: '12.5px', lineHeight: 1.6, color: '#1e293b' }}>
+                      <div style={{ width: 300, borderBottom: '1px solid #334155', marginBottom: 12 }}></div>
+                      <div style={{ fontSize: '13px', lineHeight: 1.7, color: '#1e293b' }}>
                         <div><strong>Name:</strong> Sheetal Bedi</div>
                         <div><strong>Designation:</strong> CEO &amp; Founder</div>
                         <div>
@@ -1660,11 +2043,11 @@ export const QuickTemplateOfferModal: React.FC<QuickTemplateOfferModalProps> = (
                     </div>
 
                     <div>
-                      <p style={{ fontWeight: 700, color: '#a35d39', fontSize: '14px', margin: '0 0 20px', fontFamily: "'Georgia', serif" }}>
+                      <p style={{ fontWeight: 700, color: '#a35d39', fontSize: '14px', margin: '0 0 24px', fontFamily: "'Georgia', serif" }}>
                         Accepted and Agreed by Employee
                       </p>
-                      <div style={{ width: 280, borderBottom: '1px solid #334155', marginBottom: 10 }}></div>
-                      <div style={{ fontSize: '12.5px', lineHeight: 1.6, color: '#1e293b' }}>
+                      <div style={{ width: 300, borderBottom: '1px solid #334155', marginBottom: 12 }}></div>
+                      <div style={{ fontSize: '13px', lineHeight: 1.7, color: '#1e293b' }}>
                         <div>
                           <strong>Name:</strong>{' '}
                           <span
@@ -1681,49 +2064,15 @@ export const QuickTemplateOfferModal: React.FC<QuickTemplateOfferModalProps> = (
                     </div>
                   </div>
 
-                  {/* Page 2 Footer */}
-                  <div
-                    style={{
-                      marginTop: 36,
-                      borderTop: '1px solid #e2e8f0',
-                      paddingTop: 10,
-                      textAlign: 'center',
-                      fontSize: '11px',
-                      color: '#94a3b8',
-                    }}
-                  >
-                    TaskNera | Page 2 of 3
-                  </div>
+                  {/* Page 5 Footer */}
+                  <TaskNeraFooter pageNum={5} />
                 </div>
 
                 {/* ========================================================
-                    PAGE 3: ANNEXURE I TABLE & MANDATORY JOINING DOCUMENTS
+                    PAGE 6: SECONDARY HEADER, ANNEXURE I (EMPLOYEE INFO & JOINING DETAILS)
                     ======================================================== */}
-                <div className="document-page-sheet">
-                  {/* Official Secondary Page Header */}
-                  <div
-                    style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      paddingBottom: 12,
-                      marginBottom: 20,
-                      borderBottom: '1px solid #e2d3ca',
-                    }}
-                  >
-                    <img src="/logo.png" alt="TaskNera" style={{ width: 36, height: 36, objectFit: 'contain' }} />
-                    <div style={{ textAlign: 'right' }}>
-                      <div style={{ fontSize: '18px', fontWeight: 800, color: '#a35d39', fontFamily: 'Georgia, serif' }}>
-                        TaskNera
-                      </div>
-                      <div style={{ fontSize: '11px', color: '#64748b' }}>
-                        D-57 F1 Dilshad Colony, Shahdara, Delhi &ndash; 110095
-                      </div>
-                      <div style={{ fontSize: '11px', color: '#64748b' }}>
-                        Email: careers@tasknera.com
-                      </div>
-                    </div>
-                  </div>
+                <div className="document-page-sheet" style={{ display: 'flex', flexDirection: 'column', minHeight: '1120px' }}>
+                  <TaskNeraSecondaryHeader />
 
                   {/* Annexure I Title */}
                   <h3
@@ -1746,7 +2095,7 @@ export const QuickTemplateOfferModal: React.FC<QuickTemplateOfferModalProps> = (
                       width: '100%',
                       borderCollapse: 'collapse',
                       marginBottom: 24,
-                      fontSize: '13px',
+                      fontSize: '12.5px',
                       border: '1px solid #dfcfc7',
                     }}
                   >
@@ -1757,7 +2106,7 @@ export const QuickTemplateOfferModal: React.FC<QuickTemplateOfferModalProps> = (
                           <tr key={rIdx} style={{ borderBottom: '1px solid #dfcfc7' }}>
                             <td
                               style={{
-                                padding: '10px 14px',
+                                padding: '9px 14px',
                                 fontWeight: 700,
                                 color: '#334155',
                                 width: '34%',
@@ -1767,7 +2116,7 @@ export const QuickTemplateOfferModal: React.FC<QuickTemplateOfferModalProps> = (
                             >
                               {row.label}
                             </td>
-                            <td style={{ padding: '10px 14px', color: '#0f172a' }}>
+                            <td style={{ padding: '9px 14px', color: '#0f172a' }}>
                               <span
                                 dangerouslySetInnerHTML={{
                                   __html: highlightPlaceholders
@@ -1785,16 +2134,16 @@ export const QuickTemplateOfferModal: React.FC<QuickTemplateOfferModalProps> = (
                   {/* Mandatory Joining Documents */}
                   <h4
                     style={{
-                      fontSize: '14px',
+                      fontSize: '13.5px',
                       fontWeight: 700,
                       color: '#a35d39',
-                      margin: '22px 0 10px',
+                      margin: '18px 0 10px',
                       fontFamily: "'Georgia', serif",
                     }}
                   >
                     Mandatory Joining Documents
                   </h4>
-                  <ul style={{ fontSize: '12.5px', color: '#475569', lineHeight: 1.65, paddingLeft: 22, margin: '0 0 28px' }}>
+                  <ul style={{ fontSize: '12.5px', color: '#475569', lineHeight: 1.65, paddingLeft: 22, margin: '0 0 24px' }}>
                     {MANDATORY_DOCS.map((doc, dIdx) => (
                       <li key={dIdx} style={{ marginBottom: 4 }}>
                         {doc}
@@ -1802,24 +2151,444 @@ export const QuickTemplateOfferModal: React.FC<QuickTemplateOfferModalProps> = (
                     ))}
                   </ul>
 
-                  {/* Official Bottom Bar Accent */}
-                  <div style={{ display: 'flex', justifyContent: 'center', marginTop: 24 }}>
-                    <div style={{ width: 220, height: 14, background: '#9c7a82', borderRadius: '10px 10px 0 0' }}></div>
-                  </div>
+                  {/* Page 6 Footer */}
+                  <TaskNeraFooter pageNum={6} />
+                </div>
 
-                  {/* Page 3 Footer */}
-                  <div
+                {/* ========================================================
+                    PAGE 7: SECONDARY HEADER, ANNEXURE III (COMPENSATION STRUCTURE)
+                    ======================================================== */}
+                <div className="document-page-sheet" style={{ display: 'flex', flexDirection: 'column', minHeight: '1120px' }}>
+                  <TaskNeraSecondaryHeader />
+
+                  {/* Annexure III Title */}
+                  <h3
                     style={{
-                      marginTop: 20,
-                      borderTop: '1px solid #e2e8f0',
-                      paddingTop: 10,
                       textAlign: 'center',
-                      fontSize: '11px',
-                      color: '#94a3b8',
+                      fontSize: '18px',
+                      fontWeight: 700,
+                      color: '#a35d39',
+                      margin: '10px 0 24px',
+                      fontFamily: "'Georgia', serif",
+                      letterSpacing: '0.02em',
                     }}
                   >
-                    TaskNera | Page 3 of 3
+                    Annexure III &ndash; Compensation Structure
+                  </h3>
+
+                  {/* Compensation Table */}
+                  <table
+                    style={{
+                      width: '100%',
+                      borderCollapse: 'collapse',
+                      marginBottom: 24,
+                      fontSize: '13px',
+                      border: '1px solid #dfcfc7',
+                    }}
+                  >
+                    <tbody>
+                      {[
+                        { label: 'Basic Salary', val: values['basic_salary'] || '60,000', prefix: 'INR ' },
+                        { label: 'HRA', val: values['hra'] || '30,000', prefix: 'INR ' },
+                        { label: 'Special / Other Allowance', val: values['special_allowance'] || '60,000', prefix: 'INR ' },
+                        { label: 'Gross Monthly Salary', val: values['gross_monthly'] || '1,50,000', prefix: 'INR ' },
+                        { label: 'Employer Contributions', val: values['employer_contributions'] || 'NA', prefix: '' },
+                        { label: 'Total Fixed CTC (Per Month)', val: values['ctc_per_month'] || '1,50,000', prefix: 'INR ' },
+                        { label: 'Total Fixed CTC (Per Annum)', val: values['annual_ctc'] || '18,00,000', prefix: 'INR ' },
+                      ].map((item, idx) => (
+                        <tr key={idx} style={{ borderBottom: '1px solid #dfcfc7' }}>
+                          <td
+                            style={{
+                              padding: '10px 16px',
+                              fontWeight: 700,
+                              color: '#334155',
+                              width: '45%',
+                              background: '#fdfbf9',
+                              borderRight: '1px solid #dfcfc7',
+                            }}
+                          >
+                            {item.label}
+                          </td>
+                          <td style={{ padding: '10px 16px', color: '#0f172a' }}>
+                            {item.prefix}
+                            <span
+                              dangerouslySetInnerHTML={{
+                                __html: highlightPlaceholders
+                                  ? `<mark style="background-color:#fef08a; color:#854d0e; padding:1px 4px; border-radius:3px; font-weight:700;">${item.val}</mark>`
+                                  : item.val,
+                              }}
+                            />
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+
+                  {/* Compensation Note */}
+                  <p style={{ fontSize: '11.5px', color: '#64748b', lineHeight: 1.6, fontStyle: 'italic', margin: '0 0 20px', textAlign: 'justify' }}>
+                    Note: Salary, statutory contributions, deductions, incentives/bonuses and benefits, if any, will be administered in accordance with the applicable compensation plan, Company policy and law. Any performance-linked incentive is payable only when the applicable eligibility and performance conditions are satisfied.
+                  </p>
+
+                  {/* Page 7 Footer */}
+                  <TaskNeraFooter pageNum={7} />
+                </div>
+
+                {/* ========================================================
+                    PAGE 8: SECONDARY HEADER, ANNEXURE - CONFIDENTIALITY, NDA & IP AGREEMENT (CLAUSES 1 TO 5 START)
+                    ======================================================== */}
+                <div className="document-page-sheet" style={{ display: 'flex', flexDirection: 'column', minHeight: '1120px' }}>
+                  <TaskNeraSecondaryHeader />
+
+                  {/* IP Agreement Header Title */}
+                  <h3
+                    style={{
+                      textAlign: 'center',
+                      fontSize: '16px',
+                      fontWeight: 700,
+                      color: '#a35d39',
+                      margin: '10px 0 20px',
+                      fontFamily: "'Georgia', serif",
+                      letterSpacing: '0.02em',
+                    }}
+                  >
+                    Annexure &ndash; Confidentiality, Non-Disclosure &amp; Intellectual Property Agreement
+                  </h3>
+
+                  {/* Clause 1 */}
+                  <div style={{ marginBottom: 14 }}>
+                    <h4 style={{ fontSize: '13px', fontWeight: 700, color: '#a35d39', margin: '0 0 4px', fontFamily: "'Georgia', serif" }}>
+                      1. Purpose and Scope
+                    </h4>
+                    <p style={{ fontSize: '12px', lineHeight: 1.6, color: '#334155', margin: 0, textAlign: 'justify' }}>
+                      This Annexure forms an integral part of the TaskNera engagement document and applies to all confidential information, work product, project materials, inventions, developments and other intellectual property accessed, conceived, created, developed, authored, designed, tested or reduced to practice by the Intern/Employee in connection with TaskNera, its clients, candidates, vendors, operations, products, services or assigned work.
+                    </p>
                   </div>
+
+                  {/* Clause 2 */}
+                  <div style={{ marginBottom: 14 }}>
+                    <h4 style={{ fontSize: '13px', fontWeight: 700, color: '#a35d39', margin: '0 0 4px', fontFamily: "'Georgia', serif" }}>
+                      2. Confidential Information
+                    </h4>
+                    <p style={{ fontSize: '12px', lineHeight: 1.6, color: '#334155', margin: 0, textAlign: 'justify' }}>
+                      &ldquo;Confidential Information&rdquo; means all non-public information disclosed or made available by TaskNera, whether oral, written, electronic, visual or otherwise, including business plans, pricing, proposals, client and candidate information, databases, credentials, processes, SOPs, financial information, source code, software, algorithms, product plans, designs, prompts, models, datasets, reports, templates, strategies, trade secrets, know-how and information marked or reasonably understood to be confidential.
+                    </p>
+                  </div>
+
+                  {/* Clause 3 */}
+                  <div style={{ marginBottom: 14 }}>
+                    <h4 style={{ fontSize: '13px', fontWeight: 700, color: '#a35d39', margin: '0 0 4px', fontFamily: "'Georgia', serif" }}>
+                      3. Non-Disclosure and Restricted Use
+                    </h4>
+                    <p style={{ fontSize: '12px', lineHeight: 1.6, color: '#334155', margin: 0, textAlign: 'justify' }}>
+                      The Intern/Employee shall use Confidential Information solely for authorised TaskNera work and shall not disclose, copy, publish, upload, sell, licence, transfer, reproduce, reverse engineer, exploit or otherwise make it available to any unauthorised person or third party. Confidential Information shall not be uploaded to personal cloud storage, public repositories, generative-AI tools or other third-party services unless expressly authorised in writing by TaskNera.
+                    </p>
+                  </div>
+
+                  {/* Clause 4 */}
+                  <div style={{ marginBottom: 14 }}>
+                    <h4 style={{ fontSize: '13px', fontWeight: 700, color: '#a35d39', margin: '0 0 4px', fontFamily: "'Georgia', serif" }}>
+                      4. TaskNera Project Work Product and Intellectual Property Ownership
+                    </h4>
+                    <p style={{ fontSize: '12px', lineHeight: 1.6, color: '#334155', marginBottom: 6, textAlign: 'justify' }}>
+                      All Work Product created, developed, authored, designed, coded, documented, researched, tested or otherwise produced by the Intern/Employee, individually or jointly with others, during the engagement that (a) is created in the course of or in connection with assigned duties or projects; (b) relates to TaskNera's actual or reasonably contemplated business, products, services, operations or projects; (c) uses TaskNera Confidential Information, systems, equipment, data, materials or resources; or (d) is specifically commissioned or requested by TaskNera (collectively, &ldquo;TaskNera Project IP&rdquo;), shall be the exclusive property of TaskNera to the fullest extent permitted by applicable law.
+                    </p>
+                    <p style={{ fontWeight: 700, fontSize: '12px', color: '#0f172a', margin: '6px 0 2px' }}>
+                      TaskNera Project IP includes:
+                    </p>
+                    <p style={{ fontSize: '12px', lineHeight: 1.6, color: '#475569', margin: 0, textAlign: 'justify' }}>
+                      Software, source code, object code, scripts, websites, applications, product features, workflows, automations, databases, datasets, documentation, UI/UX designs, graphics, content, reports, research, analyses, recruitment tools, ATS/HR technology, AI prompts and configurations, models or model-related materials, business processes, inventions, discoveries, improvements, methods, concepts, specifications and prototypes.
+                    </p>
+                  </div>
+
+                  {/* Clause 5 (Start) */}
+                  <div style={{ marginBottom: 10 }}>
+                    <h4 style={{ fontSize: '13px', fontWeight: 700, color: '#a35d39', margin: '0 0 4px', fontFamily: "'Georgia', serif" }}>
+                      5. Assignment of Rights
+                    </h4>
+                    <p style={{ fontSize: '12px', lineHeight: 1.6, color: '#334155', marginBottom: 6, textAlign: 'justify' }}>
+                      To the extent any rights in TaskNera Project IP do not automatically vest in TaskNera, the Intern/Employee hereby assigns and agrees to assign to TaskNera, on creation and without further payment except where mandatory law requires otherwise, all transferable rights, title and interest in and to such TaskNera Project IP, including copyright and other intellectual-property rights, for the full period and throughout the world, to the extent legally assignable. The parties intend this clause to constitute a written assignment of rights in present and future works to the extent permitted by applicable law.
+                    </p>
+                    <p style={{ fontSize: '12px', lineHeight: 1.6, color: '#334155', margin: 0, textAlign: 'justify' }}>
+                      The remuneration/stipend and other consideration stated in the principal engagement document shall constitute consideration for the services and this assignment, subject always to any mandatory statutory right to royalty,
+                    </p>
+                  </div>
+
+                  {/* Page 8 Footer */}
+                  <TaskNeraFooter pageNum={8} />
+                </div>
+
+                {/* ========================================================
+                    PAGE 9: SECONDARY HEADER, CLAUSE 5 (CONT), CLAUSES 6, 7, 8, 9, 10 (START)
+                    ======================================================== */}
+                <div className="document-page-sheet" style={{ display: 'flex', flexDirection: 'column', minHeight: '1120px' }}>
+                  <TaskNeraSecondaryHeader />
+
+                  {/* Clause 5 Continued */}
+                  <p style={{ fontSize: '12px', lineHeight: 1.6, color: '#334155', marginBottom: 8, textAlign: 'justify' }}>
+                    remuneration or other payment that cannot lawfully be waived. Where applicable law requires a separate form, instrument, registration or execution for an assignment, the Intern/Employee shall execute the required document.
+                  </p>
+                  <p style={{ fontWeight: 700, fontSize: '12px', color: '#0f172a', margin: '6px 0 2px' }}>
+                    Patentable inventions and registrable rights:
+                  </p>
+                  <p style={{ fontSize: '12px', lineHeight: 1.6, color: '#334155', marginBottom: 14, textAlign: 'justify' }}>
+                    The Intern/Employee shall promptly disclose relevant inventions or developments to TaskNera and execute reasonable documents required to confirm TaskNera's ownership or entitlement. Any patent assignment shall be documented and executed in the form required by applicable law. Nothing in this agreement removes any statutory right that cannot lawfully be assigned.
+                  </p>
+
+                  {/* Clause 6 */}
+                  <div style={{ marginBottom: 12 }}>
+                    <h4 style={{ fontSize: '13px', fontWeight: 700, color: '#a35d39', margin: '0 0 4px', fontFamily: "'Georgia', serif" }}>
+                      6. No Personal or Commercial Rights in TaskNera Project IP
+                    </h4>
+                    <p style={{ fontSize: '12px', lineHeight: 1.6, color: '#334155', margin: 0, textAlign: 'justify' }}>
+                      The Intern/Employee shall not claim ownership of, register, commercialise, licence, sell, publish, distribute, reuse or create a competing product from TaskNera Project IP, except with TaskNera's prior written permission. The Intern/Employee shall not represent to any person that he/she owns or controls TaskNera Project IP.
+                    </p>
+                  </div>
+
+                  {/* Clause 7 */}
+                  <div style={{ marginBottom: 12 }}>
+                    <h4 style={{ fontSize: '13px', fontWeight: 700, color: '#a35d39', margin: '0 0 4px', fontFamily: "'Georgia', serif" }}>
+                      7. Pre-Existing / Independent Materials
+                    </h4>
+                    <p style={{ fontSize: '12px', lineHeight: 1.6, color: '#334155', margin: 0, textAlign: 'justify' }}>
+                      Intellectual property demonstrably owned by the Intern/Employee before the engagement and specifically identified in writing to TaskNera before it is used in a TaskNera project (&ldquo;Pre-Existing IP&rdquo;) remains the property of the Intern/Employee. If Pre-Existing IP is incorporated into TaskNera Project IP, the Intern/Employee grants TaskNera a perpetual, worldwide, transferable, sublicensable, royalty-free licence to use, reproduce, modify, distribute and commercialise that incorporated Pre-Existing IP to the extent necessary to use and exploit the resulting TaskNera Project IP.
+                    </p>
+                  </div>
+
+                  {/* Clause 8 */}
+                  <div style={{ marginBottom: 12 }}>
+                    <h4 style={{ fontSize: '13px', fontWeight: 700, color: '#a35d39', margin: '0 0 4px', fontFamily: "'Georgia', serif" }}>
+                      8. Disclosure of Developments
+                    </h4>
+                    <p style={{ fontSize: '12px', lineHeight: 1.6, color: '#334155', margin: 0, textAlign: 'justify' }}>
+                      The Intern/Employee shall promptly disclose to TaskNera any invention, improvement, software, design, process, document, discovery or other development that may constitute TaskNera Project IP and shall provide reasonable assistance, during and after the engagement, for documentation, registration, protection or enforcement of TaskNera's rights, subject to reimbursement of reasonable out-of-pocket expenses where required by law.
+                    </p>
+                  </div>
+
+                  {/* Clause 9 */}
+                  <div style={{ marginBottom: 12 }}>
+                    <h4 style={{ fontSize: '13px', fontWeight: 700, color: '#a35d39', margin: '0 0 4px', fontFamily: "'Georgia', serif" }}>
+                      9. Return, Deletion and Certification
+                    </h4>
+                    <p style={{ fontSize: '12px', lineHeight: 1.6, color: '#334155', margin: 0, textAlign: 'justify' }}>
+                      Upon TaskNera's request or on completion/termination of the engagement, the Intern/Employee shall return or permanently delete TaskNera Confidential Information and Company property, including copies held on personal devices or accounts, except where retention is required by law. TaskNera may request written confirmation of compliance.
+                    </p>
+                  </div>
+
+                  {/* Clause 10 (Start) */}
+                  <div style={{ marginBottom: 10 }}>
+                    <h4 style={{ fontSize: '13px', fontWeight: 700, color: '#a35d39', margin: '0 0 4px', fontFamily: "'Georgia', serif" }}>
+                      10. Social Media, Defamation and Protection of TaskNera Information
+                    </h4>
+                    <p style={{ fontSize: '12px', lineHeight: 1.6, color: '#334155', marginBottom: 6, textAlign: 'justify' }}>
+                      The Intern/Employee shall not knowingly publish, post, circulate, forward or communicate false, fabricated or materially misleading statements concerning TaskNera, its founders, directors, employees, clients, candidates, vendors, products, services, technology, operations or business, including through social media, websites, messaging platforms, review platforms or other public or private channels, where such conduct is unlawful or materially harms the Company or its legitimate business interests. Nothing in this clause restricts truthful statements, lawful complaints, reporting to regulators or law-enforcement authorities, participation in investigations, truthful evidence, protected disclosures, or any other right that cannot lawfully be waived. If unlawful defamation, impersonation, disclosure, publication, misuse of confidential information or other actionable conduct occurs, TaskNera may pursue civil, criminal, injunctive, contractual or other remedies available under applicable law, including recovery of proven losses where legally permitted.
+                    </p>
+                    <p style={{ fontSize: '12px', lineHeight: 1.6, color: '#334155', margin: 0, textAlign: 'justify' }}>
+                      Any unauthorised copying, extraction, transfer, publication, sale, licensing, commercialisation or misuse of TaskNera data, credentials, source code, databases, client/candidate information, intellectual property or Confidential Information
+                    </p>
+                  </div>
+
+                  {/* Page 9 Footer */}
+                  <TaskNeraFooter pageNum={9} />
+                </div>
+
+                {/* ========================================================
+                    PAGE 10: SECONDARY HEADER, CLAUSE 10 (CONT), CLAUSES 11, 12, 13, 14, 15, 16
+                    ======================================================== */}
+                <div className="document-page-sheet" style={{ display: 'flex', flexDirection: 'column', minHeight: '1120px' }}>
+                  <TaskNeraSecondaryHeader />
+
+                  {/* Clause 10 Continued */}
+                  <p style={{ fontSize: '12px', lineHeight: 1.6, color: '#334155', marginBottom: 12, textAlign: 'justify' }}>
+                    may constitute a material breach and may result in disciplinary action, termination and legal proceedings, subject to applicable law.
+                  </p>
+
+                  {/* Clause 11 */}
+                  <div style={{ marginBottom: 12 }}>
+                    <h4 style={{ fontSize: '13px', fontWeight: 700, color: '#a35d39', margin: '0 0 4px', fontFamily: "'Georgia', serif" }}>
+                      11. No Personal or Commercial Use of Company Data
+                    </h4>
+                    <p style={{ fontSize: '12px', lineHeight: 1.6, color: '#334155', margin: 0, textAlign: 'justify' }}>
+                      Company and client/candidate data, records, databases, credentials, source code, project materials and Confidential Information shall remain exclusively for authorised Company purposes. The Employee shall not retain, copy, download, transfer to personal accounts, upload to public repositories or external AI tools, sell, licence, publish, disclose or commercially exploit such information during or after employment.
+                    </p>
+                  </div>
+
+                  {/* Clause 12 */}
+                  <div style={{ marginBottom: 12 }}>
+                    <h4 style={{ fontSize: '13px', fontWeight: 700, color: '#a35d39', margin: '0 0 4px', fontFamily: "'Georgia', serif" }}>
+                      12. Duration and Survival
+                    </h4>
+                    <p style={{ fontSize: '12px', lineHeight: 1.6, color: '#334155', margin: 0, textAlign: 'justify' }}>
+                      Confidentiality obligations apply during the engagement and for five (5) years after it ends; however, obligations relating to trade secrets and information that remains confidential under applicable law continue for so long as the information remains a trade secret or legally protected confidential information. Intellectual-property ownership and assignment provisions survive termination. Return, deletion, data-protection, confidentiality and enforcement obligations survive to the extent necessary to give them effect.
+                    </p>
+                  </div>
+
+                  {/* Clause 13 */}
+                  <div style={{ marginBottom: 12 }}>
+                    <h4 style={{ fontSize: '13px', fontWeight: 700, color: '#a35d39', margin: '0 0 4px', fontFamily: "'Georgia', serif" }}>
+                      13. No Waiver of Mandatory Rights
+                    </h4>
+                    <p style={{ fontSize: '12px', lineHeight: 1.6, color: '#334155', margin: 0, textAlign: 'justify' }}>
+                      Nothing in this Annexure is intended to waive, restrict or contract out of any non-waivable right or obligation under applicable Indian law. If any provision is unenforceable, it shall be enforced to the maximum extent permitted by law and the remaining provisions shall continue.
+                    </p>
+                  </div>
+
+                  {/* Clause 14 */}
+                  <div style={{ marginBottom: 12 }}>
+                    <h4 style={{ fontSize: '13px', fontWeight: 700, color: '#a35d39', margin: '0 0 4px', fontFamily: "'Georgia', serif" }}>
+                      14. Lawful Recovery and Final Settlement
+                    </h4>
+                    <p style={{ fontSize: '12px', lineHeight: 1.6, color: '#334155', margin: 0, textAlign: 'justify' }}>
+                      TaskNera may adjust or recover amounts only where a valid contractual, statutory or other lawful basis exists, including authorised advances, lawful notice-period recovery, or proven loss/damage where applicable. Any deduction from wages shall comply with applicable wage law, including statutory limits and procedural safeguards. TaskNera will not impose a blanket or punitive forfeiture of earned salary or statutory dues because of ZTP termination.
+                    </p>
+                  </div>
+
+                  {/* Clause 15 */}
+                  <div style={{ marginBottom: 12 }}>
+                    <h4 style={{ fontSize: '13px', fontWeight: 700, color: '#a35d39', margin: '0 0 4px', fontFamily: "'Georgia', serif" }}>
+                      15. Data Protection, Cybersecurity and Personal Data
+                    </h4>
+                    <p style={{ fontSize: '12px', lineHeight: 1.6, color: '#334155', margin: 0, textAlign: 'justify' }}>
+                      The Employee shall process personal data and other protected information only for authorised TaskNera purposes and in accordance with TaskNera's instructions, applicable data-protection law, information-security requirements and client requirements. The Employee shall use reasonable security measures, protect credentials, immediately report any suspected loss, unauthorised access, disclosure or data breach, and cooperate with TaskNera in containment, investigation, notification and remediation where required by law. The Employee shall not copy, export, scrape, photograph, screen-record, forward, download or transfer TaskNera, client, candidate or employee personal data to personal devices, personal accounts, removable media, public repositories or unauthorised third-party or AI services except where expressly authorised in writing or required by law.
+                    </p>
+                  </div>
+
+                  {/* Clause 16 */}
+                  <div style={{ marginBottom: 10 }}>
+                    <h4 style={{ fontSize: '13px', fontWeight: 700, color: '#a35d39', margin: '0 0 4px', fontFamily: "'Georgia', serif" }}>
+                      16. Remedies and Enforcement
+                    </h4>
+                    <p style={{ fontSize: '12px', lineHeight: 1.6, color: '#334155', margin: 0, textAlign: 'justify' }}>
+                      A breach of confidentiality, intellectual-property, data-security, unauthorised-use or other material obligations may cause irreparable or difficult-to-quantify harm. Subject to applicable law, TaskNera may seek appropriate contractual, civil, injunctive, equitable, statutory or criminal remedies and recovery of proven losses, costs and expenses where legally recoverable. Nothing in this clause guarantees any particular remedy or prevents a court or competent authority from applying the remedy permitted by law.
+                    </p>
+                  </div>
+
+                  {/* Page 10 Footer */}
+                  <TaskNeraFooter pageNum={10} />
+                </div>
+
+                {/* ========================================================
+                    PAGE 11: SECONDARY HEADER, CLAUSE 17, PRE-EXISTING IP DISCLOSURE, ACKNOWLEDGEMENT, DUAL SIGNATURES
+                    ======================================================== */}
+                <div className="document-page-sheet" style={{ display: 'flex', flexDirection: 'column', minHeight: '1120px' }}>
+                  <TaskNeraSecondaryHeader />
+
+                  {/* Clause 17 */}
+                  <div style={{ marginBottom: 14 }}>
+                    <h4 style={{ fontSize: '13px', fontWeight: 700, color: '#a35d39', margin: '0 0 4px', fontFamily: "'Georgia', serif" }}>
+                      17. Severability and No Waiver
+                    </h4>
+                    <p style={{ fontSize: '12px', lineHeight: 1.6, color: '#334155', margin: 0, textAlign: 'justify' }}>
+                      If any provision is held invalid or unenforceable, it shall be modified or enforced to the maximum extent legally permissible and the remaining provisions shall continue in effect. A failure or delay by TaskNera to enforce any provision shall not constitute a waiver of that provision or any other right.
+                    </p>
+                  </div>
+
+                  {/* Pre-Existing IP Disclosure */}
+                  <div style={{ marginBottom: 16 }}>
+                    <h4 style={{ fontSize: '13px', fontWeight: 700, color: '#a35d39', margin: '0 0 6px', fontFamily: "'Georgia', serif" }}>
+                      Pre-Existing IP Disclosure
+                    </h4>
+                    <p style={{ fontSize: '12px', lineHeight: 1.6, color: '#334155', marginBottom: 10, textAlign: 'justify' }}>
+                      Before using any pre-existing material in TaskNera work, the Employee must identify it in writing below. If no item is listed, the Employee represents that no pre-existing material owned by the Employee is being contributed to a TaskNera project, except ordinary general skills, knowledge and experience that do not embody TaskNera Confidential Information.
+                    </p>
+
+                    {/* Pre-Existing IP Table */}
+                    <table
+                      style={{
+                        width: '100%',
+                        borderCollapse: 'collapse',
+                        fontSize: '12px',
+                        border: '1px solid #dfcfc7',
+                        marginBottom: 8,
+                      }}
+                    >
+                      <thead>
+                        <tr style={{ background: '#f6d5bf', borderBottom: '1px solid #dfcfc7' }}>
+                          <th style={{ padding: '8px 12px', textAlign: 'left', fontWeight: 700, color: '#431407', borderRight: '1px solid #dfcfc7' }}>
+                            Description of Pre-Existing IP
+                          </th>
+                          <th style={{ padding: '8px 12px', textAlign: 'left', fontWeight: 700, color: '#431407', borderRight: '1px solid #dfcfc7' }}>
+                            Date / Evidence of Prior Ownership
+                          </th>
+                          <th style={{ padding: '8px 12px', textAlign: 'left', fontWeight: 700, color: '#431407' }}>
+                            TaskNera Approval / Notes
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td style={{ padding: '8px 12px', color: '#1e293b', borderRight: '1px solid #dfcfc7' }}>None</td>
+                          <td style={{ padding: '8px 12px', color: '#1e293b', borderRight: '1px solid #dfcfc7' }}>None</td>
+                          <td style={{ padding: '8px 12px', color: '#1e293b' }}>None</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                    <p style={{ fontSize: '11px', color: '#64748b', fontStyle: 'italic', margin: 0, textAlign: 'justify' }}>
+                      Any material not disclosed before being incorporated into TaskNera work may be treated as TaskNera Project IP to the extent permitted by applicable law, subject to the rights that cannot lawfully be waived.
+                    </p>
+                  </div>
+
+                  {/* Acknowledgement and Execution */}
+                  <div style={{ marginBottom: 20 }}>
+                    <h4 style={{ fontSize: '13px', fontWeight: 700, color: '#a35d39', margin: '0 0 6px', fontFamily: "'Georgia', serif" }}>
+                      Acknowledgement and Execution
+                    </h4>
+                    <p style={{ fontSize: '12px', lineHeight: 1.6, color: '#334155', margin: 0, textAlign: 'justify' }}>
+                      The Employee confirms that this Annexure has been read, understood and accepted and forms an integral part of the TaskNera engagement terms.
+                    </p>
+                  </div>
+
+                  {/* Dual Signatures */}
+                  <div style={{ marginTop: 10 }}>
+                    <div style={{ marginBottom: 30 }}>
+                      <p style={{ fontWeight: 700, color: '#a35d39', fontSize: '13px', margin: '0 0 16px', fontFamily: "'Georgia', serif" }}>
+                        For TaskNera
+                      </p>
+                      <div style={{ width: 260, borderBottom: '1px solid #334155', marginBottom: 8 }}></div>
+                      <div style={{ fontSize: '12px', lineHeight: 1.6, color: '#1e293b' }}>
+                        <div><strong>Name:</strong> Sheetal Bedi</div>
+                        <div><strong>Designation:</strong> CEO &amp; Founder</div>
+                        <div>
+                          <strong>Date:</strong>{' '}
+                          <span
+                            dangerouslySetInnerHTML={{
+                              __html: highlightPlaceholders
+                                ? `<mark style="background-color:#fef08a; color:#854d0e; padding:1px 4px; border-radius:3px; font-weight:700;">${values['date']}</mark>`
+                                : values['date'],
+                            }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <p style={{ fontWeight: 700, color: '#a35d39', fontSize: '13px', margin: '0 0 16px', fontFamily: "'Georgia', serif" }}>
+                        Accepted and Agreed by Employee
+                      </p>
+                      <div style={{ width: 260, borderBottom: '1px solid #334155', marginBottom: 8 }}></div>
+                      <div style={{ fontSize: '12px', lineHeight: 1.6, color: '#1e293b' }}>
+                        <div>
+                          <strong>Name:</strong>{' '}
+                          <span
+                            dangerouslySetInnerHTML={{
+                              __html: highlightPlaceholders
+                                ? `<mark style="background-color:#fef08a; color:#854d0e; padding:1px 4px; border-radius:3px; font-weight:700;">${values['employee_name']}</mark>`
+                                : values['employee_name'],
+                            }}
+                          />
+                        </div>
+                        <div><strong>Signature:</strong> ___________________________________</div>
+                        <div><strong>Date:</strong> ___________________________________</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Bottom Accent */}
+                  <div style={{ display: 'flex', justifyContent: 'center', marginTop: 16 }}>
+                    <div style={{ width: 200, height: 10, background: '#9c7a82', borderRadius: '8px 8px 0 0' }}></div>
+                  </div>
+
+                  {/* Page 11 Footer */}
+                  <TaskNeraFooter pageNum={11} />
                 </div>
               </div>
             </div>
