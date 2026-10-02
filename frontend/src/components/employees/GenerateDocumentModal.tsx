@@ -53,6 +53,7 @@ import {
   EmployeeService,
   DocumentTemplateItem,
   EmployeeDocument,
+  FieldMappingEntry,
 } from '../../services/employeeService.js';
 
 interface GenerateDocumentModalProps {
@@ -83,10 +84,19 @@ export const GenerateDocumentModal: React.FC<GenerateDocumentModalProps> = ({
   const [templateSearch, setTemplateSearch] = useState('');
   const [selectedCategoryFilter, setSelectedCategoryFilter] = useState('ALL');
 
-  // Custom Template Upload
+  // Custom Template Upload & Dynamic Autofill
   const [isCustomTemplateMode, setIsCustomTemplateMode] = useState(false);
   const [customTemplateMarkup, setCustomTemplateMarkup] = useState('');
   const [customTemplateTitle, setCustomTemplateTitle] = useState('Custom HR Letter Template');
+  const [customTemplateStoragePath, setCustomTemplateStoragePath] = useState<string | null>(null);
+  const [customTemplateOriginalFileName, setCustomTemplateOriginalFileName] = useState<string | null>(null);
+  const [customTemplateDetectedPlaceholders, setCustomTemplateDetectedPlaceholders] = useState<string[]>([]);
+  const [customTemplateFieldMappings, setCustomTemplateFieldMappings] = useState<Record<string, FieldMappingEntry>>({});
+  const [customTemplateUploading, setCustomTemplateUploading] = useState(false);
+  const [customTemplateHasTables, setCustomTemplateHasTables] = useState(false);
+  const [customTemplateHasHeaders, setCustomTemplateHasHeaders] = useState(false);
+  const [customTemplateHasFooters, setCustomTemplateHasFooters] = useState(false);
+  const [downloadDocxSuccessBadge, setDownloadDocxSuccessBadge] = useState(false);
 
   // Employees
   const [employees, setEmployees] = useState<Employee[]>([]);
@@ -132,6 +142,12 @@ export const GenerateDocumentModal: React.FC<GenerateDocumentModalProps> = ({
       setEmailSentSuccess(false);
       setEmailLogInfo(null);
       setDownloadSuccessBadge(false);
+      setDownloadDocxSuccessBadge(false);
+      setCustomTemplateStoragePath(null);
+      setCustomTemplateOriginalFileName(null);
+      setCustomTemplateDetectedPlaceholders([]);
+      setCustomTemplateFieldMappings({});
+      setCustomTemplateUploading(false);
       setAiFeedback(null);
       setAiCompleteness(null);
     }
@@ -245,29 +261,79 @@ export const GenerateDocumentModal: React.FC<GenerateDocumentModalProps> = ({
   };
 
   // Upload custom template file handler
-  const handleCustomTemplateFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleCustomTemplateFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    setCustomTemplateTitle(file.name.replace(/\.[^/.]+$/, ''));
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const text = event.target?.result as string;
-      if (text) {
-        setCustomTemplateMarkup(text);
+    const fileName = file.name;
+    const isDocx = fileName.toLowerCase().endsWith('.docx');
+    setCustomTemplateTitle(fileName.replace(/\.[^/.]+$/, ''));
+    setCustomTemplateOriginalFileName(fileName);
+    setError(null);
+
+    if (isDocx) {
+      setCustomTemplateUploading(true);
+      try {
+        const uploadResult = await EmployeeService.uploadCustomDocxTemplate(file);
+        setCustomTemplateStoragePath(uploadResult.storagePath);
+        setCustomTemplateDetectedPlaceholders(uploadResult.detectedPlaceholders);
+        setCustomTemplateMarkup(uploadResult.extractedPreviewText);
+        setCustomTemplateHasTables(uploadResult.hasTables);
+        setCustomTemplateHasHeaders(uploadResult.hasHeaders);
+        setCustomTemplateHasFooters(uploadResult.hasFooters);
+      } catch (err: any) {
+        setError(err.message || 'Failed to parse uploaded DOCX template');
+      } finally {
+        setCustomTemplateUploading(false);
       }
-    };
-    reader.readAsText(file);
+    } else {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const text = event.target?.result as string;
+        if (text) {
+          setCustomTemplateMarkup(text);
+        }
+      };
+      reader.readAsText(file);
+    }
   };
 
   // STEP 2: Select Employee
-  const handleSelectEmployee = (emp: Employee) => {
+  const handleSelectEmployee = async (emp: Employee) => {
     setSelectedEmployee(emp);
+    setError(null);
+
     if (selectedTemplate) {
-      const mapping = buildPlaceholderMapping(emp, selectedTemplate, isCustomTemplateMode ? customTemplateMarkup : undefined);
-      setMappedPlaceholders(mapping);
-      setDocParams(mapping);
       setDocTitle(`${selectedTemplate.name} - ${emp.fullName}`);
+
+      if (isCustomTemplateMode && customTemplateStoragePath) {
+        try {
+          const analysis = await EmployeeService.analyzeCustomTemplate(
+            emp.id,
+            customTemplateStoragePath,
+            customTemplateDetectedPlaceholders
+          );
+          setCustomTemplateFieldMappings(analysis.fieldMappings);
+
+          const mapping: Record<string, string> = {};
+          for (const [ph, entry] of Object.entries(analysis.fieldMappings)) {
+            mapping[ph] = entry.mappedValue || '';
+          }
+          setMappedPlaceholders(mapping);
+          setDocParams(mapping);
+          if (analysis.extractedPreviewText) {
+            setCustomTemplateMarkup(analysis.extractedPreviewText);
+          }
+        } catch (err: any) {
+          const mapping = buildPlaceholderMapping(emp, selectedTemplate, customTemplateMarkup);
+          setMappedPlaceholders(mapping);
+          setDocParams(mapping);
+        }
+      } else {
+        const mapping = buildPlaceholderMapping(emp, selectedTemplate, isCustomTemplateMode ? customTemplateMarkup : undefined);
+        setMappedPlaceholders(mapping);
+        setDocParams(mapping);
+      }
     }
     // Proceed to Step 3: Fetch Employee Data & Template Placeholder Mapping
     setStep(3);
@@ -283,7 +349,9 @@ export const GenerateDocumentModal: React.FC<GenerateDocumentModalProps> = ({
       const preview = await EmployeeService.previewDocument(
         selectedEmployee.id,
         selectedTemplate.code,
-        mappedPlaceholders
+        mappedPlaceholders,
+        isCustomTemplateMode && customTemplateStoragePath ? customTemplateStoragePath : undefined,
+        isCustomTemplateMode ? customTemplateMarkup : undefined
       );
       setPreviewContent(preview.renderedContent);
       setStep(4);
@@ -312,6 +380,7 @@ export const GenerateDocumentModal: React.FC<GenerateDocumentModalProps> = ({
       const created = await EmployeeService.generateDocument(selectedEmployee.id, {
         templateCode: selectedTemplate.code,
         customTemplateMarkup: isCustomTemplateMode ? customTemplateMarkup : undefined,
+        customTemplatePath: isCustomTemplateMode && customTemplateStoragePath ? customTemplateStoragePath : undefined,
         title: docTitle || `${selectedTemplate.name} - ${selectedEmployee.fullName}`,
         customParameters: mappedPlaceholders,
         targetStatus: 'APPROVED',
@@ -692,11 +761,90 @@ export const GenerateDocumentModal: React.FC<GenerateDocumentModalProps> = ({
                     type="file"
                     accept=".docx,.txt,.html,.md"
                     onChange={handleCustomTemplateFileUpload}
-                    style={{ fontSize: '0.8125rem', marginBottom: 12 }}
+                    style={{ fontSize: '0.8125rem', marginBottom: 10 }}
                   />
+
+                  {customTemplateUploading && (
+                    <div
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 8,
+                        fontSize: '0.8125rem',
+                        color: '#ea580c',
+                        backgroundColor: '#ffedd5',
+                        padding: '6px 12px',
+                        borderRadius: 6,
+                        marginBottom: 10,
+                      }}
+                    >
+                      <Loader2 size={14} className="animate-spin" />
+                      <span>Parsing DOCX XML, runs, tables, headers, and detecting placeholders...</span>
+                    </div>
+                  )}
+
+                  {customTemplateOriginalFileName && !customTemplateUploading && (
+                    <div
+                      style={{
+                        backgroundColor: '#ffffff',
+                        border: '1px solid #fed7aa',
+                        borderRadius: 8,
+                        padding: '10px 14px',
+                        marginBottom: 12,
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 6 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                          <CheckCircle2 size={16} color="#ea580c" />
+                          <span style={{ fontSize: '0.8125rem', fontWeight: 700, color: '#9a3412' }}>
+                            {customTemplateOriginalFileName}
+                          </span>
+                        </div>
+                        <span
+                          style={{
+                            fontSize: '0.6875rem',
+                            fontWeight: 700,
+                            backgroundColor: '#ffedd5',
+                            color: '#c2410c',
+                            padding: '2px 8px',
+                            borderRadius: 10,
+                          }}
+                        >
+                          {customTemplateDetectedPlaceholders.length} placeholders detected
+                        </span>
+                      </div>
+
+                      {customTemplateDetectedPlaceholders.length > 0 && (
+                        <div style={{ marginTop: 6, display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                          {customTemplateDetectedPlaceholders.slice(0, 8).map((ph) => (
+                            <span
+                              key={ph}
+                              style={{
+                                fontSize: '0.6875rem',
+                                fontFamily: 'monospace',
+                                backgroundColor: '#f1f5f9',
+                                color: '#334155',
+                                padding: '2px 6px',
+                                borderRadius: 4,
+                                border: '1px solid #e2e8f0',
+                              }}
+                            >
+                              {ph}
+                            </span>
+                          ))}
+                          {customTemplateDetectedPlaceholders.length > 8 && (
+                            <span style={{ fontSize: '0.6875rem', color: '#94a3b8' }}>
+                              +{customTemplateDetectedPlaceholders.length - 8} more
+                            </span>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
                   <div style={{ marginTop: 8 }}>
                     <label style={{ fontSize: '0.75rem', fontWeight: 600, color: '#7c2d12', display: 'block', marginBottom: 4 }}>
-                      Template Markup with Placeholders (e.g. &#123;&#123;employee_name&#125;&#125;, &#123;&#123;designation&#125;&#125;, &#123;&#123;annual_ctc&#125;&#125;):
+                      Extracted Template Markup (Placeholders e.g. [Employee Full Name], [Designation], &#123;&#123;annual_ctc&#125;&#125;):
                     </label>
                     <textarea
                       rows={5}
@@ -903,6 +1051,28 @@ export const GenerateDocumentModal: React.FC<GenerateDocumentModalProps> = ({
                   All placeholders in the selected template are auto-filled from Ajay's employee record. You can edit any mapped value below prior to document generation:
                 </p>
 
+                {Object.values(customTemplateFieldMappings).some((m) => !m.isMapped) && (
+                  <div
+                    style={{
+                      padding: '8px 12px',
+                      backgroundColor: '#fffbeb',
+                      border: '1px solid #fde68a',
+                      borderRadius: 8,
+                      fontSize: '0.78125rem',
+                      color: '#92400e',
+                      marginBottom: 10,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 6,
+                    }}
+                  >
+                    <AlertCircle size={14} color="#d97706" />
+                    <span>
+                      Notice: Some custom template fields require manual confirmation. Please review and provide values before generating.
+                    </span>
+                  </div>
+                )}
+
                 <div
                   style={{
                     border: '1px solid #e2e8f0',
@@ -921,53 +1091,114 @@ export const GenerateDocumentModal: React.FC<GenerateDocumentModalProps> = ({
                         <th style={{ padding: '8px 12px', textAlign: 'left', fontWeight: 700, color: '#475569' }}>
                           Mapped Value (Editable)
                         </th>
-                        <th style={{ padding: '8px 12px', textAlign: 'center', fontWeight: 700, color: '#475569', width: 100 }}>
+                        <th style={{ padding: '8px 12px', textAlign: 'center', fontWeight: 700, color: '#475569', width: 130 }}>
                           Status
                         </th>
                       </tr>
                     </thead>
                     <tbody>
-                      {Object.entries(mappedPlaceholders).map(([key, value]) => (
-                        <tr key={key} style={{ borderTop: '1px solid #f1f5f9' }}>
-                          <td style={{ padding: '8px 12px', fontFamily: 'monospace', color: '#2563eb', fontWeight: 600 }}>
-                            &#123;&#123;{key}&#125;&#125;
-                          </td>
-                          <td style={{ padding: '6px 12px' }}>
-                            <input
-                              type="text"
-                              value={value}
-                              onChange={(e) =>
-                                setMappedPlaceholders({
-                                  ...mappedPlaceholders,
-                                  [key]: e.target.value,
-                                })
-                              }
-                              style={{
-                                width: '100%',
-                                padding: '5px 8px',
-                                fontSize: '0.8125rem',
-                                border: '1px solid #cbd5e1',
-                                borderRadius: 6,
-                              }}
-                            />
-                          </td>
-                          <td style={{ padding: '8px 12px', textAlign: 'center' }}>
-                            <span
-                              style={{
-                                fontSize: '0.6875rem',
-                                fontWeight: 700,
-                                color: '#15803d',
-                                backgroundColor: '#f0fdf4',
-                                border: '1px solid #bbf7d0',
-                                padding: '2px 6px',
-                                borderRadius: 8,
-                              }}
-                            >
-                              Auto-Mapped
-                            </span>
-                          </td>
-                        </tr>
-                      ))}
+                      {Object.entries(mappedPlaceholders).map(([key, value]) => {
+                        const mapping = customTemplateFieldMappings[key];
+                        const isBracketed = key.startsWith('[') || key.startsWith('{') || key.startsWith('<');
+                        const displayKey = isBracketed ? key : `{{${key}}}`;
+                        const source = mapping?.source || 'DETERMINISTIC';
+                        const isUnmapped = mapping && !mapping.isMapped;
+
+                        return (
+                          <tr key={key} style={{ borderTop: '1px solid #f1f5f9' }}>
+                            <td style={{ padding: '8px 12px' }}>
+                              <div style={{ fontFamily: 'monospace', color: '#2563eb', fontWeight: 600 }}>
+                                {displayKey}
+                              </div>
+                              {mapping && mapping.fieldLabel && (
+                                <div style={{ fontSize: '0.6875rem', color: '#64748b' }}>
+                                  → {mapping.fieldLabel}
+                                </div>
+                              )}
+                            </td>
+                            <td style={{ padding: '6px 12px' }}>
+                              <input
+                                type="text"
+                                value={value}
+                                placeholder={isUnmapped ? 'Enter value...' : ''}
+                                onChange={(e) =>
+                                  setMappedPlaceholders({
+                                    ...mappedPlaceholders,
+                                    [key]: e.target.value,
+                                  })
+                                }
+                                style={{
+                                  width: '100%',
+                                  padding: '5px 8px',
+                                  fontSize: '0.8125rem',
+                                  border: isUnmapped && !value ? '1px solid #f59e0b' : '1px solid #cbd5e1',
+                                  borderRadius: 6,
+                                  backgroundColor: isUnmapped && !value ? '#fffbeb' : '#ffffff',
+                                }}
+                              />
+                            </td>
+                            <td style={{ padding: '8px 12px', textAlign: 'center' }}>
+                              {source === 'AI' ? (
+                                <span
+                                  style={{
+                                    fontSize: '0.6875rem',
+                                    fontWeight: 700,
+                                    color: '#7c3aed',
+                                    backgroundColor: '#f5f3ff',
+                                    border: '1px solid #ddd6fe',
+                                    padding: '2px 6px',
+                                    borderRadius: 8,
+                                  }}
+                                >
+                                  AI-Mapped
+                                </span>
+                              ) : source === 'FUZZY' ? (
+                                <span
+                                  style={{
+                                    fontSize: '0.6875rem',
+                                    fontWeight: 700,
+                                    color: '#1d4ed8',
+                                    backgroundColor: '#eff6ff',
+                                    border: '1px solid #bfdbfe',
+                                    padding: '2px 6px',
+                                    borderRadius: 8,
+                                  }}
+                                >
+                                  Fuzzy Match
+                                </span>
+                              ) : isUnmapped ? (
+                                <span
+                                  style={{
+                                    fontSize: '0.6875rem',
+                                    fontWeight: 700,
+                                    color: '#b45309',
+                                    backgroundColor: '#fffbeb',
+                                    border: '1px solid #fde68a',
+                                    padding: '2px 6px',
+                                    borderRadius: 8,
+                                  }}
+                                >
+                                  Review Required
+                                </span>
+                              ) : (
+                                <span
+                                  style={{
+                                    fontSize: '0.6875rem',
+                                    fontWeight: 700,
+                                    color: '#15803d',
+                                    backgroundColor: '#f0fdf4',
+                                    border: '1px solid #bbf7d0',
+                                    padding: '2px 6px',
+                                    borderRadius: 8,
+                                  }}
+                                >
+                                  Auto-Mapped
+                                </span>
+                              )}
+                            </td>
+                          </tr>
+                        );
+                      })}
                     </tbody>
                   </table>
                 </div>
@@ -1119,27 +1350,63 @@ export const GenerateDocumentModal: React.FC<GenerateDocumentModalProps> = ({
                   </div>
                 </div>
 
-                {/* Primary Action 1: Download */}
-                <button
-                  onClick={handleDownloadPdf}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 6,
-                    padding: '9px 18px',
-                    fontSize: '0.8125rem',
-                    fontWeight: 700,
-                    backgroundColor: '#16a34a',
-                    color: '#ffffff',
-                    border: 'none',
-                    borderRadius: 8,
-                    cursor: 'pointer',
-                    boxShadow: '0 2px 4px rgba(22, 163, 74, 0.25)',
-                  }}
-                >
-                  <Download size={15} />
-                  <span>Download PDF</span>
-                </button>
+                {/* Primary Actions: Download PDF and Download DOCX */}
+                <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                  <button
+                    onClick={handleDownloadPdf}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 6,
+                      padding: '9px 18px',
+                      fontSize: '0.8125rem',
+                      fontWeight: 700,
+                      backgroundColor: '#16a34a',
+                      color: '#ffffff',
+                      border: 'none',
+                      borderRadius: 8,
+                      cursor: 'pointer',
+                      boxShadow: '0 2px 4px rgba(22, 163, 74, 0.25)',
+                    }}
+                  >
+                    <Download size={15} />
+                    <span>Download PDF</span>
+                  </button>
+
+                  <button
+                    onClick={async () => {
+                      if (!generatedDoc) return;
+                      try {
+                        await EmployeeService.downloadDocumentFile(
+                          generatedDoc.id,
+                          'DOCX',
+                          generatedDoc.title,
+                          generatedDoc.currentVersion
+                        );
+                        setDownloadDocxSuccessBadge(true);
+                      } catch (err: any) {
+                        setError(err.message || 'Failed to download DOCX');
+                      }
+                    }}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 6,
+                      padding: '9px 18px',
+                      fontSize: '0.8125rem',
+                      fontWeight: 700,
+                      backgroundColor: '#2563eb',
+                      color: '#ffffff',
+                      border: 'none',
+                      borderRadius: 8,
+                      cursor: 'pointer',
+                      boxShadow: '0 2px 4px rgba(37, 99, 235, 0.25)',
+                    }}
+                  >
+                    <Download size={15} />
+                    <span>Download DOCX</span>
+                  </button>
+                </div>
               </div>
 
               {downloadSuccessBadge && (
@@ -1151,10 +1418,26 @@ export const GenerateDocumentModal: React.FC<GenerateDocumentModalProps> = ({
                     borderRadius: 8,
                     fontSize: '0.78125rem',
                     color: '#15803d',
-                    marginBottom: 16,
+                    marginBottom: 10,
                   }}
                 >
                   ✓ PDF downloaded and recorded in Document History ledger!
+                </div>
+              )}
+
+              {downloadDocxSuccessBadge && (
+                <div
+                  style={{
+                    padding: '8px 14px',
+                    backgroundColor: '#eff6ff',
+                    border: '1px solid #bfdbfe',
+                    borderRadius: 8,
+                    fontSize: '0.78125rem',
+                    color: '#1e40af',
+                    marginBottom: 16,
+                  }}
+                >
+                  ✓ Populated DOCX template downloaded with all original formatting preserved!
                 </div>
               )}
 

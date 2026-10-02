@@ -7,16 +7,8 @@ import {
   ShieldCheck,
   FileText,
   Layers,
-  BookOpen,
-  LogOut,
-  CalendarCheck2,
-  TrendingUp,
   Users2,
-  Wallet,
-  ChevronRight,
-  Award,
-  BrainCircuit,
-  ExternalLink,
+  LogOut,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext.js';
 
@@ -26,25 +18,9 @@ interface SidebarProps {
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
-  const { user, logout, hasRole, loginAsDemo } = useAuth();
+  const { user, logout, hasRole } = useAuth();
 
   const primaryModules = [
-    {
-      to: '/employees',
-      label: 'Employees',
-      icon: <Users2 size={18} />,
-      roles: ['SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER', 'APPROVER', 'AUDITOR'],
-      badge: 'Portal',
-      badgeColor: '#2563eb',
-    },
-    {
-      to: '/templates',
-      label: 'Document Templates',
-      icon: <FileText size={18} />,
-      roles: ['SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER'],
-      badge: '13 Library',
-      badgeColor: '#7c3aed',
-    },
     {
       to: '/dashboard',
       label: 'Dashboard',
@@ -52,36 +28,34 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
       roles: ['SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER', 'APPROVER', 'AUDITOR'],
     },
     {
+      to: '/employees',
+      label: 'Employees',
+      icon: <Users2 size={18} />,
+      roles: ['SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER', 'APPROVER', 'AUDITOR'],
+    },
+    {
       to: '/offers',
       label: 'Offers Pipeline',
       icon: <FileCheck2 size={18} />,
       roles: ['SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER', 'APPROVER'],
-      badge: 'Active',
-      badgeColor: '#059669',
-    },
-    {
-      to: '/pdf-to-letter',
-      label: 'AI PDF to Letter',
-      icon: <Sparkles size={18} />,
-      roles: ['SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER'],
-      badge: 'Multi-Page',
-      badgeColor: '#a35d39',
     },
     {
       to: '/documents',
       label: 'Document Generation',
       icon: <Layers size={18} />,
       roles: ['SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER', 'APPROVER'],
-      badge: 'Flow',
-      badgeColor: '#2563eb',
     },
     {
-      to: '/ai-studio',
-      label: 'AI Studio',
+      to: '/templates',
+      label: 'Document Templates',
+      icon: <FileText size={18} />,
+      roles: ['SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER'],
+    },
+    {
+      to: '/pdf-to-letter',
+      label: 'AI PDF to Letter',
       icon: <Sparkles size={18} />,
       roles: ['SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER'],
-      badge: 'Assistance',
-      badgeColor: '#7c3aed',
     },
     {
       to: '/audit-logs',
@@ -93,7 +67,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 
   return (
     <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
-      {/* Brand Header — Exact TaskNera HRMS Portal Branding */}
+      {/* Brand Header */}
       <div
         style={{
           height: 'var(--header-height)',
@@ -123,14 +97,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
             TaskNera
           </div>
           <div style={{ fontSize: '0.625rem', color: '#2563eb', fontWeight: 700, letterSpacing: '0.06em', marginTop: 2 }}>
-            HRMS PORTAL
+            OFFER GENERATOR
           </div>
         </div>
       </div>
 
       {/* Navigation Links */}
-      <div style={{ flex: 1, overflowY: 'auto', padding: '16px 14px', display: 'flex', flexDirection: 'column', gap: 20 }}>
-        {/* Core Workspace Modules */}
+      <div style={{ flex: 1, overflowY: 'auto', padding: '16px 14px', display: 'flex', flexDirection: 'column' }}>
         <div>
           <div
             style={{
@@ -142,7 +115,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
               fontWeight: 700,
             }}
           >
-            Workspace Modules
+            Navigation
           </div>
 
           <nav style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
@@ -156,7 +129,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                   style={({ isActive }) => ({
                     display: 'flex',
                     alignItems: 'center',
-                    justifyContent: 'space-between',
+                    gap: 10,
                     padding: '9px 12px',
                     borderRadius: '8px',
                     color: isActive ? '#2563eb' : '#475569',
@@ -167,90 +140,16 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                     transition: 'all 0.15s ease',
                   })}
                 >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <span style={{ color: 'inherit' }}>{item.icon}</span>
-                    <span>{item.label}</span>
-                  </div>
-                  {item.badge && (
-                    <span
-                      style={{
-                        fontSize: '0.65rem',
-                        padding: '2px 7px',
-                        borderRadius: '9999px',
-                        background: `${item.badgeColor || '#2563eb'}14`,
-                        color: item.badgeColor || '#2563eb',
-                        fontWeight: 700,
-                        border: `1px solid ${item.badgeColor || '#2563eb'}30`,
-                      }}
-                    >
-                      {item.badge}
-                    </span>
-                  )}
+                  <span style={{ color: 'inherit' }}>{item.icon}</span>
+                  <span>{item.label}</span>
                 </NavLink>
               ))}
           </nav>
         </div>
-
-
-        {/* TaskNera Enterprise Banner Card */}
-        <div
-          style={{
-            marginTop: 'auto',
-            padding: '12px 14px',
-            borderRadius: '10px',
-            background: '#f8fafc',
-            border: '1px solid #e2e8f0',
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
-            <div style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: '#10b981' }} />
-            <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#0f172a' }}>TaskNera Enterprise</span>
-          </div>
-          <div style={{ fontSize: '0.7rem', color: '#64748b', lineHeight: 1.35 }}>
-            People. Processes. Performance.
-          </div>
-        </div>
       </div>
 
-      {/* Switcher & User Profile in Footer */}
+      {/* User Profile in Footer */}
       <div style={{ borderTop: '1px solid #e2e8f0', background: '#ffffff' }}>
-        {/* Role Quick Switcher for testing */}
-        <div style={{ padding: '8px 14px', borderBottom: '1px solid #f1f5f9', display: 'flex', gap: 6 }}>
-          <button
-            onClick={() => loginAsDemo('HR_MANAGER')}
-            style={{
-              flex: 1,
-              padding: '4px 6px',
-              fontSize: '0.6875rem',
-              fontWeight: 600,
-              background: '#eff6ff',
-              border: '1px solid #bfdbfe',
-              color: '#1d4ed8',
-              borderRadius: '5px',
-              cursor: 'pointer',
-            }}
-          >
-            HR Partner
-          </button>
-          <button
-            onClick={() => loginAsDemo('SUPER_ADMIN')}
-            style={{
-              flex: 1,
-              padding: '4px 6px',
-              fontSize: '0.6875rem',
-              fontWeight: 600,
-              background: '#f8fafc',
-              border: '1px solid #e2e8f0',
-              color: '#475569',
-              borderRadius: '5px',
-              cursor: 'pointer',
-            }}
-          >
-            Admin
-          </button>
-        </div>
-
-        {/* User Card */}
         <div
           style={{
             padding: '12px 16px',

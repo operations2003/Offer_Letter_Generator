@@ -35,6 +35,14 @@ employeeRouter.get(
   EmployeeController.getTemplateByCode
 );
 
+// Upload Custom DOCX Template
+employeeRouter.post(
+  '/templates/upload-custom',
+  requireRoles('SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER'),
+  uploadDocumentMiddleware,
+  EmployeeController.uploadCustomTemplate
+);
+
 // Get single employee by ID
 employeeRouter.get(
   '/:id',
@@ -66,6 +74,13 @@ employeeRouter.delete(
 // -----------------------------------------------------------------------------
 // 2. Document Generation Workflow Routes
 // -----------------------------------------------------------------------------
+// Analyze custom template placeholders & map to employee record
+employeeRouter.post(
+  '/:employeeId/analyze-custom-template',
+  requireRoles('SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER', 'APPROVER'),
+  EmployeeController.analyzeCustomTemplate
+);
+
 // Preview document for employee (Interpolated with real employee data)
 employeeRouter.post(
   '/:employeeId/preview-document',

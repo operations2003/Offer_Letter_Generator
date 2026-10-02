@@ -15,11 +15,14 @@ import { EmployeeDocStatus } from '@prisma/client';
 import { PRELOADED_HR_TEMPLATES, PreloadedTemplate } from './hr-document-templates.catalog.js';
 import { NotFoundError, ValidationError } from '../../errors/app-error.js';
 import { AuditService } from '../audit/audit.service.js';
+import { DocxTemplateService } from './docx-template.service.js';
+import { FieldMappingService } from './field-mapping.service.js';
 
 export interface GenerateDocForEmployeeDto {
   employeeId: string;
   templateCode: string;
   customTemplateMarkup?: string;
+  customTemplatePath?: string;
   title?: string;
   customParameters?: Record<string, any>;
   changeNotes?: string;
@@ -314,13 +317,17 @@ export class EmployeeDocumentService {
 
     // Merge auto-filled employee details with any document-specific custom parameters
     const autoPlaceholders = this.buildAutoPlaceholderMap(employee, employee.company);
+    const employeeDataMap = FieldMappingService.buildEmployeeDataMap(employee, employee.company);
+    const resolvedFieldMap: Record<string, string> = {};
+    for (const [key, field] of Object.entries(employeeDataMap)) {
+      resolvedFieldMap[key] = field.value;
+    }
+
     const mergedValues: Record<string, any> = {
       ...autoPlaceholders,
+      ...resolvedFieldMap,
       ...(dto.customParameters || {}),
     };
-
-    // Interpolate placeholders
-    const renderedContent = this.interpolateMarkup(templateMarkup, mergedValues);
 
     // File naming
     const timestamp = Date.now();
@@ -333,11 +340,24 @@ export class EmployeeDocumentService {
     const pdfPath = path.join(this.storageBaseDir, pdfFileName);
     const docxPath = path.join(this.storageBaseDir, docxFileName);
 
-    // Generate real PDF and real DOCX
-    const [pdfBuffer, docxBuffer] = await Promise.all([
-      this.generatePdfBuffer(documentTitle, renderedContent, employee.company?.name || 'TaskNera Corp'),
-      this.generateDocxBuffer(documentTitle, renderedContent, employee.company?.name || 'TaskNera Corp'),
-    ]);
+    let renderedContent: string;
+    let pdfBuffer: Buffer;
+    let docxBuffer: Buffer;
+
+    // Check if a custom DOCX template was uploaded
+    if (dto.customTemplatePath && fs.existsSync(dto.customTemplatePath)) {
+      const populated = await DocxTemplateService.populateDocxTemplate(dto.customTemplatePath, mergedValues);
+      docxBuffer = populated.docxBuffer;
+      renderedContent = populated.renderedPlainText || dto.customTemplateMarkup || documentTitle;
+      pdfBuffer = await this.generatePdfBuffer(documentTitle, renderedContent, employee.company?.name || 'TaskNera Corp');
+    } else {
+      // Standard predefined template interpolation
+      renderedContent = this.interpolateMarkup(templateMarkup, mergedValues);
+      [pdfBuffer, docxBuffer] = await Promise.all([
+        this.generatePdfBuffer(documentTitle, renderedContent, employee.company?.name || 'TaskNera Corp'),
+        this.generateDocxBuffer(documentTitle, renderedContent, employee.company?.name || 'TaskNera Corp'),
+      ]);
+    }
 
     fs.writeFileSync(pdfPath, pdfBuffer);
     fs.writeFileSync(docxPath, docxBuffer);
@@ -505,7 +525,13 @@ export class EmployeeDocumentService {
   /**
    * 3. PREVIEW DOCUMENT RENDERING (WITHOUT SAVING TO DB)
    */
-  static async previewDocument(employeeId: string, templateCode: string, customParameters?: Record<string, any>) {
+  static async previewDocument(
+    employeeId: string,
+    templateCode: string,
+    customParameters?: Record<string, any>,
+    customTemplatePath?: string,
+    customTemplateMarkup?: string
+  ) {
     const employee = await prisma.employee.findUnique({
       where: { id: employeeId },
       include: { company: true },
@@ -513,6 +539,41 @@ export class EmployeeDocumentService {
 
     if (!employee) {
       throw new NotFoundError(`Employee with ID ${employeeId} not found`);
+    }
+
+    // If custom DOCX template path was provided, use dynamic DOCX autofill preview
+    if (customTemplatePath && fs.existsSync(customTemplatePath)) {
+      const inspection = await DocxTemplateService.inspectCustomTemplate(customTemplatePath);
+      const fieldMappings = await FieldMappingService.mapPlaceholdersForEmployee(
+        inspection.detectedPlaceholders,
+        employee,
+        employee.company
+      );
+
+      const mergedValues: Record<string, any> = {};
+      for (const [ph, entry] of Object.entries(fieldMappings)) {
+        if (entry.mappedValue) {
+          mergedValues[ph] = entry.mappedValue;
+        }
+      }
+      if (customParameters) {
+        Object.assign(mergedValues, customParameters);
+      }
+
+      const populated = await DocxTemplateService.populateDocxTemplate(customTemplatePath, mergedValues);
+
+      return {
+        templateCode: 'CUSTOM_TEMPLATE',
+        templateName: path.basename(customTemplatePath),
+        category: 'Custom Template',
+        autoFilledFields: mergedValues,
+        fieldMappings,
+        docSpecificFields: [],
+        renderedContent: populated.renderedPlainText || inspection.extractedPreviewText,
+        supportedFormats: ['PDF', 'DOCX'],
+        detectedPlaceholders: inspection.detectedPlaceholders,
+        customTemplatePath,
+      };
     }
 
     const template = PRELOADED_HR_TEMPLATES[templateCode];
@@ -526,7 +587,8 @@ export class EmployeeDocumentService {
       ...(customParameters || {}),
     };
 
-    const renderedContent = this.interpolateMarkup(template.contentMarkup, mergedValues);
+    const markupToUse = customTemplateMarkup || template.contentMarkup;
+    const renderedContent = this.interpolateMarkup(markupToUse, mergedValues);
 
     return {
       templateCode,

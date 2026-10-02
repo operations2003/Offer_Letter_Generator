@@ -11,6 +11,8 @@ import { AuthenticatedRequest } from '../../middleware/auth.js';
 import { ValidationError, NotFoundError } from '../../errors/app-error.js';
 import { prisma } from '../../prisma/client.js';
 import { AuditService } from '../audit/audit.service.js';
+import { DocxTemplateService } from './docx-template.service.js';
+import { FieldMappingService } from './field-mapping.service.js';
 import fs from 'fs';
 import path from 'path';
 
@@ -142,10 +144,99 @@ export class EmployeeController {
   // 3. DOCUMENT GENERATION WORKFLOW
   // ---------------------------------------------------------------------------
 
+  /**
+   * Upload custom DOCX template, validate format, store original safely,
+   * and inspect detected placeholders across runs, tables, headers, footers.
+   */
+  static async uploadCustomTemplate(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const file = req.file;
+      if (!file) {
+        throw new ValidationError('No template file was uploaded.');
+      }
+
+      // Validate DOCX
+      const isDocx = await DocxTemplateService.validateDocxBuffer(file.buffer);
+      if (!isDocx) {
+        throw new ValidationError('Only valid .docx Word templates are supported for dynamic template autofill.');
+      }
+
+      // Store original template safely
+      const storagePath = await DocxTemplateService.storeOriginalTemplate(file.buffer, file.originalname);
+
+      // Inspect placeholders and content across runs, tables, headers, footers
+      const inspection = await DocxTemplateService.inspectCustomTemplate(storagePath);
+
+      res.status(200).json({
+        success: true,
+        data: {
+          storagePath,
+          originalFileName: file.originalname,
+          detectedPlaceholders: inspection.detectedPlaceholders,
+          extractedPreviewText: inspection.extractedPreviewText,
+          hasHeaders: inspection.hasHeaders,
+          hasFooters: inspection.hasFooters,
+          hasTables: inspection.hasTables,
+        },
+        message: 'Custom DOCX template uploaded and inspected successfully.',
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  /**
+   * Analyze custom template for an employee: maps detected placeholders to employee fields
+   * using deterministic exact match, normalized fuzzy match, and AI fallback.
+   */
+  static async analyzeCustomTemplate(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { employeeId } = req.params;
+      const { templateStoragePath, placeholders } = req.body;
+
+      const employee = await prisma.employee.findUnique({
+        where: { id: employeeId },
+        include: { company: true },
+      });
+
+      if (!employee) {
+        throw new NotFoundError(`Employee with ID ${employeeId} not found`);
+      }
+
+      let detectedPlaceholders: string[] = Array.isArray(placeholders) ? placeholders : [];
+      let extractedPreviewText = '';
+
+      if (templateStoragePath && fs.existsSync(templateStoragePath)) {
+        const inspection = await DocxTemplateService.inspectCustomTemplate(templateStoragePath);
+        detectedPlaceholders = Array.from(new Set([...detectedPlaceholders, ...inspection.detectedPlaceholders]));
+        extractedPreviewText = inspection.extractedPreviewText;
+      }
+
+      const mappings = await FieldMappingService.mapPlaceholdersForEmployee(
+        detectedPlaceholders,
+        employee,
+        employee.company
+      );
+
+      res.status(200).json({
+        success: true,
+        data: {
+          employeeId: employee.id,
+          employeeName: employee.fullName,
+          detectedPlaceholders,
+          fieldMappings: mappings,
+          extractedPreviewText,
+        },
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+
   static async previewDocument(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
     try {
       const { employeeId } = req.params;
-      const { templateCode, customParameters } = req.body;
+      const { templateCode, customParameters, customTemplatePath, customTemplateMarkup } = req.body;
 
       if (!templateCode) {
         throw new ValidationError('templateCode is required');
@@ -154,7 +245,9 @@ export class EmployeeController {
       const preview = await EmployeeDocumentService.previewDocument(
         employeeId,
         templateCode,
-        customParameters
+        customParameters,
+        customTemplatePath,
+        customTemplateMarkup
       );
 
       res.status(200).json({
@@ -174,6 +267,8 @@ export class EmployeeController {
         templateCode,
         title,
         customParameters,
+        customTemplatePath,
+        customTemplateMarkup,
         changeNotes,
         targetStatus,
       } = req.body;
@@ -185,6 +280,8 @@ export class EmployeeController {
       const document = await EmployeeDocumentService.generateDocumentForEmployee({
         employeeId,
         templateCode,
+        customTemplatePath,
+        customTemplateMarkup,
         title,
         customParameters,
         changeNotes,

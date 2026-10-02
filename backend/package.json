@@ -14,7 +14,9 @@
     "lint": "tsc --noEmit",
     "test:flowchart": "tsx src/tests/flowchart-employee-workflow.integration.test.ts",
     "test:flow": "tsx src/tests/complete-flow.integration.test.ts",
-    "test:personas": "tsx src/tests/persona-verification.test.ts"
+    "test:personas": "tsx src/tests/persona-verification.test.ts",
+    "test:docx-unit": "tsx src/tests/docx-autofill.unit.test.ts",
+    "test:docx-integration": "tsx src/tests/custom-docx-autofill.integration.test.ts"
   },
   "keywords": [
     "offer-letter",
@@ -27,6 +29,7 @@
   "license": "ISC",
   "dependencies": {
     "@prisma/client": "^6.4.1",
+    "@types/jszip": "^3.4.0",
     "bcryptjs": "^3.0.2",
     "cors": "^2.8.5",
     "docx": "^9.8.1",
@@ -34,6 +37,7 @@
     "express": "^4.21.2",
     "helmet": "^8.0.0",
     "jsonwebtoken": "^9.0.2",
+    "jszip": "^3.10.2",
     "mammoth": "^1.12.3",
     "multer": "^2.4.0",
     "pdf-parse": "^2.4.5",

@@ -97,9 +97,39 @@ export interface CreateEmployeePayload {
   currency?: string;
 }
 
+export interface FieldMappingEntry {
+  rawPlaceholder: string;
+  normalizedKey: string;
+  fieldKey: string | null;
+  mappedValue: string;
+  source: 'DETERMINISTIC' | 'FUZZY' | 'AI' | 'UNMAPPED';
+  confidence: number;
+  isMapped: boolean;
+  fieldLabel: string;
+}
+
+export interface CustomDocxUploadResponse {
+  storagePath: string;
+  originalFileName: string;
+  detectedPlaceholders: string[];
+  extractedPreviewText: string;
+  hasHeaders: boolean;
+  hasFooters: boolean;
+  hasTables: boolean;
+}
+
+export interface AnalyzeCustomTemplateResponse {
+  employeeId: string;
+  employeeName: string;
+  detectedPlaceholders: string[];
+  fieldMappings: Record<string, FieldMappingEntry>;
+  extractedPreviewText: string;
+}
+
 export interface GenerateDocumentPayload {
   templateCode: string;
   customTemplateMarkup?: string;
+  customTemplatePath?: string;
   title?: string;
   customParameters?: Record<string, any>;
   changeNotes?: string;
@@ -250,23 +280,78 @@ export class EmployeeService {
   // 3. Document Generation Workflow
   // ---------------------------------------------------------------------------
 
+  /**
+   * Upload custom DOCX template file to backend for inspection & safe storage
+   */
+  static async uploadCustomDocxTemplate(file: File): Promise<CustomDocxUploadResponse> {
+    const formData = new FormData();
+    formData.append('document', file);
+
+    const res = await fetch('/api/v1/employees/templates/upload-custom', {
+      method: 'POST',
+      headers: this.getHeaders(false),
+      body: formData,
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.message || 'Failed to upload custom DOCX template');
+    }
+
+    const json = await res.json();
+    return json.data;
+  }
+
+  /**
+   * Analyze custom template for an employee (detect placeholders + map database fields)
+   */
+  static async analyzeCustomTemplate(
+    employeeId: string,
+    templateStoragePath?: string,
+    placeholders?: string[]
+  ): Promise<AnalyzeCustomTemplateResponse> {
+    const res = await fetch(`/api/v1/employees/${employeeId}/analyze-custom-template`, {
+      method: 'POST',
+      headers: this.getHeaders(),
+      body: JSON.stringify({ templateStoragePath, placeholders }),
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.message || 'Failed to analyze custom template');
+    }
+
+    const json = await res.json();
+    return json.data;
+  }
+
   static async previewDocument(
     employeeId: string,
     templateCode: string,
-    customParameters?: Record<string, any>
+    customParameters?: Record<string, any>,
+    customTemplatePath?: string,
+    customTemplateMarkup?: string
   ): Promise<{
     templateCode: string;
     templateName: string;
     category: string;
     autoFilledFields: Record<string, any>;
+    fieldMappings?: Record<string, FieldMappingEntry>;
     docSpecificFields: any[];
     renderedContent: string;
     supportedFormats: string[];
+    detectedPlaceholders?: string[];
+    customTemplatePath?: string;
   }> {
     const res = await fetch(`/api/v1/employees/${employeeId}/preview-document`, {
       method: 'POST',
       headers: this.getHeaders(),
-      body: JSON.stringify({ templateCode, customParameters }),
+      body: JSON.stringify({
+        templateCode,
+        customParameters,
+        customTemplatePath,
+        customTemplateMarkup,
+      }),
     });
 
     if (!res.ok) {
