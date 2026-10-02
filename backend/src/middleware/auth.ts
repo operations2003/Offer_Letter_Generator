@@ -13,6 +13,8 @@ export interface AuthenticatedUser {
   lastName: string;
 }
 
+export type AuthenticatedRequest = Request;
+
 declare global {
   namespace Express {
     interface Request {

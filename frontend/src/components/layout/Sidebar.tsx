@@ -30,6 +30,22 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 
   const primaryModules = [
     {
+      to: '/employees',
+      label: 'Employees',
+      icon: <Users2 size={18} />,
+      roles: ['SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER', 'APPROVER', 'AUDITOR'],
+      badge: 'Portal',
+      badgeColor: '#2563eb',
+    },
+    {
+      to: '/templates',
+      label: 'Document Templates',
+      icon: <FileText size={18} />,
+      roles: ['SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER'],
+      badge: '13 Library',
+      badgeColor: '#7c3aed',
+    },
+    {
       to: '/dashboard',
       label: 'Dashboard',
       icon: <LayoutDashboard size={18} />,
@@ -50,14 +66,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
       roles: ['SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER'],
       badge: 'Multi-Page',
       badgeColor: '#a35d39',
-    },
-    {
-      to: '/templates',
-      label: 'Offer Templates',
-      icon: <FileText size={18} />,
-      roles: ['SUPER_ADMIN', 'HR_MANAGER'],
-      badge: 'Standard',
-      badgeColor: '#2563eb',
     },
     {
       to: '/documents',

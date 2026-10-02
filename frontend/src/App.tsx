@@ -12,6 +12,8 @@ import { LearningPage } from './pages/LearningPage.js';
 import { AssessmentsPage } from './pages/AssessmentsPage.js';
 import { PoliciesPage } from './pages/PoliciesPage.js';
 import { PdfToStructuredLetterPage } from './pages/PdfToStructuredLetterPage.js';
+import { EmployeesPage } from './pages/EmployeesPage.js';
+import { EmployeeProfilePage } from './pages/EmployeeProfilePage.js';
 import { AppLayout } from './components/layout/AppLayout.js';
 import { ProtectedRoute } from './components/layout/ProtectedRoute.js';
 import { EmptyState } from './components/common/FeedbackStates.js';
@@ -30,8 +32,10 @@ export const App: React.FC = () => {
           </ProtectedRoute>
         }
       >
-        <Route index element={<Navigate to="/dashboard" replace />} />
+        <Route index element={<Navigate to="/employees" replace />} />
         <Route path="dashboard" element={<DashboardPage />} />
+        <Route path="employees" element={<EmployeesPage />} />
+        <Route path="employees/:id" element={<EmployeeProfilePage />} />
         <Route path="onboarding" element={<OnboardingPage />} />
         <Route path="learning" element={<LearningPage />} />
         <Route path="assessments" element={<AssessmentsPage />} />

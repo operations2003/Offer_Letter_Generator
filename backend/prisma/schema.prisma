@@ -139,6 +139,8 @@ model Company {
   aiSuggestions       AiProcessingSuggestion[]
   generatedDocuments  GeneratedDocument[]
   auditLogs           AuditLog[]
+  employees           Employee[]
+  employeeDocuments   EmployeeDocument[]
 
   @@index([code])
   @@index([externalHrmsCompanyId])
@@ -193,6 +195,8 @@ model User {
   offerStatusLogs    OfferStatusLog[]
   reviewedAiSuggestions AiProcessingSuggestion[]
   generatedDocs      GeneratedDocument[]
+  createdEmployees   Employee[]         @relation("EmployeeCreator")
+  employeeDocuments  EmployeeDocument[] @relation("DocumentGenerator")
 
   @@index([companyId])
   @@index([email])
@@ -566,4 +570,113 @@ model AuditLog {
   @@index([actorId])
   @@index([createdAt])
   @@map("audit_logs")
+}
+
+// =============================================================================
+// EMPLOYEE-BASED HR DOCUMENT SYSTEM MODELS
+// =============================================================================
+
+enum EmploymentStatus {
+  ACTIVE
+  ONBOARDING
+  PROBATION
+  RESIGNED
+  TERMINATED
+}
+
+enum EmployeeDocStatus {
+  DRAFT
+  PENDING_REVIEW
+  APPROVED
+  ISSUED
+}
+
+model Employee {
+  id               String            @id @default(uuid()) @db.Uuid
+  companyId        String            @map("company_id") @db.Uuid
+  employeeId       String            @map("employee_id") @db.VarChar(50)
+  fullName         String            @map("full_name") @db.VarChar(150)
+  personalEmail    String            @map("personal_email") @db.VarChar(255)
+  officialEmail    String?           @map("official_email") @db.VarChar(255)
+  phone            String?           @db.VarChar(50)
+  designation      String            @db.VarChar(150)
+  department       String            @db.VarChar(100)
+  employmentType   String            @default("Full-time") @map("employment_type") @db.VarChar(50)
+  joiningDate      DateTime          @map("joining_date") @db.Date
+  status           EmploymentStatus  @default(ACTIVE)
+  reportingManager String?           @map("reporting_manager") @db.VarChar(150)
+  workLocation     String?           @map("work_location") @db.VarChar(150)
+  annualCtc        Decimal?          @map("annual_ctc") @db.Decimal(14, 2)
+  currency         String            @default("USD") @db.VarChar(10)
+
+  createdBy        String?           @map("created_by") @db.Uuid
+  createdAt        DateTime          @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt        DateTime          @updatedAt @map("updated_at") @db.Timestamptz
+  deletedAt        DateTime?         @map("deleted_at") @db.Timestamptz
+
+  company          Company           @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  creator          User?             @relation("EmployeeCreator", fields: [createdBy], references: [id], onDelete: SetNull)
+  documents        EmployeeDocument[]
+
+  @@unique([companyId, employeeId, deletedAt], name: "uq_company_employee_id")
+  @@index([companyId])
+  @@index([employeeId])
+  @@index([officialEmail])
+  @@index([personalEmail])
+  @@index([status])
+  @@map("employees")
+}
+
+model EmployeeDocument {
+  id                   String                 @id @default(uuid()) @db.Uuid
+  companyId            String                 @map("company_id") @db.Uuid
+  employeeId           String                 @map("employee_id") @db.Uuid
+  documentTypeCode     String                 @map("document_type_code") @db.VarChar(50)
+  templateId           String?                @map("template_id") @db.VarChar(100)
+  title                String                 @db.VarChar(255)
+  status               EmployeeDocStatus      @default(DRAFT)
+  currentVersion       Int                    @default(1) @map("current_version")
+  parameters           Json                   @default("{}")
+  renderedContent      String                 @map("rendered_content") @db.Text
+  docxStoragePath      String?                @map("docx_storage_path") @db.Text
+  pdfStoragePath       String?                @map("pdf_storage_path") @db.Text
+  fileSizeBytes        BigInt?                @map("file_size_bytes")
+
+  generatedBy          String                 @map("generated_by") @db.Uuid
+  approvedBy           String?                @map("approved_by") @db.Uuid
+  approvedAt           DateTime?              @map("approved_at") @db.Timestamptz
+  issuedAt             DateTime?              @map("issued_at") @db.Timestamptz
+  createdAt            DateTime               @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt            DateTime               @updatedAt @map("updated_at") @db.Timestamptz
+  deletedAt            DateTime?              @map("deleted_at") @db.Timestamptz
+
+  company              Company                @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  employee             Employee               @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  generator            User                   @relation("DocumentGenerator", fields: [generatedBy], references: [id], onDelete: Restrict)
+  versions             EmployeeDocumentVersion[]
+
+  @@index([companyId])
+  @@index([employeeId])
+  @@index([documentTypeCode])
+  @@index([status])
+  @@map("employee_documents")
+}
+
+model EmployeeDocumentVersion {
+  id                   String            @id @default(uuid()) @db.Uuid
+  documentId           String            @map("document_id") @db.Uuid
+  versionNumber        Int               @map("version_number")
+  parameters           Json              @default("{}")
+  renderedContent      String            @map("rendered_content") @db.Text
+  docxStoragePath      String?           @map("docx_storage_path") @db.Text
+  pdfStoragePath       String?           @map("pdf_storage_path") @db.Text
+  changeNotes          String?           @map("change_notes") @db.Text
+  generatedBy          String            @map("generated_by") @db.Uuid
+  createdAt            DateTime          @default(now()) @map("created_at") @db.Timestamptz
+
+  document             EmployeeDocument  @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@unique([documentId, versionNumber], name: "uq_employee_document_version")
+  @@index([documentId])
+  @@map("employee_document_versions")
 }

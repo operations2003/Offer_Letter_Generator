@@ -18,6 +18,7 @@ import { policyRouter } from './modules/policies/policy.routes.js';
 import { onboardingRouter } from './modules/onboarding/onboarding.routes.js';
 import { createLearningRouter } from './modules/learning/learning.routes.js';
 import { createAssessmentRouter } from './modules/assessments/assessment.routes.js';
+import { employeeRouter } from './modules/employees/employee.routes.js';
 import { authRateLimiter, aiRateLimiter, generalApiRateLimiter } from './middleware/rate-limiter.js';
 
 export function createApp(): Express {
@@ -97,6 +98,7 @@ export function createApp(): Express {
   app.use('/api/v1/onboarding', onboardingRouter);
   app.use('/api/v1/learning', createLearningRouter());
   app.use('/api/v1/assessments', createAssessmentRouter());
+  app.use('/api/v1/employees', employeeRouter);
 
   // 404 handler
   app.use((req: Request, _res: Response, next: NextFunction) => {

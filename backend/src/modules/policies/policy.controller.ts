@@ -6,7 +6,7 @@ import { Request, Response, NextFunction } from 'express';
 import { PolicyService } from './policy.service.js';
 import { PolicyAiService } from './policy-ai.service.js';
 import { PolicyRegistry } from './policy.registry.js';
-import { AuthenticatedRequest } from '../../../middleware/auth.js';
+import { AuthenticatedRequest } from '../../middleware/auth.js';
 import { PolicyTypeCode } from '../../../../shared/types/policy-engine.js';
 
 export class PolicyController {

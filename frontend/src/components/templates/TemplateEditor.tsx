@@ -200,10 +200,26 @@ ul { padding-left: 20px; margin: 12px 0; }`
     }
   };
 
-  // Rendered preview HTML for split view
+  // Check if content already contains embedded header, footer, or multi-page A4 structure
+  const isMultiPageDocument =
+    contentMarkup.includes('tasknera-a4-page') ||
+    contentMarkup.includes('document-page-sheet');
+
+  const contentHasEmbeddedHeader =
+    isMultiPageDocument ||
+    contentMarkup.includes('careers@tasknera.com') ||
+    contentMarkup.includes('+91 7065278229') ||
+    (contentMarkup.includes('TASKNERA') && contentMarkup.includes('Dilshad Colony'));
+
+  const contentHasEmbeddedFooter =
+    isMultiPageDocument ||
+    contentMarkup.includes('Sheetal Bedi') ||
+    (contentMarkup.includes('Page ') && contentMarkup.includes(' of '));
+
+  // Rendered preview HTML for split view (suppress separate header/footer if body already embeds them)
   const renderedPreview = templateService.renderPreview(contentMarkup, SAMPLE_CANDIDATE_DATA);
-  const renderedHeader = templateService.renderPreview(headerMarkup, SAMPLE_CANDIDATE_DATA);
-  const renderedFooter = templateService.renderPreview(footerMarkup, SAMPLE_CANDIDATE_DATA);
+  const renderedHeader = contentHasEmbeddedHeader ? '' : templateService.renderPreview(headerMarkup, SAMPLE_CANDIDATE_DATA);
+  const renderedFooter = contentHasEmbeddedFooter ? '' : templateService.renderPreview(footerMarkup, SAMPLE_CANDIDATE_DATA);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
@@ -641,42 +657,49 @@ ul { padding-left: 20px; margin: 12px 0; }`
               }}
             >
               {/* Paper Preview Sheet */}
-              <div
-                style={{
-                  width: '100%',
-                  maxWidth: '560px',
-                  backgroundColor: '#ffffff',
-                  color: '#1f2937',
-                  padding: '36px 40px',
-                  boxShadow: '0 4px 14px rgba(0, 0, 0, 0.08)',
-                  border: '1px solid var(--border-subtle)',
-                  borderRadius: '3px',
-                  fontSize: '12px',
-                  lineHeight: 1.6,
-                  fontFamily: "'Inter', sans-serif",
-                }}
-              >
-                {styleCss && <style>{styleCss}</style>}
+              {isMultiPageDocument ? (
+                <div style={{ width: '100%', maxWidth: '640px' }}>
+                  {styleCss && <style>{styleCss}</style>}
+                  <div dangerouslySetInnerHTML={{ __html: renderedPreview }} />
+                </div>
+              ) : (
+                <div
+                  style={{
+                    width: '100%',
+                    maxWidth: '560px',
+                    backgroundColor: '#ffffff',
+                    color: '#1f2937',
+                    padding: '36px 40px',
+                    boxShadow: '0 4px 14px rgba(0, 0, 0, 0.08)',
+                    border: '1px solid var(--border-subtle)',
+                    borderRadius: '3px',
+                    fontSize: '12px',
+                    lineHeight: 1.6,
+                    fontFamily: "'Inter', sans-serif",
+                  }}
+                >
+                  {styleCss && <style>{styleCss}</style>}
 
-                {/* Header */}
-                {renderedHeader && (
-                  <div
-                    dangerouslySetInnerHTML={{ __html: renderedHeader }}
-                    style={{ marginBottom: 16 }}
-                  />
-                )}
+                  {/* Header (Only if not already embedded in body) */}
+                  {renderedHeader && (
+                    <div
+                      dangerouslySetInnerHTML={{ __html: renderedHeader }}
+                      style={{ marginBottom: 16 }}
+                    />
+                  )}
 
-                {/* Content */}
-                <div dangerouslySetInnerHTML={{ __html: renderedPreview }} />
+                  {/* Content */}
+                  <div dangerouslySetInnerHTML={{ __html: renderedPreview }} />
 
-                {/* Footer */}
-                {renderedFooter && (
-                  <div
-                    dangerouslySetInnerHTML={{ __html: renderedFooter }}
-                    style={{ marginTop: 24 }}
-                  />
-                )}
-              </div>
+                  {/* Footer (Only if not already embedded in body) */}
+                  {renderedFooter && (
+                    <div
+                      dangerouslySetInnerHTML={{ __html: renderedFooter }}
+                      style={{ marginTop: 24 }}
+                    />
+                  )}
+                </div>
+              )}
             </div>
           </div>
         )}

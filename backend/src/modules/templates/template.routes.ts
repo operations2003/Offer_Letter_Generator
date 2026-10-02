@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { TemplateController } from './template.controller.js';
 import { authenticate, requireRoles } from '../../middleware/auth.js';
-import { validateRequest } from '../../middleware/validate.js';
+import { uploadDocumentMiddleware } from '../../middleware/upload.js';
 import {
   createTemplateSchema,
   updateTemplateSchema,
@@ -9,10 +9,19 @@ import {
   toggleActiveSchema,
   aiSuggestSchema,
 } from './template.validation.js';
+import { validateRequest } from '../../middleware/validate.js';
 
 const router = Router();
 
 router.use(authenticate);
+
+// 0. Upload Template Document (DOCX / PDF)
+router.post(
+  '/upload',
+  requireRoles('SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER'),
+  uploadDocumentMiddleware,
+  TemplateController.uploadTemplate
+);
 
 // 1. Placeholder catalog
 router.get('/placeholders/catalog', TemplateController.getCatalog);

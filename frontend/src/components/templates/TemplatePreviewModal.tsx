@@ -45,16 +45,35 @@ export const TemplatePreviewModal: React.FC<TemplatePreviewModalProps> = ({
   const footer = customFooter !== undefined ? customFooter : template.currentVersion?.footerMarkup || '';
   const css = customCss !== undefined ? customCss : template.currentVersion?.styleCss || '';
 
+  const isMultiPageDocument =
+    markup.includes('tasknera-a4-page') ||
+    markup.includes('document-page-sheet');
+
+  const contentHasEmbeddedHeader =
+    isMultiPageDocument ||
+    markup.includes('careers@tasknera.com') ||
+    markup.includes('+91 7065278229') ||
+    (markup.includes('TASKNERA') && markup.includes('Dilshad Colony'));
+
+  const contentHasEmbeddedFooter =
+    isMultiPageDocument ||
+    markup.includes('Sheetal Bedi') ||
+    (markup.includes('Page ') && markup.includes(' of '));
+
   // Render text based on sample toggle
   const renderedContent = useSampleData
     ? templateService.renderPreview(markup, candidateData)
     : markup.replace(/\{\{([a-zA-Z0-9_-]+)\}\}/g, '<span class="token-pill">{{$1}}</span>');
 
-  const renderedHeader = useSampleData
+  const renderedHeader = contentHasEmbeddedHeader
+    ? ''
+    : useSampleData
     ? templateService.renderPreview(header || '', candidateData)
     : header || '';
 
-  const renderedFooter = useSampleData
+  const renderedFooter = contentHasEmbeddedFooter
+    ? ''
+    : useSampleData
     ? templateService.renderPreview(footer || '', candidateData)
     : footer || '';
 
@@ -191,13 +210,13 @@ export const TemplatePreviewModal: React.FC<TemplatePreviewModalProps> = ({
             id="offer-letter-paper"
             style={{
               width: '100%',
-              maxWidth: '720px',
-              minHeight: '850px',
-              backgroundColor: '#ffffff',
+              maxWidth: isMultiPageDocument ? '794px' : '720px',
+              minHeight: isMultiPageDocument ? 'auto' : '850px',
+              backgroundColor: isMultiPageDocument ? 'transparent' : '#ffffff',
               color: '#1f2937',
-              padding: '48px 56px',
-              boxShadow: '0 4px 16px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.04)',
-              border: '1px solid var(--border-subtle)',
+              padding: isMultiPageDocument ? '0' : '48px 56px',
+              boxShadow: isMultiPageDocument ? 'none' : '0 4px 16px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.04)',
+              border: isMultiPageDocument ? 'none' : '1px solid var(--border-subtle)',
               borderRadius: '3px',
               fontSize: '13px',
               lineHeight: 1.65,

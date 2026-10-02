@@ -70,6 +70,23 @@ export class AiService {
   }
 
   /**
+   * Executes arbitrary prompt (for HR text assistance, explanations, completeness checks)
+   */
+  static async executePrompt(
+    prompt: string,
+    options?: { temperature?: number; maxTokens?: number }
+  ): Promise<string> {
+    const completion = await this.executeWithRetry({
+      systemPrompt: 'You are an enterprise HR compliance assistant for generating professional HR documentation.',
+      userPrompt: prompt,
+      jsonMode: false,
+      temperature: options?.temperature ?? 0.2,
+      maxTokens: options?.maxTokens ?? 1000,
+    });
+    return completion.rawContent;
+  }
+
+  /**
    * Extracts candidate data from resume or memo text
    */
   static async extractCandidateData(documentText: string): Promise<{
