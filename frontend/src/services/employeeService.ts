@@ -99,6 +99,7 @@ export interface CreateEmployeePayload {
 
 export interface GenerateDocumentPayload {
   templateCode: string;
+  customTemplateMarkup?: string;
   title?: string;
   customParameters?: Record<string, any>;
   changeNotes?: string;
@@ -493,5 +494,64 @@ export class EmployeeService {
 
     const json = await res.json();
     return json;
+  }
+
+  // ---------------------------------------------------------------------------
+  // 5. Send by Email & History Tracking
+  // ---------------------------------------------------------------------------
+
+  static async sendDocumentEmail(
+    documentId: string,
+    payload: { to?: string; subject?: string; message?: string }
+  ): Promise<{
+    success: boolean;
+    message: string;
+    emailLog: {
+      recipientEmail: string;
+      subject: string;
+      attachedPdf: string;
+      sentAt: string;
+      status: string;
+    };
+    document: EmployeeDocument;
+  }> {
+    const res = await fetch(`/api/v1/employees/documents/${documentId}/send-email`, {
+      method: 'POST',
+      headers: this.getHeaders(),
+      body: JSON.stringify(payload),
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.message || 'Failed to dispatch document by email');
+    }
+
+    const json = await res.json();
+    return json.data;
+  }
+
+  static async getDocumentHistory(documentId: string): Promise<{
+    documentId: string;
+    title: string;
+    currentVersion: number;
+    status: string;
+    createdAt: string;
+    updatedAt: string;
+    issuedAt?: string | null;
+    versions: EmployeeDocumentVersion[];
+    emailLogs: any[];
+    auditTrail: any[];
+  }> {
+    const res = await fetch(`/api/v1/employees/documents/${documentId}/history`, {
+      headers: this.getHeaders(),
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.message || 'Failed to fetch document history');
+    }
+
+    const json = await res.json();
+    return json.data;
   }
 }

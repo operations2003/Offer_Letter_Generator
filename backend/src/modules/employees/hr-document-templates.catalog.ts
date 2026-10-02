@@ -27,11 +27,11 @@ export interface PreloadedTemplate {
 }
 
 export const PRELOADED_HR_TEMPLATES: Record<string, PreloadedTemplate> = {
-  // 1. OFFER LETTER
+  // 1. PREDEFINED OFFER LETTER
   OFFER_LETTER: {
     code: 'OFFER_LETTER',
     category: 'Offer Letter',
-    name: 'Standard Corporate Employment Offer Letter',
+    name: 'Predefined Offer Letter',
     description: 'Comprehensive employment offer covering role, compensation, benefits, joining date, and policies.',
     supportedFormats: ['PDF', 'DOCX'],
     defaultDocxAvailable: true,
@@ -188,11 +188,11 @@ ___________________________             ___________________________
 {{signatory_title}}                      Employee ID: {{employee_id}}`,
   },
 
-  // 4. INCREMENT LETTER
+  // 4. PREDEFINED INCREMENT LETTER
   INCREMENT_LETTER: {
     code: 'INCREMENT_LETTER',
     category: 'Increment Letter',
-    name: 'Annual Merit & Compensation Revision Letter',
+    name: 'Predefined Increment Letter',
     description: 'Official notice celebrating performance, detailing base salary enhancement, revised band, and effective date.',
     supportedFormats: ['PDF', 'DOCX'],
     defaultDocxAvailable: true,
@@ -669,5 +669,103 @@ ___________________________             ___________________________
 {{trainer_name}}                        {{signatory_name}}
 {{trainer_title}}                       {{signatory_title}}
 {{company_name}} L&D Academy            {{company_name}}`,
+  },
+
+  // PREDEFINED APPOINTMENT LETTER
+  APPOINTMENT_LETTER: {
+    code: 'APPOINTMENT_LETTER',
+    category: 'Appointment Letter',
+    name: 'Predefined Appointment Letter',
+    description: 'Official letter of appointment confirming position, compensation, responsibilities, and start date.',
+    supportedFormats: ['PDF', 'DOCX'],
+    defaultDocxAvailable: true,
+    requiredEmployeePlaceholders: ['employee_name', 'employee_id', 'designation', 'department', 'joining_date', 'annual_ctc'],
+    docSpecificFields: [
+      { key: 'signatory_name', label: 'Authorized Signatory Name', type: 'string', defaultValue: 'Sarah Jenkins' },
+      { key: 'signatory_title', label: 'Signatory Title', type: 'string', defaultValue: 'VP of People Operations' },
+      { key: 'reporting_manager', label: 'Reporting Manager', type: 'string', defaultValue: 'Engineering Director' },
+      { key: 'probation_period', label: 'Probation Duration', type: 'string', defaultValue: '90 days' },
+      { key: 'notice_period', label: 'Notice Period', type: 'string', defaultValue: '30 days' },
+    ],
+    contentMarkup: `APPOINTMENT LETTER
+Date: {{issue_date}}
+
+To,
+{{employee_name}}
+Employee ID: {{employee_id}}
+Email: {{official_email}}
+
+Dear {{employee_name}},
+
+We are pleased to appoint you as {{designation}} in the {{department}} department at {{company_name}}, effective from {{joining_date}}.
+
+1. REMUNERATION & BENEFITS
+Your total annualized compensation (Cost-to-Company) will be {{annual_ctc}} ({{currency}}), payable in accordance with the company payroll cycle and subject to statutory deductions.
+
+2. REPORTING & LOCATION
+You will report directly to {{reporting_manager}} and will be based out of our {{work_location}} office.
+
+3. PROBATION & NOTICE PERIOD
+You will be on probation for a period of {{probation_period}} from your date of joining. Upon successful completion of probation, your appointment will be confirmed. The standard notice period for separation shall be {{notice_period}}.
+
+4. TERMS & CONDITIONS
+Your employment is governed by the code of conduct, confidentiality agreements, and HR policies of {{company_name}}.
+
+Please sign and return the duplicate copy of this letter as a token of your acceptance.
+
+Sincerely,
+For {{company_name}}
+
+{{signatory_name}}
+{{signatory_title}}
+
+ACCEPTED AND CONFIRMED:
+
+______________________________
+{{employee_name}}
+Date: {{issue_date}}`,
+  },
+
+  // UPLOAD CUSTOM TEMPLATE
+  CUSTOM_TEMPLATE: {
+    code: 'CUSTOM_TEMPLATE',
+    category: 'Custom Template',
+    name: 'Upload Custom Template',
+    description: 'Upload a custom document template file (.docx, .txt, .html) or enter custom markup with {{placeholders}}.',
+    supportedFormats: ['PDF', 'DOCX'],
+    defaultDocxAvailable: true,
+    requiredEmployeePlaceholders: ['employee_name', 'designation', 'company_name', 'issue_date'],
+    docSpecificFields: [
+      { key: 'custom_subject', label: 'Document Title / Subject', type: 'string', defaultValue: 'Official Company Notice' },
+      { key: 'signatory_name', label: 'Signatory Name', type: 'string', defaultValue: 'Sarah Jenkins' },
+      { key: 'signatory_title', label: 'Signatory Title', type: 'string', defaultValue: 'VP of People Operations' },
+    ],
+    contentMarkup: `{{company_name}}
+OFFICIAL COMMUNICATION
+
+Date: {{issue_date}}
+
+To: {{employee_name}} (Employee ID: {{employee_id}})
+Designation: {{designation}}
+Department: {{department}}
+
+Subject: {{custom_subject}}
+
+Dear {{employee_name}},
+
+This document confirms official records concerning your employment at {{company_name}}.
+
+Designation: {{designation}}
+Department: {{department}}
+Joining Date: {{joining_date}}
+Location: {{work_location}}
+Annual Compensation: {{annual_ctc}}
+Reporting Manager: {{reporting_manager}}
+
+Sincerely,
+
+{{signatory_name}}
+{{signatory_title}}
+{{company_name}}`,
   },
 };

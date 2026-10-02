@@ -115,6 +115,20 @@ employeeRouter.get(
   EmployeeController.downloadDocx
 );
 
+// Send Document by Email (Attach Generated PDF -> Send to Employee Email -> Save Email Log -> Save Document History)
+employeeRouter.post(
+  '/documents/:documentId/send-email',
+  requireRoles('SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER'),
+  EmployeeController.sendDocumentEmail
+);
+
+// Get Document History & Email Logs
+employeeRouter.get(
+  '/documents/:documentId/history',
+  requireRoles('SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER', 'APPROVER', 'AUDITOR', 'EMPLOYEE'),
+  EmployeeController.getDocumentHistory
+);
+
 // Upload employee attachment / document
 employeeRouter.post(
   '/:employeeId/upload-document',

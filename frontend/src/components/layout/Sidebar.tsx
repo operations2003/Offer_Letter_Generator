@@ -69,9 +69,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
     },
     {
       to: '/documents',
-      label: 'HR Documents',
+      label: 'Document Generation',
       icon: <Layers size={18} />,
       roles: ['SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER', 'APPROVER'],
+      badge: 'Flow',
+      badgeColor: '#2563eb',
     },
     {
       to: '/ai-studio',

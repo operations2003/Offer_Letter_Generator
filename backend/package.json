@@ -11,7 +11,10 @@
     "prisma:migrate": "prisma migrate dev",
     "prisma:seed": "tsx src/prisma/seed.ts",
     "db:push": "prisma db push",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit",
+    "test:flowchart": "tsx src/tests/flowchart-employee-workflow.integration.test.ts",
+    "test:flow": "tsx src/tests/complete-flow.integration.test.ts",
+    "test:personas": "tsx src/tests/persona-verification.test.ts"
   },
   "keywords": [
     "offer-letter",

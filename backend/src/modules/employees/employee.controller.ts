@@ -9,6 +9,8 @@ import { EmployeeAiService } from './employee-ai.service.js';
 import { PRELOADED_HR_TEMPLATES } from './hr-document-templates.catalog.js';
 import { AuthenticatedRequest } from '../../middleware/auth.js';
 import { ValidationError, NotFoundError } from '../../errors/app-error.js';
+import { prisma } from '../../prisma/client.js';
+import { AuditService } from '../audit/audit.service.js';
 import fs from 'fs';
 import path from 'path';
 
@@ -270,12 +272,74 @@ export class EmployeeController {
     try {
       const { documentId } = req.params;
       const version = req.query.version ? parseInt(req.query.version as string, 10) : undefined;
+      const userId = req.user?.userId;
 
       const fileInfo = await EmployeeDocumentService.getDocumentFile(documentId, 'PDF', version);
+
+      // Save Document History: Log download action in audit ledger
+      try {
+        const doc = await prisma.employeeDocument.findUnique({ where: { id: documentId } });
+        if (doc) {
+          await AuditService.log({
+            companyId: doc.companyId,
+            actorType: 'USER',
+            actorId: userId || doc.generatedBy,
+            action: 'DOWNLOAD',
+            actionDescription: `Document ${doc.title} v${version || doc.currentVersion} downloaded as PDF`,
+            entityType: 'EMPLOYEE_DOCUMENT',
+            entityId: doc.id,
+            newState: {
+              fileName: fileInfo.fileName,
+              format: 'PDF',
+              version: version || doc.currentVersion,
+              downloadedAt: new Date().toISOString(),
+            },
+          });
+        }
+      } catch {
+        // Non-blocking audit record
+      }
 
       res.setHeader('Content-Type', fileInfo.mimeType);
       res.setHeader('Content-Disposition', `attachment; filename="${fileInfo.fileName}"`);
       fs.createReadStream(fileInfo.filePath).pipe(res);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  static async sendDocumentEmail(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { documentId } = req.params;
+      const { to, subject, message } = req.body;
+      const senderUserId = req.user?.userId;
+
+      const result = await EmployeeDocumentService.sendDocumentEmail(documentId, {
+        to,
+        subject,
+        message,
+        senderUserId,
+      });
+
+      res.status(200).json({
+        success: true,
+        data: result,
+        message: result.message,
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  static async getDocumentHistory(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { documentId } = req.params;
+      const history = await EmployeeDocumentService.getDocumentHistory(documentId);
+
+      res.status(200).json({
+        success: true,
+        data: history,
+      });
     } catch (err) {
       next(err);
     }

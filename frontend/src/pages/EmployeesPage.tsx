@@ -43,6 +43,7 @@ export const EmployeesPage: React.FC = () => {
 
   // Modals
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isGenModalOpen, setIsGenModalOpen] = useState(false);
   const [selectedEmployeeForDoc, setSelectedEmployeeForDoc] = useState<Employee | null>(null);
 
   useEffect(() => {
@@ -143,26 +144,52 @@ export const EmployeesPage: React.FC = () => {
           </div>
         </div>
 
-        <button
-          onClick={() => setIsAddModalOpen(true)}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 8,
-            padding: '10px 18px',
-            fontSize: '0.85rem',
-            fontWeight: 700,
-            backgroundColor: '#2563eb',
-            color: '#ffffff',
-            border: 'none',
-            borderRadius: 8,
-            cursor: 'pointer',
-            boxShadow: '0 2px 4px rgba(37, 99, 235, 0.25)',
-          }}
-        >
-          <UserPlus size={16} />
-          <span>Add Employee</span>
-        </button>
+        <div style={{ display: 'flex', gap: 10 }}>
+          <button
+            onClick={() => {
+              setSelectedEmployeeForDoc(null);
+              setIsGenModalOpen(true);
+            }}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              padding: '10px 18px',
+              fontSize: '0.85rem',
+              fontWeight: 700,
+              backgroundColor: '#ffffff',
+              color: '#2563eb',
+              border: '2px solid #2563eb',
+              borderRadius: 8,
+              cursor: 'pointer',
+              boxShadow: '0 2px 4px rgba(37, 99, 235, 0.1)',
+            }}
+          >
+            <FileText size={16} />
+            <span>Document Generation</span>
+          </button>
+
+          <button
+            onClick={() => setIsAddModalOpen(true)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              padding: '10px 18px',
+              fontSize: '0.85rem',
+              fontWeight: 700,
+              backgroundColor: '#2563eb',
+              color: '#ffffff',
+              border: 'none',
+              borderRadius: 8,
+              cursor: 'pointer',
+              boxShadow: '0 2px 4px rgba(37, 99, 235, 0.25)',
+            }}
+          >
+            <UserPlus size={16} />
+            <span>Add Employee</span>
+          </button>
+        </div>
       </div>
 
       {/* Metrics Stat Cards */}
@@ -433,7 +460,10 @@ export const EmployeesPage: React.FC = () => {
                   <td style={{ padding: '14px 18px', textAlign: 'right' }}>
                     <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', alignItems: 'center' }}>
                       <button
-                        onClick={() => setSelectedEmployeeForDoc(emp)}
+                        onClick={() => {
+                          setSelectedEmployeeForDoc(emp);
+                          setIsGenModalOpen(true);
+                        }}
                         style={{
                           display: 'flex',
                           alignItems: 'center',
@@ -490,11 +520,14 @@ export const EmployeesPage: React.FC = () => {
       )}
 
       {/* Document Generation Modal */}
-      {selectedEmployeeForDoc && (
+      {isGenModalOpen && (
         <GenerateDocumentModal
           employee={selectedEmployeeForDoc}
-          isOpen={Boolean(selectedEmployeeForDoc)}
-          onClose={() => setSelectedEmployeeForDoc(null)}
+          isOpen={isGenModalOpen}
+          onClose={() => {
+            setIsGenModalOpen(false);
+            setSelectedEmployeeForDoc(null);
+          }}
           onDocumentGenerated={loadEmployees}
         />
       )}

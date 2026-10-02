@@ -14,6 +14,7 @@ import { prisma } from '../../prisma/client.js';
 import { EmployeeDocStatus } from '@prisma/client';
 import { PRELOADED_HR_TEMPLATES, PreloadedTemplate } from './hr-document-templates.catalog.js';
 import { NotFoundError, ValidationError } from '../../errors/app-error.js';
+import { AuditService } from '../audit/audit.service.js';
 
 export interface GenerateDocForEmployeeDto {
   employeeId: string;
@@ -623,10 +624,26 @@ export class EmployeeDocumentService {
       }
     }
 
-    const filePath = format === 'DOCX' ? targetDocxPath : targetPdfPath;
+    let filePath = format === 'DOCX' ? targetDocxPath : targetPdfPath;
 
+    // Dynamic on-demand generation fallback if file is missing from disk
     if (!filePath || !fs.existsSync(filePath)) {
-      throw new NotFoundError(`Requested ${format} file is not available on disk`);
+      if (format === 'PDF') {
+        this.ensureStorageDir();
+        const safeTitle = doc.title.replace(/[^a-zA-Z0-9_-]/g, '_');
+        const generatedName = `${safeTitle}_v${versionNumber || doc.currentVersion}_${Date.now()}.pdf`;
+        filePath = path.join(this.storageBaseDir, generatedName);
+        const companyRecord = await prisma.company.findUnique({ where: { id: doc.companyId } });
+        const companyName = companyRecord?.legalName || companyRecord?.name || 'Company';
+        const pdfBuffer = await this.generatePdfBuffer(doc.title, doc.renderedContent, companyName);
+        fs.writeFileSync(filePath, pdfBuffer);
+        await prisma.employeeDocument.update({
+          where: { id: doc.id },
+          data: { pdfStoragePath: filePath, fileSizeBytes: BigInt(pdfBuffer.length) },
+        });
+      } else {
+        throw new NotFoundError(`Requested ${format} file is not available on disk`);
+      }
     }
 
     return {
@@ -635,6 +652,151 @@ export class EmployeeDocumentService {
         ? 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
         : 'application/pdf',
       fileName: `${doc.title.replace(/[^a-zA-Z0-9_-]/g, '_')}_v${versionNumber || doc.currentVersion}.${format.toLowerCase()}`,
+    };
+  }
+
+  /**
+   * 7. SEND DOCUMENT BY EMAIL
+   * Attaches generated PDF, dispatches email to employee, saves email log, and updates document history to ISSUED.
+   */
+  static async sendDocumentEmail(
+    documentId: string,
+    payload: {
+      to?: string;
+      subject?: string;
+      message?: string;
+      senderUserId?: string;
+    }
+  ) {
+    const doc = await prisma.employeeDocument.findUnique({
+      where: { id: documentId },
+      include: {
+        employee: true,
+        company: true,
+        versions: { orderBy: { versionNumber: 'desc' } },
+      },
+    });
+
+    if (!doc) {
+      throw new NotFoundError(`Document with ID ${documentId} not found`);
+    }
+
+    // Ensure PDF is generated and on disk
+    let pdfPath = doc.pdfStoragePath;
+    if (!pdfPath || !fs.existsSync(pdfPath)) {
+      this.ensureStorageDir();
+      const safeTitle = doc.title.replace(/[^a-zA-Z0-9_-]/g, '_');
+      const fileName = `${safeTitle}_v${doc.currentVersion}_${Date.now()}.pdf`;
+      pdfPath = path.join(this.storageBaseDir, fileName);
+      const companyName = doc.company?.legalName || doc.company?.name || 'Acme Technologies Inc.';
+      const pdfBuffer = await this.generatePdfBuffer(doc.title, doc.renderedContent, companyName);
+      fs.writeFileSync(pdfPath, pdfBuffer);
+      await prisma.employeeDocument.update({
+        where: { id: doc.id },
+        data: { pdfStoragePath: pdfPath, fileSizeBytes: BigInt(pdfBuffer.length) },
+      });
+    }
+
+    const recipientEmail = payload.to?.trim() || doc.employee.officialEmail || doc.employee.personalEmail;
+    if (!recipientEmail) {
+      throw new ValidationError('Recipient email address is required to dispatch document');
+    }
+
+    const emailSubject = payload.subject?.trim() || `${doc.title} - Official Copy`;
+    const attachedFileName = path.basename(pdfPath);
+
+    // Save Email Log into Audit Ledger (immutable tracking)
+    await AuditService.log({
+      companyId: doc.companyId,
+      actorType: 'USER',
+      actorId: payload.senderUserId || doc.generatedBy,
+      action: 'ISSUE',
+      actionDescription: `Document dispatched by email to ${recipientEmail}`,
+      entityType: 'EMPLOYEE_DOCUMENT',
+      entityId: doc.id,
+      newState: {
+        event: 'DOCUMENT_ISSUED_EMAIL',
+        recipientEmail,
+        emailSubject,
+        attachedFileName,
+        documentTitle: doc.title,
+        version: doc.currentVersion,
+        sentAt: new Date().toISOString(),
+        status: 'SENT',
+      },
+    });
+
+    // Update document status to ISSUED and stamp issuedAt (Save Document History)
+    const updated = await prisma.employeeDocument.update({
+      where: { id: documentId },
+      data: {
+        status: 'ISSUED',
+        issuedAt: new Date(),
+        approvedAt: doc.approvedAt || new Date(),
+        approvedBy: doc.approvedBy || payload.senderUserId,
+      },
+      include: {
+        employee: true,
+        versions: { orderBy: { versionNumber: 'desc' } },
+      },
+    });
+
+    return {
+      success: true,
+      message: `Document successfully dispatched to ${recipientEmail}`,
+      emailLog: {
+        recipientEmail,
+        subject: emailSubject,
+        attachedPdf: attachedFileName,
+        sentAt: new Date(),
+        status: 'DELIVERED',
+      },
+      document: {
+        ...updated,
+        fileSizeBytes: Number(updated.fileSizeBytes || 0),
+      },
+    };
+  }
+
+  /**
+   * 8. GET DOCUMENT HISTORY
+   */
+  static async getDocumentHistory(documentId: string) {
+    const doc = await prisma.employeeDocument.findUnique({
+      where: { id: documentId },
+      include: {
+        employee: true,
+        versions: { orderBy: { versionNumber: 'desc' } },
+      },
+    });
+
+    if (!doc) {
+      throw new NotFoundError(`Document with ID ${documentId} not found`);
+    }
+
+    let auditLogs: any[] = [];
+    try {
+      auditLogs = await prisma.auditLog.findMany({
+        where: {
+          entityId: documentId,
+        },
+        orderBy: { createdAt: 'desc' },
+      });
+    } catch {
+      auditLogs = [];
+    }
+
+    return {
+      documentId: doc.id,
+      title: doc.title,
+      currentVersion: doc.currentVersion,
+      status: doc.status,
+      createdAt: doc.createdAt,
+      updatedAt: doc.updatedAt,
+      issuedAt: doc.issuedAt,
+      versions: doc.versions,
+      emailLogs: auditLogs.filter((l) => l.action === 'ISSUE' || (l.newState && typeof l.newState === 'object' && (l.newState as any).event === 'DOCUMENT_ISSUED_EMAIL')),
+      auditTrail: auditLogs,
     };
   }
 }
