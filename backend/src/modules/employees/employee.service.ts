@@ -48,8 +48,29 @@ export class EmployeeService {
    * Get or fallback to active company ID
    */
   private static async getCompanyId(providedId?: string): Promise<string> {
-    if (providedId) return providedId;
-    if (this.defaultCompanyId) return this.defaultCompanyId;
+    if (providedId) {
+      try {
+        const found = await prisma.company.findUnique({
+          where: { id: providedId },
+        });
+        if (found && !found.deletedAt) {
+          return found.id;
+        }
+      } catch {
+        // providedId was not a valid UUID format or query error
+      }
+    }
+
+    if (this.defaultCompanyId) {
+      try {
+        const cached = await prisma.company.findUnique({
+          where: { id: this.defaultCompanyId },
+        });
+        if (cached && !cached.deletedAt) return cached.id;
+      } catch {
+        this.defaultCompanyId = null;
+      }
+    }
 
     const company = await prisma.company.findFirst({
       where: { deletedAt: null },
@@ -339,6 +360,21 @@ export class EmployeeService {
       throw new ValidationError(`Employee with ID ${employeeId} already exists`);
     }
 
+    // Verify createdBy user exists in database to prevent foreign key violation
+    let validCreatedBy: string | null = null;
+    if (dto.createdBy) {
+      try {
+        const user = await prisma.user.findUnique({
+          where: { id: dto.createdBy },
+        });
+        if (user && !user.deletedAt) {
+          validCreatedBy = user.id;
+        }
+      } catch {
+        validCreatedBy = null;
+      }
+    }
+
     const created = await prisma.employee.create({
       data: {
         companyId,
@@ -356,7 +392,7 @@ export class EmployeeService {
         workLocation: dto.workLocation?.trim() || null,
         annualCtc: dto.annualCtc ? Number(dto.annualCtc) : null,
         currency: dto.currency || 'USD',
-        createdBy: dto.createdBy || null,
+        createdBy: validCreatedBy,
       },
     });
 

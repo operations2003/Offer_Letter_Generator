@@ -342,10 +342,19 @@ export class EmployeeDocumentService {
     fs.writeFileSync(docxPath, docxBuffer);
 
     // Find default generator user (admin or HR)
-    let generatorUserId = dto.generatedByUserId;
+    let generatorUserId: string | null = dto.generatedByUserId || null;
+    if (generatorUserId) {
+      try {
+        const found = await prisma.user.findUnique({ where: { id: generatorUserId } });
+        if (!found || found.deletedAt) generatorUserId = null;
+      } catch {
+        generatorUserId = null;
+      }
+    }
     if (!generatorUserId) {
-      const user = await prisma.user.findFirst({ where: { companyId: employee.companyId } });
-      generatorUserId = user ? user.id : '00000000-0000-0000-0000-000000000000';
+      const user = (await prisma.user.findFirst({ where: { companyId: employee.companyId, deletedAt: null } }))
+        || (await prisma.user.findFirst({ where: { deletedAt: null } }));
+      generatorUserId = user ? user.id : '17926cae-f13b-4426-8ad7-fbd897e31958';
     }
 
     const status = dto.targetStatus || 'DRAFT';

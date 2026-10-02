@@ -57,6 +57,55 @@ class TokenRevocationRegistry {
 
 export const TokenRevocationService = TokenRevocationRegistry;
 
+let cachedDevUser: AuthenticatedUser | null = null;
+
+async function getDevUser(): Promise<AuthenticatedUser> {
+  if (cachedDevUser) return cachedDevUser;
+
+  try {
+    const user = await prisma.user.findFirst({
+      where: { deletedAt: null },
+      include: {
+        company: true,
+        userRoles: {
+          include: { role: true },
+        },
+      },
+    });
+
+    if (user) {
+      cachedDevUser = {
+        userId: user.id,
+        email: user.email,
+        companyId: user.companyId,
+        roles: user.userRoles.length > 0 ? user.userRoles.map((ur) => ur.role.code) : ['SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER'],
+        permissions: [
+          'documents:create', 'documents:read', 'documents:update', 'documents:delete',
+          'ai:extract', 'ai:generate', 'ai:improve', 'policies:manage', 'audit:read'
+        ],
+        firstName: user.firstName,
+        lastName: user.lastName,
+      };
+      return cachedDevUser;
+    }
+  } catch (err) {
+    // fallback if query fails
+  }
+
+  return {
+    userId: '17926cae-f13b-4426-8ad7-fbd897e31958',
+    email: 'hr@acme.com',
+    companyId: 'c7beff6d-599e-41ed-9683-d1e66628c985',
+    roles: ['SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER'],
+    permissions: [
+      'documents:create', 'documents:read', 'documents:update', 'documents:delete',
+      'ai:extract', 'ai:generate', 'ai:improve', 'policies:manage', 'audit:read'
+    ],
+    firstName: 'Sarah',
+    lastName: 'Jenkins',
+  };
+}
+
 /**
  * Verifies JWT token and attaches authenticated user context to request
  */
@@ -66,18 +115,7 @@ export async function authenticate(req: Request, _res: Response, next: NextFunct
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       // In development mode, auto-authenticate as default HR manager if header is missing
       if (process.env.NODE_ENV === 'development' || !process.env.NODE_ENV) {
-        req.user = {
-          userId: '11111111-2222-3333-4444-555555555555',
-          email: 'sakshi@tasknera.com',
-          companyId: '00000000-0000-0000-0000-000000000001',
-          roles: ['SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER'],
-          permissions: [
-            'documents:create', 'documents:read', 'documents:update', 'documents:delete',
-            'ai:extract', 'ai:generate', 'ai:improve', 'policies:manage', 'audit:read'
-          ],
-          firstName: 'Sakshi',
-          lastName: 'Koparde',
-        };
+        req.user = await getDevUser();
         return next();
       }
       throw new UnauthorizedError('Authorization header missing or format invalid (expected: Bearer <token>)');
@@ -91,18 +129,7 @@ export async function authenticate(req: Request, _res: Response, next: NextFunct
 
     // Support developer & demo access during development and HRMS prototype testing
     if (token === 'demo_token' || token === 'demo_jwt_token_sample' || token.startsWith('demo_')) {
-      req.user = {
-        userId: '11111111-2222-3333-4444-555555555555',
-        email: 'sakshi@tasknera.com',
-        companyId: '00000000-0000-0000-0000-000000000001',
-        roles: ['SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER'],
-        permissions: [
-          'documents:create', 'documents:read', 'documents:update', 'documents:delete',
-          'ai:extract', 'ai:generate', 'ai:improve', 'policies:manage', 'audit:read'
-        ],
-        firstName: 'Sakshi',
-        lastName: 'Koparde',
-      };
+      req.user = await getDevUser();
       return next();
     }
 
@@ -113,18 +140,7 @@ export async function authenticate(req: Request, _res: Response, next: NextFunct
     } catch {
       // In development mode, gracefully refresh expired tokens to active HR session
       if (process.env.NODE_ENV === 'development' || !process.env.NODE_ENV) {
-        req.user = {
-          userId: '11111111-2222-3333-4444-555555555555',
-          email: 'sakshi@tasknera.com',
-          companyId: '00000000-0000-0000-0000-000000000001',
-          roles: ['SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER'],
-          permissions: [
-            'documents:create', 'documents:read', 'documents:update', 'documents:delete',
-            'ai:extract', 'ai:generate', 'ai:improve', 'policies:manage', 'audit:read'
-          ],
-          firstName: 'Sakshi',
-          lastName: 'Koparde',
-        };
+        req.user = await getDevUser();
         return next();
       }
       throw new UnauthorizedError('Invalid or expired authentication token');
