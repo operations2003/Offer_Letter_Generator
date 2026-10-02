@@ -37,19 +37,21 @@ export const PRELOADED_HR_TEMPLATES: Record<string, PreloadedTemplate> = {
     defaultDocxAvailable: true,
     requiredEmployeePlaceholders: ['employee_name', 'designation', 'department', 'joining_date', 'annual_ctc'],
     docSpecificFields: [
-      { key: 'signatory_name', label: 'Authorized Signatory Name', type: 'string', defaultValue: 'Sarah Jenkins' },
-      { key: 'signatory_title', label: 'Signatory Title', type: 'string', defaultValue: 'VP of People Operations' },
+      { key: 'signatory_name', label: 'Authorized Signatory Name', type: 'string', defaultValue: 'Sheetal Bedi' },
+      { key: 'signatory_title', label: 'Signatory Title', type: 'string', defaultValue: 'CEO & FOUNDER' },
       { key: 'probation_period', label: 'Probation Duration', type: 'string', defaultValue: '90 days' },
       { key: 'notice_period', label: 'Notice Period', type: 'string', defaultValue: '30 days' },
       { key: 'offer_valid_until', label: 'Offer Validity Expiration', type: 'date' },
     ],
-    contentMarkup: `DATE: {{issue_date}}
+    contentMarkup: `REFERENCE: {{reference_number}}
+DATE: {{issue_date}}
 
 CONFIDENTIAL & PERSONAL
 
 To,
 {{employee_name}}
 Employee ID (Provisional): {{employee_id}}
+Address: {{candidate_address}}
 Email: {{personal_email}}
 Phone: {{phone}}
 
@@ -60,8 +62,13 @@ On behalf of {{company_name}}, we are delighted to offer you the position of {{d
 1. COMMENCEMENT & REPORTING
 Your employment will commence on {{joining_date}}. You will report directly to {{reporting_manager}}. Your employment model will be {{employment_type}}.
 
-2. COMPENSATION & REWARDS
-Your total annualized Cost-to-Company (CTC) will be {{annual_ctc}} ({{currency}}). This comprises your fixed base compensation, standard statutory benefits, and applicable performance incentives. Detailed salary annexures will be provided with your onboarding kit.
+2. COMPENSATION & ANNUAL FINANCIAL SCHEDULE
+Your total annualized Cost-to-Company (CTC) will be {{annual_ctc}} ({{currency}}). The structured component breakdown is as follows:
+- Basic Salary ({{basic_percent}} of CTC): {{basic_salary}} per annum
+- House Rent Allowance (HRA) ({{hra_percent}} of CTC): {{hra}} per annum
+- Special / Flexible Benefit Allowances: {{special_allowance}} per annum
+- Performance Incentive / Bonus: {{incentive}}
+Total Cost to Company (Annual CTC): {{annual_ctc}}
 
 3. PROBATION & NOTICE PERIOD
 You will be subject to a probation period of {{probation_period}} from your date of joining. Upon confirmation, either party may terminate this agreement by providing {{notice_period}} prior written notice or equivalent salary in lieu thereof.

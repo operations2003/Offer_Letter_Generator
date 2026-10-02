@@ -62,9 +62,30 @@ export class EmployeeDocumentService {
    */
   static buildAutoPlaceholderMap(employee: any, company?: any): Record<string, string> {
     const today = this.formatDate(new Date());
-    const ctcFormatted = employee.annualCtc
-      ? `$${Number(employee.annualCtc).toLocaleString('en-US')}`
-      : 'Competitive';
+    const companyName = company?.legalName || company?.name || 'TaskNera';
+    const currency = employee.currency || 'INR';
+    const currencySymbol = currency === 'USD' ? '$' : '₹';
+    const numCtc = Number(employee.annualCtc) || 600000;
+    const ctcFormatted = `${currencySymbol}${numCtc.toLocaleString(currency === 'USD' ? 'en-US' : 'en-IN')}`;
+
+    const basicPercent = Number(employee.basicPercent) || 40;
+    const hraPercent = Number(employee.hraPercent) || 20;
+    const basicAmount = Math.round((numCtc * basicPercent) / 100);
+    const hraAmount = Math.round((numCtc * hraPercent) / 100);
+    const specialAllowanceAmount = Math.max(0, numCtc - basicAmount - hraAmount);
+
+    const basicFormatted = `${currencySymbol}${basicAmount.toLocaleString(currency === 'USD' ? 'en-US' : 'en-IN')}`;
+    const hraFormatted = `${currencySymbol}${hraAmount.toLocaleString(currency === 'USD' ? 'en-US' : 'en-IN')}`;
+    const specialAllowanceFormatted = `${currencySymbol}${specialAllowanceAmount.toLocaleString(currency === 'USD' ? 'en-US' : 'en-IN')}`;
+
+    const fullAddress = [
+      employee.addressLine,
+      employee.city,
+      employee.state,
+      employee.pinCode,
+    ].filter(Boolean).join(', ') || employee.workLocation || 'D-57 Dilshad Colony, Delhi, 110095';
+
+    const refNumber = `TN/OFFER/${new Date().getFullYear()}/${employee.employeeId || '001'}`;
 
     return {
       // Primary required placeholders
@@ -76,23 +97,42 @@ export class EmployeeDocumentService {
       department: employee.department,
       joining_date: this.formatDate(employee.joiningDate),
       date_of_joining: this.formatDate(employee.joiningDate),
-      reporting_manager: employee.reportingManager || 'Leadership Team',
+      reporting_manager: employee.reportingManager || 'Sheetal Bedi',
       employment_type: employee.employmentType || 'Full-time',
       annual_ctc: ctcFormatted,
       total_ctc: ctcFormatted,
       salary: ctcFormatted,
-      company_name: company?.legalName || company?.name || 'Acme Technologies Inc.',
+      basic_salary: basicFormatted,
+      basic_percent: `${basicPercent}%`,
+      hra: hraFormatted,
+      hra_percent: `${hraPercent}%`,
+      special_allowance: specialAllowanceFormatted,
+      incentive: employee.incentiveApplicable
+        ? 'Eligible for performance-based incentive scheme'
+        : 'Standard corporate incentive policy',
+      company_name: companyName,
+      company_phone: '+91 7065278229',
+      company_email: 'careers@tasknera.com',
+      company_address: 'D-57 Dilshad Colony, Delhi, 110095',
+      signatory_name: company?.signatoryName || 'Sheetal Bedi',
+      signatory_title: company?.signatoryTitle || 'CEO & FOUNDER',
+      reference_number: refNumber,
       issue_date: today,
       date: today,
 
       // Additional standard contact & location helpers
-      work_location: employee.workLocation || 'Corporate Headquarters',
-      location: employee.workLocation || 'Corporate Headquarters',
+      candidate_address: fullAddress,
+      address: fullAddress,
+      pin_code: employee.pinCode || '',
+      city: employee.city || '',
+      state: employee.state || '',
+      work_location: employee.workLocation || (employee.city && employee.state ? `${employee.city}, ${employee.state}` : 'D-57 Dilshad Colony, Delhi, 110095'),
+      location: employee.workLocation || (employee.city && employee.state ? `${employee.city}, ${employee.state}` : 'D-57 Dilshad Colony, Delhi, 110095'),
       personal_email: employee.personalEmail || '',
       official_email: employee.officialEmail || employee.personalEmail || '',
       email: employee.officialEmail || employee.personalEmail || '',
       phone: employee.phone || 'N/A',
-      currency: employee.currency || 'USD',
+      currency: currency,
       employment_status: employee.status || 'ACTIVE',
     };
   }
@@ -111,17 +151,18 @@ export class EmployeeDocumentService {
   }
 
   /**
-   * Generate binary PDF using PDFKit
+   * Generate binary PDF using PDFKit on official TaskNera Letterhead
    */
   static async generatePdfBuffer(title: string, renderedText: string, companyName: string): Promise<Buffer> {
     return new Promise((resolve, reject) => {
       const doc = new PDFDocument({
         size: 'A4',
-        margin: 50,
+        margin: 45,
+        bufferPages: true,
         info: {
           Title: title,
-          Author: companyName,
-          Creator: 'HR Document Generation Engine',
+          Author: 'TaskNera',
+          Creator: 'TaskNera Document Engine',
         },
       });
 
@@ -130,83 +171,146 @@ export class EmployeeDocumentService {
       doc.on('end', () => resolve(Buffer.concat(chunks)));
       doc.on('error', (err) => reject(err));
 
-      // Brand Header Banner
-      doc
-        .fontSize(16)
-        .font('Helvetica-Bold')
-        .fillColor('#0f172a')
-        .text(companyName.toUpperCase(), { align: 'left' });
+      const drawLetterheadHeader = () => {
+        // Top-left beige rounded block
+        doc.roundedRect(0, 0, 310, 22, 6).fill('#fae1c3');
+        // Top-right mauve block
+        doc.rect(340, 0, doc.page.width - 340, 10).fill('#9c7a82');
 
-      doc
-        .fontSize(9)
-        .font('Helvetica')
-        .fillColor('#64748b')
-        .text('Human Resources & Corporate Governance Department', { align: 'left' });
+        // Logo & Brand (Left)
+        const logoPath = path.resolve(process.cwd(), 'src/assets/logo.png');
+        if (fs.existsSync(logoPath)) {
+          try {
+            doc.image(logoPath, 45, 34, { width: 34, height: 34 });
+            doc.fillColor('#0f172a').fontSize(16).font('Helvetica-Bold').text('TASKNERA', 88, 42);
+          } catch {
+            doc.fillColor('#0f172a').fontSize(18).font('Helvetica-Bold').text('TASKNERA', 45, 40);
+          }
+        } else {
+          doc.fillColor('#0f172a').fontSize(18).font('Helvetica-Bold').text('TASKNERA', 45, 40);
+        }
 
-      doc.moveDown(0.5);
-      doc
-        .strokeColor('#cbd5e1')
-        .lineWidth(1)
-        .moveTo(50, doc.y)
-        .lineTo(545, doc.y)
-        .stroke();
+        // Contact Block (Right) with vertical divider bar
+        doc.strokeColor('#0f172a').lineWidth(1.2).moveTo(375, 30).lineTo(375, 78).stroke();
+        doc
+          .fontSize(7.5)
+          .font('Helvetica-Bold')
+          .fillColor('#0f172a')
+          .text('Phone: ', 382, 32, { continued: true })
+          .font('Helvetica')
+          .fillColor('#334155')
+          .text('+91 7065278229')
+          .font('Helvetica-Bold')
+          .fillColor('#0f172a')
+          .text('Email: ', 382, 44, { continued: true })
+          .font('Helvetica')
+          .fillColor('#334155')
+          .text('careers@tasknera.com')
+          .font('Helvetica-Bold')
+          .fillColor('#0f172a')
+          .text('ADD: ', 382, 56, { continued: true })
+          .font('Helvetica')
+          .fillColor('#334155')
+          .text('D-57 Dilshad Colony,')
+          .text('Delhi, 110095', 382, 67);
 
-      doc.moveDown(1.2);
+        // Dark Horizontal Dividing Bar
+        doc.rect(0, 84, doc.page.width, 2.5).fill('#1e293b');
+      };
+
+      // Draw letterhead banner on first page
+      drawLetterheadHeader();
+
+      let y = 98;
 
       // Title
       doc
-        .fontSize(14)
+        .fontSize(13)
         .font('Helvetica-Bold')
         .fillColor('#1e3a8a')
-        .text(title, { align: 'center' });
+        .text(title.toUpperCase(), 45, y, { align: 'center', width: 505 });
 
-      doc.moveDown(1);
+      y = doc.y + 12;
 
-      // Document Body Content
-      doc
-        .fontSize(10)
-        .font('Helvetica')
-        .fillColor('#1e293b')
-        .lineGap(3.5);
+      // Content text
+      const contentToRender = renderedText && renderedText.trim()
+        ? renderedText
+        : `Formal employment document issued by TaskNera for corporate records. All contractual terms and employee data are officially verified.`;
 
-      const paragraphs = renderedText.split('\n');
+      const paragraphs = contentToRender.split('\n');
       for (const p of paragraphs) {
         const trimmed = p.trim();
         if (!trimmed) {
-          doc.moveDown(0.5);
+          y += 6;
           continue;
+        }
+
+        if (y > 700) {
+          doc.addPage();
+          drawLetterheadHeader();
+          y = 100;
         }
 
         if (trimmed.startsWith('==') || trimmed.startsWith('--')) {
-          doc.moveDown(0.2);
           doc
             .strokeColor('#e2e8f0')
             .lineWidth(0.5)
-            .moveTo(50, doc.y)
-            .lineTo(545, doc.y)
+            .moveTo(45, y)
+            .lineTo(550, y)
             .stroke();
-          doc.moveDown(0.4);
+          y += 10;
           continue;
         }
 
-        if (trimmed.toUpperCase() === trimmed && trimmed.length < 50 && !trimmed.includes(':')) {
-          doc.moveDown(0.5);
-          doc.font('Helvetica-Bold').fillColor('#0f172a').text(trimmed);
-          doc.font('Helvetica').fillColor('#1e293b');
+        if (
+          (trimmed.toUpperCase() === trimmed && trimmed.length < 60 && !trimmed.includes(':')) ||
+          /^\d+\.\s+[A-Z\s&]+$/.test(trimmed)
+        ) {
+          y += 4;
+          doc.fontSize(9.5).font('Helvetica-Bold').fillColor('#0f172a').text(trimmed, 45, y, { width: 505 });
+          y = doc.y + 4;
+        } else if (trimmed.startsWith('- ') || trimmed.startsWith('• ')) {
+          doc.fontSize(8.5).font('Helvetica').fillColor('#334155').text(trimmed, 55, y, { width: 495 });
+          y = doc.y + 3;
         } else {
-          doc.text(p);
+          doc.fontSize(8.5).font('Helvetica').fillColor('#1e293b').lineGap(2.5).text(trimmed, 45, y, { width: 505, align: 'justify' });
+          y = doc.y + 5;
         }
       }
 
-      // Footer
-      doc.moveDown(2);
-      doc
-        .fontSize(8)
-        .font('Helvetica')
-        .fillColor('#94a3b8')
-        .text(`Generated securely by ${companyName} HRMS System. Tamper-evident document.`, {
-          align: 'center',
-        });
+      // Check room for dual signature box
+      if (y > 660) {
+        doc.addPage();
+        drawLetterheadHeader();
+        y = 100;
+      } else {
+        y += 14;
+      }
+
+      // Dual Signatures: Left for TaskNera, Right for Candidate
+      doc.rect(45, y, 240, 85).strokeColor('#cbd5e1').lineWidth(0.5).stroke();
+      doc.fontSize(8.5).font('Helvetica-Bold').fillColor('#0f172a').text('For TaskNera', 55, y + 8);
+      doc.fontSize(7.5).font('Helvetica-Oblique').fillColor('#64748b').text('Authorized Signature (Corporate Signatory)', 55, y + 34);
+      doc.strokeColor('#94a3b8').lineWidth(0.5).moveTo(55, y + 50).lineTo(265, y + 50).stroke();
+      doc.fontSize(8.5).font('Helvetica-Bold').fillColor('#0f172a').text('Sheetal Bedi', 55, y + 56);
+      doc.fontSize(7.5).font('Helvetica').fillColor('#64748b').text('CEO & FOUNDER', 55, y + 68);
+
+      doc.rect(310, y, 240, 85).strokeColor('#cbd5e1').lineWidth(0.5).stroke();
+      doc.fontSize(8.5).font('Helvetica-Bold').fillColor('#0f172a').text('Candidate Formal Acceptance', 320, y + 8);
+      doc.fontSize(7.5).font('Helvetica-Oblique').fillColor('#64748b').text('Candidate Signature & Date of Signing', 320, y + 34);
+      doc.strokeColor('#94a3b8').lineWidth(0.5).moveTo(320, y + 50).lineTo(530, y + 50).stroke();
+      doc.fontSize(8.5).font('Helvetica-Bold').fillColor('#0f172a').text('Authorized Acceptance', 320, y + 56);
+      doc.fontSize(7.5).font('Helvetica').fillColor('#64748b').text('Signature indicates full acceptance of all terms', 320, y + 68);
+
+      // Two-pass footer pagination and bottom accent bar
+      const totalPages = doc.bufferedPageRange().count;
+      for (let i = 0; i < totalPages; i++) {
+        doc.switchToPage(i);
+        doc.strokeColor('#e2e8f0').lineWidth(0.5).moveTo(45, 796).lineTo(550, 796).stroke();
+        doc.fontSize(7).font('Helvetica').fillColor('#64748b').text('TaskNera HRMS • Confidential & Legally Binding Corporate Document', 45, 802);
+        doc.fontSize(7).font('Helvetica-Bold').fillColor('#475569').text(`Page ${i + 1} of ${totalPages}`, 450, 802, { align: 'right', width: 100 });
+        doc.roundedRect(190, 824, 210, 18, 6).fill('#9c7a82');
+      }
 
       doc.end();
     });

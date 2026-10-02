@@ -179,9 +179,29 @@ export const GenerateDocumentModal: React.FC<GenerateDocumentModalProps> = ({
   // Helper: auto build placeholder mapping for selected employee
   const buildPlaceholderMapping = (emp: Employee, tpl: DocumentTemplateItem, customMarkup?: string) => {
     const today = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-    const ctcFormatted = emp.annualCtc
-      ? `$${Number(emp.annualCtc).toLocaleString('en-US')} USD`
-      : '$120,000 USD';
+    const currency = emp.currency || 'INR';
+    const currencySymbol = currency === 'USD' ? '$' : '₹';
+    const numCtc = Number(emp.annualCtc) || 600000;
+    const ctcFormatted = `${currencySymbol}${numCtc.toLocaleString(currency === 'USD' ? 'en-US' : 'en-IN')}`;
+
+    const basicPercent = Number(emp.basicPercent) || 40;
+    const hraPercent = Number(emp.hraPercent) || 20;
+    const basicAmount = Math.round((numCtc * basicPercent) / 100);
+    const hraAmount = Math.round((numCtc * hraPercent) / 100);
+    const specialAllowanceAmount = Math.max(0, numCtc - basicAmount - hraAmount);
+
+    const basicFormatted = `${currencySymbol}${basicAmount.toLocaleString(currency === 'USD' ? 'en-US' : 'en-IN')}`;
+    const hraFormatted = `${currencySymbol}${hraAmount.toLocaleString(currency === 'USD' ? 'en-US' : 'en-IN')}`;
+    const specialAllowanceFormatted = `${currencySymbol}${specialAllowanceAmount.toLocaleString(currency === 'USD' ? 'en-US' : 'en-IN')}`;
+
+    const fullAddress = [
+      emp.addressLine,
+      emp.city,
+      emp.state,
+      emp.pinCode,
+    ].filter(Boolean).join(', ') || emp.workLocation || 'D-57 Dilshad Colony, Delhi, 110095';
+
+    const refNumber = `TN/OFFER/${new Date().getFullYear()}/${emp.employeeId || '001'}`;
 
     const baseMap: Record<string, string> = {
       employee_name: emp.fullName,
@@ -196,25 +216,42 @@ export const GenerateDocumentModal: React.FC<GenerateDocumentModalProps> = ({
       date_of_joining: emp.joiningDate
         ? new Date(emp.joiningDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
         : 'October 15, 2026',
-      reporting_manager: emp.reportingManager || 'Sarah Jenkins',
+      reporting_manager: emp.reportingManager || 'Sheetal Bedi',
       employment_type: emp.employmentType || 'Full-time',
       annual_ctc: ctcFormatted,
       total_ctc: ctcFormatted,
       salary: ctcFormatted,
-      company_name: 'Acme Technologies Inc.',
+      basic_salary: basicFormatted,
+      basic_percent: `${basicPercent}%`,
+      hra: hraFormatted,
+      hra_percent: `${hraPercent}%`,
+      special_allowance: specialAllowanceFormatted,
+      incentive: emp.incentiveApplicable
+        ? 'Eligible for performance-based incentive scheme'
+        : 'Standard corporate incentive policy',
+      company_name: 'TaskNera',
+      company_phone: '+91 7065278229',
+      company_email: 'careers@tasknera.com',
+      company_address: 'D-57 Dilshad Colony, Delhi, 110095',
+      signatory_name: 'Sheetal Bedi',
+      signatory_title: 'CEO & FOUNDER',
+      reference_number: refNumber,
       issue_date: today,
       date: today,
-      work_location: emp.workLocation || 'New York, NY (Hybrid)',
-      location: emp.workLocation || 'New York, NY (Hybrid)',
+      candidate_address: fullAddress,
+      address: fullAddress,
+      pin_code: emp.pinCode || '',
+      city: emp.city || '',
+      state: emp.state || '',
+      work_location: emp.workLocation || (emp.city && emp.state ? `${emp.city}, ${emp.state}` : 'D-57 Dilshad Colony, Delhi, 110095'),
+      location: emp.workLocation || (emp.city && emp.state ? `${emp.city}, ${emp.state}` : 'D-57 Dilshad Colony, Delhi, 110095'),
       personal_email: emp.personalEmail || '',
-      official_email: emp.officialEmail || emp.personalEmail || 'ajay@acme.com',
-      email: emp.officialEmail || emp.personalEmail || 'ajay@acme.com',
-      phone: emp.phone || '+1 (555) 234-5678',
-      currency: emp.currency || 'USD',
+      official_email: emp.officialEmail || emp.personalEmail || `${emp.firstName?.toLowerCase() || 'employee'}@tasknera.com`,
+      email: emp.officialEmail || emp.personalEmail || `${emp.firstName?.toLowerCase() || 'employee'}@tasknera.com`,
+      phone: emp.phone || '+91 7065278229',
+      currency: currency,
       probation_period: '90 days',
       notice_period: '30 days',
-      signatory_name: 'Sarah Jenkins',
-      signatory_title: 'VP of People Operations',
     };
 
     // If template has specific docFields with defaults, merge them
@@ -389,11 +426,11 @@ export const GenerateDocumentModal: React.FC<GenerateDocumentModalProps> = ({
       setGeneratedDoc(created);
 
       // Pre-fill email action details
-      const primaryEmail = selectedEmployee.officialEmail || selectedEmployee.personalEmail || 'ajay@acme.com';
+      const primaryEmail = selectedEmployee.officialEmail || selectedEmployee.personalEmail || `${selectedEmployee.firstName?.toLowerCase() || 'employee'}@tasknera.com`;
       setEmailTo(primaryEmail);
-      setEmailSubject(`${created.title} - Official Copy`);
+      setEmailSubject(`${created.title} - TaskNera Official Copy`);
       setEmailMessage(
-        `Dear ${selectedEmployee.fullName},\n\nPlease find attached your official ${selectedTemplate.name} issued by Acme Technologies Inc.\n\nBest regards,\nPeople Operations Team\nAcme Technologies Inc.`
+        `Dear ${selectedEmployee.fullName},\n\nPlease find attached your official ${selectedTemplate.name} issued by TaskNera.\n\nBest regards,\nPeople Operations Team\nTaskNera (D-57 Dilshad Colony, Delhi, 110095)`
       );
 
       // Advance to Step 5: Action (Download / Send by Email)
@@ -1209,7 +1246,7 @@ export const GenerateDocumentModal: React.FC<GenerateDocumentModalProps> = ({
           {/* ========================================================================= */}
           {/* STEP 4: DOCUMENT PREVIEW & HR ACTION                                     */}
           {/* ========================================================================= */}
-          {step === 4 && (
+          {step === 4 && selectedEmployee && selectedTemplate && (
             <div>
               {/* Top Banner: HR Action Options */}
               <div
@@ -1280,40 +1317,219 @@ export const GenerateDocumentModal: React.FC<GenerateDocumentModalProps> = ({
                 </div>
               </div>
 
-              {/* Formatted Letter Preview Window */}
+              {/* Official TaskNera Letterhead Preview Window */}
               <div
                 style={{
                   border: '1px solid #cbd5e1',
-                  borderRadius: 10,
+                  borderRadius: 12,
                   backgroundColor: '#ffffff',
-                  padding: 24,
-                  maxHeight: 380,
+                  boxShadow: '0 4px 14px rgba(0, 0, 0, 0.08)',
+                  padding: '28px 36px',
+                  maxHeight: 520,
                   overflowY: 'auto',
-                  fontFamily: "'Segoe UI', Arial, sans-serif",
-                  boxShadow: 'inset 0 2px 4px rgba(0, 0, 0, 0.05)',
+                  fontFamily: "'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif",
                 }}
               >
-                <div style={{ borderBottom: '2px solid #0f172a', paddingBottom: 10, marginBottom: 16 }}>
-                  <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0f172a', margin: 0, textTransform: 'uppercase' }}>
-                    Acme Technologies Inc.
-                  </h3>
-                  <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
-                    Human Resources & Talent Management Operations
+                {/* 1. Official TaskNera Top Letterhead Banner */}
+                <div style={{ position: 'relative', marginBottom: 20 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
+                    <div style={{ width: 280, height: 18, backgroundColor: '#fae1c3', borderRadius: '0 0 14px 0' }} />
+                    <div style={{ width: 220, height: 8, backgroundColor: '#9c7a82' }} />
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 8px 12px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                      <img src="/logo.png" alt="TaskNera" style={{ width: 44, height: 44, objectFit: 'contain' }} />
+                      <span style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', letterSpacing: '0.02em' }}>
+                        TASKNERA
+                      </span>
+                    </div>
+                    <div style={{ borderLeft: '2px solid #0f172a', paddingLeft: 14, fontSize: '11px', lineHeight: 1.5, color: '#1e293b' }}>
+                      <div><strong>Phone:</strong> +91 7065278229</div>
+                      <div><strong>Email:</strong> careers@tasknera.com</div>
+                      <div><strong>ADD:</strong> D-57 Dilshad Colony, Delhi, 110095</div>
+                    </div>
+                  </div>
+                  <div style={{ height: 3, backgroundColor: '#1e293b', width: '100%' }} />
+                </div>
+
+                {/* 2. Top Document Metadata */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16, fontSize: '0.8125rem', color: '#334155' }}>
+                  <div>
+                    <div><strong>Reference:</strong> {mappedPlaceholders['reference_number'] || `TN/OFFER/${new Date().getFullYear()}/${selectedEmployee.employeeId}`}</div>
+                    <div><strong>Date:</strong> {mappedPlaceholders['issue_date'] || mappedPlaceholders['date'] || new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</div>
+                  </div>
+                  <div style={{ textAlign: 'right' }}>
+                    <span style={{ backgroundColor: '#f1f5f9', border: '1px solid #cbd5e1', padding: '3px 8px', borderRadius: 6, fontWeight: 700, fontSize: '0.75rem', color: '#1e3a8a' }}>
+                      CONFIDENTIAL &amp; PERSONAL
+                    </span>
                   </div>
                 </div>
 
-                <pre
-                  style={{
-                    whiteSpace: 'pre-wrap',
-                    fontFamily: 'inherit',
-                    fontSize: '0.85rem',
-                    lineHeight: 1.6,
-                    color: '#1e293b',
-                    margin: 0,
-                  }}
-                >
-                  {previewContent}
-                </pre>
+                {/* Candidate Address Block */}
+                <div style={{ marginBottom: 16, fontSize: '0.8125rem', lineHeight: 1.5, color: '#1e293b' }}>
+                  <div><strong>To,</strong></div>
+                  <div style={{ fontSize: '0.9375rem', fontWeight: 800, color: '#0f172a' }}>{selectedEmployee.fullName}</div>
+                  <div><strong>Employee ID:</strong> {selectedEmployee.employeeId}</div>
+                  {mappedPlaceholders['candidate_address'] && (
+                    <div><strong>Address:</strong> {mappedPlaceholders['candidate_address']}</div>
+                  )}
+                  <div><strong>Email:</strong> {selectedEmployee.personalEmail || selectedEmployee.officialEmail || mappedPlaceholders['personal_email']}</div>
+                  <div><strong>Phone:</strong> {selectedEmployee.phone || mappedPlaceholders['phone']}</div>
+                </div>
+
+                {/* Subject Header */}
+                <div style={{ backgroundColor: '#f8fafc', borderLeft: '4px solid #1e3a8a', padding: '10px 14px', marginBottom: 18, borderRadius: '0 6px 6px 0' }}>
+                  <div style={{ fontSize: '0.875rem', fontWeight: 800, color: '#1e3a8a' }}>
+                    SUBJECT: {docTitle.toUpperCase() || `${selectedTemplate.name.toUpperCase()} — ${selectedEmployee.designation.toUpperCase()}`}
+                  </div>
+                </div>
+
+                {/* Main Rendered Content */}
+                <div style={{ fontSize: '0.84rem', lineHeight: 1.7, color: '#1e293b', marginBottom: 20 }}>
+                  {previewContent ? (
+                    <div style={{ whiteSpace: 'pre-wrap', lineHeight: 1.7 }}>
+                      {previewContent}
+                    </div>
+                  ) : (
+                    <div>
+                      <p>
+                        Dear <strong>{selectedEmployee.fullName}</strong>,
+                      </p>
+                      <p>
+                        On behalf of <strong>TaskNera</strong>, we are pleased to extend this formal offer of employment for the position of <strong>{selectedEmployee.designation}</strong> within our <strong>{selectedEmployee.department}</strong> department.
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Structured Position & Compensation Tables if OFFER_LETTER or APPOINTMENT_LETTER */}
+                <div style={{ marginBottom: 20 }}>
+                  <h4 style={{ fontSize: '0.875rem', fontWeight: 800, color: '#0f172a', margin: '0 0 8px 0' }}>
+                    1. Position &amp; Employment Specifications
+                  </h4>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8125rem', marginBottom: 16 }}>
+                    <tbody>
+                      <tr style={{ backgroundColor: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
+                        <td style={{ padding: '8px 12px', fontWeight: 700, color: '#475569', width: '35%' }}>Job Title / Designation</td>
+                        <td style={{ padding: '8px 12px', color: '#0f172a', fontWeight: 600 }}>{selectedEmployee.designation}</td>
+                      </tr>
+                      <tr style={{ borderBottom: '1px solid #e2e8f0' }}>
+                        <td style={{ padding: '8px 12px', fontWeight: 700, color: '#475569' }}>Department</td>
+                        <td style={{ padding: '8px 12px', color: '#0f172a' }}>{selectedEmployee.department}</td>
+                      </tr>
+                      <tr style={{ backgroundColor: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
+                        <td style={{ padding: '8px 12px', fontWeight: 700, color: '#475569' }}>Work Location</td>
+                        <td style={{ padding: '8px 12px', color: '#0f172a' }}>{mappedPlaceholders['work_location'] || selectedEmployee.workLocation || 'D-57 Dilshad Colony, Delhi, 110095'}</td>
+                      </tr>
+                      <tr style={{ borderBottom: '1px solid #e2e8f0' }}>
+                        <td style={{ padding: '8px 12px', fontWeight: 700, color: '#475569' }}>Date of Joining</td>
+                        <td style={{ padding: '8px 12px', color: '#0f172a', fontWeight: 600 }}>
+                          {selectedEmployee.joiningDate ? new Date(selectedEmployee.joiningDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : 'As mutually agreed'}
+                        </td>
+                      </tr>
+                      <tr style={{ backgroundColor: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
+                        <td style={{ padding: '8px 12px', fontWeight: 700, color: '#475569' }}>Reporting Manager</td>
+                        <td style={{ padding: '8px 12px', color: '#0f172a' }}>{mappedPlaceholders['reporting_manager'] || selectedEmployee.reportingManager || 'Sheetal Bedi'}</td>
+                      </tr>
+                      <tr style={{ borderBottom: '1px solid #e2e8f0' }}>
+                        <td style={{ padding: '8px 12px', fontWeight: 700, color: '#475569' }}>Employment Classification</td>
+                        <td style={{ padding: '8px 12px', color: '#0f172a' }}>{selectedEmployee.employmentType || 'Full-time'}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+
+                  <h4 style={{ fontSize: '0.875rem', fontWeight: 800, color: '#0f172a', margin: '0 0 8px 0' }}>
+                    2. Compensation &amp; Annual Financial Schedule
+                  </h4>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8125rem', marginBottom: 20 }}>
+                    <thead>
+                      <tr style={{ backgroundColor: '#0f172a', color: '#ffffff' }}>
+                        <th style={{ padding: '8px 12px', textAlign: 'left', fontWeight: 700 }}>Compensation Component</th>
+                        <th style={{ padding: '8px 12px', textAlign: 'right', fontWeight: 700 }}>Annual Allocation</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr style={{ borderBottom: '1px solid #e2e8f0', backgroundColor: '#ffffff' }}>
+                        <td style={{ padding: '8px 12px', color: '#334155' }}>
+                          Basic Salary ({mappedPlaceholders['basic_percent'] || `${selectedEmployee.basicPercent || 40}%`})
+                        </td>
+                        <td style={{ padding: '8px 12px', textAlign: 'right', color: '#0f172a', fontWeight: 600 }}>
+                          {mappedPlaceholders['basic_salary'] || '₹2,40,000'}
+                        </td>
+                      </tr>
+                      <tr style={{ borderBottom: '1px solid #e2e8f0', backgroundColor: '#f8fafc' }}>
+                        <td style={{ padding: '8px 12px', color: '#334155' }}>
+                          House Rent Allowance (HRA) ({mappedPlaceholders['hra_percent'] || `${selectedEmployee.hraPercent || 20}%`})
+                        </td>
+                        <td style={{ padding: '8px 12px', textAlign: 'right', color: '#0f172a', fontWeight: 600 }}>
+                          {mappedPlaceholders['hra'] || '₹1,20,000'}
+                        </td>
+                      </tr>
+                      <tr style={{ borderBottom: '1px solid #e2e8f0', backgroundColor: '#ffffff' }}>
+                        <td style={{ padding: '8px 12px', color: '#334155' }}>Special &amp; Flexible Benefit Allowances</td>
+                        <td style={{ padding: '8px 12px', textAlign: 'right', color: '#0f172a', fontWeight: 600 }}>
+                          {mappedPlaceholders['special_allowance'] || '₹2,40,000'}
+                        </td>
+                      </tr>
+                      <tr style={{ borderBottom: '1px solid #e2e8f0', backgroundColor: '#f8fafc' }}>
+                        <td style={{ padding: '8px 12px', color: '#334155' }}>Performance Incentive Eligibility</td>
+                        <td style={{ padding: '8px 12px', textAlign: 'right', color: '#0f172a' }}>
+                          {selectedEmployee.incentiveApplicable ? 'Applicable (Milestone Based)' : 'N/A'}
+                        </td>
+                      </tr>
+                      <tr style={{ backgroundColor: '#eff6ff', borderTop: '2px solid #2563eb' }}>
+                        <td style={{ padding: '10px 12px', fontWeight: 800, color: '#1e3a8a' }}>Total Cost to Company (Annual CTC)</td>
+                        <td style={{ padding: '10px 12px', textAlign: 'right', fontWeight: 800, color: '#1e3a8a', fontSize: '0.9375rem' }}>
+                          {mappedPlaceholders['annual_ctc'] || mappedPlaceholders['total_ctc'] || (selectedEmployee.annualCtc ? `₹${Number(selectedEmployee.annualCtc).toLocaleString('en-IN')}` : '₹6,00,000')}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* 3. Dual Signatures Section */}
+                <div style={{ marginTop: 24, paddingTop: 16, borderTop: '1px solid #e2e8f0' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+                    {/* Employer Signature */}
+                    <div style={{ border: '1px solid #cbd5e1', borderRadius: 8, padding: 14, backgroundColor: '#f8fafc' }}>
+                      <div style={{ fontSize: '0.8125rem', fontWeight: 800, color: '#0f172a' }}>For TaskNera</div>
+                      <div style={{ fontSize: '0.71875rem', fontStyle: 'italic', color: '#64748b', marginTop: 2 }}>
+                        Authorized Corporate Signatory
+                      </div>
+                      <div style={{ height: 34, borderBottom: '1px solid #94a3b8', margin: '8px 0 6px 0' }} />
+                      <div style={{ fontSize: '0.875rem', fontWeight: 800, color: '#0f172a' }}>
+                        {mappedPlaceholders['signatory_name'] || 'Sheetal Bedi'}
+                      </div>
+                      <div style={{ fontSize: '0.75rem', color: '#475569' }}>
+                        {mappedPlaceholders['signatory_title'] || 'CEO & FOUNDER'}
+                      </div>
+                      <div style={{ fontSize: '0.6875rem', color: '#94a3b8' }}>TaskNera</div>
+                    </div>
+
+                    {/* Candidate Signature */}
+                    <div style={{ border: '1px solid #cbd5e1', borderRadius: 8, padding: 14, backgroundColor: '#f8fafc' }}>
+                      <div style={{ fontSize: '0.8125rem', fontWeight: 800, color: '#0f172a' }}>Candidate Formal Acceptance</div>
+                      <div style={{ fontSize: '0.71875rem', fontStyle: 'italic', color: '#64748b', marginTop: 2 }}>
+                        Candidate Signature &amp; Date
+                      </div>
+                      <div style={{ height: 34, borderBottom: '1px solid #94a3b8', margin: '8px 0 6px 0' }} />
+                      <div style={{ fontSize: '0.875rem', fontWeight: 800, color: '#0f172a' }}>
+                        {selectedEmployee.fullName}
+                      </div>
+                      <div style={{ fontSize: '0.75rem', color: '#475569' }}>
+                        Signature confirms full acceptance of all terms
+                      </div>
+                      <div style={{ fontSize: '0.6875rem', color: '#94a3b8' }}>
+                        Date: ________________________
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 4. Bottom Decorative Letterhead Shape */}
+                <div style={{ display: 'flex', justifyContent: 'center', marginTop: 28 }}>
+                  <div style={{ width: 220, height: 14, backgroundColor: '#9c7a82', borderRadius: '10px 10px 0 0' }} />
+                </div>
               </div>
             </div>
           )}
