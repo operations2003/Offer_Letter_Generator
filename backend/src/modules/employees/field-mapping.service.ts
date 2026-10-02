@@ -79,18 +79,28 @@ export class FieldMappingService {
     const annualCtcNum = employee.annualCtc ? Number(employee.annualCtc) : 0;
     const annualCtcStr = annualCtcNum > 0 ? this.formatCurrency(annualCtcNum, curr) : 'Competitive';
 
-    // Derived salary components if annual CTC is available
+    // Derived salary components if annual CTC is available (incorporating employee custom percent configs)
     const monthlyGrossNum = annualCtcNum > 0 ? Math.round(annualCtcNum / 12) : 0;
     const monthlyGrossStr = monthlyGrossNum > 0 ? this.formatCurrency(monthlyGrossNum, curr) : 'Competitive';
 
-    const basicSalaryNum = monthlyGrossNum > 0 ? Math.round(monthlyGrossNum * 0.5) : 0;
+    const basicRatio = employee.basicPercent ? Number(employee.basicPercent) / 100 : 0.5;
+    const basicSalaryNum = monthlyGrossNum > 0 ? Math.round(monthlyGrossNum * basicRatio) : 0;
     const basicSalaryStr = basicSalaryNum > 0 ? this.formatCurrency(basicSalaryNum, curr) : 'Competitive';
 
-    const hraNum = basicSalaryNum > 0 ? Math.round(basicSalaryNum * 0.4) : 0;
+    const hraRatio = employee.hraPercent ? Number(employee.hraPercent) / 100 : 0.4;
+    const hraNum = basicSalaryNum > 0 ? Math.round(basicSalaryNum * hraRatio) : 0;
     const hraStr = hraNum > 0 ? this.formatCurrency(hraNum, curr) : 'Competitive';
 
     const specialAllowanceNum = monthlyGrossNum > 0 ? Math.max(0, monthlyGrossNum - (basicSalaryNum + hraNum)) : 0;
     const specialAllowanceStr = specialAllowanceNum > 0 ? this.formatCurrency(specialAllowanceNum, curr) : 'Competitive';
+
+    // Address aggregation
+    const empAddress = [
+      employee.addressLine,
+      employee.city,
+      employee.state,
+      employee.pinCode,
+    ].filter(Boolean).join(', ') || employee.workLocation || 'Not provided';
 
     // Company attributes
     const compName = company?.legalName || company?.name || 'TaskNera Corp';
@@ -106,18 +116,28 @@ export class FieldMappingService {
 
     return {
       fullName: { value: employee.fullName || '', label: 'Employee Full Name' },
+      firstName: { value: employee.firstName || (employee.fullName ? employee.fullName.split(' ')[0] : ''), label: 'First Name' },
+      lastName: { value: employee.lastName || (employee.fullName ? employee.fullName.split(' ').slice(1).join(' ') : ''), label: 'Last Name' },
       employeeId: { value: employee.employeeId || '', label: 'Employee ID' },
       designation: { value: employee.designation || '', label: 'Designation / Job Title' },
       department: { value: employee.department || '', label: 'Department' },
       reportingManager: { value: employee.reportingManager || 'Leadership Team', label: 'Reporting Manager' },
       joiningDate: { value: this.formatDate(employee.joiningDate), label: 'Date of Joining' },
       employmentType: { value: employee.employmentType || 'Full-time', label: 'Employment Type' },
-      workLocation: { value: employee.workLocation || 'Corporate Headquarters', label: 'Work Location' },
+      workLocation: { value: employee.workLocation || employee.city || 'Corporate Headquarters', label: 'Work Location' },
+      city: { value: employee.city || employee.workLocation || '', label: 'City / District' },
+      state: { value: employee.state || '', label: 'State' },
+      pinCode: { value: employee.pinCode || '', label: 'PIN Code' },
+      addressLine: { value: employee.addressLine || '', label: 'Address Line' },
+      employeeAddress: { value: empAddress, label: 'Employee Full Address' },
       annualCtc: { value: annualCtcStr, label: 'Annual CTC' },
       grossMonthlySalary: { value: monthlyGrossStr, label: 'Gross Monthly Salary' },
       basicSalary: { value: basicSalaryStr, label: 'Basic Salary' },
       hra: { value: hraStr, label: 'House Rent Allowance (HRA)' },
       specialAllowance: { value: specialAllowanceStr, label: 'Special / Other Allowance' },
+      basicPercent: { value: `${(basicRatio * 100).toFixed(1)}%`, label: 'Basic Percentage' },
+      hraPercent: { value: `${(hraRatio * 100).toFixed(1)}%`, label: 'HRA Percentage' },
+      incentiveApplicable: { value: employee.incentiveApplicable ? 'Yes' : 'No', label: 'Incentive Applicable' },
       probationPeriod: { value: '90 days', label: 'Probation Period' },
       noticePeriod: { value: '30 days', label: 'Notice Period' },
       personalEmail: { value: employee.personalEmail || '', label: 'Personal Email' },

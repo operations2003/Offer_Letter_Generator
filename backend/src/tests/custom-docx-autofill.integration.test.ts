@@ -435,14 +435,14 @@ async function runIntegrationSuite() {
     // 10. Multi-Employee Isolation Test (Employee B)
     // -------------------------------------------------------------------------
     console.log('\n--- Step 10: Multi-Employee Data Isolation Test ---');
-    // Create Employee B
+    // Create Employee B (unique ID to support repeated test runs)
     const empBRes = await req(
       'POST',
       '/api/v1/employees',
       {
-        employeeId: 'EMP-002',
+        employeeId: `EMP-002-${Date.now().toString().slice(-4)}`,
         fullName: 'Elena Rostova',
-        personalEmail: 'elena@example.com',
+        personalEmail: `elena.${Date.now()}@example.com`,
         designation: 'Director of Product',
         department: 'Product Strategy',
         joiningDate: '2026-11-01',

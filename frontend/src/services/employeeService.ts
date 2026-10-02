@@ -19,6 +19,16 @@ export interface Employee {
   workLocation?: string | null;
   annualCtc?: number | null;
   currency: string;
+  title?: string | null;
+  firstName?: string | null;
+  lastName?: string | null;
+  pinCode?: string | null;
+  city?: string | null;
+  state?: string | null;
+  addressLine?: string | null;
+  basicPercent?: number | null;
+  hraPercent?: number | null;
+  incentiveApplicable?: boolean;
   createdAt: string;
   updatedAt: string;
   documentCount?: number;
@@ -95,6 +105,16 @@ export interface CreateEmployeePayload {
   workLocation?: string;
   annualCtc?: number;
   currency?: string;
+  title?: string;
+  firstName?: string;
+  lastName?: string;
+  pinCode?: string;
+  city?: string;
+  state?: string;
+  addressLine?: string;
+  basicPercent?: number;
+  hraPercent?: number;
+  incentiveApplicable?: boolean;
 }
 
 export interface FieldMappingEntry {

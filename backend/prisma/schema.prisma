@@ -609,6 +609,18 @@ model Employee {
   annualCtc        Decimal?          @map("annual_ctc") @db.Decimal(14, 2)
   currency         String            @default("USD") @db.VarChar(10)
 
+  // Granular profile & address details
+  title            String?           @db.VarChar(20)
+  firstName        String?           @map("first_name") @db.VarChar(100)
+  lastName         String?           @map("last_name") @db.VarChar(100)
+  pinCode          String?           @map("pin_code") @db.VarChar(20)
+  city             String?           @db.VarChar(100)
+  state            String?           @db.VarChar(100)
+  addressLine      String?           @map("address_line") @db.Text
+  basicPercent     Decimal?          @map("basic_percent") @db.Decimal(5, 2)
+  hraPercent       Decimal?          @map("hra_percent") @db.Decimal(5, 2)
+  incentiveApplicable Boolean?       @default(false) @map("incentive_applicable")
+
   createdBy        String?           @map("created_by") @db.Uuid
   createdAt        DateTime          @default(now()) @map("created_at") @db.Timestamptz
   updatedAt        DateTime          @updatedAt @map("updated_at") @db.Timestamptz

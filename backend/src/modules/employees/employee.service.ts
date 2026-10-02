@@ -1,5 +1,6 @@
 // =============================================================================
 // EMPLOYEE MANAGEMENT SERVICE
+// Synchronized with Prisma schema (granular profile, address & compensation)
 // =============================================================================
 
 import { prisma } from '../../prisma/client.js';
@@ -23,6 +24,18 @@ export interface CreateEmployeeDto {
   annualCtc?: number;
   currency?: string;
   createdBy?: string;
+
+  // Additional granular employee & compensation details
+  title?: string;
+  firstName?: string;
+  lastName?: string;
+  pinCode?: string;
+  city?: string;
+  state?: string;
+  addressLine?: string;
+  basicPercent?: number;
+  hraPercent?: number;
+  incentiveApplicable?: boolean;
 }
 
 export interface UpdateEmployeeDto {
@@ -39,6 +52,17 @@ export interface UpdateEmployeeDto {
   workLocation?: string;
   annualCtc?: number;
   currency?: string;
+
+  title?: string;
+  firstName?: string;
+  lastName?: string;
+  pinCode?: string;
+  city?: string;
+  state?: string;
+  addressLine?: string;
+  basicPercent?: number;
+  hraPercent?: number;
+  incentiveApplicable?: boolean;
 }
 
 export class EmployeeService {
@@ -201,6 +225,8 @@ export class EmployeeService {
     return employees.map((emp) => ({
       ...emp,
       annualCtc: emp.annualCtc ? Number(emp.annualCtc) : null,
+      basicPercent: emp.basicPercent ? Number(emp.basicPercent) : null,
+      hraPercent: emp.hraPercent ? Number(emp.hraPercent) : null,
       documentCount: emp.documents.length,
     }));
   }
@@ -253,6 +279,8 @@ export class EmployeeService {
     return {
       ...employee,
       annualCtc: employee.annualCtc ? Number(employee.annualCtc) : null,
+      basicPercent: employee.basicPercent ? Number(employee.basicPercent) : null,
+      hraPercent: employee.hraPercent ? Number(employee.hraPercent) : null,
       documents: employee.documents.map((doc) => ({
         ...doc,
         fileSizeBytes: doc.fileSizeBytes ? Number(doc.fileSizeBytes) : null,
@@ -327,14 +355,28 @@ export class EmployeeService {
         reportingManager: dto.reportingManager?.trim() || null,
         workLocation: dto.workLocation?.trim() || null,
         annualCtc: dto.annualCtc ? Number(dto.annualCtc) : null,
-        currency: dto.currency || 'USD',
+        currency: dto.currency || 'INR',
         createdBy: validCreatedBy,
+
+        // Profile & Address details
+        title: dto.title?.trim() || null,
+        firstName: dto.firstName?.trim() || null,
+        lastName: dto.lastName?.trim() || null,
+        pinCode: dto.pinCode?.trim() || null,
+        city: dto.city?.trim() || null,
+        state: dto.state?.trim() || null,
+        addressLine: dto.addressLine?.trim() || null,
+        basicPercent: dto.basicPercent !== undefined && dto.basicPercent !== null ? Number(dto.basicPercent) : null,
+        hraPercent: dto.hraPercent !== undefined && dto.hraPercent !== null ? Number(dto.hraPercent) : null,
+        incentiveApplicable: dto.incentiveApplicable ?? false,
       },
     });
 
     return {
       ...created,
       annualCtc: created.annualCtc ? Number(created.annualCtc) : null,
+      basicPercent: created.basicPercent ? Number(created.basicPercent) : null,
+      hraPercent: created.hraPercent ? Number(created.hraPercent) : null,
     };
   }
 
@@ -367,6 +409,17 @@ export class EmployeeService {
     if (dto.annualCtc !== undefined) updateData.annualCtc = dto.annualCtc ? Number(dto.annualCtc) : null;
     if (dto.currency !== undefined) updateData.currency = dto.currency;
 
+    if (dto.title !== undefined) updateData.title = dto.title?.trim() || null;
+    if (dto.firstName !== undefined) updateData.firstName = dto.firstName?.trim() || null;
+    if (dto.lastName !== undefined) updateData.lastName = dto.lastName?.trim() || null;
+    if (dto.pinCode !== undefined) updateData.pinCode = dto.pinCode?.trim() || null;
+    if (dto.city !== undefined) updateData.city = dto.city?.trim() || null;
+    if (dto.state !== undefined) updateData.state = dto.state?.trim() || null;
+    if (dto.addressLine !== undefined) updateData.addressLine = dto.addressLine?.trim() || null;
+    if (dto.basicPercent !== undefined) updateData.basicPercent = dto.basicPercent ? Number(dto.basicPercent) : null;
+    if (dto.hraPercent !== undefined) updateData.hraPercent = dto.hraPercent ? Number(dto.hraPercent) : null;
+    if (dto.incentiveApplicable !== undefined) updateData.incentiveApplicable = Boolean(dto.incentiveApplicable);
+
     const updated = await prisma.employee.update({
       where: { id },
       data: updateData,
@@ -375,6 +428,8 @@ export class EmployeeService {
     return {
       ...updated,
       annualCtc: updated.annualCtc ? Number(updated.annualCtc) : null,
+      basicPercent: updated.basicPercent ? Number(updated.basicPercent) : null,
+      hraPercent: updated.hraPercent ? Number(updated.hraPercent) : null,
     };
   }
 

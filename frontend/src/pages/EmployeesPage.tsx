@@ -288,15 +288,19 @@ export const EmployeesPage: React.FC = () => {
             }}
           >
             <option value="ALL">All Departments</option>
-            <option value="Engineering">Engineering</option>
-            <option value="Product">Product</option>
-            <option value="Design">Design</option>
-            <option value="Applied AI Labs">Applied AI Labs</option>
-            <option value="Core Infrastructure">Core Infrastructure</option>
-            <option value="Cybersecurity">Cybersecurity</option>
-            <option value="People / HR">People / HR</option>
-            <option value="Marketing">Marketing</option>
-            <option value="Sales">Sales</option>
+            {Array.from(
+              new Set([
+                'IT',
+                'HR',
+                'TA',
+                'BDM',
+                ...employees.map((e) => e.department).filter(Boolean),
+              ])
+            ).map((d) => (
+              <option key={d} value={d}>
+                {d}
+              </option>
+            ))}
           </select>
 
           <select
