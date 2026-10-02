@@ -103,107 +103,10 @@ export class EmployeeService {
   }
 
   /**
-   * Pre-seed sample employees if table is empty
+   * Pre-seed sample employees (disabled to maintain only genuine data)
    */
   static async ensureSeedData(): Promise<void> {
-    try {
-      const count = await prisma.employee.count({ where: { deletedAt: null } });
-      if (count > 0) return;
-
-      const companyId = await this.getCompanyId();
-
-      const seedList: CreateEmployeeDto[] = [
-        {
-          employeeId: 'EMP-10492',
-          fullName: 'Rahul Sharma',
-          personalEmail: 'rahul.sharma@example.com',
-          officialEmail: 'rahul.s@acme.com',
-          phone: '+1 (555) 234-8901',
-          designation: 'Senior Full Stack Engineer',
-          department: 'Engineering',
-          employmentType: 'Full-time',
-          joiningDate: new Date('2024-03-15'),
-          status: 'ACTIVE' as EmploymentStatus,
-          reportingManager: 'Marcus Vance (VP Engineering)',
-          workLocation: 'San Francisco, CA (Hybrid)',
-          annualCtc: 155000,
-          currency: 'USD',
-        },
-        {
-          employeeId: 'EMP-10843',
-          fullName: 'Priya Patel',
-          personalEmail: 'priya.patel@example.com',
-          officialEmail: 'priya.p@acme.com',
-          phone: '+1 (555) 345-6789',
-          designation: 'Lead Product Manager',
-          department: 'Product',
-          employmentType: 'Full-time',
-          joiningDate: new Date('2023-08-01'),
-          status: 'ACTIVE' as EmploymentStatus,
-          reportingManager: 'Elena Rostova (Chief Product Officer)',
-          workLocation: 'New York, NY',
-          annualCtc: 168000,
-          currency: 'USD',
-        },
-        {
-          employeeId: 'EMP-11204',
-          fullName: 'Liam Alexander Vance',
-          personalEmail: 'liam.vance@stanford.edu',
-          officialEmail: 'liam.vance@acme.com',
-          phone: '+1 (555) 789-0123',
-          designation: 'Machine Learning Research Intern',
-          department: 'Applied AI Labs',
-          employmentType: 'Intern',
-          joiningDate: new Date('2026-06-01'),
-          status: 'PROBATION' as EmploymentStatus,
-          reportingManager: 'Dr. Elena Rostova',
-          workLocation: 'Palo Alto, CA (Hybrid)',
-          annualCtc: 78000,
-          currency: 'USD',
-        },
-        {
-          employeeId: 'EMP-11985',
-          fullName: 'Sophia Chen',
-          personalEmail: 'sophia.chen@example.com',
-          officialEmail: 'sophia.c@acme.com',
-          phone: '+1 (555) 456-7890',
-          designation: 'Staff Distributed Systems Engineer',
-          department: 'Core Infrastructure',
-          employmentType: 'Full-time',
-          joiningDate: new Date('2022-01-10'),
-          status: 'ACTIVE' as EmploymentStatus,
-          reportingManager: 'Marcus Vance',
-          workLocation: 'Remote (US)',
-          annualCtc: 198000,
-          currency: 'USD',
-        },
-      ];
-
-      for (const item of seedList) {
-        await prisma.employee.create({
-          data: {
-            companyId,
-            employeeId: item.employeeId!,
-            fullName: item.fullName,
-            personalEmail: item.personalEmail,
-            officialEmail: item.officialEmail,
-            phone: item.phone,
-            designation: item.designation,
-            department: item.department,
-            employmentType: item.employmentType || 'Full-time',
-            joiningDate: new Date(item.joiningDate),
-            status: item.status || ('ACTIVE' as EmploymentStatus),
-            reportingManager: item.reportingManager,
-            workLocation: item.workLocation,
-            annualCtc: item.annualCtc,
-            currency: item.currency || 'USD',
-          },
-        });
-      }
-      console.log(`[EmployeeService] Successfully pre-seeded ${seedList.length} employees.`);
-    } catch (err: any) {
-      console.warn('[EmployeeService] Seed skipped or already exists:', err.message);
-    }
+    return;
   }
 
   /**

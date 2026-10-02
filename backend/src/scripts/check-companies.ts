@@ -13,7 +13,15 @@ async function main() {
         },
       },
     });
-    console.log('Users in DB with roles:', JSON.stringify(users.map(u => ({ id: u.id, email: u.email, roles: u.userRoles.map(ur => ({ name: ur.role.name, code: ur.role.code })) }))));
+    const employees = await prisma.employee.findMany();
+    console.log('Employees in DB:', JSON.stringify(employees.map(e => ({
+      id: e.id,
+      name: e.fullName,
+      email: e.personalEmail,
+      empId: e.employeeId,
+      designation: e.designation,
+      status: e.status
+    })), null, 2));
   } catch (e: any) {
     console.error('Error:', e.message);
   } finally {
