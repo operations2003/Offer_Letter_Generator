@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import {
   X,
   Download,
@@ -18,6 +19,7 @@ import {
   ArrowLeft,
   ShieldCheck,
   UserCheck,
+  ArrowUp,
 } from 'lucide-react';
 import { Button } from '../common/Button.js';
 import { Employee, EmployeeService } from '../../services/employeeService.js';
@@ -91,6 +93,65 @@ export const CharacterCertificateModal: React.FC<CharacterCertificateModalProps>
   // Signatory
   const [signatoryName, setSignatoryName] = useState<string>('Sheetal Bedi');
   const [signatoryTitle, setSignatoryTitle] = useState<string>('CEO');
+
+  // Scroll Container Ref & State
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [showScrollTop, setShowScrollTop] = useState(false);
+  const [scrollProgress, setScrollProgress] = useState(0);
+
+  // Lock body scroll while modal is open
+  useEffect(() => {
+    if (!isOpen) return;
+    const originalOverflow = document.body.style.overflow;
+    const originalPaddingRight = document.body.style.paddingRight;
+    const scrollBarWidth = window.innerWidth - document.documentElement.clientWidth;
+    document.body.style.overflow = 'hidden';
+    if (scrollBarWidth > 0) {
+      document.body.style.paddingRight = `${scrollBarWidth}px`;
+    }
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      document.body.style.paddingRight = originalPaddingRight;
+    };
+  }, [isOpen]);
+
+  // Close on Escape key
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
+
+  // Reset scroll position on open or step change
+  useEffect(() => {
+    if (isOpen && scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTop = 0;
+      setShowScrollTop(false);
+      setScrollProgress(0);
+    }
+  }, [isOpen, step]);
+
+  const handleScroll = () => {
+    const el = scrollContainerRef.current;
+    if (!el) return;
+    const total = el.scrollHeight - el.clientHeight;
+    if (total > 0) {
+      const progress = Math.min(100, Math.max(0, (el.scrollTop / total) * 100));
+      setScrollProgress(progress);
+    } else {
+      setScrollProgress(0);
+    }
+    setShowScrollTop(el.scrollTop > 180);
+  };
+
+  const scrollToTop = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
 
   // Load employees from database
   useEffect(() => {
@@ -425,7 +486,7 @@ export const CharacterCertificateModal: React.FC<CharacterCertificateModalProps>
 
   if (!isOpen) return null;
 
-  return (
+  return createPortal(
     <div
       className="tasknera-modal-overlay"
       style={{
@@ -439,13 +500,17 @@ export const CharacterCertificateModal: React.FC<CharacterCertificateModalProps>
         justifyContent: 'center',
         padding: '20px',
       }}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
     >
       <div
         className="tasknera-modal-container glass-panel"
         style={{
           width: '100%',
           maxWidth: 1100,
-          maxHeight: '94vh',
+          height: '90vh',
+          maxHeight: '90vh',
           backgroundColor: '#ffffff',
           borderRadius: 16,
           display: 'flex',
@@ -453,6 +518,7 @@ export const CharacterCertificateModal: React.FC<CharacterCertificateModalProps>
           boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
           overflow: 'hidden',
           border: '1px solid #e2e8f0',
+          position: 'relative',
         }}
       >
         {/* Top Header */}
@@ -548,8 +614,39 @@ export const CharacterCertificateModal: React.FC<CharacterCertificateModalProps>
           </div>
         </div>
 
+        {/* Scroll Progress Bar */}
+        <div
+          style={{
+            width: '100%',
+            height: 3,
+            backgroundColor: '#e2e8f0',
+            position: 'relative',
+            overflow: 'hidden',
+          }}
+        >
+          <div
+            style={{
+              height: '100%',
+              width: `${scrollProgress}%`,
+              backgroundColor: '#7c3aed',
+              transition: 'width 0.12s ease-out',
+            }}
+          />
+        </div>
+
         {/* Scrollable Body */}
-        <div style={{ flex: 1, overflowY: 'auto', padding: '24px 32px', background: '#f8fafc' }}>
+        <div
+          ref={scrollContainerRef}
+          onScroll={handleScroll}
+          style={{
+            flex: 1,
+            minHeight: 0,
+            overflowY: 'auto',
+            padding: '24px 32px',
+            background: '#f8fafc',
+            scrollBehavior: 'smooth',
+          }}
+        >
           {step === 1 ? (
             /* STEP 1: FORM & EMPLOYEE SELECTION */
             <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
@@ -1189,7 +1286,45 @@ export const CharacterCertificateModal: React.FC<CharacterCertificateModalProps>
             </div>
           )}
         </div>
+        {/* Floating Back to Top Button */}
+        {showScrollTop && (
+          <button
+            onClick={scrollToTop}
+            title="Scroll back to top"
+            style={{
+              position: 'absolute',
+              bottom: 22,
+              right: 26,
+              zIndex: 60,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+              padding: '8px 14px',
+              borderRadius: 24,
+              backgroundColor: '#0f172a',
+              color: '#ffffff',
+              fontSize: '0.75rem',
+              fontWeight: 700,
+              border: 'none',
+              boxShadow: '0 8px 24px rgba(0, 0, 0, 0.28)',
+              cursor: 'pointer',
+              transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-2px)';
+              e.currentTarget.style.backgroundColor = '#1e293b';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.backgroundColor = '#0f172a';
+            }}
+          >
+            <ArrowUp size={14} />
+            <span>Top ({Math.round(scrollProgress)}%)</span>
+          </button>
+        )}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };

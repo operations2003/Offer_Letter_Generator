@@ -1,4 +1,5 @@
 import React, { useState, useRef, useMemo, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import {
   FileText,
   Sparkles,
@@ -1143,7 +1144,7 @@ export const QuickTemplateOfferModal: React.FC<QuickTemplateOfferModalProps> = (
 
   if (!isOpen) return null;
 
-  return (
+  return createPortal(
     <div
       className="tasknera-modal-overlay no-print"
       style={{
@@ -1157,13 +1158,17 @@ export const QuickTemplateOfferModal: React.FC<QuickTemplateOfferModalProps> = (
         justifyContent: 'center',
         padding: 20,
       }}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
     >
       <div
         className="tasknera-modal-container glass-panel"
         style={{
           width: '100%',
           maxWidth: step === 3 ? 1040 : 920,
-          maxHeight: '94vh',
+          height: '90vh',
+          maxHeight: '90vh',
           backgroundColor: '#ffffff',
           borderRadius: 20,
           boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
@@ -1171,6 +1176,7 @@ export const QuickTemplateOfferModal: React.FC<QuickTemplateOfferModalProps> = (
           flexDirection: 'column',
           overflow: 'hidden',
           animation: 'fadeIn 0.2s ease-out',
+          position: 'relative',
         }}
       >
         {/* Header Bar */}
@@ -1230,7 +1236,7 @@ export const QuickTemplateOfferModal: React.FC<QuickTemplateOfferModalProps> = (
         </div>
 
         {/* Scrollable Body */}
-        <div style={{ flex: 1, overflowY: 'auto', padding: '24px 32px', background: '#f8fafc' }}>
+        <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', padding: '24px 32px', background: '#f8fafc' }}>
           {/* STEP 1: STRUCTURE & SECTIONS CONFIGURATION */}
           {step === 1 && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
@@ -3309,6 +3315,7 @@ export const QuickTemplateOfferModal: React.FC<QuickTemplateOfferModalProps> = (
           }}
         />
       )}
-    </div>
+    </div>,
+    document.body
   );
 };

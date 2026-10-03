@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import {
   X,
   FileText,
@@ -237,7 +238,7 @@ export const OfferDetailModal: React.FC<OfferDetailModalProps> = ({
 
   const isIssued = offer.status === 'ISSUED' || previewData?.currentStatus === 'ISSUED';
 
-  return (
+  return createPortal(
     <div
       style={{
         position: 'fixed',
@@ -251,13 +252,17 @@ export const OfferDetailModal: React.FC<OfferDetailModalProps> = ({
         padding: '20px',
         animation: 'fadeIn 0.2s ease-out',
       }}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
     >
       <div
         className="glass-panel"
         style={{
           width: '100%',
           maxWidth: '1100px',
-          maxHeight: '92vh',
+          height: '90vh',
+          maxHeight: '90vh',
           display: 'flex',
           flexDirection: 'column',
           backgroundColor: '#ffffff',
@@ -265,6 +270,7 @@ export const OfferDetailModal: React.FC<OfferDetailModalProps> = ({
           boxShadow: 'var(--shadow-xl)',
           overflow: 'hidden',
           borderRadius: 'var(--radius-xl)',
+          position: 'relative',
         }}
       >
         {/* Modal Header */}
@@ -563,7 +569,7 @@ export const OfferDetailModal: React.FC<OfferDetailModalProps> = ({
         </div>
 
         {/* Tab Body Content */}
-        <div style={{ flex: 1, overflowY: 'auto', padding: '24px' }}>
+        <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', padding: '24px' }}>
           {loading ? (
             <div style={{ padding: '60px 0', textAlign: 'center' }}>
               <div className="spinner" style={{ width: 36, height: 36, margin: '0 auto 16px' }} />
@@ -1212,6 +1218,7 @@ export const OfferDetailModal: React.FC<OfferDetailModalProps> = ({
           }}
         />
       )}
-    </div>
+    </div>,
+    document.body
   );
 };

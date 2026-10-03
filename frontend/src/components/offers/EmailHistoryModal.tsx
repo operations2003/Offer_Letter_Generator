@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import {
   X,
   History,
@@ -107,14 +108,13 @@ export const EmailHistoryModal: React.FC<EmailHistoryModalProps> = ({
     }
   };
 
-  return (
+  if (!isOpen) return null;
+
+  return createPortal(
     <div
       style={{
         position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
+        inset: 0,
         backgroundColor: 'rgba(15, 23, 42, 0.6)',
         backdropFilter: 'blur(4px)',
         display: 'flex',
@@ -123,12 +123,16 @@ export const EmailHistoryModal: React.FC<EmailHistoryModalProps> = ({
         zIndex: 1100,
         padding: 20,
       }}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
     >
       <div
         style={{
           width: '100%',
           maxWidth: 820,
-          maxHeight: '92vh',
+          height: '90vh',
+          maxHeight: '90vh',
           display: 'flex',
           flexDirection: 'column',
           overflow: 'hidden',
@@ -136,6 +140,7 @@ export const EmailHistoryModal: React.FC<EmailHistoryModalProps> = ({
           background: '#ffffff',
           boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
           border: '1px solid var(--border-medium)',
+          position: 'relative',
         }}
       >
         {/* Header */}
@@ -230,7 +235,7 @@ export const EmailHistoryModal: React.FC<EmailHistoryModalProps> = ({
         )}
 
         {/* Body List */}
-        <div style={{ padding: 24, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 16, background: '#f8fafc' }}>
+        <div style={{ flex: 1, minHeight: 0, padding: 24, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 16, background: '#f8fafc' }}>
           {loading ? (
             <div style={{ padding: 60, textAlign: 'center', color: 'var(--text-muted)' }}>
               <RefreshCw size={24} className="spin" style={{ margin: '0 auto 12px', display: 'block' }} />
@@ -461,6 +466,7 @@ export const EmailHistoryModal: React.FC<EmailHistoryModalProps> = ({
           </Button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };

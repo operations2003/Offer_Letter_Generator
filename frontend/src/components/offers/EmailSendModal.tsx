@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import {
   X,
   Send,
@@ -114,14 +115,13 @@ export const EmailSendModal: React.FC<EmailSendModalProps> = ({
     }
   };
 
-  return (
+  if (!isOpen) return null;
+
+  return createPortal(
     <div
       style={{
         position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
+        inset: 0,
         backgroundColor: 'rgba(15, 23, 42, 0.6)',
         backdropFilter: 'blur(6px)',
         display: 'flex',
@@ -130,13 +130,17 @@ export const EmailSendModal: React.FC<EmailSendModalProps> = ({
         zIndex: 1100,
         padding: 20,
       }}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
     >
       <div
         className="glass-panel"
         style={{
           width: '100%',
           maxWidth: 780,
-          maxHeight: '92vh',
+          height: '90vh',
+          maxHeight: '90vh',
           display: 'flex',
           flexDirection: 'column',
           overflow: 'hidden',
@@ -144,6 +148,7 @@ export const EmailSendModal: React.FC<EmailSendModalProps> = ({
           boxShadow: 'var(--shadow-xl)',
           backgroundColor: '#ffffff',
           border: '1px solid var(--border-subtle)',
+          position: 'relative',
         }}
       >
         {/* Modal Header */}
@@ -196,7 +201,7 @@ export const EmailSendModal: React.FC<EmailSendModalProps> = ({
         </div>
 
         {/* Modal Body */}
-        <div style={{ padding: 24, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 20 }}>
+        <div style={{ flex: 1, minHeight: 0, padding: 24, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 20 }}>
           {loading ? (
             <div style={{ padding: 60, textAlign: 'center', color: 'var(--text-muted)' }}>
               <RefreshCw size={24} className="spin" style={{ margin: '0 auto 12px', display: 'block', color: 'var(--primary)' }} />
@@ -469,6 +474,7 @@ export const EmailSendModal: React.FC<EmailSendModalProps> = ({
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
