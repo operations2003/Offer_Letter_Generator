@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import {
   X,
   Printer,
@@ -514,7 +515,7 @@ TaskNera (D-57 Dilshad Colony, Delhi, 110095)
     printWindow.document.close();
   };
 
-  return (
+  return createPortal(
     <div
       style={{
         position: 'fixed',
@@ -535,7 +536,8 @@ TaskNera (D-57 Dilshad Colony, Delhi, 110095)
         style={{
           width: '100%',
           maxWidth: '960px',
-          maxHeight: '94vh',
+          height: '90vh',
+          maxHeight: '90vh',
           backgroundColor: '#ffffff',
           borderRadius: 16,
           boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.35)',
@@ -765,6 +767,7 @@ TaskNera (D-57 Dilshad Colony, Delhi, 110095)
           onScroll={handleScroll}
           style={{
             flex: 1,
+            minHeight: 0,
             overflowY: 'auto',
             padding: '24px',
             backgroundColor: '#f1f5f9',
@@ -1477,6 +1480,7 @@ TaskNera (D-57 Dilshad Colony, Delhi, 110095)
           </button>
         )}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };

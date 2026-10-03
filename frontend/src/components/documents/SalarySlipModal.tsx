@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import {
   X,
   Download,
@@ -115,6 +116,7 @@ export const SalarySlipModal: React.FC<SalarySlipModalProps> = ({
   // Scroll Container Ref & State
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [showScrollTop, setShowScrollTop] = useState(false);
+  const [scrollProgress, setScrollProgress] = useState(0);
 
   // Employee Selection State
   const [employees, setEmployees] = useState<Employee[]>([]);
@@ -190,6 +192,7 @@ export const SalarySlipModal: React.FC<SalarySlipModalProps> = ({
     if (isOpen && scrollContainerRef.current) {
       scrollContainerRef.current.scrollTop = 0;
       setShowScrollTop(false);
+      setScrollProgress(0);
     }
   }, [isOpen, step]);
 
@@ -317,7 +320,14 @@ export const SalarySlipModal: React.FC<SalarySlipModalProps> = ({
   const handleScroll = () => {
     const el = scrollContainerRef.current;
     if (!el) return;
-    setShowScrollTop(el.scrollTop > 220);
+    const total = el.scrollHeight - el.clientHeight;
+    if (total > 0) {
+      const progress = Math.min(100, Math.max(0, (el.scrollTop / total) * 100));
+      setScrollProgress(progress);
+    } else {
+      setScrollProgress(0);
+    }
+    setShowScrollTop(el.scrollTop > 180);
   };
 
   const scrollToTop = () => {
@@ -568,7 +578,7 @@ export const SalarySlipModal: React.FC<SalarySlipModalProps> = ({
 
   if (!isOpen) return null;
 
-  return (
+  return createPortal(
     <div
       style={{
         position: 'fixed',
@@ -589,7 +599,8 @@ export const SalarySlipModal: React.FC<SalarySlipModalProps> = ({
         style={{
           width: '100%',
           maxWidth: '960px',
-          maxHeight: '94vh',
+          height: '90vh',
+          maxHeight: '90vh',
           backgroundColor: '#ffffff',
           borderRadius: 16,
           boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.35)',
@@ -742,12 +753,33 @@ export const SalarySlipModal: React.FC<SalarySlipModalProps> = ({
           </div>
         </div>
 
+        {/* Scroll Progress Bar */}
+        <div
+          style={{
+            width: '100%',
+            height: 3,
+            backgroundColor: '#e2e8f0',
+            position: 'relative',
+            overflow: 'hidden',
+          }}
+        >
+          <div
+            style={{
+              height: '100%',
+              width: `${scrollProgress}%`,
+              backgroundColor: '#059669',
+              transition: 'width 0.12s ease-out',
+            }}
+          />
+        </div>
+
         {/* Scrollable Body */}
         <div
           ref={scrollContainerRef}
           onScroll={handleScroll}
           style={{
             flex: 1,
+            minHeight: 0,
             overflowY: 'auto',
             padding: '24px 32px',
             background: '#f8fafc',
@@ -1550,10 +1582,11 @@ export const SalarySlipModal: React.FC<SalarySlipModalProps> = ({
             }}
           >
             <ArrowUp size={14} />
-            <span>Top</span>
+            <span>Top ({Math.round(scrollProgress)}%)</span>
           </button>
         )}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };

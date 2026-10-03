@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import {
   X,
   Download,
@@ -416,7 +417,7 @@ export const ExperienceLetterModal: React.FC<ExperienceLetterModalProps> = ({
 
   if (!isOpen) return null;
 
-  return (
+  return createPortal(
     <div
       className="tasknera-modal-overlay"
       style={{
@@ -436,7 +437,8 @@ export const ExperienceLetterModal: React.FC<ExperienceLetterModalProps> = ({
         style={{
           width: '100%',
           maxWidth: 1100,
-          maxHeight: '94vh',
+          height: '90vh',
+          maxHeight: '90vh',
           backgroundColor: '#ffffff',
           borderRadius: 16,
           display: 'flex',
@@ -515,7 +517,7 @@ export const ExperienceLetterModal: React.FC<ExperienceLetterModalProps> = ({
         </div>
 
         {/* Scrollable Body */}
-        <div style={{ flex: 1, overflowY: 'auto', padding: '24px 32px', background: '#f8fafc' }}>
+        <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', padding: '24px 32px', background: '#f8fafc' }}>
           {step === 1 ? (
             /* STEP 1: EMPLOYEE SELECTION & MANUAL AUTHORITY FORM */
             <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
@@ -1157,6 +1159,7 @@ export const ExperienceLetterModal: React.FC<ExperienceLetterModalProps> = ({
           )}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
