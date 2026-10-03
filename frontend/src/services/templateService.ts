@@ -286,7 +286,14 @@ const INITIAL_TEMPLATES: OfferTemplate[] = [
   <div style="display:flex; justify-content:space-between; align-items:center; padding:0 12px 14px;">
     <div style="display:flex; align-items:center; gap:12px;">
       <img src="/logo.png" alt="TaskNera" style="width:40px; height:40px; object-fit:contain;" />
-      <span style="font-size:24px; font-weight:800; color:#0f172a; letter-spacing:0.02em;">TASKNERA</span>
+      <div>
+        <div style="font-size:24px; font-weight:800; letter-spacing:-0.01em; line-height:1.1;">
+          <span style="color:#252c38;">Task</span><span style="color:#f56637;">Nera</span>
+        </div>
+        <div style="font-size:10px; font-weight:500; color:#334155; letter-spacing:0.01em; margin-top:2px;">
+          People. Processes. Performance.
+        </div>
+      </div>
     </div>
     <div style="border-left:2px solid #0f172a; padding-left:14px; font-size:11px; line-height:1.5; color:#1e293b;">
       <div><strong>Phone:</strong> +91 7065278229</div>

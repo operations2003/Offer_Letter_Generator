@@ -1339,9 +1339,15 @@ export const GenerateDocumentModal: React.FC<GenerateDocumentModalProps> = ({
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 8px 12px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                       <img src="/logo.png" alt="TaskNera" style={{ width: 44, height: 44, objectFit: 'contain' }} />
-                      <span style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', letterSpacing: '0.02em' }}>
-                        TASKNERA
-                      </span>
+                      <div>
+                        <div style={{ fontSize: '24px', fontWeight: 800, letterSpacing: '-0.01em', lineHeight: 1.1 }}>
+                          <span style={{ color: '#252c38' }}>Task</span>
+                          <span style={{ color: '#f56637' }}>Nera</span>
+                        </div>
+                        <div style={{ fontSize: '10px', fontWeight: 500, color: '#334155', letterSpacing: '0.01em', marginTop: 2 }}>
+                          People. Processes. Performance.
+                        </div>
+                      </div>
                     </div>
                     <div style={{ borderLeft: '2px solid #0f172a', paddingLeft: 14, fontSize: '11px', lineHeight: 1.5, color: '#1e293b' }}>
                       <div><strong>Phone:</strong> +91 7065278229</div>

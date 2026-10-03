@@ -1,4 +1,4 @@
-import React, { useState, useRef, useMemo } from 'react';
+import React, { useState, useRef, useMemo, useEffect } from 'react';
 import {
   FileText,
   Sparkles,
@@ -27,15 +27,22 @@ import {
   Highlighter,
   ChevronDown,
   ChevronUp,
+  Search,
+  Users,
+  UserCheck,
+  UserPlus,
 } from 'lucide-react';
 import { Button } from '../common/Button.js';
 import { offerService } from '../../services/offerService.js';
 import { useToast } from '../../context/ToastContext.js';
+import { Employee, EmployeeService } from '../../services/employeeService.js';
+import { AddEmployeeModal } from '../employees/AddEmployeeModal.js';
 
 interface QuickTemplateOfferModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess?: (offer: any) => void;
+  initialEmployee?: Employee | null;
 }
 
 // Letter Type Definition
@@ -344,7 +351,18 @@ const TaskNeraSecondaryHeader: React.FC = () => (
       borderBottom: '1px solid #e2d3ca',
     }}
   >
-    <img src="/logo.png" alt="TaskNera" style={{ width: 36, height: 36, objectFit: 'contain' }} />
+    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+      <img src="/logo.png" alt="TaskNera" style={{ width: 36, height: 36, objectFit: 'contain' }} />
+      <div>
+        <div style={{ fontSize: '18px', fontWeight: 800, letterSpacing: '-0.01em', lineHeight: 1.1 }}>
+          <span style={{ color: '#252c38' }}>Task</span>
+          <span style={{ color: '#f56637' }}>Nera</span>
+        </div>
+        <div style={{ fontSize: '9px', fontWeight: 500, color: '#64748b', letterSpacing: '0.01em' }}>
+          People. Processes. Performance.
+        </div>
+      </div>
+    </div>
     <div style={{ textAlign: 'right' }}>
       <div style={{ fontSize: '18px', fontWeight: 800, color: '#a35d39', fontFamily: 'Georgia, serif' }}>
         TaskNera
@@ -378,6 +396,7 @@ export const QuickTemplateOfferModal: React.FC<QuickTemplateOfferModalProps> = (
   isOpen,
   onClose,
   onSuccess,
+  initialEmployee,
 }) => {
   const { success, error, info } = useToast();
   const resumeInputRef = useRef<HTMLInputElement>(null);
@@ -488,12 +507,134 @@ export const QuickTemplateOfferModal: React.FC<QuickTemplateOfferModalProps> = (
     }));
   };
 
+  // Added Employees state for Step 2 Selection
+  const [employees, setEmployees] = useState<Employee[]>([]);
+  const [loadingEmployees, setLoadingEmployees] = useState(false);
+  const [selectedEmployeeId, setSelectedEmployeeId] = useState<string | null>(initialEmployee?.id || null);
+  const [employeeSearch, setEmployeeSearch] = useState('');
+  const [selectedDeptFilter, setSelectedDeptFilter] = useState('ALL');
+  const [inputMode, setInputMode] = useState<'select_employee' | 'manual'>('select_employee');
+  const [isAddEmployeeModalOpen, setIsAddEmployeeModalOpen] = useState(false);
+  const [isDetailsExpanded, setIsDetailsExpanded] = useState(true);
+
+  // Fetch employees from database whenever modal opens
+  const loadEmployees = async () => {
+    setLoadingEmployees(true);
+    try {
+      const data = await EmployeeService.listEmployees();
+      const list = data || [];
+      setEmployees(list);
+
+      // Pre-select initialEmployee if provided, or first employee if nothing selected yet
+      if (initialEmployee) {
+        handleSelectEmployee(initialEmployee);
+      } else if (!selectedEmployeeId && list.length > 0) {
+        handleSelectEmployee(list[0]);
+      }
+    } catch (err: any) {
+      console.warn('Failed to load employees for offer modal:', err);
+    } finally {
+      setLoadingEmployees(false);
+    }
+  };
+
+  useEffect(() => {
+    if (isOpen) {
+      loadEmployees();
+    }
+  }, [isOpen]);
+
+  // When an employee is picked, auto-populate all dynamic values into the offer letter
+  const handleSelectEmployee = (emp: Employee) => {
+    setSelectedEmployeeId(emp.id);
+
+    const numericCtc = Number(emp.annualCtc) || 0;
+    const formatINR = (n: number) => new Intl.NumberFormat('en-IN').format(n);
+    const formattedCtc = numericCtc > 0 ? formatINR(numericCtc) : (values['annual_ctc'] || '18,00,000');
+
+    const monthly = Math.round(numericCtc / 12);
+    const basicPct = (emp.basicPercent != null ? emp.basicPercent : 40) / 100;
+    const hraPct = (emp.hraPercent != null ? emp.hraPercent : 20) / 100;
+    const basic = Math.round(monthly * basicPct);
+    const hra = Math.round(monthly * hraPct);
+    const special = Math.max(0, monthly - (basic + hra));
+
+    let salutation = emp.title || 'Mr.';
+    if (!['Mr.', 'Ms.', 'Mrs.', 'Dr.'].includes(salutation)) {
+      salutation = 'Mr.';
+    }
+
+    let formattedJoiningDate = values['joining_date'] || '';
+    if (emp.joiningDate) {
+      try {
+        const d = new Date(emp.joiningDate);
+        if (!isNaN(d.getTime())) {
+          formattedJoiningDate = d.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
+        }
+      } catch {
+        // ignore
+      }
+    }
+
+    setValues((prev) => ({
+      ...prev,
+      salutation,
+      employee_name: emp.fullName,
+      candidate_name: emp.fullName,
+      designation: emp.designation || prev.designation,
+      department: emp.department || prev.department,
+      annual_ctc: formattedCtc,
+      salary: formattedCtc,
+      total_ctc_per_annum: formattedCtc,
+      ctc_per_month: formatINR(monthly),
+      gross_monthly: formatINR(monthly),
+      basic_salary: formatINR(basic),
+      hra: formatINR(hra),
+      special_allowance: formatINR(special),
+      employer_contributions: 'NA',
+      work_location: emp.workLocation || prev.work_location || 'Remote / On-site / Hybrid',
+      location: emp.workLocation || prev.location || 'Remote / On-site / Hybrid',
+      joining_date: formattedJoiningDate || prev.joining_date,
+      reporting_manager: emp.reportingManager || prev.reporting_manager || 'Sheetal Bedi (CEO & Founder)',
+      employment_type: emp.employmentType || prev.employment_type || 'Full-Time',
+    }));
+  };
+
+  const availableDepartments = useMemo(() => {
+    const depts = new Set<string>();
+    employees.forEach((e) => {
+      if (e.department) depts.add(e.department);
+    });
+    return Array.from(depts);
+  }, [employees]);
+
+  const filteredEmployees = useMemo(() => {
+    return employees.filter((e) => {
+      const q = employeeSearch.toLowerCase().trim();
+      const matchesSearch =
+        !q ||
+        e.fullName.toLowerCase().includes(q) ||
+        (e.employeeId && e.employeeId.toLowerCase().includes(q)) ||
+        (e.designation && e.designation.toLowerCase().includes(q)) ||
+        (e.department && e.department.toLowerCase().includes(q)) ||
+        (e.personalEmail && e.personalEmail.toLowerCase().includes(q));
+
+      const matchesDept = selectedDeptFilter === 'ALL' || e.department === selectedDeptFilter;
+
+      return matchesSearch && matchesDept;
+    });
+  }, [employees, employeeSearch, selectedDeptFilter]);
+
+  const selectedEmployee = useMemo(() => {
+    return employees.find((e) => e.id === selectedEmployeeId) || null;
+  }, [employees, selectedEmployeeId]);
+
   // Step 1 Editor sub-tab
   const [editorTab, setEditorTab] = useState<'structured' | 'smart_paste'>('structured');
   const [pastedText, setPastedText] = useState('');
 
   // Step 3 controls
-  const [highlightPlaceholders, setHighlightPlaceholders] = useState(true);
+  const [highlightPlaceholders, setHighlightPlaceholders] = useState(false);
   const [expandedSectionId, setExpandedSectionId] = useState<string | null>('sec_1');
   const [isExtractingResume, setIsExtractingResume] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -683,7 +824,7 @@ export const QuickTemplateOfferModal: React.FC<QuickTemplateOfferModalProps> = (
       const val = v || '';
       const displayVal = highlight
         ? `<mark style="background-color:#fef08a; color:#854d0e; padding:1px 4px; border-radius:3px; font-weight:700;">${val}</mark>`
-        : `<strong>${val}</strong>`;
+        : val;
       result = result.replace(new RegExp(`\\{\\{${k}\\}\\}`, 'g'), displayVal);
     }
 
@@ -716,7 +857,7 @@ export const QuickTemplateOfferModal: React.FC<QuickTemplateOfferModalProps> = (
     for (const [pattern, val] of bracketReplacements) {
       const displayVal = highlight
         ? `<mark style="background-color:#fef08a; color:#854d0e; padding:1px 4px; border-radius:3px; font-weight:700;">${val}</mark>`
-        : `<strong>${val}</strong>`;
+        : val;
       result = result.replace(pattern, displayVal);
     }
 
@@ -1278,293 +1419,639 @@ export const QuickTemplateOfferModal: React.FC<QuickTemplateOfferModalProps> = (
             </div>
           )}
 
-          {/* STEP 2: DYNAMIC MEMBER VARIABLES */}
+          {/* STEP 2: MEMBER SELECTION & DYNAMIC VALUES */}
           {step === 2 && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+              {/* Header & Mode Switcher */}
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
                 <div>
                   <h4 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#0f172a', margin: '0 0 4px' }}>
-                    Step 2: Enter Member-Specific Dynamic Values
+                    Step 2: Choose Employee &amp; Member Dynamic Values
                   </h4>
                   <p style={{ fontSize: '0.875rem', color: '#64748b', margin: 0 }}>
-                    These fields will replace all bracketed tags (<code style={{ background: '#fef08a', color: '#854d0e', padding: '1px 4px', borderRadius: 3 }}>[Employee Full Name]</code>, <code style={{ background: '#fef08a', color: '#854d0e', padding: '1px 4px', borderRadius: 3 }}>[Designation]</code>, <code style={{ background: '#fef08a', color: '#854d0e', padding: '1px 4px', borderRadius: 3 }}>[Annual CTC]</code>) in the letterhead and Annexure I table.
+                    Select an employee you have added to auto-populate contract terms, letterhead, and Annexure III salary breakdown.
                   </p>
                 </div>
 
-                {/* Auto-fill from resume button */}
-                <input
-                  type="file"
-                  ref={resumeInputRef}
-                  onChange={handleResumeUpload}
-                  accept=".pdf,.docx,.txt"
-                  style={{ display: 'none' }}
-                />
-                <Button
-                  variant="secondary"
-                  icon={isExtractingResume ? <RefreshCw size={14} className="spin" /> : <Sparkles size={14} />}
-                  onClick={() => resumeInputRef.current?.click()}
-                  disabled={isExtractingResume}
-                  style={{ fontSize: '0.8125rem', padding: '7px 12px' }}
-                >
-                  {isExtractingResume ? 'Auto-Extracting...' : 'Auto-Fill from Resume (AI)'}
-                </Button>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                  {/* Mode Toggle: Added Employees vs Manual */}
+                  <div style={{ display: 'flex', backgroundColor: '#e2e8f0', padding: 3, borderRadius: 8 }}>
+                    <button
+                      type="button"
+                      onClick={() => setInputMode('select_employee')}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 6,
+                        padding: '6px 12px',
+                        borderRadius: 6,
+                        border: 'none',
+                        fontSize: '0.8125rem',
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                        transition: 'all 0.15s ease',
+                        backgroundColor: inputMode === 'select_employee' ? '#ffffff' : 'transparent',
+                        color: inputMode === 'select_employee' ? '#a35d39' : '#64748b',
+                        boxShadow: inputMode === 'select_employee' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                      }}
+                    >
+                      <Users size={14} />
+                      Choose Added Employee ({employees.length})
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setInputMode('manual')}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 6,
+                        padding: '6px 12px',
+                        borderRadius: 6,
+                        border: 'none',
+                        fontSize: '0.8125rem',
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                        transition: 'all 0.15s ease',
+                        backgroundColor: inputMode === 'manual' ? '#ffffff' : 'transparent',
+                        color: inputMode === 'manual' ? '#a35d39' : '#64748b',
+                        boxShadow: inputMode === 'manual' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                      }}
+                    >
+                      <Edit3 size={14} />
+                      Enter Manually
+                    </button>
+                  </div>
+
+                  {inputMode === 'select_employee' && (
+                    <Button
+                      variant="secondary"
+                      icon={<UserPlus size={14} />}
+                      onClick={() => setIsAddEmployeeModalOpen(true)}
+                      style={{ fontSize: '0.8125rem', padding: '7px 12px' }}
+                    >
+                      + Add New Employee
+                    </Button>
+                  )}
+
+                  {inputMode === 'manual' && (
+                    <>
+                      <input
+                        type="file"
+                        ref={resumeInputRef}
+                        onChange={handleResumeUpload}
+                        accept=".pdf,.docx,.txt"
+                        style={{ display: 'none' }}
+                      />
+                      <Button
+                        variant="secondary"
+                        icon={isExtractingResume ? <RefreshCw size={14} className="spin" /> : <Sparkles size={14} />}
+                        onClick={() => resumeInputRef.current?.click()}
+                        disabled={isExtractingResume}
+                        style={{ fontSize: '0.8125rem', padding: '7px 12px' }}
+                      >
+                        {isExtractingResume ? 'Auto-Extracting...' : 'Auto-Fill from Resume (AI)'}
+                      </Button>
+                    </>
+                  )}
+                </div>
               </div>
 
-              {/* Form Grid */}
-              <div style={{ background: '#ffffff', border: '1px solid #cbd5e1', borderRadius: 12, padding: '20px' }}>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 16 }}>
-                  <div>
-                    <label className="form-label" style={{ fontWeight: 700 }}>
-                      Salutation
-                    </label>
-                    <select
-                      className="form-input"
-                      value={values['salutation'] || 'Mr.'}
-                      onChange={(e) => setValues({ ...values, salutation: e.target.value })}
+              {/* 1. EMPLOYEE PICKER SECTION (When select_employee mode is active) */}
+              {inputMode === 'select_employee' && (
+                <div style={{ background: '#ffffff', border: '1px solid #cbd5e1', borderRadius: 12, padding: '18px 20px', display: 'flex', flexDirection: 'column', gap: 14 }}>
+                  {/* Search and Filters Bar */}
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10 }}>
+                    <div style={{ position: 'relative', flex: '1 1 260px', maxWidth: 420 }}>
+                      <Search size={15} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
+                      <input
+                        type="text"
+                        className="form-input"
+                        placeholder="Search employee by name, ID, role, or department..."
+                        value={employeeSearch}
+                        onChange={(e) => setEmployeeSearch(e.target.value)}
+                        style={{ paddingLeft: 36, fontSize: '0.8125rem' }}
+                      />
+                      {employeeSearch && (
+                        <button
+                          type="button"
+                          onClick={() => setEmployeeSearch('')}
+                          style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', padding: 2 }}
+                        >
+                          <X size={14} />
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Department Quick Filter Pills */}
+                    {availableDepartments.length > 0 && (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                        <span style={{ fontSize: '0.75rem', fontWeight: 600, color: '#64748b' }}>Dept:</span>
+                        <button
+                          type="button"
+                          onClick={() => setSelectedDeptFilter('ALL')}
+                          style={{
+                            fontSize: '0.75rem',
+                            fontWeight: selectedDeptFilter === 'ALL' ? 700 : 500,
+                            padding: '3px 10px',
+                            borderRadius: 14,
+                            border: selectedDeptFilter === 'ALL' ? '1px solid #a35d39' : '1px solid #e2e8f0',
+                            backgroundColor: selectedDeptFilter === 'ALL' ? '#fdfbf9' : '#f8fafc',
+                            color: selectedDeptFilter === 'ALL' ? '#a35d39' : '#475569',
+                            cursor: 'pointer',
+                          }}
+                        >
+                          All ({employees.length})
+                        </button>
+                        {availableDepartments.map((dept) => {
+                          const count = employees.filter((e) => e.department === dept).length;
+                          const isSel = selectedDeptFilter === dept;
+                          return (
+                            <button
+                              key={dept}
+                              type="button"
+                              onClick={() => setSelectedDeptFilter(dept)}
+                              style={{
+                                fontSize: '0.75rem',
+                                fontWeight: isSel ? 700 : 500,
+                                padding: '3px 10px',
+                                borderRadius: 14,
+                                border: isSel ? '1px solid #a35d39' : '1px solid #e2e8f0',
+                                backgroundColor: isSel ? '#fdfbf9' : '#f8fafc',
+                                color: isSel ? '#a35d39' : '#475569',
+                                cursor: 'pointer',
+                              }}
+                            >
+                              {dept} ({count})
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Employee Cards Grid */}
+                  {loadingEmployees ? (
+                    <div style={{ padding: '30px 20px', textAlign: 'center', color: '#64748b' }}>
+                      <RefreshCw size={24} className="spin" style={{ margin: '0 auto 10px', color: '#a35d39' }} />
+                      <p style={{ margin: 0, fontSize: '0.875rem' }}>Loading added employees from database...</p>
+                    </div>
+                  ) : filteredEmployees.length === 0 ? (
+                    <div style={{ padding: '24px 20px', textAlign: 'center', background: '#f8fafc', borderRadius: 10, border: '1px dashed #cbd5e1' }}>
+                      <Users size={28} style={{ color: '#94a3b8', margin: '0 auto 8px' }} />
+                      <h5 style={{ margin: '0 0 4px', fontSize: '0.9375rem', color: '#334155' }}>
+                        {employeeSearch ? 'No employees match your search query.' : 'No employees added yet.'}
+                      </h5>
+                      <p style={{ margin: '0 0 12px', fontSize: '0.8125rem', color: '#64748b' }}>
+                        {employeeSearch
+                          ? 'Try clearing your search keyword or selecting a different department.'
+                          : 'Add your team members to generate structured offer letters in one click.'}
+                      </p>
+                      <Button
+                        variant="secondary"
+                        icon={<UserPlus size={14} />}
+                        onClick={() => setIsAddEmployeeModalOpen(true)}
+                        style={{ fontSize: '0.8125rem' }}
+                      >
+                        + Add New Employee
+                      </Button>
+                    </div>
+                  ) : (
+                    <div
+                      style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
+                        gap: 12,
+                        maxHeight: 250,
+                        overflowY: 'auto',
+                        paddingRight: 4,
+                      }}
                     >
-                      <option value="Mr.">Mr.</option>
-                      <option value="Ms.">Ms.</option>
-                      <option value="Mrs.">Mrs.</option>
-                      <option value="Dr.">Dr.</option>
-                    </select>
-                  </div>
+                      {filteredEmployees.map((emp) => {
+                        const isSelected = selectedEmployeeId === emp.id;
+                        const numericCtc = Number(emp.annualCtc) || 0;
+                        const formattedCtc = numericCtc > 0 ? new Intl.NumberFormat('en-IN').format(numericCtc) : null;
 
-                  <div>
-                    <label className="form-label" style={{ fontWeight: 700 }}>
-                      Employee Full Name <span style={{ color: '#ef4444' }}>*</span>
-                    </label>
-                    <div style={{ position: 'relative' }}>
-                      <User size={15} style={{ position: 'absolute', left: 12, top: 12, color: '#94a3b8' }} />
-                      <input
-                        type="text"
-                        className="form-input"
-                        placeholder="e.g. Aarav Sharma"
-                        value={values['employee_name'] || ''}
-                        onChange={(e) =>
-                          setValues({
-                            ...values,
-                            employee_name: e.target.value,
-                            candidate_name: e.target.value,
-                          })
-                        }
-                        style={{ paddingLeft: 36 }}
-                      />
+                        return (
+                          <div
+                            key={emp.id}
+                            onClick={() => handleSelectEmployee(emp)}
+                            style={{
+                              position: 'relative',
+                              padding: '12px 14px',
+                              borderRadius: 10,
+                              cursor: 'pointer',
+                              transition: 'all 0.15s ease',
+                              border: isSelected ? '2px solid #a35d39' : '1px solid #e2e8f0',
+                              backgroundColor: isSelected ? '#fdfbf9' : '#ffffff',
+                              boxShadow: isSelected ? '0 4px 12px rgba(163, 93, 57, 0.12)' : '0 1px 2px rgba(0,0,0,0.03)',
+                            }}
+                          >
+                            {/* Selected Badge */}
+                            {isSelected && (
+                              <div
+                                style={{
+                                  position: 'absolute',
+                                  top: 8,
+                                  right: 8,
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: 3,
+                                  backgroundColor: '#a35d39',
+                                  color: '#ffffff',
+                                  fontSize: '0.6875rem',
+                                  fontWeight: 700,
+                                  padding: '2px 7px',
+                                  borderRadius: 12,
+                                }}
+                              >
+                                <Check size={11} />
+                                Selected
+                              </div>
+                            )}
+
+                            {/* Top row: Avatar + Name + ID */}
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8, paddingRight: isSelected ? 65 : 0 }}>
+                              <div
+                                style={{
+                                  width: 34,
+                                  height: 34,
+                                  borderRadius: '50%',
+                                  backgroundColor: isSelected ? '#a35d39' : '#334155',
+                                  color: '#ffffff',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  fontWeight: 800,
+                                  fontSize: '0.8125rem',
+                                  flexShrink: 0,
+                                }}
+                              >
+                                {emp.fullName.slice(0, 2).toUpperCase()}
+                              </div>
+                              <div style={{ minWidth: 0 }}>
+                                <div
+                                  style={{
+                                    fontSize: '0.875rem',
+                                    fontWeight: 700,
+                                    color: isSelected ? '#a35d39' : '#0f172a',
+                                    whiteSpace: 'nowrap',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                  }}
+                                >
+                                  {emp.fullName}
+                                </div>
+                                <div style={{ fontSize: '0.6875rem', color: '#64748b', display: 'flex', alignItems: 'center', gap: 6 }}>
+                                  <span style={{ fontWeight: 600 }}>{emp.employeeId || 'EMP'}</span>
+                                  <span>•</span>
+                                  <span>{emp.department || 'General'}</span>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Designation */}
+                            <div style={{ fontSize: '0.75rem', color: '#334155', display: 'flex', alignItems: 'center', gap: 5, marginBottom: 4 }}>
+                              <Briefcase size={12} color="#64748b" style={{ flexShrink: 0 }} />
+                              <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontWeight: 600 }}>
+                                {emp.designation || 'Staff'}
+                              </span>
+                            </div>
+
+                            {/* Annual CTC and Location */}
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.71875rem', color: '#64748b', marginTop: 6, paddingTop: 6, borderTop: '1px solid #f1f5f9' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 3, fontWeight: 700, color: '#0f172a' }}>
+                                <DollarSign size={12} color="#16a34a" />
+                                {formattedCtc ? `₹${formattedCtc}` : 'Not Specified'}
+                              </div>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                                <MapPin size={11} color="#94a3b8" />
+                                <span style={{ maxWidth: 100, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                  {emp.workLocation || 'Remote'}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
-                  </div>
+                  )}
 
-                  <div>
-                    <label className="form-label" style={{ fontWeight: 700 }}>
-                      Designation / Role Title <span style={{ color: '#ef4444' }}>*</span>
-                    </label>
-                    <div style={{ position: 'relative' }}>
-                      <Briefcase size={15} style={{ position: 'absolute', left: 12, top: 12, color: '#94a3b8' }} />
-                      <input
-                        type="text"
-                        className="form-input"
-                        placeholder="e.g. Senior Platform Engineer"
-                        value={values['designation'] || ''}
-                        onChange={(e) => setValues({ ...values, designation: e.target.value })}
-                        style={{ paddingLeft: 36 }}
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="form-label" style={{ fontWeight: 700 }}>Department</label>
-                    <div style={{ position: 'relative' }}>
-                      <Building2 size={15} style={{ position: 'absolute', left: 12, top: 12, color: '#94a3b8' }} />
-                      <input
-                        type="text"
-                        className="form-input"
-                        placeholder="e.g. Platform Engineering"
-                        value={values['department'] || ''}
-                        onChange={(e) => setValues({ ...values, department: e.target.value })}
-                        style={{ paddingLeft: 36 }}
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="form-label" style={{ fontWeight: 700 }}>
-                      Annual CTC (INR) <span style={{ color: '#ef4444' }}>*</span>
-                    </label>
-                    <div style={{ position: 'relative' }}>
-                      <DollarSign size={15} style={{ position: 'absolute', left: 12, top: 12, color: '#94a3b8' }} />
-                      <input
-                        type="text"
-                        className="form-input"
-                        placeholder="e.g. 18,00,000"
-                        value={values['annual_ctc'] || ''}
-                        onChange={(e) => handleCtcChange(e.target.value)}
-                        style={{ paddingLeft: 36 }}
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="form-label" style={{ fontWeight: 700 }}>Work Location &amp; Model</label>
-                    <div style={{ position: 'relative' }}>
-                      <MapPin size={15} style={{ position: 'absolute', left: 12, top: 12, color: '#94a3b8' }} />
-                      <input
-                        type="text"
-                        className="form-input"
-                        placeholder="e.g. Remote / On-site / Hybrid"
-                        value={values['work_location'] || ''}
-                        onChange={(e) =>
-                          setValues({
-                            ...values,
-                            work_location: e.target.value,
-                            location: e.target.value,
-                          })
-                        }
-                        style={{ paddingLeft: 36 }}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Salary Breakdown (Annexure III) Preview & Customizer */}
-                  <div
-                    style={{
-                      gridColumn: '1 / -1',
-                      background: '#f8fafc',
-                      border: '1px solid #e2e8f0',
-                      borderRadius: 8,
-                      padding: 16,
-                      marginTop: 4,
-                    }}
-                  >
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10, flexWrap: 'wrap', gap: 6 }}>
-                      <span style={{ fontSize: '13px', fontWeight: 700, color: '#0f172a' }}>
-                        Annexure III &ndash; Salary Breakdown (Auto-Calculated)
+                  {/* Selected Banner */}
+                  {selectedEmployee && (
+                    <div
+                      style={{
+                        backgroundColor: '#fdfbf9',
+                        border: '1px solid #e2d3ca',
+                        borderRadius: 8,
+                        padding: '10px 14px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        flexWrap: 'wrap',
+                        gap: 8,
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <CheckCircle2 size={16} color="#a35d39" />
+                        <span style={{ fontSize: '0.8125rem', color: '#334155' }}>
+                          Generating Letter for: <strong style={{ color: '#0f172a' }}>{selectedEmployee.fullName}</strong> ({selectedEmployee.employeeId}) &ndash; <strong>{selectedEmployee.designation}</strong> ({selectedEmployee.department})
+                        </span>
+                      </div>
+                      <span style={{ fontSize: '0.75rem', color: '#854d0e', backgroundColor: '#fef08a', padding: '2px 8px', borderRadius: 4, fontWeight: 600 }}>
+                        Auto-Filled Below
                       </span>
-                      <span style={{ fontSize: '11px', color: '#64748b' }}>
-                        Formula: Basic (40%), HRA (20%), Special Allowance (Balance)
-                      </span>
                     </div>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: 10 }}>
-                      <div>
-                        <label style={{ fontSize: '11px', fontWeight: 600, color: '#475569', display: 'block', marginBottom: 4 }}>Monthly CTC</label>
-                        <input
-                          type="text"
-                          className="form-input"
-                          style={{ fontSize: '12px', padding: '6px 10px' }}
-                          value={values['ctc_per_month'] || ''}
-                          onChange={(e) => setValues({ ...values, ctc_per_month: e.target.value, gross_monthly: e.target.value })}
-                        />
-                      </div>
-                      <div>
-                        <label style={{ fontSize: '11px', fontWeight: 600, color: '#475569', display: 'block', marginBottom: 4 }}>Basic Salary (40%)</label>
-                        <input
-                          type="text"
-                          className="form-input"
-                          style={{ fontSize: '12px', padding: '6px 10px' }}
-                          value={values['basic_salary'] || ''}
-                          onChange={(e) => setValues({ ...values, basic_salary: e.target.value })}
-                        />
-                      </div>
-                      <div>
-                        <label style={{ fontSize: '11px', fontWeight: 600, color: '#475569', display: 'block', marginBottom: 4 }}>HRA (20%)</label>
-                        <input
-                          type="text"
-                          className="form-input"
-                          style={{ fontSize: '12px', padding: '6px 10px' }}
-                          value={values['hra'] || ''}
-                          onChange={(e) => setValues({ ...values, hra: e.target.value })}
-                        />
-                      </div>
-                      <div>
-                        <label style={{ fontSize: '11px', fontWeight: 600, color: '#475569', display: 'block', marginBottom: 4 }}>Special Allowance</label>
-                        <input
-                          type="text"
-                          className="form-input"
-                          style={{ fontSize: '12px', padding: '6px 10px' }}
-                          value={values['special_allowance'] || ''}
-                          onChange={(e) => setValues({ ...values, special_allowance: e.target.value })}
-                        />
-                      </div>
-                      <div>
-                        <label style={{ fontSize: '11px', fontWeight: 600, color: '#475569', display: 'block', marginBottom: 4 }}>Employer Contrib.</label>
-                        <input
-                          type="text"
-                          className="form-input"
-                          style={{ fontSize: '12px', padding: '6px 10px' }}
-                          value={values['employer_contributions'] || 'NA'}
-                          onChange={(e) => setValues({ ...values, employer_contributions: e.target.value })}
-                        />
-                      </div>
-                    </div>
-                  </div>
+                  )}
+                </div>
+              )}
 
-                  <div>
-                    <label className="form-label" style={{ fontWeight: 700 }}>Date of Joining</label>
-                    <div style={{ position: 'relative' }}>
-                      <Calendar size={15} style={{ position: 'absolute', left: 12, top: 12, color: '#94a3b8' }} />
-                      <input
-                        type="text"
-                        className="form-input"
-                        placeholder="DD/MM/YYYY"
-                        value={values['joining_date'] || ''}
-                        onChange={(e) => setValues({ ...values, joining_date: e.target.value })}
-                        style={{ paddingLeft: 36 }}
-                      />
-                    </div>
+              {/* 2. DYNAMIC VALUES REVIEW & CUSTOMIZER FORM */}
+              <div style={{ background: '#ffffff', border: '1px solid #cbd5e1', borderRadius: 12, overflow: 'hidden' }}>
+                {/* Section Header with Collapse Toggle */}
+                <div
+                  onClick={() => setIsDetailsExpanded(!isDetailsExpanded)}
+                  style={{
+                    padding: '14px 20px',
+                    backgroundColor: '#f8fafc',
+                    borderBottom: isDetailsExpanded ? '1px solid #e2e8f0' : 'none',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    cursor: 'pointer',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <Edit3 size={15} color="#a35d39" />
+                    <span style={{ fontSize: '0.875rem', fontWeight: 700, color: '#0f172a' }}>
+                      Review &amp; Customize Dynamic Values
+                    </span>
+                    <span style={{ fontSize: '0.75rem', color: '#64748b' }}>
+                      (Letterhead placeholders &amp; Annexure I &amp; III)
+                    </span>
                   </div>
-
-                  <div>
-                    <label className="form-label" style={{ fontWeight: 700 }}>Offer Validity Date</label>
-                    <input
-                      type="text"
-                      className="form-input"
-                      placeholder="DD/MM/YYYY"
-                      value={values['offer_validity_date'] || ''}
-                      onChange={(e) => setValues({ ...values, offer_validity_date: e.target.value })}
-                    />
-                  </div>
-
-                  <div>
-                    <label className="form-label" style={{ fontWeight: 700 }}>Probation Period</label>
-                    <input
-                      type="text"
-                      className="form-input"
-                      placeholder="e.g. 6 Months"
-                      value={values['probation_period'] || '6 Months'}
-                      onChange={(e) => setValues({ ...values, probation_period: e.target.value })}
-                    />
-                  </div>
-
-                  <div>
-                    <label className="form-label" style={{ fontWeight: 700 }}>Notice Period</label>
-                    <input
-                      type="text"
-                      className="form-input"
-                      placeholder="e.g. 45 days"
-                      value={values['notice_period'] || '45 days'}
-                      onChange={(e) => setValues({ ...values, notice_period: e.target.value })}
-                    />
-                  </div>
-
-                  <div>
-                    <label className="form-label" style={{ fontWeight: 700 }}>Reporting Manager</label>
-                    <input
-                      type="text"
-                      className="form-input"
-                      placeholder="e.g. Sheetal Bedi (CEO & Founder)"
-                      value={values['reporting_manager'] || 'Sheetal Bedi (CEO & Founder)'}
-                      onChange={(e) => setValues({ ...values, reporting_manager: e.target.value })}
-                    />
-                  </div>
-
-                  <div>
-                    <label className="form-label" style={{ fontWeight: 700 }}>Working Days / Shift</label>
-                    <input
-                      type="text"
-                      className="form-input"
-                      placeholder="6 working days and a 9-hour shift"
-                      value={values['working_days_shift'] || '6 working days and a 9-hour shift (may vary depending on business requirements)'}
-                      onChange={(e) => setValues({ ...values, working_days_shift: e.target.value })}
-                    />
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.75rem', color: '#64748b' }}>
+                    <span>{isDetailsExpanded ? 'Hide Fields' : 'Show / Edit Fields'}</span>
+                    {isDetailsExpanded ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
                   </div>
                 </div>
+
+                {isDetailsExpanded && (
+                  <div style={{ padding: '20px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 16 }}>
+                      <div>
+                        <label className="form-label" style={{ fontWeight: 700 }}>
+                          Salutation
+                        </label>
+                        <select
+                          className="form-input"
+                          value={values['salutation'] || 'Mr.'}
+                          onChange={(e) => setValues({ ...values, salutation: e.target.value })}
+                        >
+                          <option value="Mr.">Mr.</option>
+                          <option value="Ms.">Ms.</option>
+                          <option value="Mrs.">Mrs.</option>
+                          <option value="Dr.">Dr.</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="form-label" style={{ fontWeight: 700 }}>
+                          Employee Full Name <span style={{ color: '#ef4444' }}>*</span>
+                        </label>
+                        <div style={{ position: 'relative' }}>
+                          <User size={15} style={{ position: 'absolute', left: 12, top: 12, color: '#94a3b8' }} />
+                          <input
+                            type="text"
+                            className="form-input"
+                            placeholder="e.g. Aarav Sharma"
+                            value={values['employee_name'] || ''}
+                            onChange={(e) =>
+                              setValues({
+                                ...values,
+                                employee_name: e.target.value,
+                                candidate_name: e.target.value,
+                              })
+                            }
+                            style={{ paddingLeft: 36 }}
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="form-label" style={{ fontWeight: 700 }}>
+                          Designation / Role Title <span style={{ color: '#ef4444' }}>*</span>
+                        </label>
+                        <div style={{ position: 'relative' }}>
+                          <Briefcase size={15} style={{ position: 'absolute', left: 12, top: 12, color: '#94a3b8' }} />
+                          <input
+                            type="text"
+                            className="form-input"
+                            placeholder="e.g. Senior Platform Engineer"
+                            value={values['designation'] || ''}
+                            onChange={(e) => setValues({ ...values, designation: e.target.value })}
+                            style={{ paddingLeft: 36 }}
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="form-label" style={{ fontWeight: 700 }}>Department</label>
+                        <div style={{ position: 'relative' }}>
+                          <Building2 size={15} style={{ position: 'absolute', left: 12, top: 12, color: '#94a3b8' }} />
+                          <input
+                            type="text"
+                            className="form-input"
+                            placeholder="e.g. Platform Engineering"
+                            value={values['department'] || ''}
+                            onChange={(e) => setValues({ ...values, department: e.target.value })}
+                            style={{ paddingLeft: 36 }}
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="form-label" style={{ fontWeight: 700 }}>
+                          Annual CTC (INR) <span style={{ color: '#ef4444' }}>*</span>
+                        </label>
+                        <div style={{ position: 'relative' }}>
+                          <DollarSign size={15} style={{ position: 'absolute', left: 12, top: 12, color: '#94a3b8' }} />
+                          <input
+                            type="text"
+                            className="form-input"
+                            placeholder="e.g. 18,00,000"
+                            value={values['annual_ctc'] || ''}
+                            onChange={(e) => handleCtcChange(e.target.value)}
+                            style={{ paddingLeft: 36 }}
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="form-label" style={{ fontWeight: 700 }}>Work Location &amp; Model</label>
+                        <div style={{ position: 'relative' }}>
+                          <MapPin size={15} style={{ position: 'absolute', left: 12, top: 12, color: '#94a3b8' }} />
+                          <input
+                            type="text"
+                            className="form-input"
+                            placeholder="e.g. Remote / On-site / Hybrid"
+                            value={values['work_location'] || ''}
+                            onChange={(e) =>
+                              setValues({
+                                ...values,
+                                work_location: e.target.value,
+                                location: e.target.value,
+                              })
+                            }
+                            style={{ paddingLeft: 36 }}
+                          />
+                        </div>
+                      </div>
+
+                      {/* Salary Breakdown (Annexure III) Preview & Customizer */}
+                      <div
+                        style={{
+                          gridColumn: '1 / -1',
+                          background: '#f8fafc',
+                          border: '1px solid #e2e8f0',
+                          borderRadius: 8,
+                          padding: 16,
+                          marginTop: 4,
+                        }}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10, flexWrap: 'wrap', gap: 6 }}>
+                          <span style={{ fontSize: '13px', fontWeight: 700, color: '#0f172a' }}>
+                            Annexure III &ndash; Salary Breakdown (Auto-Calculated)
+                          </span>
+                          <span style={{ fontSize: '11px', color: '#64748b' }}>
+                            Formula: Basic (40%), HRA (20%), Special Allowance (Balance)
+                          </span>
+                        </div>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: 10 }}>
+                          <div>
+                            <label style={{ fontSize: '11px', fontWeight: 600, color: '#475569', display: 'block', marginBottom: 4 }}>Monthly CTC</label>
+                            <input
+                              type="text"
+                              className="form-input"
+                              style={{ fontSize: '12px', padding: '6px 10px' }}
+                              value={values['ctc_per_month'] || ''}
+                              onChange={(e) => setValues({ ...values, ctc_per_month: e.target.value, gross_monthly: e.target.value })}
+                            />
+                          </div>
+                          <div>
+                            <label style={{ fontSize: '11px', fontWeight: 600, color: '#475569', display: 'block', marginBottom: 4 }}>Basic Salary (40%)</label>
+                            <input
+                              type="text"
+                              className="form-input"
+                              style={{ fontSize: '12px', padding: '6px 10px' }}
+                              value={values['basic_salary'] || ''}
+                              onChange={(e) => setValues({ ...values, basic_salary: e.target.value })}
+                            />
+                          </div>
+                          <div>
+                            <label style={{ fontSize: '11px', fontWeight: 600, color: '#475569', display: 'block', marginBottom: 4 }}>HRA (20%)</label>
+                            <input
+                              type="text"
+                              className="form-input"
+                              style={{ fontSize: '12px', padding: '6px 10px' }}
+                              value={values['hra'] || ''}
+                              onChange={(e) => setValues({ ...values, hra: e.target.value })}
+                            />
+                          </div>
+                          <div>
+                            <label style={{ fontSize: '11px', fontWeight: 600, color: '#475569', display: 'block', marginBottom: 4 }}>Special Allowance</label>
+                            <input
+                              type="text"
+                              className="form-input"
+                              style={{ fontSize: '12px', padding: '6px 10px' }}
+                              value={values['special_allowance'] || ''}
+                              onChange={(e) => setValues({ ...values, special_allowance: e.target.value })}
+                            />
+                          </div>
+                          <div>
+                            <label style={{ fontSize: '11px', fontWeight: 600, color: '#475569', display: 'block', marginBottom: 4 }}>Employer Contrib.</label>
+                            <input
+                              type="text"
+                              className="form-input"
+                              style={{ fontSize: '12px', padding: '6px 10px' }}
+                              value={values['employer_contributions'] || 'NA'}
+                              onChange={(e) => setValues({ ...values, employer_contributions: e.target.value })}
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="form-label" style={{ fontWeight: 700 }}>Date of Joining</label>
+                        <div style={{ position: 'relative' }}>
+                          <Calendar size={15} style={{ position: 'absolute', left: 12, top: 12, color: '#94a3b8' }} />
+                          <input
+                            type="text"
+                            className="form-input"
+                            placeholder="DD/MM/YYYY"
+                            value={values['joining_date'] || ''}
+                            onChange={(e) => setValues({ ...values, joining_date: e.target.value })}
+                            style={{ paddingLeft: 36 }}
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="form-label" style={{ fontWeight: 700 }}>Offer Validity Date</label>
+                        <input
+                          type="text"
+                          className="form-input"
+                          placeholder="DD/MM/YYYY"
+                          value={values['offer_validity_date'] || ''}
+                          onChange={(e) => setValues({ ...values, offer_validity_date: e.target.value })}
+                        />
+                      </div>
+
+                      <div>
+                        <label className="form-label" style={{ fontWeight: 700 }}>Probation Period</label>
+                        <input
+                          type="text"
+                          className="form-input"
+                          placeholder="e.g. 6 Months"
+                          value={values['probation_period'] || '6 Months'}
+                          onChange={(e) => setValues({ ...values, probation_period: e.target.value })}
+                        />
+                      </div>
+
+                      <div>
+                        <label className="form-label" style={{ fontWeight: 700 }}>Notice Period</label>
+                        <input
+                          type="text"
+                          className="form-input"
+                          placeholder="e.g. 45 days"
+                          value={values['notice_period'] || '45 days'}
+                          onChange={(e) => setValues({ ...values, notice_period: e.target.value })}
+                        />
+                      </div>
+
+                      <div>
+                        <label className="form-label" style={{ fontWeight: 700 }}>Reporting Manager</label>
+                        <input
+                          type="text"
+                          className="form-input"
+                          placeholder="e.g. Sheetal Bedi (CEO & Founder)"
+                          value={values['reporting_manager'] || 'Sheetal Bedi (CEO & Founder)'}
+                          onChange={(e) => setValues({ ...values, reporting_manager: e.target.value })}
+                        />
+                      </div>
+
+                      <div>
+                        <label className="form-label" style={{ fontWeight: 700 }}>Working Days / Shift</label>
+                        <input
+                          type="text"
+                          className="form-input"
+                          placeholder="6 working days and a 9-hour shift"
+                          value={values['working_days_shift'] || '6 working days and a 9-hour shift (may vary depending on business requirements)'}
+                          onChange={(e) => setValues({ ...values, working_days_shift: e.target.value })}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -1657,9 +2144,15 @@ export const QuickTemplateOfferModal: React.FC<QuickTemplateOfferModalProps> = (
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 8px 12px' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                         <img src="/logo.png" alt="TaskNera" style={{ width: 44, height: 44, objectFit: 'contain' }} />
-                        <span style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', letterSpacing: '0.02em' }}>
-                          TASKNERA
-                        </span>
+                        <div>
+                          <div style={{ fontSize: '24px', fontWeight: 800, letterSpacing: '-0.01em', lineHeight: 1.1 }}>
+                            <span style={{ color: '#252c38' }}>Task</span>
+                            <span style={{ color: '#f56637' }}>Nera</span>
+                          </div>
+                          <div style={{ fontSize: '10px', fontWeight: 500, color: '#334155', letterSpacing: '0.01em', marginTop: 2 }}>
+                            People. Processes. Performance.
+                          </div>
+                        </div>
                       </div>
                       <div style={{ borderLeft: '2px solid #0f172a', paddingLeft: 14, fontSize: '11px', lineHeight: 1.5, color: '#1e293b' }}>
                         <div><strong>Phone:</strong> +91 7065278229</div>
@@ -2638,11 +3131,11 @@ export const QuickTemplateOfferModal: React.FC<QuickTemplateOfferModalProps> = (
               onClick={() => {
                 const candidateName = values['employee_name'] || '';
                 if (!candidateName.trim()) {
-                  error('Please enter the Employee Full Name.');
+                  error('Please choose an employee or enter the Employee Full Name.');
                   return;
                 }
                 setStep(3);
-                success('Letter generated into structure-wise TaskNera pages!');
+                success(`Letter generated for ${candidateName} in TaskNera structure!`);
               }}
               style={{ background: '#a35d39', borderColor: '#a35d39' }}
             >
@@ -2670,6 +3163,19 @@ export const QuickTemplateOfferModal: React.FC<QuickTemplateOfferModalProps> = (
           )}
         </div>
       </div>
+
+      {/* On-the-fly Add Employee Modal */}
+      {isAddEmployeeModalOpen && (
+        <AddEmployeeModal
+          isOpen={isAddEmployeeModalOpen}
+          onClose={() => setIsAddEmployeeModalOpen(false)}
+          onEmployeeAdded={async () => {
+            setIsAddEmployeeModalOpen(false);
+            success('Employee added successfully!');
+            await loadEmployees();
+          }}
+        />
+      )}
     </div>
   );
 };
