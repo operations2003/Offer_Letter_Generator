@@ -352,26 +352,38 @@ const TaskNeraSecondaryHeader: React.FC = () => (
     }}
   >
     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-      <img src="/logo.png" alt="TaskNera" style={{ width: 36, height: 36, objectFit: 'contain' }} />
-      <div>
-        <div style={{ fontSize: '18px', fontWeight: 800, letterSpacing: '-0.01em', lineHeight: 1.1 }}>
+      <img src="/logo.png" alt="TaskNera" style={{ width: 40, height: 40, objectFit: 'contain' }} />
+      <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+        <div
+          style={{
+            fontSize: '22px',
+            fontWeight: 800,
+            letterSpacing: '-0.02em',
+            lineHeight: 1.1,
+            fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+          }}
+        >
           <span style={{ color: '#252c38' }}>Task</span>
           <span style={{ color: '#f56637' }}>Nera</span>
         </div>
-        <div style={{ fontSize: '9px', fontWeight: 500, color: '#64748b', letterSpacing: '0.01em' }}>
+        <div
+          style={{
+            fontSize: '9.5px',
+            fontWeight: 600,
+            color: '#475569',
+            letterSpacing: '0.02em',
+            marginTop: 2,
+            fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+          }}
+        >
           People. Processes. Performance.
         </div>
       </div>
     </div>
-    <div style={{ textAlign: 'right' }}>
-      <div style={{ fontSize: '18px', fontWeight: 800, color: '#a35d39', fontFamily: 'Georgia, serif' }}>
-        TaskNera
-      </div>
-      <div style={{ fontSize: '11px', color: '#64748b' }}>
-        D-57 F1 Dilshad Colony, Shahdara, Delhi &ndash; 110095
-      </div>
-      <div style={{ fontSize: '11px', color: '#64748b' }}>
-        Email: careers@tasknera.com
+    <div style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
+      <div style={{ fontSize: '11px', color: '#64748b', lineHeight: 1.45 }}>
+        <div>D-57 F1 Dilshad Colony, Shahdara, Delhi &ndash; 110095</div>
+        <div>Email: careers@tasknera.com</div>
       </div>
     </div>
   </div>
@@ -379,6 +391,7 @@ const TaskNeraSecondaryHeader: React.FC = () => (
 
 const TaskNeraFooter: React.FC<{ pageNum: number }> = ({ pageNum }) => (
   <div
+    className="tasknera-page-footer"
     style={{
       marginTop: 'auto',
       borderTop: '1px solid #e2e8f0',
@@ -805,6 +818,7 @@ export const QuickTemplateOfferModal: React.FC<QuickTemplateOfferModalProps> = (
       joining_date: values['joining_date'] || '15/10/2026',
       offer_validity_date: values['offer_validity_date'] || '05/10/2026',
       probation_period: values['probation_period'] || '6 Months',
+      probation_notice_days: values['probation_notice_days'] || '15',
       notice_period: values['notice_period'] || '45 days',
       reporting_manager: values['reporting_manager'] || 'Sheetal Bedi (CEO & Founder)',
       employment_type: values['employment_type'] || 'Full-Time',
@@ -2136,20 +2150,37 @@ export const QuickTemplateOfferModal: React.FC<QuickTemplateOfferModalProps> = (
                     ======================================================== */}
                 <div className="document-page-sheet" style={{ display: 'flex', flexDirection: 'column', minHeight: '1120px' }}>
                   {/* Official TaskNera Top Header Banner */}
-                  <div style={{ position: 'relative', marginBottom: 20 }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
-                      <div style={{ width: 280, height: 18, background: '#fae1c3', borderRadius: '0 0 14px 0' }}></div>
-                      <div style={{ width: 220, height: 8, background: '#9c7a82' }}></div>
+                  <div style={{ position: 'relative', marginBottom: 16 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+                      <div style={{ width: 280, height: 16, background: '#fae1c3', borderRadius: '0 0 14px 0' }}></div>
+                      <div style={{ width: 220, height: 7, background: '#9c7a82' }}></div>
                     </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 8px 12px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 8px 8px' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                         <img src="/logo.png" alt="TaskNera" style={{ width: 44, height: 44, objectFit: 'contain' }} />
-                        <div>
-                          <div style={{ fontSize: '24px', fontWeight: 800, letterSpacing: '-0.01em', lineHeight: 1.1 }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                          <div
+                            style={{
+                              fontSize: '24px',
+                              fontWeight: 800,
+                              letterSpacing: '-0.02em',
+                              lineHeight: 1.1,
+                              fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+                            }}
+                          >
                             <span style={{ color: '#252c38' }}>Task</span>
                             <span style={{ color: '#f56637' }}>Nera</span>
                           </div>
-                          <div style={{ fontSize: '10px', fontWeight: 500, color: '#334155', letterSpacing: '0.01em', marginTop: 2 }}>
+                          <div
+                            style={{
+                              fontSize: '10px',
+                              fontWeight: 600,
+                              color: '#475569',
+                              letterSpacing: '0.02em',
+                              marginTop: 2,
+                              fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+                            }}
+                          >
                             People. Processes. Performance.
                           </div>
                         </div>
@@ -2160,11 +2191,11 @@ export const QuickTemplateOfferModal: React.FC<QuickTemplateOfferModalProps> = (
                         <div><strong>ADD:</strong> D-57 Dilshad Colony, Delhi, 110095</div>
                       </div>
                     </div>
-                    <div style={{ height: 3, background: '#1e293b', width: '100%' }}></div>
+                    <div style={{ height: 2.5, background: '#1e293b', width: '100%' }}></div>
                   </div>
 
                   {/* Top Metadata */}
-                  <div style={{ fontSize: '13px', lineHeight: 1.6, marginBottom: 18, color: '#1e293b' }}>
+                  <div style={{ fontSize: '12.8px', lineHeight: 1.6, marginBottom: 14, color: '#1e293b' }}>
                     <p style={{ margin: '2px 0' }}>
                       <strong>Reference:</strong>{' '}
                       <span
@@ -2185,7 +2216,7 @@ export const QuickTemplateOfferModal: React.FC<QuickTemplateOfferModalProps> = (
                         }}
                       />
                     </p>
-                    <p style={{ margin: '12px 0 2px' }}>
+                    <p style={{ margin: '8px 0 2px' }}>
                       <strong>Employee Name:</strong>{' '}
                       <span
                         dangerouslySetInnerHTML={{
@@ -2211,10 +2242,10 @@ export const QuickTemplateOfferModal: React.FC<QuickTemplateOfferModalProps> = (
                   <h2
                     style={{
                       textAlign: 'center',
-                      fontSize: '22px',
+                      fontSize: '21px',
                       fontWeight: 700,
                       color: '#a35d39',
-                      margin: '18px 0 16px',
+                      margin: '14px 0 12px',
                       fontFamily: "'Georgia', serif",
                       letterSpacing: '0.02em',
                     }}
@@ -2223,7 +2254,7 @@ export const QuickTemplateOfferModal: React.FC<QuickTemplateOfferModalProps> = (
                   </h2>
 
                   {/* Salutation & Subject */}
-                  <p style={{ marginBottom: 10, fontSize: '13px', color: '#1e293b' }}>
+                  <p style={{ marginBottom: 8, fontSize: '12.8px', color: '#1e293b' }}>
                     Dear{' '}
                     <span
                       dangerouslySetInnerHTML={{
@@ -2235,19 +2266,19 @@ export const QuickTemplateOfferModal: React.FC<QuickTemplateOfferModalProps> = (
                     <span
                       dangerouslySetInnerHTML={{
                         __html: highlightPlaceholders
-                          ? `<mark style="background-color:#fef08a; color:#854d0e; padding:1px 4px; border-radius:3px; font-weight:700;">${values['employee_name']}</mark>`
-                          : values['employee_name'],
+                          ? `<mark style="background-color:#fef08a; color:#854d0e; padding:1px 4px; border-radius:3px; font-weight:700;">${(values['employee_name'] || '').replace(/^(?:Mr\.|Ms\.|Mrs\.|Dr\.)\s+/i, '')}</mark>`
+                          : (values['employee_name'] || '').replace(/^(?:Mr\.|Ms\.|Mrs\.|Dr\.)\s+/i, ''),
                       }}
                     />
                     ,
                   </p>
 
-                  <p style={{ marginBottom: 12, fontWeight: 700, fontSize: '13px', color: '#0f172a' }}>
+                  <p style={{ marginBottom: 10, fontWeight: 700, fontSize: '13px', color: '#0f172a' }}>
                     {subjectText}
                   </p>
 
                   <p
-                    style={{ marginBottom: 16, fontSize: '12.5px', lineHeight: 1.6, textAlign: 'justify', color: '#334155' }}
+                    style={{ marginBottom: 14, fontSize: '12.8px', lineHeight: 1.65, textAlign: 'justify', color: '#334155' }}
                     dangerouslySetInnerHTML={{ __html: interpolateText(introParagraph, highlightPlaceholders) }}
                   />
 
@@ -2261,7 +2292,7 @@ export const QuickTemplateOfferModal: React.FC<QuickTemplateOfferModalProps> = (
                           color: '#a35d39',
                           borderBottom: '1px solid #e2d3ca',
                           paddingBottom: 3,
-                          marginBottom: 6,
+                          marginBottom: 5,
                           fontFamily: "'Georgia', serif",
                         }}
                       >
@@ -2271,8 +2302,8 @@ export const QuickTemplateOfferModal: React.FC<QuickTemplateOfferModalProps> = (
                         <p
                           key={pIdx}
                           style={{
-                            fontSize: '12.5px',
-                            lineHeight: 1.6,
+                            fontSize: '12.8px',
+                            lineHeight: 1.65,
                             color: '#334155',
                             marginBottom: pIdx === sec.paragraphs.length - 1 ? 0 : 6,
                             textAlign: 'justify',
@@ -2283,7 +2314,7 @@ export const QuickTemplateOfferModal: React.FC<QuickTemplateOfferModalProps> = (
                     </div>
                   ))}
 
-                  {/* Section 5 (First Paragraph) */}
+                  {/* Section 5: Compensation and Payroll */}
                   {sections[4] && (
                     <div style={{ marginBottom: 14 }}>
                       <h3
@@ -2293,24 +2324,27 @@ export const QuickTemplateOfferModal: React.FC<QuickTemplateOfferModalProps> = (
                           color: '#a35d39',
                           borderBottom: '1px solid #e2d3ca',
                           paddingBottom: 3,
-                          marginBottom: 6,
+                          marginBottom: 5,
                           fontFamily: "'Georgia', serif",
                         }}
                       >
                         {sections[4].number}. {sections[4].title}
                       </h3>
-                      <p
-                        style={{
-                          fontSize: '12.5px',
-                          lineHeight: 1.6,
-                          color: '#334155',
-                          marginBottom: 0,
-                          textAlign: 'justify',
-                        }}
-                        dangerouslySetInnerHTML={{
-                          __html: interpolateText(sections[4].paragraphs[0] || '', highlightPlaceholders),
-                        }}
-                      />
+                      {sections[4].paragraphs.map((p, pIdx) => (
+                        <p
+                          key={pIdx}
+                          style={{
+                            fontSize: '12.8px',
+                            lineHeight: 1.65,
+                            color: '#334155',
+                            marginBottom: pIdx === sections[4].paragraphs.length - 1 ? 0 : 6,
+                            textAlign: 'justify',
+                          }}
+                          dangerouslySetInnerHTML={{
+                            __html: interpolateText(p, highlightPlaceholders),
+                          }}
+                        />
+                      ))}
                     </div>
                   )}
 
@@ -2319,26 +2353,10 @@ export const QuickTemplateOfferModal: React.FC<QuickTemplateOfferModalProps> = (
                 </div>
 
                 {/* ========================================================
-                    PAGE 2: SECONDARY HEADER, SECTION 5 (CONT), SECTION 6 (CODE OF CONDUCT), SECTION 7 (DISCIPLINARY)
+                    PAGE 2: SECONDARY HEADER, SECTION 6 (CODE OF CONDUCT), SECTION 7 (DISCIPLINARY)
                     ======================================================== */}
                 <div className="document-page-sheet" style={{ display: 'flex', flexDirection: 'column', minHeight: '1120px' }}>
                   <TaskNeraSecondaryHeader />
-
-                  {/* Section 5 Second Paragraph */}
-                  {sections[4]?.paragraphs[1] && (
-                    <p
-                      style={{
-                        fontSize: '12.5px',
-                        lineHeight: 1.6,
-                        color: '#334155',
-                        marginBottom: 16,
-                        textAlign: 'justify',
-                      }}
-                      dangerouslySetInnerHTML={{
-                        __html: interpolateText(sections[4].paragraphs[1], highlightPlaceholders),
-                      }}
-                    />
-                  )}
 
                   {/* Section 6: Code of Conduct – Zero Tolerance */}
                   {sections[5] && (
@@ -2350,7 +2368,7 @@ export const QuickTemplateOfferModal: React.FC<QuickTemplateOfferModalProps> = (
                           color: '#a35d39',
                           borderBottom: '1px solid #e2d3ca',
                           paddingBottom: 3,
-                          marginBottom: 6,
+                          marginBottom: 5,
                           fontFamily: "'Georgia', serif",
                         }}
                       >
@@ -2359,7 +2377,7 @@ export const QuickTemplateOfferModal: React.FC<QuickTemplateOfferModalProps> = (
                       {sections[5].paragraphs.map((p, pIdx) => (
                         <p
                           key={pIdx}
-                          style={{ fontSize: '12.5px', lineHeight: 1.6, color: '#334155', marginBottom: 6, textAlign: 'justify' }}
+                          style={{ fontSize: '12.8px', lineHeight: 1.65, color: '#334155', marginBottom: 6, textAlign: 'justify' }}
                           dangerouslySetInnerHTML={{ __html: interpolateText(p, highlightPlaceholders) }}
                         />
                       ))}
@@ -2382,7 +2400,7 @@ export const QuickTemplateOfferModal: React.FC<QuickTemplateOfferModalProps> = (
 
                   {/* Section 7: Disciplinary Action & Misconduct */}
                   {sections[6] && (
-                    <div style={{ marginBottom: 16 }}>
+                    <div style={{ marginBottom: 14 }}>
                       <h3
                         style={{
                           fontSize: '13.5px',
@@ -2390,7 +2408,7 @@ export const QuickTemplateOfferModal: React.FC<QuickTemplateOfferModalProps> = (
                           color: '#a35d39',
                           borderBottom: '1px solid #e2d3ca',
                           paddingBottom: 3,
-                          marginBottom: 6,
+                          marginBottom: 5,
                           fontFamily: "'Georgia', serif",
                         }}
                       >
@@ -2399,16 +2417,16 @@ export const QuickTemplateOfferModal: React.FC<QuickTemplateOfferModalProps> = (
                       {sections[6].paragraphs.slice(0, 3).map((p, pIdx) => (
                         <p
                           key={pIdx}
-                          style={{ fontSize: '12.5px', lineHeight: 1.6, color: '#334155', marginBottom: 6, textAlign: 'justify' }}
+                          style={{ fontSize: '12.8px', lineHeight: 1.65, color: '#334155', marginBottom: 6, textAlign: 'justify' }}
                           dangerouslySetInnerHTML={{ __html: interpolateText(p, highlightPlaceholders) }}
                         />
                       ))}
                       <div style={{ marginTop: 10 }}>
-                        <p style={{ fontWeight: 700, fontSize: '12.5px', color: '#0f172a', margin: '4px 0' }}>
+                        <p style={{ fontWeight: 700, fontSize: '12.8px', color: '#0f172a', margin: '4px 0' }}>
                           Salary and dues on termination:
                         </p>
-                        <p style={{ fontSize: '12.5px', lineHeight: 1.6, color: '#334155', margin: 0, textAlign: 'justify' }}>
-                          Termination for misconduct does not, by itself, extinguish wages or other statutory/contractual amounts that have already been legally earned. The Company will pay amounts legally due for work/attendance up to the effective date of
+                        <p style={{ fontSize: '12.8px', lineHeight: 1.65, color: '#334155', margin: 0, textAlign: 'justify' }}>
+                          Termination for misconduct does not, by itself, extinguish wages or other statutory/contractual amounts that have already been legally earned. The Company will pay amounts legally due for work/attendance up to the effective date of separation, subject to lawful deductions, statutory adjustments, recoveries permitted by law, and applicable payroll/F&amp;F procedures. No provision of this Offer Letter shall be interpreted as waiving an employee's non-waivable statutory rights.
                         </p>
                       </div>
                     </div>
@@ -2419,15 +2437,10 @@ export const QuickTemplateOfferModal: React.FC<QuickTemplateOfferModalProps> = (
                 </div>
 
                 {/* ========================================================
-                    PAGE 3: SECONDARY HEADER, CLAUSES 7(CONT), 8, 9, 10, 11, 12
+                    PAGE 3: SECONDARY HEADER, CLAUSES 8, 9, 10, 11, 12
                     ======================================================== */}
                 <div className="document-page-sheet" style={{ display: 'flex', flexDirection: 'column', minHeight: '1120px' }}>
                   <TaskNeraSecondaryHeader />
-
-                  {/* Section 7 continuation paragraph */}
-                  <p style={{ fontSize: '12.5px', lineHeight: 1.6, color: '#334155', marginBottom: 16, textAlign: 'justify' }}>
-                    separation, subject to lawful deductions, statutory adjustments, recoveries permitted by law, and applicable payroll/F&amp;F procedures. No provision of this Offer Letter shall be interpreted as waiving an employee's non-waivable statutory rights.
-                  </p>
 
                   {/* Sections 8 to 12 */}
                   {sections.slice(7, 12).map((sec) => (

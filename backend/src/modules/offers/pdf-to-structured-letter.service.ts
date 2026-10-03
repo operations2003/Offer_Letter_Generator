@@ -602,7 +602,7 @@ export class PdfToStructuredLetterService {
 
     // Page Footer
     const footerHtml = `
-    <div style="margin-top:36px; border-top:1px solid #e2e8f0; padding-top:10px; text-align:center; font-size:11px; color:#94a3b8;">
+    <div class="tasknera-page-footer" style="margin-top:36px; border-top:1px solid #e2e8f0; padding-top:10px; text-align:center; font-size:11px; color:#94a3b8;">
       TaskNera | Page ${pageNum} of ${totalPages}
     </div>
     `;
