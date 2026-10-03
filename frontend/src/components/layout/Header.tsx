@@ -84,34 +84,22 @@ export const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
   // Compute breadcrumb based on route
   const getBreadcrumb = () => {
     const path = location.pathname;
+    if (path.startsWith('/employees')) {
+      return { parent: 'DIRECTORY', current: 'Employees' };
+    }
     if (path.startsWith('/offers')) {
       return { parent: 'WORKFORCE', current: 'Offers Pipeline' };
     }
-    if (path.startsWith('/templates')) {
-      return { parent: 'SETTINGS', current: 'Offer Templates' };
-    }
     if (path.startsWith('/documents')) {
-      return { parent: 'DOCUMENTS', current: 'HR Document Suite' };
+      return { parent: 'DOCUMENTS', current: 'Document Generation' };
     }
-    if (path.startsWith('/onboarding')) {
-      return { parent: 'ONBOARDING', current: 'Candidate Cohorts' };
-    }
-    if (path.startsWith('/learning')) {
-      return { parent: 'DEVELOPMENT', current: 'L&D & Certificates' };
-    }
-    if (path.startsWith('/assessments')) {
-      return { parent: 'EVALUATION', current: 'Assessments & Quizzes' };
-    }
-    if (path.startsWith('/ai-studio')) {
-      return { parent: 'INTELLIGENCE', current: 'AI & HRMS Studio' };
-    }
-    if (path.startsWith('/policies')) {
-      return { parent: 'POLICIES', current: 'HR Policy Registry' };
+    if (path.startsWith('/templates')) {
+      return { parent: 'TEMPLATES', current: 'Document Templates' };
     }
     if (path.startsWith('/audit-logs')) {
-      return { parent: 'GOVERNANCE', current: 'Compliance Ledger' };
+      return { parent: 'GOVERNANCE', current: 'Audit & Compliance' };
     }
-    return { parent: 'DASHBOARD', current: 'Enterprise Console' };
+    return { parent: 'WORKSPACE', current: 'Dashboard' };
   };
 
   const breadcrumb = getBreadcrumb();

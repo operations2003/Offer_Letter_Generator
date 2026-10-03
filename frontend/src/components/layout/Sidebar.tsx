@@ -3,7 +3,6 @@ import { NavLink } from 'react-router-dom';
 import {
   LayoutDashboard,
   FileCheck2,
-  Sparkles,
   ShieldCheck,
   FileText,
   Layers,
@@ -52,12 +51,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
       roles: ['SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER'],
     },
     {
-      to: '/pdf-to-letter',
-      label: 'AI PDF to Letter',
-      icon: <Sparkles size={18} />,
-      roles: ['SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER'],
-    },
-    {
       to: '/audit-logs',
       label: 'Audit & Compliance',
       icon: <ShieldCheck size={18} />,
@@ -94,7 +87,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
         </div>
         <div>
           <div style={{ fontWeight: 800, fontSize: '1.15rem', color: '#0f172a', letterSpacing: '-0.02em', lineHeight: 1.1 }}>
-            TaskNera
+            <span style={{ color: '#252c38' }}>Task</span>
+            <span style={{ color: '#f56637' }}>Nera</span>
           </div>
           <div style={{ fontSize: '0.625rem', color: '#2563eb', fontWeight: 700, letterSpacing: '0.06em', marginTop: 2 }}>
             OFFER GENERATOR
