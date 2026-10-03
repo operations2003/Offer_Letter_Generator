@@ -3,8 +3,6 @@ import { NavLink } from 'react-router-dom';
 import {
   LayoutDashboard,
   FileCheck2,
-  ShieldCheck,
-  FileText,
   Layers,
   Users2,
   LogOut,
@@ -40,21 +38,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
     },
     {
       to: '/documents',
-      label: 'Document Generation',
+      label: 'Documents Generated',
       icon: <Layers size={18} />,
       roles: ['SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER', 'APPROVER'],
-    },
-    {
-      to: '/templates',
-      label: 'Document Templates',
-      icon: <FileText size={18} />,
-      roles: ['SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER'],
-    },
-    {
-      to: '/audit-logs',
-      label: 'Audit & Compliance',
-      icon: <ShieldCheck size={18} />,
-      roles: ['SUPER_ADMIN', 'HR_MANAGER', 'AUDITOR'],
     },
   ];
 

@@ -40,187 +40,7 @@ const DOCUMENT_TYPE_LABELS: Record<string, string> = {
   MSA: 'Master Services Agreement',
 };
 
-const INITIAL_MOCK_DOCS: HrDocument[] = [
-  {
-    id: 'f47ac10b-58cc-4372-a567-0e02b2c3d479',
-    companyId: 'comp_default',
-    documentTypeCode: 'OFFER_LETTER',
-    referenceNumber: 'OFF-2026-0042',
-    title: 'Offer Letter — Jane Alexandra Doe',
-    templateId: 'tmpl_offer_standard',
-    templateVersionId: 'v2.1',
-    recipientName: 'Jane Alexandra Doe',
-    recipientEmail: 'jane.doe@example.com',
-    currentStatus: 'HR_REVIEW',
-    aiReviewStatus: 'VERIFIED_BY_HR',
-    isAiGenerated: true,
-    aiConfidenceScore: 0.98,
-    aiExtractionWarnings: [],
-    aiExtractedData: {},
-    hrConfirmedData: {
-      candidateName: 'Jane Alexandra Doe',
-      jobTitle: 'Lead Platform Architect',
-      department: 'Cloud Infrastructure',
-      baseSalary: 165000,
-      totalCtc: 234750,
-      currency: 'USD',
-      workLocation: 'San Francisco, CA (Hybrid)',
-    },
-    humanOverrides: [],
-    currentVersionNumber: 1,
-    versions: [],
-    generatedFiles: [],
-    statusHistory: [],
-    signatoryName: 'Sarah Jenkins',
-    signatoryTitle: 'VP of Global Talent',
-    effectiveDate: '2026-11-16',
-    createdByUserId: 'user_hr_manager',
-    createdAt: '2026-09-28T10:00:00Z',
-    updatedAt: '2026-09-28T14:30:00Z',
-  },
-  {
-    id: 'a89c72e1-4567-42bc-9012-3456789abcde',
-    companyId: 'comp_default',
-    documentTypeCode: 'INTERNSHIP_LETTER',
-    referenceNumber: 'INT-2026-0018',
-    title: 'Internship Letter — Liam Alexander Vance',
-    templateId: 'tmpl_internship_standard',
-    templateVersionId: 'v1.4',
-    recipientName: 'Liam Alexander Vance',
-    recipientEmail: 'liam.vance@stanford.edu',
-    currentStatus: 'ISSUED',
-    aiReviewStatus: 'VERIFIED_BY_HR',
-    isAiGenerated: true,
-    aiConfidenceScore: 0.96,
-    aiExtractionWarnings: [],
-    aiExtractedData: {},
-    hrConfirmedData: {
-      candidateName: 'Liam Alexander Vance',
-      internshipRole: 'Machine Learning Research Intern',
-      department: 'Applied AI Labs',
-      monthlyStipend: 6500,
-      currency: 'USD',
-      startDate: '2026-06-01',
-      endDate: '2026-08-31',
-    },
-    humanOverrides: [],
-    currentVersionNumber: 1,
-    versions: [],
-    generatedFiles: [],
-    statusHistory: [],
-    signatoryName: 'Michael Chang',
-    signatoryTitle: 'Head of Academic Partnerships',
-    effectiveDate: '2026-06-01',
-    createdByUserId: 'user_hr_manager',
-    createdAt: '2026-09-27T09:15:00Z',
-    updatedAt: '2026-09-27T11:45:00Z',
-  },
-  {
-    id: 'b12d34e5-6789-4abc-def0-123456789012',
-    companyId: 'comp_default',
-    documentTypeCode: 'INCREMENT_LETTER',
-    referenceNumber: 'INC-2026-0105',
-    title: 'Increment Letter — Sophia Chen',
-    templateId: 'tmpl_increment_merit',
-    templateVersionId: 'v2.0',
-    recipientName: 'Sophia Chen',
-    recipientEmail: 'sophia.chen@example.com',
-    currentStatus: 'APPROVED',
-    aiReviewStatus: 'OVERRIDDEN',
-    isAiGenerated: true,
-    aiConfidenceScore: 0.94,
-    aiExtractionWarnings: [],
-    aiExtractedData: {},
-    hrConfirmedData: {
-      employeeName: 'Sophia Chen',
-      currentDesignation: 'Senior Distributed Systems Engineer',
-      revisedDesignation: 'Staff Distributed Systems Engineer',
-      previousBaseSalary: 140000,
-      revisedBaseSalary: 165000,
-      incrementPercentage: 17.86,
-      currency: 'USD',
-    },
-    humanOverrides: [],
-    currentVersionNumber: 2,
-    versions: [],
-    generatedFiles: [],
-    statusHistory: [],
-    signatoryName: 'David Sterling',
-    signatoryTitle: 'Chief People Officer',
-    effectiveDate: '2026-10-01',
-    createdByUserId: 'user_hr_manager',
-    createdAt: '2026-09-26T14:20:00Z',
-    updatedAt: '2026-09-26T16:00:00Z',
-  },
-  {
-    id: 'c34e56f7-8901-4bcd-ef01-234567890123',
-    companyId: 'comp_default',
-    documentTypeCode: 'FNF_SETTLEMENT',
-    referenceNumber: 'FNF-2026-0033',
-    title: 'FNF Statement — Marcus Thorne',
-    templateId: 'tmpl_fnf_standard',
-    templateVersionId: 'v2.2',
-    recipientName: 'Marcus Thorne',
-    recipientEmail: 'marcus.t@example.com',
-    currentStatus: 'APPROVED',
-    aiReviewStatus: 'VERIFIED_BY_HR',
-    isAiGenerated: true,
-    aiConfidenceScore: 0.97,
-    aiExtractionWarnings: [],
-    aiExtractedData: {},
-    hrConfirmedData: {
-      employeeName: 'Marcus Thorne',
-      payableEarningsTotal: 19200,
-      deductionsTotal: 3700,
-      netPayableAmount: 15500,
-      currency: 'USD',
-    },
-    humanOverrides: [],
-    currentVersionNumber: 1,
-    versions: [],
-    generatedFiles: [],
-    statusHistory: [],
-    signatoryName: 'Raymond Vance',
-    signatoryTitle: 'Head of Global Payroll',
-    effectiveDate: '2026-10-05',
-    createdByUserId: 'user_hr_manager',
-    createdAt: '2026-09-25T11:00:00Z',
-    updatedAt: '2026-09-25T15:10:00Z',
-  },
-  {
-    id: 'd56f78a9-0123-4cde-f012-345678901234',
-    companyId: 'comp_default',
-    documentTypeCode: 'MSA',
-    referenceNumber: 'MSA-2026-0008',
-    title: 'Master Services Agreement — Apex Global Logistics Inc.',
-    templateId: 'tmpl_msa_standard',
-    templateVersionId: 'v3.0',
-    recipientName: 'Apex Global Logistics Inc.',
-    recipientEmail: 'legal@apex-logistics.com',
-    currentStatus: 'ISSUED',
-    aiReviewStatus: 'VERIFIED_BY_HR',
-    isAiGenerated: true,
-    aiConfidenceScore: 0.95,
-    aiExtractionWarnings: [],
-    aiExtractedData: {},
-    hrConfirmedData: {
-      clientLegalName: 'Apex Global Logistics Inc.',
-      effectiveDate: '2026-11-01',
-      governingLawJurisdiction: 'State of Delaware, United States',
-    },
-    humanOverrides: [],
-    currentVersionNumber: 1,
-    versions: [],
-    generatedFiles: [],
-    statusHistory: [],
-    signatoryName: 'Alexander Pierce',
-    signatoryTitle: 'Managing Director & General Counsel',
-    effectiveDate: '2026-11-01',
-    createdByUserId: 'user_hr_manager',
-    createdAt: '2026-09-24T16:00:00Z',
-    updatedAt: '2026-09-24T18:30:00Z',
-  },
-];
+const INITIAL_MOCK_DOCS: HrDocument[] = [];
 
 export const DocumentList: React.FC<DocumentListProps> = ({
   onCreateClick,
@@ -241,14 +61,54 @@ export const DocumentList: React.FC<DocumentListProps> = ({
     try {
       setIsLoading(true);
       const params: any = {};
-      if (selectedType !== 'ALL') params.type = selectedType;
-      if (selectedStatus !== 'ALL') params.status = selectedStatus;
-      const res = await DocumentEngineService.listDocuments(params);
-      if (res && res.length > 0) {
-        setDocuments(res);
+      if (selectedType !== 'ALL') params.type = selectedType as any;
+      if (selectedStatus !== 'ALL') params.status = selectedStatus as any;
+
+      let backendDocs: HrDocument[] = [];
+      try {
+        const res = await DocumentEngineService.listDocuments(params);
+        if (Array.isArray(res)) {
+          backendDocs = res;
+        }
+      } catch (err) {
+        console.warn('Backend listDocuments notice:', err);
       }
+
+      // Load saved documents from localStorage
+      let localSaved: HrDocument[] = [];
+      try {
+        localSaved = JSON.parse(localStorage.getItem('tasknera_saved_documents') || '[]');
+      } catch {
+        localSaved = [];
+      }
+
+      // Merge backend and local docs, deduplicating by referenceNumber or id
+      const docMap = new Map<string, HrDocument>();
+      backendDocs.forEach((d) => docMap.set(d.referenceNumber || d.id, d));
+      localSaved.forEach((d) => {
+        const key = d.referenceNumber || d.id;
+        if (!docMap.has(key)) {
+          docMap.set(key, d);
+        }
+      });
+
+      let combined = Array.from(docMap.values());
+      if (selectedType !== 'ALL') {
+        combined = combined.filter((d) => d.documentTypeCode === selectedType);
+      }
+      if (selectedStatus !== 'ALL') {
+        combined = combined.filter((d) => d.currentStatus === selectedStatus);
+      }
+
+      setDocuments(combined);
     } catch {
-      // Keep mock initial documents if server is offline/initializing
+      let localSaved: HrDocument[] = [];
+      try {
+        localSaved = JSON.parse(localStorage.getItem('tasknera_saved_documents') || '[]');
+      } catch {
+        localSaved = [];
+      }
+      setDocuments(localSaved);
     } finally {
       setIsLoading(false);
     }

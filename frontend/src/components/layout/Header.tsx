@@ -91,7 +91,7 @@ export const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
       return { parent: 'WORKFORCE', current: 'Offers Pipeline' };
     }
     if (path.startsWith('/documents')) {
-      return { parent: 'DOCUMENTS', current: 'Document Generation' };
+      return { parent: 'DOCUMENTS', current: 'Documents Generated' };
     }
     if (path.startsWith('/templates')) {
       return { parent: 'TEMPLATES', current: 'Document Templates' };

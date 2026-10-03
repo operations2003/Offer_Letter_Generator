@@ -28,6 +28,11 @@ import {
   ArrowUpDown,
   MoreVertical,
   Mail,
+  ShieldCheck,
+  UserCheck,
+  GraduationCap,
+  DollarSign,
+  ArrowRight,
 } from 'lucide-react';
 import { Button } from '../components/common/Button.js';
 import { OfferStatusBadge, AiAdvisoryBadge } from '../components/common/Badge.js';
@@ -346,6 +351,81 @@ export const OffersPage: React.FC = () => {
     }
   };
 
+  const documentCards = [
+    {
+      id: 'offer_letter',
+      title: 'Offer Letter',
+      description: 'Official TaskNera employment offer letter with salary breakdown, clauses & terms.',
+      icon: <FileText size={22} style={{ color: '#2563eb' }} />,
+      badge: 'Ready to Generate',
+      badgeColor: '#16a34a',
+      badgeBg: '#f0fdf4',
+      badgeBorder: '#bbf7d0',
+      active: true,
+      onClick: () => setIsQuickModalOpen(true),
+    },
+    {
+      id: 'character_certificate',
+      title: 'Character Certificate',
+      description: 'Official conduct, background standing, and character verification certificate.',
+      icon: <ShieldCheck size={22} style={{ color: '#7c3aed' }} />,
+      badge: 'Coming Soon',
+      badgeColor: '#64748b',
+      badgeBg: '#f8fafc',
+      badgeBorder: '#e2e8f0',
+      active: false,
+      onClick: () => info('Character Certificate template is currently in development and will be available soon.'),
+    },
+    {
+      id: 'onboarding_letter',
+      title: 'Onboarding Letter',
+      description: 'Formal onboarding confirmation, joining schedule, and welcome documentation.',
+      icon: <UserCheck size={22} style={{ color: '#0284c7' }} />,
+      badge: 'Coming Soon',
+      badgeColor: '#64748b',
+      badgeBg: '#f8fafc',
+      badgeBorder: '#e2e8f0',
+      active: false,
+      onClick: () => info('Onboarding Letter template is currently in development and will be available soon.'),
+    },
+    {
+      id: 'experience_letter',
+      title: 'Experience Letter',
+      description: 'Formal employment tenure, roles held, and service certification letter.',
+      icon: <Briefcase size={22} style={{ color: '#ea580c' }} />,
+      badge: 'Coming Soon',
+      badgeColor: '#64748b',
+      badgeBg: '#f8fafc',
+      badgeBorder: '#e2e8f0',
+      active: false,
+      onClick: () => info('Experience Letter template is currently in development and will be available soon.'),
+    },
+    {
+      id: 'internship_letter',
+      title: 'Internship Letter',
+      description: 'Internship appointment letter with stipend details, duration, and learning scope.',
+      icon: <GraduationCap size={22} style={{ color: '#9333ea' }} />,
+      badge: 'Coming Soon',
+      badgeColor: '#64748b',
+      badgeBg: '#f8fafc',
+      badgeBorder: '#e2e8f0',
+      active: false,
+      onClick: () => info('Internship Letter template is currently in development and will be available soon.'),
+    },
+    {
+      id: 'salary_slip',
+      title: 'Salary Slip',
+      description: 'Monthly payslip statement with itemized earnings, deductions, and net pay.',
+      icon: <DollarSign size={22} style={{ color: '#059669' }} />,
+      badge: 'Coming Soon',
+      badgeColor: '#64748b',
+      badgeBg: '#f8fafc',
+      badgeBorder: '#e2e8f0',
+      active: false,
+      onClick: () => info('Salary Slip template is currently in development and will be available soon.'),
+    },
+  ];
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
       {/* Top Header & Quick Actions Bar */}
@@ -376,9 +456,6 @@ export const OffersPage: React.FC = () => {
               {totalCount} Total Offers
             </span>
           </div>
-          <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem' }}>
-            Lifecycle management: Draft → AI Processing → Awaiting Review → Generated → Sent → Accepted.
-          </p>
         </div>
 
         <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
@@ -390,565 +467,152 @@ export const OffersPage: React.FC = () => {
           >
             Refresh
           </Button>
-          <Button
-            variant="primary"
-            icon={<Sparkles size={16} />}
-            onClick={() => setIsQuickModalOpen(true)}
-          >
-            Generate Letter in TaskNera Letterhead
-          </Button>
-          <Button
-            variant="secondary"
-            icon={<FileText size={15} />}
-            onClick={() => navigate('/pdf-to-letter')}
-            style={{ fontSize: '0.8125rem', borderColor: '#a35d39', color: '#a35d39' }}
-          >
-            AI PDF to Structured Letter
-          </Button>
-          <Button
-            variant="secondary"
-            icon={<FileCheck2 size={15} />}
-            onClick={() => setIsWizardOpen(true)}
-            style={{ fontSize: '0.8125rem' }}
-          >
-            11-Step Deep Wizard
-          </Button>
-          <ExtractWithAi onExtractionComplete={handleExtraction} triggerButtonText="AI Quick Extract" />
         </div>
       </div>
 
-      {/* Filter and Search Bar */}
-      <div
-        className="glass-panel"
-        style={{
-          padding: '18px 22px',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 16,
-        }}
-      >
-        {/* Search Row & Dropdown Filters */}
-        <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap', alignItems: 'center' }}>
-          {/* Search Input */}
-          <div style={{ position: 'relative', flex: 2, minWidth: 260 }}>
-            <Search
-              size={16}
-              style={{
-                position: 'absolute',
-                left: 12,
-                top: '50%',
-                transform: 'translateY(-50%)',
-                color: 'var(--text-dim)',
-              }}
-            />
-            <input
-              type="text"
-              className="form-input"
-              placeholder="Search candidate name, email, job title, or reference..."
-              value={searchTerm}
-              onChange={(e) => {
-                setSearchTerm(e.target.value);
-                setPage(1);
-              }}
-              style={{ paddingLeft: 38, paddingRight: searchTerm ? 32 : 12, width: '100%' }}
-            />
-            {searchTerm && (
-              <button
-                onClick={() => setSearchTerm('')}
-                style={{
-                  position: 'absolute',
-                  right: 10,
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  background: 'none',
-                  border: 'none',
-                  color: 'var(--text-dim)',
-                  cursor: 'pointer',
-                  padding: 2,
-                }}
-              >
-                <X size={14} />
-              </button>
-            )}
-          </div>
-
-          {/* Department Filter Dropdown */}
-          <div style={{ flex: 1, minWidth: 180 }}>
-            <select
-              className="form-input"
-              value={selectedDepartment}
-              onChange={(e) => {
-                setSelectedDepartment(e.target.value);
-                setPage(1);
-              }}
-              style={{ width: '100%', height: '40px' }}
-            >
-              <option value="ALL">All Departments</option>
-              {DEPARTMENTS.filter((d) => d !== 'ALL').map((dept) => (
-                <option key={dept} value={dept}>
-                  {dept}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* AI Review Status Filter Dropdown */}
-          <div style={{ flex: 1, minWidth: 180 }}>
-            <select
-              className="form-input"
-              value={selectedAiReviewStatus}
-              onChange={(e) => {
-                setSelectedAiReviewStatus(e.target.value);
-                setPage(1);
-              }}
-              style={{ width: '100%', height: '40px' }}
-            >
-              <option value="ALL">All AI Review States</option>
-              <option value="VERIFIED_BY_HR">HR Verified</option>
-              <option value="PENDING_AI_REVIEW">AI Review Pending</option>
-              <option value="OVERRIDDEN">Overrides Applied</option>
-              <option value="STANDARD">Standard Manual</option>
-            </select>
+      {/* Document Templates Selection Cards */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div>
+            <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#0f172a', margin: 0 }}>
+              Document Templates
+            </h3>
+            <p style={{ fontSize: '0.8125rem', color: '#64748b', margin: '2px 0 0 0' }}>
+              Select a template to generate official documentation for employees & candidates.
+            </p>
           </div>
         </div>
 
-        {/* Status Filter Pills Row */}
-        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
-          <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)', marginRight: 4 }}>
-            Status:
-          </span>
-          {[
-            { id: 'ALL', label: 'All' },
-            { id: 'DRAFT_AI', label: 'Draft' },
-            { id: 'AWAITING_REVIEW', label: 'Awaiting Review' },
-            { id: 'APPROVED', label: 'Generated' },
-            { id: 'ISSUED', label: 'Sent' },
-            { id: 'ACCEPTED', label: 'Accepted' },
-            { id: 'REJECTED', label: 'Rejected' },
-            { id: 'EXPIRED', label: 'Expired' },
-          ].map((st) => (
-            <button
-              key={st.id}
-              onClick={() => {
-                setSelectedStatus(st.id);
-                setPage(1);
-                searchParams.set('status', st.id);
-                setSearchParams(searchParams);
-              }}
-              className={`btn ${selectedStatus === st.id ? 'btn-primary' : 'btn-secondary'}`}
-              style={{
-                padding: '5px 12px',
-                fontSize: '0.75rem',
-                borderRadius: 20,
-                transition: 'all 0.15s ease',
-              }}
-            >
-              {st.label}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Offer List Table with 8 Columns */}
-      <div className="glass-panel" style={{ padding: 0, overflow: 'hidden' }}>
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.875rem' }}>
-            <thead>
-              <tr
-                style={{
-                  background: '#f8fafc',
-                  borderBottom: '1px solid var(--border-subtle)',
-                  color: 'var(--text-muted)',
-                  fontSize: '0.75rem',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.05em',
-                }}
-              >
-                <th style={{ padding: '14px 18px', width: '22%' }}>Candidate</th>
-                <th style={{ padding: '14px 16px', width: '18%' }}>Position</th>
-                <th style={{ padding: '14px 14px', width: '11%' }}>Offer Date</th>
-                <th style={{ padding: '14px 14px', width: '11%' }}>Joining Date</th>
-                <th style={{ padding: '14px 16px', width: '14%' }}>Template</th>
-                <th style={{ padding: '14px 12px', width: '10%' }}>Status</th>
-                <th style={{ padding: '14px 14px', width: '14%' }}>AI Review Status</th>
-                <th style={{ padding: '14px 18px', textAlign: 'right', width: '180px' }}>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {loading ? (
-                <tr>
-                  <td colSpan={8} style={{ padding: 48, textAlign: 'center', color: 'var(--text-muted)' }}>
-                    <RefreshCw size={24} className="spin" style={{ margin: '0 auto 12px', display: 'block', color: 'var(--primary)' }} />
-                    Loading offer records...
-                  </td>
-                </tr>
-              ) : offers.length === 0 ? (
-                <tr>
-                  <td colSpan={8} style={{ padding: 48, textAlign: 'center', color: 'var(--text-muted)' }}>
-                    <Layers size={36} style={{ margin: '0 auto 12px', display: 'block', color: 'var(--text-dim)' }} />
-                    <div style={{ fontSize: '1rem', fontWeight: 700, color: '#0f172a', marginBottom: 4 }}>
-                      No offers found
-                    </div>
-                    <div style={{ fontSize: '0.8125rem', color: '#64748b' }}>
-                      Try adjusting your search criteria or status filter.
-                    </div>
-                  </td>
-                </tr>
-              ) : (
-                offers.map((o) => (
-                  <tr
-                    key={o.id}
-                    style={{
-                      borderBottom: '1px solid var(--border-subtle)',
-                      transition: 'background 0.15s ease',
-                    }}
-                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#f8fafc')}
-                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
-                  >
-                    {/* 1. Candidate Column */}
-                    <td style={{ padding: '14px 18px' }}>
-                      <div
-                        style={{
-                          fontWeight: 700,
-                          color: '#0f172a',
-                          cursor: 'pointer',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: 6,
-                          maxWidth: 240,
-                          wordBreak: 'break-word',
-                        }}
-                        onClick={() => handleView(o)}
-                        title="Click to view offer details"
-                      >
-                        <User size={14} style={{ color: 'var(--primary)', flexShrink: 0 }} />
-                        <span style={{ color: '#0f172a' }}>{o.candidateName}</span>
-                      </div>
-                      <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: 2, wordBreak: 'break-all' }}>
-                        {o.email}
-                      </div>
-                      <div
-                        style={{
-                          fontSize: '0.7rem',
-                          fontFamily: 'var(--font-mono)',
-                          color: 'var(--text-dim)',
-                          marginTop: 3,
-                        }}
-                      >
-                        Ref: {o.referenceNumber}
-                      </div>
-                    </td>
-
-                    {/* 2. Position Column */}
-                    <td style={{ padding: '14px 16px', maxWidth: 220 }}>
-                      <div style={{ fontWeight: 600, color: '#0f172a', wordBreak: 'break-word' }}>{o.position}</div>
-                      <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginTop: 3 }}>
-                        <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{o.department}</span>
-                        {o.bandGrade && (
-                          <span
-                            style={{
-                              fontSize: '0.68rem',
-                              padding: '1px 6px',
-                              borderRadius: 4,
-                              background: '#f1f5f9',
-                              color: '#475569',
-                              border: '1px solid #e2e8f0',
-                              fontWeight: 600,
-                            }}
-                          >
-                            {o.bandGrade}
-                          </span>
-                        )}
-                      </div>
-                      <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 600, marginTop: 2 }}>
-                        ${o.totalCtc?.toLocaleString()} {o.currency}
-                      </div>
-                    </td>
-
-                    {/* 3. Offer Date Column */}
-                    <td style={{ padding: '14px 14px' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: '0.8125rem', color: '#334155' }}>
-                        <Calendar size={13} style={{ color: 'var(--text-dim)' }} />
-                        <span>{formatDate(o.offerDate)}</span>
-                      </div>
-                    </td>
-
-                    {/* 4. Joining Date Column */}
-                    <td style={{ padding: '14px 14px' }}>
-                      <div style={{ fontSize: '0.8125rem', fontWeight: o.joiningDate ? 600 : 400, color: '#334155' }}>
-                        {formatDate(o.joiningDate)}
-                      </div>
-                    </td>
-
-                    {/* 5. Template Column */}
-                    <td style={{ padding: '14px 16px' }}>
-                      <div style={{ fontWeight: 600, fontSize: '0.8125rem', color: '#0f172a' }}>{o.template}</div>
-                      {o.templateCode && (
-                        <span
-                          style={{
-                            display: 'inline-block',
-                            fontSize: '0.68rem',
-                            fontWeight: 600,
-                            padding: '2px 7px',
-                            borderRadius: 4,
-                            background: '#eff6ff',
-                            color: '#1d4ed8',
-                            border: '1px solid #bfdbfe',
-                            marginTop: 4,
-                          }}
-                        >
-                          {o.templateCode}
-                        </span>
-                      )}
-                    </td>
-
-                    {/* 6. Status Column */}
-                    <td style={{ padding: '14px 12px' }}>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: 4, alignItems: 'flex-start' }}>
-                        <OfferStatusBadge status={o.status as any} />
-                        {o.status === 'ISSUED' && (
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleEmailHistory(o);
-                            }}
-                            style={{
-                              background: 'none',
-                              border: 'none',
-                              padding: 0,
-                              display: 'inline-flex',
-                              alignItems: 'center',
-                              gap: 3,
-                              fontSize: '0.6875rem',
-                              color: 'var(--success)',
-                              cursor: 'pointer',
-                              textDecoration: 'underline',
-                              fontWeight: 500,
-                            }}
-                            title="Click to view email delivery logs and exact dispatch timestamp"
-                          >
-                            <CheckCircle2 size={11} /> Sent Log
-                          </button>
-                        )}
-                      </div>
-                    </td>
-
-                    {/* 7. AI Review Status Column */}
-                    <td style={{ padding: '14px 14px' }}>
-                      {renderAiReviewStatusBadge(o.aiReviewStatus)}
-                    </td>
-
-                    {/* 8. Actions Column (View / Edit / Preview / Download / Duplicate / Send / History) */}
-                    <td style={{ padding: '14px 18px', textAlign: 'right' }}>
-                      <div
-                        style={{
-                          display: 'flex',
-                          gap: 4,
-                          justifyContent: 'flex-end',
-                          alignItems: 'center',
-                          flexWrap: 'wrap',
-                        }}
-                      >
-                        {/* View Action */}
-                        <button
-                          className="btn btn-secondary"
-                          style={{ padding: '5px 8px', fontSize: '0.72rem' }}
-                          title="View offer summary and details"
-                          onClick={() => handleView(o)}
-                        >
-                          <Eye size={13} />
-                        </button>
-
-                        {/* Edit Action */}
-                        <button
-                          className="btn btn-secondary"
-                          style={{ padding: '5px 8px', fontSize: '0.72rem' }}
-                          title="Edit terms and clauses"
-                          onClick={() => handleEdit(o)}
-                        >
-                          <Edit3 size={13} />
-                        </button>
-
-                        {/* Preview Action */}
-                        <button
-                          className="btn btn-secondary"
-                          style={{ padding: '5px 8px', fontSize: '0.72rem' }}
-                          title="Preview document markup and terms"
-                          onClick={() => handlePreview(o)}
-                        >
-                          <FileText size={13} />
-                        </button>
-
-                        {/* Download Action */}
-                        <button
-                          className="btn btn-secondary"
-                          style={{ padding: '5px 8px', fontSize: '0.72rem' }}
-                          title="Download official PDF document"
-                          onClick={() => handleDownload(o)}
-                          disabled={actionLoadingId === o.id}
-                        >
-                          <Download size={13} />
-                        </button>
-
-                        {/* Duplicate Action */}
-                        <button
-                          className="btn btn-secondary"
-                          style={{ padding: '5px 8px', fontSize: '0.72rem' }}
-                          title="Duplicate offer into fresh draft"
-                          onClick={() => handleDuplicate(o)}
-                          disabled={actionLoadingId === o.id}
-                        >
-                          <Copy size={13} />
-                        </button>
-
-                        {/* Send Action */}
-                        <button
-                          className="btn btn-primary"
-                          style={{
-                            padding: '5px 9px',
-                            fontSize: '0.72rem',
-                            gap: 4,
-                            background: o.status === 'ISSUED' ? 'rgba(99, 102, 241, 0.15)' : undefined,
-                            color: o.status === 'ISSUED' ? '#818cf8' : undefined,
-                            border: o.status === 'ISSUED' ? '1px solid rgba(99, 102, 241, 0.3)' : undefined,
-                          }}
-                          title={o.status === 'ISSUED' ? 'Resend or re-dispatch offer email' : 'Send formal offer to candidate'}
-                          onClick={() => handleSend(o)}
-                          disabled={actionLoadingId === o.id}
-                        >
-                          <Send size={12} />
-                          <span>{o.status === 'ISSUED' ? 'Resend' : 'Send'}</span>
-                        </button>
-
-                        {/* Email Dispatch Logs Action */}
-                        <button
-                          className="btn btn-secondary"
-                          style={{ padding: '5px 8px', fontSize: '0.72rem' }}
-                          title="View email dispatch history, delivery status, and secure link"
-                          onClick={() => handleEmailHistory(o)}
-                        >
-                          <Mail size={13} />
-                        </button>
-
-                        {/* History Action */}
-                        <button
-                          className="btn btn-secondary"
-                          style={{ padding: '5px 8px', fontSize: '0.72rem' }}
-                          title="View audit history, versions, and transitions"
-                          onClick={() => handleHistory(o)}
-                        >
-                          <History size={13} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Pagination Bar */}
         <div
           style={{
-            padding: '14px 24px',
-            borderTop: '1px solid var(--border-subtle)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            flexWrap: 'wrap',
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
             gap: 16,
-            background: '#ffffff',
           }}
         >
-          {/* Showing Count and Limit Selector */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <span style={{ fontSize: '0.8125rem', color: 'var(--text-muted)' }}>
-              Showing {totalCount === 0 ? 0 : (page - 1) * limit + 1} to{' '}
-              {Math.min(page * limit, totalCount)} of {totalCount} offers
-            </span>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>Per page:</span>
-              <select
-                className="form-input"
-                value={limit}
-                onChange={(e) => {
-                  setLimit(Number(e.target.value));
-                  setPage(1);
+          {documentCards.map((card) => {
+            const isOffer = card.active;
+            return (
+              <div
+                key={card.id}
+                onClick={card.onClick}
+                style={{
+                  backgroundColor: '#ffffff',
+                  borderRadius: 12,
+                  padding: '20px',
+                  border: isOffer ? '1.5px solid #2563eb' : '1px solid #e2e8f0',
+                  boxShadow: isOffer ? '0 4px 16px rgba(37, 99, 235, 0.08)' : '0 1px 3px rgba(0, 0, 0, 0.05)',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'space-between',
+                  transition: 'all 0.2s ease',
+                  position: 'relative',
+                  overflow: 'hidden',
                 }}
-                style={{ padding: '3px 8px', fontSize: '0.75rem', height: 28 }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                  e.currentTarget.style.boxShadow = isOffer
+                    ? '0 8px 24px rgba(37, 99, 235, 0.16)'
+                    : '0 6px 18px rgba(0, 0, 0, 0.08)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = isOffer
+                    ? '0 4px 16px rgba(37, 99, 235, 0.08)'
+                    : '0 1px 3px rgba(0, 0, 0, 0.05)';
+                }}
               >
-                <option value={10}>10</option>
-                <option value={20}>20</option>
-                <option value={50}>50</option>
-              </select>
-            </div>
-          </div>
-
-          {/* Page Navigation Controls */}
-          <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
-            <button
-              className="btn btn-secondary"
-              style={{ padding: '5px 8px' }}
-              disabled={page <= 1}
-              onClick={() => setPage(1)}
-              title="First Page"
-            >
-              <ChevronsLeft size={14} />
-            </button>
-            <button
-              className="btn btn-secondary"
-              style={{ padding: '5px 8px' }}
-              disabled={page <= 1}
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-              title="Previous Page"
-            >
-              <ChevronLeft size={14} />
-            </button>
-
-            {/* Dynamic Page Buttons */}
-            {Array.from({ length: totalPages }, (_, i) => i + 1)
-              .filter((p) => p === 1 || p === totalPages || Math.abs(p - page) <= 1)
-              .map((p, idx, arr) => {
-                const prev = arr[idx - 1];
-                return (
-                  <React.Fragment key={p}>
-                    {prev && p - prev > 1 && (
-                      <span style={{ padding: '0 4px', color: 'var(--text-dim)', fontSize: '0.8125rem' }}>
-                        ...
-                      </span>
-                    )}
-                    <button
-                      className={`btn ${page === p ? 'btn-primary' : 'btn-secondary'}`}
-                      style={{ padding: '4px 10px', fontSize: '0.75rem', minWidth: 28 }}
-                      onClick={() => setPage(p)}
+                {/* Top: Icon + Badge */}
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+                    <div
+                      style={{
+                        width: 44,
+                        height: 44,
+                        borderRadius: 10,
+                        backgroundColor: isOffer ? '#eff6ff' : '#f8fafc',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        border: isOffer ? '1px solid #bfdbfe' : '1px solid #f1f5f9',
+                      }}
                     >
-                      {p}
-                    </button>
-                  </React.Fragment>
-                );
-              })}
+                      {card.icon}
+                    </div>
+                    <span
+                      style={{
+                        fontSize: '0.72rem',
+                        fontWeight: 700,
+                        padding: '3px 8px',
+                        borderRadius: 20,
+                        color: card.badgeColor,
+                        backgroundColor: card.badgeBg,
+                        border: `1px solid ${card.badgeBorder}`,
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: 4,
+                      }}
+                    >
+                      {isOffer && <span style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: '#16a34a' }} />}
+                      {card.badge}
+                    </span>
+                  </div>
 
-            <button
-              className="btn btn-secondary"
-              style={{ padding: '5px 8px' }}
-              disabled={page >= totalPages}
-              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              title="Next Page"
-            >
-              <ChevronRight size={14} />
-            </button>
-            <button
-              className="btn btn-secondary"
-              style={{ padding: '5px 8px' }}
-              disabled={page >= totalPages}
-              onClick={() => setPage(totalPages)}
-              title="Last Page"
-            >
-              <ChevronsRight size={14} />
-            </button>
-          </div>
+                  {/* Title & Description */}
+                  <h4 style={{ fontSize: '0.98rem', fontWeight: 700, color: '#0f172a', margin: '0 0 6px 0' }}>
+                    {card.title}
+                  </h4>
+                  <p style={{ fontSize: '0.8125rem', color: '#64748b', lineHeight: 1.45, margin: 0 }}>
+                    {card.description}
+                  </p>
+                </div>
+
+                {/* Bottom Action Footer */}
+                <div
+                  style={{
+                    marginTop: 18,
+                    paddingTop: 12,
+                    borderTop: '1px solid #f1f5f9',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                  }}
+                >
+                  <span
+                    style={{
+                      fontSize: '0.8rem',
+                      fontWeight: 600,
+                      color: isOffer ? '#2563eb' : '#94a3b8',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 4,
+                    }}
+                  >
+                    {isOffer ? 'Generate Letter' : 'Coming Soon'}
+                  </span>
+                  {isOffer ? (
+                    <div
+                      style={{
+                        width: 28,
+                        height: 28,
+                        borderRadius: 6,
+                        backgroundColor: '#2563eb',
+                        color: '#ffffff',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}
+                    >
+                      <ArrowRight size={15} />
+                    </div>
+                  ) : (
+                    <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Template in dev</span>
+                  )}
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
 

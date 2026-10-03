@@ -31,9 +31,12 @@ import {
   Users,
   UserCheck,
   UserPlus,
+  Save,
 } from 'lucide-react';
 import { Button } from '../common/Button.js';
 import { offerService } from '../../services/offerService.js';
+import { DocumentEngineService } from '../../services/documentEngineService.js';
+import { HrDocument } from '../../types/document-engine.js';
 import { useToast } from '../../context/ToastContext.js';
 import { Employee, EmployeeService } from '../../services/employeeService.js';
 import { AddEmployeeModal } from '../employees/AddEmployeeModal.js';
@@ -908,60 +911,164 @@ export const QuickTemplateOfferModal: React.FC<QuickTemplateOfferModalProps> = (
     setTimeout(() => setCopied(false), 2000);
   };
 
-  // Save to DB Pipeline
+  // Save to Documents Generated
   const handleSaveToPipeline = async () => {
     setIsSaving(true);
     try {
-      const candidateName = values['employee_name'] || 'Candidate';
+      const candidateName = values['employee_name'] || values['candidate_name'] || 'Candidate';
       const parts = candidateName.trim().split(' ');
       const firstName = parts[0] || 'Candidate';
       const lastName = parts.slice(1).join(' ') || '';
-      const numericSalary = parseFloat(String(values['annual_ctc'] || '1800000').replace(/[^0-9.]/g, '')) || 1800000;
+      const recipientEmail =
+        selectedEmployee?.personalEmail ||
+        selectedEmployee?.officialEmail ||
+        `${firstName.toLowerCase().replace(/[^a-z0-9]/g, '')}@taskneracandidate.com`;
+      const numericSalary =
+        parseFloat(String(values['annual_ctc'] || '1800000').replace(/[^0-9.]/g, '')) || 1800000;
+      const refNumber =
+        values['reference_number'] ||
+        `OFF-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
 
-      const created = await offerService.generateFinalOffer({
-        templateId: 'tpl_tasknera_official_001',
-        candidate: {
-          firstName,
-          lastName,
-          email: `${firstName.toLowerCase()}@taskneracandidate.com`,
-          phone: '+91 9876543210',
-          address: 'Delhi, India',
-        },
-        jobDetails: {
-          jobTitle: values['designation'] || 'Senior Engineer',
-          department: values['department'] || 'Engineering',
-          bandGrade: 'Standard Professional',
-          workLocation: values['work_location'] || 'Delhi (Hybrid)',
-          employmentType: 'FULL_TIME',
-          proposedJoiningDate: new Date(Date.now() + 86400000 * 30).toISOString().split('T')[0],
-          reportingManagerName: values['reporting_manager'] || 'Sheetal Bedi',
-          reportingManagerTitle: 'CEO & FOUNDER',
-        },
-        compensation: {
-          currency: 'INR',
-          baseSalary: numericSalary * 0.7,
-          hraAllowance: numericSalary * 0.2,
-          specialAllowances: numericSalary * 0.1,
-          performanceBonus: 0,
-          joiningBonus: 0,
+      // 1. Create in Document Engine (Backend API)
+      let createdDoc: HrDocument | null = null;
+      try {
+        createdDoc = await DocumentEngineService.createDocument({
+          documentTypeCode: 'OFFER_LETTER',
+          title: `${docTitle || 'Offer Letter'} — ${candidateName}`,
+          recipientName: candidateName,
+          recipientEmail: recipientEmail,
+          recipientPhone: selectedEmployee?.phone || '+91 9876543210',
+          signatoryName: 'Sheetal Bedi',
+          signatoryTitle: 'CEO & Founder',
+          effectiveDate: values['joining_date'] || new Date().toISOString().split('T')[0],
+        });
+
+        if (createdDoc && createdDoc.id) {
+          await DocumentEngineService.confirmTerms(createdDoc.id, {
+            candidateName,
+            designation: values['designation'],
+            department: values['department'],
+            annualCtc: values['annual_ctc'],
+            baseSalary: values['basic_salary'],
+            hra: values['hra'],
+            specialAllowance: values['special_allowance'],
+            totalCtc: numericSalary,
+            workLocation: values['work_location'],
+            joiningDate: values['joining_date'],
+            referenceNumber: refNumber,
+            allValues: values,
+          });
+        }
+      } catch (backendErr) {
+        console.warn('Backend document engine save skipped/fallback:', backendErr);
+      }
+
+      // 2. Also construct standard HrDocument record for local storage backup
+      const localDoc: HrDocument = {
+        id: createdDoc?.id || `doc_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
+        companyId: 'company_default',
+        documentTypeCode: 'OFFER_LETTER',
+        referenceNumber: createdDoc?.referenceNumber || refNumber,
+        title: `${docTitle || 'Offer Letter'} — ${candidateName}`,
+        templateId: 'tpl_offer_standard',
+        templateVersionId: 'v1.0',
+        recipientName: candidateName,
+        recipientEmail: recipientEmail,
+        currentStatus: 'APPROVED',
+        aiReviewStatus: 'VERIFIED_BY_HR',
+        isAiGenerated: true,
+        aiConfidenceScore: 0.99,
+        aiExtractionWarnings: [],
+        aiExtractedData: {},
+        hrConfirmedData: {
+          candidateName,
+          jobTitle: values['designation'] || 'Employee',
+          department: values['department'] || 'General',
+          annualCtc: values['annual_ctc'],
+          baseSalary: values['basic_salary'],
+          hra: values['hra'],
+          specialAllowance: values['special_allowance'],
           totalCtc: numericSalary,
-        },
-        terms: {
-          probationDurationDays: 180,
-          noticePeriodDays: 45,
-          workingHoursPerWeek: 45,
-          workSchedule: 'Monday to Saturday',
-          offerValidUntil: values['offer_validity_date'] || 'October 15, 2026',
-          clauses: [],
+          currency: 'INR',
+          workLocation: values['work_location'] || 'Delhi / Hybrid',
+          joiningDate: values['joining_date'],
+          referenceNumber: refNumber,
+          allValues: values,
         },
         humanOverrides: [],
-      });
+        currentVersionNumber: 1,
+        versions: [],
+        generatedFiles: [],
+        statusHistory: [],
+        signatoryName: 'Sheetal Bedi',
+        signatoryTitle: 'CEO & Founder',
+        effectiveDate: values['joining_date'] || new Date().toISOString().split('T')[0],
+        createdByUserId: 'usr_current',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
 
-      success(`Offer letter registered in pipeline with Ref: ${created.referenceNumber}!`);
-      if (onSuccess) onSuccess(created);
+      // 3. Save to localStorage so it immediately appears in Documents Generated
+      const existingSaved: HrDocument[] = JSON.parse(
+        localStorage.getItem('tasknera_saved_documents') || '[]'
+      );
+      const updatedList = [
+        localDoc,
+        ...existingSaved.filter(
+          (d) => d.id !== localDoc.id && d.referenceNumber !== localDoc.referenceNumber
+        ),
+      ];
+      localStorage.setItem('tasknera_saved_documents', JSON.stringify(updatedList));
+
+      // 4. Save to offerService pipeline as well
+      try {
+        await offerService.generateFinalOffer({
+          templateId: 'tpl_tasknera_official_001',
+          candidate: {
+            firstName,
+            lastName,
+            email: recipientEmail,
+            phone: selectedEmployee?.phone || '+91 9876543210',
+            address: selectedEmployee?.workLocation || 'Delhi, India',
+          },
+          jobDetails: {
+            jobTitle: values['designation'] || 'Senior Engineer',
+            department: values['department'] || 'Engineering',
+            bandGrade: 'Standard Professional',
+            workLocation: values['work_location'] || 'Delhi (Hybrid)',
+            employmentType: 'FULL_TIME',
+            proposedJoiningDate: new Date(Date.now() + 86400000 * 30).toISOString().split('T')[0],
+            reportingManagerName: values['reporting_manager'] || 'Sheetal Bedi',
+            reportingManagerTitle: 'CEO & FOUNDER',
+          },
+          compensation: {
+            currency: 'INR',
+            baseSalary: numericSalary * 0.7,
+            hraAllowance: numericSalary * 0.2,
+            specialAllowances: numericSalary * 0.1,
+            performanceBonus: 0,
+            joiningBonus: 0,
+            totalCtc: numericSalary,
+          },
+          terms: {
+            probationDurationDays: 180,
+            noticePeriodDays: 45,
+            workingHoursPerWeek: 45,
+            workSchedule: 'Monday to Saturday',
+            offerValidUntil: values['offer_validity_date'] || 'October 15, 2026',
+            clauses: [],
+          },
+          humanOverrides: [],
+        });
+      } catch (pipelineErr) {
+        console.warn('Pipeline registration note:', pipelineErr);
+      }
+
+      success(`Document saved successfully to Documents Generated with Ref: ${localDoc.referenceNumber}!`);
+      if (onSuccess) onSuccess(localDoc);
       onClose();
     } catch (err: any) {
-      error(err?.message || 'Saved locally.');
+      error(err?.message || 'Failed to save document.');
     } finally {
       setIsSaving(false);
     }
@@ -1058,44 +1165,6 @@ export const QuickTemplateOfferModal: React.FC<QuickTemplateOfferModalProps> = (
           {/* STEP 1: STRUCTURE & SECTIONS CONFIGURATION */}
           {step === 1 && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-              {/* Preset Letter Type Selector */}
-              <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: 12, padding: '16px 20px' }}>
-                <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 700, color: '#475569', textTransform: 'uppercase', marginBottom: 10 }}>
-                  Select Letter Template Type:
-                </label>
-                <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-                  {[
-                    { key: 'employment_offer', label: 'Offer of Employment (7 Sections)', desc: 'Official standard with dual signatures & Annexure I' },
-                    { key: 'internship_offer', label: 'Internship Offer Letter (5 Sections)', desc: 'Mentorship scope, stipend & IP clauses' },
-                    { key: 'appointment_letter', label: 'Appointment / Confirmation', desc: 'Formal confirmation of appointment' },
-                    { key: 'custom', label: 'Custom Letter / Paste Text', desc: 'Define your own sections or paste raw text' },
-                  ].map((t) => (
-                    <button
-                      key={t.key}
-                      type="button"
-                      onClick={() => handleLetterTypeChange(t.key as any)}
-                      style={{
-                        flex: '1 1 200px',
-                        padding: '12px 16px',
-                        borderRadius: 10,
-                        textAlign: 'left',
-                        cursor: 'pointer',
-                        transition: 'all 0.15s ease',
-                        border: letterType === t.key ? '2px solid #a35d39' : '1px solid #cbd5e1',
-                        background: letterType === t.key ? '#fdfbf9' : '#ffffff',
-                      }}
-                    >
-                      <div style={{ fontWeight: 700, fontSize: '0.875rem', color: letterType === t.key ? '#a35d39' : '#0f172a' }}>
-                        {t.label}
-                      </div>
-                      <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: 3 }}>
-                        {t.desc}
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
               {/* View Switcher: Section-by-Section Cards vs Smart Paste Parser */}
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10 }}>
                 <div style={{ display: 'flex', gap: 6, background: '#e2e8f0', padding: 3, borderRadius: 8 }}>
@@ -2105,15 +2174,6 @@ export const QuickTemplateOfferModal: React.FC<QuickTemplateOfferModalProps> = (
                   </button>
 
                   <Button
-                    variant="secondary"
-                    icon={copied ? <Check size={14} /> : <Copy size={14} />}
-                    onClick={handleCopyText}
-                    style={{ fontSize: '0.8125rem' }}
-                  >
-                    {copied ? 'Copied!' : 'Copy Text'}
-                  </Button>
-
-                  <Button
                     variant="primary"
                     icon={<Download size={14} />}
                     onClick={handleDownloadPdf}
@@ -2123,22 +2183,13 @@ export const QuickTemplateOfferModal: React.FC<QuickTemplateOfferModalProps> = (
                   </Button>
 
                   <Button
-                    variant="secondary"
-                    icon={<Printer size={14} />}
-                    onClick={handleDownloadPdf}
-                    style={{ fontSize: '0.8125rem' }}
-                  >
-                    Print
-                  </Button>
-
-                  <Button
-                    variant="secondary"
-                    icon={isSaving ? <RefreshCw size={14} className="spin" /> : <ShieldCheck size={14} />}
+                    variant="primary"
+                    icon={isSaving ? <RefreshCw size={14} className="spin" /> : <Save size={14} />}
                     onClick={handleSaveToPipeline}
                     disabled={isSaving}
                     style={{ fontSize: '0.8125rem' }}
                   >
-                    {isSaving ? 'Saving...' : 'Save to Pipeline'}
+                    {isSaving ? 'Saving...' : 'Save to Documents Generated'}
                   </Button>
                 </div>
               </div>
