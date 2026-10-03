@@ -49,6 +49,7 @@ import { EmailHistoryModal } from '../components/offers/EmailHistoryModal.js';
 import { QuickTemplateOfferModal } from '../components/offers/QuickTemplateOfferModal.js';
 import { CharacterCertificateModal } from '../components/documents/CharacterCertificateModal.js';
 import { ExperienceLetterModal } from '../components/documents/ExperienceLetterModal.js';
+import { SalarySlipModal } from '../components/documents/SalarySlipModal.js';
 import { PolicyViewerModal, PolicyDefinition } from '../components/policies/PolicyViewerModal.js';
 import { OFFICIAL_POLICIES } from '../services/policyCatalog.js';
 import { offerService } from '../services/offerService.js';
@@ -93,6 +94,7 @@ export const OffersPage: React.FC = () => {
   const [isQuickModalOpen, setIsQuickModalOpen] = useState(false);
   const [isCharacterModalOpen, setIsCharacterModalOpen] = useState(false);
   const [isExperienceModalOpen, setIsExperienceModalOpen] = useState(false);
+  const [isSalarySlipModalOpen, setIsSalarySlipModalOpen] = useState(false);
   const [isWizardOpen, setIsWizardOpen] = useState(() => searchParams.get('create') === 'true');
   const [selectedOfferForDetail, setSelectedOfferForDetail] = useState<OfferItem | null>(null);
   const [detailModalTab, setDetailModalTab] = useState<'preview' | 'pdf' | 'versions' | 'status'>('preview');
@@ -431,12 +433,12 @@ export const OffersPage: React.FC = () => {
       title: 'Salary Slip',
       description: 'Monthly payslip statement with itemized earnings, deductions, and net pay.',
       icon: <DollarSign size={22} style={{ color: '#059669' }} />,
-      badge: 'Coming Soon',
-      badgeColor: '#64748b',
-      badgeBg: '#f8fafc',
-      badgeBorder: '#e2e8f0',
-      active: false,
-      onClick: () => info('Salary Slip template is currently in development and will be available soon.'),
+      badge: 'Ready to Generate',
+      badgeColor: '#16a34a',
+      badgeBg: '#f0fdf4',
+      badgeBorder: '#bbf7d0',
+      active: true,
+      onClick: () => setIsSalarySlipModalOpen(true),
     },
     {
       id: 'company_policies',
@@ -1036,6 +1038,13 @@ export const OffersPage: React.FC = () => {
       <ExperienceLetterModal
         isOpen={isExperienceModalOpen}
         onClose={() => setIsExperienceModalOpen(false)}
+        onSuccess={() => fetchOffers()}
+      />
+
+      {/* 2-Step TaskNera Salary Slip / Monthly Payslip Generator Modal */}
+      <SalarySlipModal
+        isOpen={isSalarySlipModalOpen}
+        onClose={() => setIsSalarySlipModalOpen(false)}
         onSuccess={() => fetchOffers()}
       />
 
