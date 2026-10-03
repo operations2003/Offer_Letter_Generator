@@ -6,6 +6,7 @@
 // =============================================================================
 
 export type PolicyTypeCode =
+  | 'INTELLECTUAL_PROPERTY_POLICY'
   | 'LEAVE_POLICY'
   | 'ATTENDANCE_POLICY'
   | 'WORK_FROM_HOME_POLICY'

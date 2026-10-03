@@ -8,6 +8,34 @@
 import { PolicyTypeCode, PolicyTypeDefinition } from '../../../../shared/types/policy-engine.js';
 
 export const POLICY_TYPE_REGISTRY: Record<PolicyTypeCode, PolicyTypeDefinition> = {
+  // 0. INTELLECTUAL PROPERTY & WORK PRODUCT POLICY
+  INTELLECTUAL_PROPERTY_POLICY: {
+    code: 'INTELLECTUAL_PROPERTY_POLICY',
+    name: 'Intellectual Property & Work Product Policy',
+    category: 'WORKPLACE_CONDUCT',
+    description: 'Clear and balanced framework for identifying, creating, using, protecting, documenting and transferring intellectual property and work product.',
+    defaultApplicability: 'ALL_EMPLOYEES',
+    recommendedReviewFrequencyMonths: 12,
+    standardSections: [
+      { sectionNumber: '1.0', title: 'Purpose & Policy Statement', description: 'Intent and ethical obligations regarding Company IP', sampleGuidance: 'Protects innovation and business continuity while respecting employees lawful rights.', isMandatory: true },
+      { sectionNumber: '2.0', title: 'Scope & Applicability', description: 'Workforce segments covered by IP standards', sampleGuidance: 'Applies to full-time, part-time, contractors, interns, and business partners.', isMandatory: true },
+      { sectionNumber: '3.0', title: 'Definitions', description: 'Authoritative IP terminology', sampleGuidance: 'Defines IP, Company IP, Work Product, Pre-Existing IP, and Confidential Information.', isMandatory: true },
+      { sectionNumber: '4.0', title: 'Ownership of Company Work Product', description: 'Assignment of deliverables created in assigned duties', sampleGuidance: 'Work created as part of job duties is treated as Company Work Product.', isMandatory: true },
+      { sectionNumber: '5.0', title: 'Employee-Created IP & Fair Treatment', description: 'Protections for personal skills and unrelated creations', sampleGuidance: 'Personal skills and unrelated personal creations remain the employees.', isMandatory: true },
+      { sectionNumber: '6.0', title: 'Pre-Existing IP & Personal Projects', description: 'Disclosure of pre-existing materials and personal work', sampleGuidance: 'Ordinary laptop use does not convert personal work into Company IP.', isMandatory: true },
+      { sectionNumber: '7.0', title: 'Third-Party IP & Open-Source Materials', description: 'Licensing, attribution, and open-source compliance', sampleGuidance: 'Do not introduce unvetted open-source code or violate licenses.', isMandatory: true },
+      { sectionNumber: '8.0', title: 'Client, Candidate & Partner IP', description: 'Respecting external partner and client IP rights', sampleGuidance: 'Client-owned IP remains client-owned per contract.', isMandatory: true },
+      { sectionNumber: '9.0', title: 'Use, Protection & Confidentiality', description: 'Safeguarding source files, credentials, and systems', sampleGuidance: 'Store in approved systems; do not transfer to personal accounts.', isMandatory: true },
+      { sectionNumber: '10.0', title: 'Disclosure, Registration & Records', description: 'Procedures for registering and recording valuable IP', sampleGuidance: 'Timely disclosure to management before public dissemination.', isMandatory: true },
+      { sectionNumber: '11.0', title: 'Contractors, Interns & Vendors', description: 'IP terms for external consultants and suppliers', sampleGuidance: 'Payment does not replace explicit contractual IP assignment terms.', isMandatory: true },
+      { sectionNumber: '12.0', title: 'Separation & Continuing Obligations', description: 'Return of IP and materials upon offboarding', sampleGuidance: 'Return devices and delete proprietary materials upon departure.', isMandatory: true },
+      { sectionNumber: '13.0', title: 'Reporting, Review & Non-Retaliation', description: 'Hotline for reporting IP infringement or loss', sampleGuidance: 'Good-faith reporting without fear of workplace retaliation.', isMandatory: true },
+      { sectionNumber: '14.0', title: 'Breach & Disciplinary Action', description: 'Sanctions for deliberate policy violations', sampleGuidance: 'Misconduct may result in formal warnings or termination with prejudice.', isMandatory: true },
+      { sectionNumber: '15.0', title: 'Policy Governance & Legal Framework', description: 'Indian legislation (Copyright Act, Patents Act) & governance', sampleGuidance: 'Operates under Copyright Act 1957 and Patents Act 1970.', isMandatory: true },
+      { sectionNumber: '16.0', title: 'Employee Acknowledgement', description: 'Formal employee signature and acknowledgement record', sampleGuidance: 'Signed declaration acknowledging receipt and compliance.', isMandatory: true },
+    ],
+  },
+
   // 1. LEAVE POLICY
   LEAVE_POLICY: {
     code: 'LEAVE_POLICY',
