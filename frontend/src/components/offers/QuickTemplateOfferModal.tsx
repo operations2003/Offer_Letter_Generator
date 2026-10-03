@@ -323,7 +323,7 @@ const APPOINTMENT_SECTIONS: DocumentSectionItem[] = [
 ];
 
 const DEFAULT_ANNEXURE_ROWS: DocumentAnnexureRow[] = [
-  { label: 'Employee Name', key: 'employee_name', defaultValue: 'Aarav Sharma' },
+  { label: 'Employee Name', key: 'employee_name', defaultValue: '' },
   { label: 'Designation', key: 'designation', defaultValue: 'Senior Platform Engineer' },
   { label: 'Department', key: 'department', defaultValue: 'Platform Engineering' },
   { label: 'Reporting Manager', key: 'reporting_manager', defaultValue: 'Sheetal Bedi (CEO & Founder)' },
@@ -475,8 +475,8 @@ export const QuickTemplateOfferModal: React.FC<QuickTemplateOfferModalProps> = (
   // Dynamic field values
   const [values, setValues] = useState<Record<string, string>>({
     salutation: 'Mr.',
-    employee_name: 'Aarav Sharma',
-    candidate_name: 'Aarav Sharma',
+    employee_name: '',
+    candidate_name: '',
     designation: 'Senior Platform Engineer',
     department: 'Platform Engineering',
     annual_ctc: '18,00,000',
@@ -812,8 +812,8 @@ export const QuickTemplateOfferModal: React.FC<QuickTemplateOfferModalProps> = (
     const allMap: Record<string, string> = {
       ...values,
       salutation: values['salutation'] || 'Mr.',
-      employee_name: values['employee_name'] || values['candidate_name'] || 'Aarav Sharma',
-      candidate_name: values['employee_name'] || values['candidate_name'] || 'Aarav Sharma',
+      employee_name: values['employee_name'] || values['candidate_name'] || '',
+      candidate_name: values['employee_name'] || values['candidate_name'] || '',
       designation: values['designation'] || 'Senior Platform Engineer',
       department: values['department'] || 'Platform Engineering',
       annual_ctc: values['annual_ctc'] || values['salary'] || '18,00,000',
@@ -1975,7 +1975,7 @@ export const QuickTemplateOfferModal: React.FC<QuickTemplateOfferModalProps> = (
                           <input
                             type="text"
                             className="form-input"
-                            placeholder="e.g. Aarav Sharma"
+                            placeholder="Enter employee full name"
                             value={values['employee_name'] || ''}
                             onChange={(e) =>
                               setValues({

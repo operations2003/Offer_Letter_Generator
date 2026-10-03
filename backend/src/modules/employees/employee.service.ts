@@ -127,46 +127,6 @@ export class EmployeeService {
   }
 
   /**
-   * Pre-seed standard employee database with default employees (e.g. Ajay Sharma) if not present
-   */
-  static async ensureSeedData(): Promise<void> {
-    try {
-      const companyId = await this.getCompanyId();
-      const existingAjay = await prisma.employee.findFirst({
-        where: {
-          companyId,
-          fullName: { contains: 'Ajay', mode: 'insensitive' },
-          deletedAt: null,
-        },
-      });
-
-      if (!existingAjay) {
-        await prisma.employee.create({
-          data: {
-            companyId,
-            employeeId: 'EMP-001',
-            fullName: 'Ajay Sharma',
-            personalEmail: 'ajay.sharma@example.com',
-            officialEmail: 'ajay@acme.com',
-            phone: '+1 (555) 234-5678',
-            designation: 'Senior Software Engineer',
-            department: 'Engineering',
-            employmentType: 'Full-time',
-            joiningDate: new Date('2026-10-15'),
-            status: 'ACTIVE',
-            reportingManager: 'Sarah Jenkins',
-            workLocation: 'New York, NY (Hybrid)',
-            annualCtc: 120000,
-            currency: 'USD',
-          },
-        });
-      }
-    } catch {
-      // Non-blocking
-    }
-  }
-
-  /**
    * List all employees with search & filtering
    */
   static async listEmployees(params?: {
@@ -175,7 +135,6 @@ export class EmployeeService {
     department?: string;
     status?: string;
   }) {
-    await this.ensureSeedData();
     const companyId = await this.getCompanyId(params?.companyId);
 
     const where: any = {

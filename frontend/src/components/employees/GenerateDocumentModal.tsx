@@ -162,14 +162,9 @@ export const GenerateDocumentModal: React.FC<GenerateDocumentModalProps> = ({
       setTemplates(tplList);
       setEmployees(empList);
 
-      // If no employee was passed, look for Ajay Sharma or default to first
+      // If no employee was passed, default to first employee
       if (!initialEmployee && empList.length > 0) {
-        const ajay = empList.find((e) => e.fullName.toLowerCase().includes('ajay'));
-        if (ajay) {
-          setSelectedEmployee(ajay);
-        } else {
-          setSelectedEmployee(empList[0]);
-        }
+        setSelectedEmployee(empList[0]);
       }
     } catch (err: any) {
       setError(err.message || 'Failed to load templates or employees');
@@ -599,7 +594,7 @@ export const GenerateDocumentModal: React.FC<GenerateDocumentModalProps> = ({
             </div>
             <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0f172a', margin: '4px 0 0 0' }}>
               {step === 1 && 'Select Template'}
-              {step === 2 && 'Select Employee (Select: Ajay)'}
+              {step === 2 && 'Select Employee'}
               {step === 3 && `Template Placeholder Mapping — ${selectedEmployee?.fullName || 'Employee'}`}
               {step === 4 && 'Document Preview & HR Action'}
               {step === 5 && 'Action: Download or Send by Email'}
@@ -904,7 +899,7 @@ export const GenerateDocumentModal: React.FC<GenerateDocumentModalProps> = ({
           )}
 
           {/* ========================================================================= */}
-          {/* STEP 2: SELECT EMPLOYEE (Select: Ajay)                                   */}
+          {/* STEP 2: SELECT EMPLOYEE                                                  */}
           {/* ========================================================================= */}
           {step === 2 && (
             <div>
@@ -916,7 +911,7 @@ export const GenerateDocumentModal: React.FC<GenerateDocumentModalProps> = ({
                   <Search size={14} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
                   <input
                     type="text"
-                    placeholder="Search Ajay or employee..."
+                    placeholder="Search employee by name, ID, or email..."
                     value={employeeSearch}
                     onChange={(e) => setEmployeeSearch(e.target.value)}
                     style={{
@@ -933,7 +928,6 @@ export const GenerateDocumentModal: React.FC<GenerateDocumentModalProps> = ({
               {/* Employee Selection Cards Grid */}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 12 }}>
                 {filteredEmployees.map((emp) => {
-                  const isAjay = emp.fullName.toLowerCase().includes('ajay');
                   const isSelected = selectedEmployee?.id === emp.id;
 
                   return (
@@ -945,42 +939,21 @@ export const GenerateDocumentModal: React.FC<GenerateDocumentModalProps> = ({
                         borderRadius: 12,
                         border: isSelected
                           ? '2px solid #2563eb'
-                          : isAjay
-                          ? '2px solid #3b82f6'
                           : '1px solid #e2e8f0',
-                        backgroundColor: isSelected ? '#eff6ff' : isAjay ? '#f8fafc' : '#ffffff',
+                        backgroundColor: isSelected ? '#eff6ff' : '#ffffff',
                         cursor: 'pointer',
                         transition: 'all 0.15s ease',
                         position: 'relative',
                       }}
                     >
-                      {isAjay && (
-                        <span
-                          style={{
-                            position: 'absolute',
-                            top: 10,
-                            right: 10,
-                            fontSize: '0.6875rem',
-                            fontWeight: 800,
-                            backgroundColor: '#2563eb',
-                            color: '#ffffff',
-                            padding: '3px 9px',
-                            borderRadius: 12,
-                            boxShadow: '0 2px 4px rgba(37, 99, 235, 0.3)',
-                          }}
-                        >
-                          Select: Ajay ★
-                        </span>
-                      )}
-
                       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                         <div
                           style={{
                             width: 38,
                             height: 38,
                             borderRadius: '50%',
-                            backgroundColor: isAjay ? '#dbeafe' : '#f1f5f9',
-                            color: isAjay ? '#1d4ed8' : '#475569',
+                            backgroundColor: isSelected ? '#dbeafe' : '#f1f5f9',
+                            color: isSelected ? '#1d4ed8' : '#475569',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
@@ -1085,7 +1058,7 @@ export const GenerateDocumentModal: React.FC<GenerateDocumentModalProps> = ({
                   Template Placeholder Mapping
                 </h4>
                 <p style={{ fontSize: '0.8125rem', color: '#64748b', margin: '0 0 12px 0' }}>
-                  All placeholders in the selected template are auto-filled from Ajay's employee record. You can edit any mapped value below prior to document generation:
+                  All placeholders in the selected template are auto-filled from {selectedEmployee?.fullName || 'the employee'}'s record. You can edit any mapped value below prior to document generation:
                 </p>
 
                 {Object.values(customTemplateFieldMappings).some((m) => !m.isMapped) && (
@@ -1708,7 +1681,7 @@ export const GenerateDocumentModal: React.FC<GenerateDocumentModalProps> = ({
                       type="email"
                       value={emailTo}
                       onChange={(e) => setEmailTo(e.target.value)}
-                      placeholder="ajay.sharma@example.com"
+                      placeholder={selectedEmployee?.personalEmail || 'employee@example.com'}
                       style={{
                         width: '100%',
                         padding: '8px 12px',

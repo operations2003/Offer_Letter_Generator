@@ -174,39 +174,6 @@ export async function runSeed() {
   });
   console.log(`✅ Default HR Manager seeded: ${hrUser.email} (Password: Hr@Password123)`);
 
-  // 5. Seed Default Employee: Ajay Sharma
-  const existingAjay = await prisma.employee.findFirst({
-    where: {
-      companyId: company.id,
-      employeeId: 'EMP-001',
-      deletedAt: null,
-    },
-  });
-
-  if (!existingAjay) {
-    const employeeAjay = await prisma.employee.create({
-      data: {
-        companyId: company.id,
-        employeeId: 'EMP-001',
-        fullName: 'Ajay Sharma',
-        personalEmail: 'ajay.sharma@example.com',
-        officialEmail: 'ajay@acme.com',
-        phone: '+1 (555) 234-5678',
-        designation: 'Senior Software Engineer',
-        department: 'Engineering',
-        employmentType: 'Full-time',
-        joiningDate: new Date('2026-10-15'),
-        status: 'ACTIVE',
-        reportingManager: 'Sarah Jenkins',
-        workLocation: 'New York, NY (Hybrid)',
-        annualCtc: 120000,
-        currency: 'USD',
-        createdBy: hrUser.id,
-      },
-    });
-    console.log(`✅ Default Employee seeded: ${employeeAjay.fullName} (${employeeAjay.employeeId})`);
-  }
-
   console.log('🎉 Database seeding completed successfully.');
 }
 

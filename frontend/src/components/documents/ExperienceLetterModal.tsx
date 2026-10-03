@@ -56,9 +56,9 @@ export const ExperienceLetterModal: React.FC<ExperienceLetterModalProps> = ({
 
   // Form Fields State (Auto-fetched from employee + editable)
   const [salutation, setSalutation] = useState<'Mr.' | 'Ms.' | 'Dr.'>('Mr.');
-  const [fullName, setFullName] = useState<string>('Aarav Sharma');
-  const [designation, setDesignation] = useState<string>('Senior Platform Engineer');
-  const [department, setDepartment] = useState<string>('Platform Engineering');
+  const [fullName, setFullName] = useState<string>('');
+  const [designation, setDesignation] = useState<string>('');
+  const [department, setDepartment] = useState<string>('');
   const [associationType, setAssociationType] = useState<'employment' | 'internship'>('employment');
   const [genderPronoun, setGenderPronoun] = useState<'male' | 'female'>('male');
 
