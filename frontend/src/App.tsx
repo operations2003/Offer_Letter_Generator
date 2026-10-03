@@ -7,10 +7,6 @@ import { OffersPage } from './pages/OffersPage.js';
 import { TemplatesPage } from './pages/TemplatesPage.js';
 import { AiStudioPage } from './pages/AiStudioPage.js';
 import { AuditLogsPage } from './pages/AuditLogsPage.js';
-import { OnboardingPage } from './pages/OnboardingPage.js';
-import { LearningPage } from './pages/LearningPage.js';
-import { AssessmentsPage } from './pages/AssessmentsPage.js';
-import { PoliciesPage } from './pages/PoliciesPage.js';
 import { PdfToStructuredLetterPage } from './pages/PdfToStructuredLetterPage.js';
 import { EmployeesPage } from './pages/EmployeesPage.js';
 import { EmployeeProfilePage } from './pages/EmployeeProfilePage.js';
@@ -36,10 +32,6 @@ export const App: React.FC = () => {
         <Route path="dashboard" element={<DashboardPage />} />
         <Route path="employees" element={<EmployeesPage />} />
         <Route path="employees/:id" element={<EmployeeProfilePage />} />
-        <Route path="onboarding" element={<OnboardingPage />} />
-        <Route path="learning" element={<LearningPage />} />
-        <Route path="assessments" element={<AssessmentsPage />} />
-        <Route path="policies" element={<PoliciesPage />} />
         <Route path="documents" element={<DocumentsPage />} />
         <Route path="documents/create" element={<DocumentsPage createMode={true} />} />
         <Route path="offers" element={<OffersPage />} />
