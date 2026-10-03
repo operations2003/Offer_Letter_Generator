@@ -50,6 +50,7 @@ import { QuickTemplateOfferModal } from '../components/offers/QuickTemplateOffer
 import { CharacterCertificateModal } from '../components/documents/CharacterCertificateModal.js';
 import { ExperienceLetterModal } from '../components/documents/ExperienceLetterModal.js';
 import { SalarySlipModal } from '../components/documents/SalarySlipModal.js';
+import { InternshipConcludingModal } from '../components/documents/InternshipConcludingModal.js';
 import { PolicyViewerModal, PolicyDefinition } from '../components/policies/PolicyViewerModal.js';
 import { OFFICIAL_POLICIES } from '../services/policyCatalog.js';
 import { offerService } from '../services/offerService.js';
@@ -95,6 +96,7 @@ export const OffersPage: React.FC = () => {
   const [isCharacterModalOpen, setIsCharacterModalOpen] = useState(false);
   const [isExperienceModalOpen, setIsExperienceModalOpen] = useState(false);
   const [isSalarySlipModalOpen, setIsSalarySlipModalOpen] = useState(false);
+  const [isInternshipModalOpen, setIsInternshipModalOpen] = useState(false);
   const [isWizardOpen, setIsWizardOpen] = useState(() => searchParams.get('create') === 'true');
   const [selectedOfferForDetail, setSelectedOfferForDetail] = useState<OfferItem | null>(null);
   const [detailModalTab, setDetailModalTab] = useState<'preview' | 'pdf' | 'versions' | 'status'>('preview');
@@ -417,16 +419,16 @@ export const OffersPage: React.FC = () => {
       onClick: () => setIsExperienceModalOpen(true),
     },
     {
-      id: 'internship_letter',
-      title: 'Internship Letter',
-      description: 'Internship appointment letter with stipend details, duration, and learning scope.',
-      icon: <GraduationCap size={22} style={{ color: '#9333ea' }} />,
-      badge: 'Coming Soon',
-      badgeColor: '#64748b',
-      badgeBg: '#f8fafc',
-      badgeBorder: '#e2e8f0',
-      active: false,
-      onClick: () => info('Internship Letter template is currently in development and will be available soon.'),
+      id: 'internship_concluding',
+      title: 'Internship Concluding Letter',
+      description: 'Formal internship conclusion letter, tenure verification, completion formalities, and acknowledgement.',
+      icon: <GraduationCap size={22} style={{ color: '#c2410c' }} />,
+      badge: 'Ready to Generate',
+      badgeColor: '#16a34a',
+      badgeBg: '#f0fdf4',
+      badgeBorder: '#bbf7d0',
+      active: true,
+      onClick: () => setIsInternshipModalOpen(true),
     },
     {
       id: 'salary_slip',
@@ -1045,6 +1047,13 @@ export const OffersPage: React.FC = () => {
       <SalarySlipModal
         isOpen={isSalarySlipModalOpen}
         onClose={() => setIsSalarySlipModalOpen(false)}
+        onSuccess={() => fetchOffers()}
+      />
+
+      {/* 2-Step TaskNera Internship Concluding Letter Generator Modal */}
+      <InternshipConcludingModal
+        isOpen={isInternshipModalOpen}
+        onClose={() => setIsInternshipModalOpen(false)}
         onSuccess={() => fetchOffers()}
       />
 
