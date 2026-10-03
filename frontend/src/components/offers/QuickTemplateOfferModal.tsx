@@ -883,13 +883,80 @@ export const QuickTemplateOfferModal: React.FC<QuickTemplateOfferModalProps> = (
 
   // Print & PDF Download Handler
   const handleDownloadPdf = () => {
-    const prevTitle = document.title;
+    const offerElement = document.getElementById('printable-offer-document');
+    if (!offerElement) {
+      window.print();
+      return;
+    }
+
     const candidateName = values['employee_name'] || 'Candidate';
-    document.title = `TaskNera_Offer_Letter_${candidateName.replace(/\s+/g, '_')}_${values['reference_number'].replace(/[\/\\]/g, '_')}`;
-    window.print();
+    const docTitle = `TaskNera_Offer_Letter_${candidateName.replace(/\s+/g, '_')}_${(values['reference_number'] || '').replace(/[\/\\]/g, '_')}`;
+
+    const iframe = document.createElement('iframe');
+    iframe.style.position = 'fixed';
+    iframe.style.right = '0';
+    iframe.style.bottom = '0';
+    iframe.style.width = '0';
+    iframe.style.height = '0';
+    iframe.style.border = '0';
+    document.body.appendChild(iframe);
+
+    const doc = iframe.contentWindow?.document;
+    if (!doc) {
+      window.print();
+      return;
+    }
+
+    const styles = Array.from(document.querySelectorAll('style, link[rel="stylesheet"]'))
+      .map((el) => el.outerHTML)
+      .join('\n');
+
+    doc.open();
+    doc.write(`
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>${docTitle}</title>
+          <meta charset="utf-8" />
+          ${styles}
+          <style>
+            @page {
+              size: A4 portrait;
+              margin: 6mm 10mm 16mm 10mm;
+            }
+            body {
+              margin: 0 !important;
+              padding: 0 !important;
+              background: #ffffff !important;
+            }
+            #printable-offer-document {
+              position: static !important;
+              width: 100% !important;
+            }
+          </style>
+        </head>
+        <body>
+          ${offerElement.outerHTML}
+        </body>
+      </html>
+    `);
+    doc.close();
+
     setTimeout(() => {
-      document.title = prevTitle;
-    }, 1000);
+      try {
+        iframe.contentWindow?.focus();
+        iframe.contentWindow?.print();
+      } catch (err) {
+        console.warn('Iframe print failed:', err);
+        window.print();
+      } finally {
+        setTimeout(() => {
+          if (document.body.contains(iframe)) {
+            document.body.removeChild(iframe);
+          }
+        }, 2000);
+      }
+    }, 300);
   };
 
   // Copy Plain Text Handler
@@ -1078,6 +1145,7 @@ export const QuickTemplateOfferModal: React.FC<QuickTemplateOfferModalProps> = (
 
   return (
     <div
+      className="tasknera-modal-overlay no-print"
       style={{
         position: 'fixed',
         inset: 0,
@@ -1091,7 +1159,7 @@ export const QuickTemplateOfferModal: React.FC<QuickTemplateOfferModalProps> = (
       }}
     >
       <div
-        className="glass-panel"
+        className="tasknera-modal-container glass-panel"
         style={{
           width: '100%',
           maxWidth: step === 3 ? 1040 : 920,
@@ -1107,6 +1175,7 @@ export const QuickTemplateOfferModal: React.FC<QuickTemplateOfferModalProps> = (
       >
         {/* Header Bar */}
         <div
+          className="no-print"
           style={{
             padding: '18px 28px',
             borderBottom: '1px solid #e2e8f0',
@@ -2143,7 +2212,7 @@ export const QuickTemplateOfferModal: React.FC<QuickTemplateOfferModalProps> = (
           {step === 3 && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
               {/* Top Action Bar */}
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
+              <div className="no-print" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
                 <div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <CheckCircle2 size={18} style={{ color: '#059669' }} />

@@ -45,6 +45,8 @@ import { OfferDetailModal } from '../components/offers/OfferDetailModal.js';
 import { EmailSendModal } from '../components/offers/EmailSendModal.js';
 import { EmailHistoryModal } from '../components/offers/EmailHistoryModal.js';
 import { QuickTemplateOfferModal } from '../components/offers/QuickTemplateOfferModal.js';
+import { CharacterCertificateModal } from '../components/documents/CharacterCertificateModal.js';
+import { ExperienceLetterModal } from '../components/documents/ExperienceLetterModal.js';
 import { offerService } from '../services/offerService.js';
 
 const INITIAL_MOCK_OFFERS: OfferListItem[] = [];
@@ -85,6 +87,8 @@ export const OffersPage: React.FC = () => {
 
   // Modals & Action States
   const [isQuickModalOpen, setIsQuickModalOpen] = useState(false);
+  const [isCharacterModalOpen, setIsCharacterModalOpen] = useState(false);
+  const [isExperienceModalOpen, setIsExperienceModalOpen] = useState(false);
   const [isWizardOpen, setIsWizardOpen] = useState(() => searchParams.get('create') === 'true');
   const [selectedOfferForDetail, setSelectedOfferForDetail] = useState<OfferItem | null>(null);
   const [detailModalTab, setDetailModalTab] = useState<'preview' | 'pdf' | 'versions' | 'status'>('preview');
@@ -369,12 +373,12 @@ export const OffersPage: React.FC = () => {
       title: 'Character Certificate',
       description: 'Official conduct, background standing, and character verification certificate.',
       icon: <ShieldCheck size={22} style={{ color: '#7c3aed' }} />,
-      badge: 'Coming Soon',
-      badgeColor: '#64748b',
-      badgeBg: '#f8fafc',
-      badgeBorder: '#e2e8f0',
-      active: false,
-      onClick: () => info('Character Certificate template is currently in development and will be available soon.'),
+      badge: 'Ready to Generate',
+      badgeColor: '#16a34a',
+      badgeBg: '#f0fdf4',
+      badgeBorder: '#bbf7d0',
+      active: true,
+      onClick: () => setIsCharacterModalOpen(true),
     },
     {
       id: 'onboarding_letter',
@@ -393,12 +397,12 @@ export const OffersPage: React.FC = () => {
       title: 'Experience Letter',
       description: 'Formal employment tenure, roles held, and service certification letter.',
       icon: <Briefcase size={22} style={{ color: '#ea580c' }} />,
-      badge: 'Coming Soon',
-      badgeColor: '#64748b',
-      badgeBg: '#f8fafc',
-      badgeBorder: '#e2e8f0',
-      active: false,
-      onClick: () => info('Experience Letter template is currently in development and will be available soon.'),
+      badge: 'Ready to Generate',
+      badgeColor: '#16a34a',
+      badgeBg: '#f0fdf4',
+      badgeBorder: '#bbf7d0',
+      active: true,
+      onClick: () => setIsExperienceModalOpen(true),
     },
     {
       id: 'internship_letter',
@@ -670,6 +674,20 @@ export const OffersPage: React.FC = () => {
       <QuickTemplateOfferModal
         isOpen={isQuickModalOpen}
         onClose={() => setIsQuickModalOpen(false)}
+        onSuccess={() => fetchOffers()}
+      />
+
+      {/* 2-Step TaskNera Character Certificate Generator Modal */}
+      <CharacterCertificateModal
+        isOpen={isCharacterModalOpen}
+        onClose={() => setIsCharacterModalOpen(false)}
+        onSuccess={() => fetchOffers()}
+      />
+
+      {/* 2-Step TaskNera Experience Letter Generator Modal */}
+      <ExperienceLetterModal
+        isOpen={isExperienceModalOpen}
+        onClose={() => setIsExperienceModalOpen(false)}
         onSuccess={() => fetchOffers()}
       />
     </div>

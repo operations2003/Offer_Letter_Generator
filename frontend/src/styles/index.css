@@ -1226,15 +1226,27 @@ button, input, select, textarea {
   /* Isolate printable document container */
   #printable-offer-document,
   #printable-offer-document *,
+  #printable-character-certificate,
+  #printable-character-certificate *,
+  #printable-experience-letter,
+  #printable-experience-letter *,
   .printable-letterhead-paper,
   .printable-letterhead-paper *,
+  .printable-character-sheet,
+  .printable-character-sheet *,
+  .printable-experience-sheet,
+  .printable-experience-sheet *,
   .document-page-sheet,
   .document-page-sheet * {
     visibility: visible !important;
   }
 
   #printable-offer-document,
-  .printable-letterhead-paper {
+  .printable-letterhead-paper,
+  #printable-character-certificate,
+  .printable-character-sheet,
+  #printable-experience-letter,
+  .printable-experience-sheet {
     position: absolute !important;
     left: 0 !important;
     top: 0 !important;
@@ -1247,6 +1259,19 @@ button, input, select, textarea {
     background: #ffffff !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
+  }
+
+  #printable-character-certificate,
+  .printable-character-sheet,
+  #printable-experience-letter,
+  .printable-experience-sheet {
+    min-height: auto !important;
+    height: auto !important;
+    page-break-after: avoid !important;
+    break-after: avoid !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    overflow: hidden !important;
   }
 
   .document-page-sheet,
