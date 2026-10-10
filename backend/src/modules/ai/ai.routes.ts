@@ -14,7 +14,8 @@ import {
 
 const router = Router();
 
-
+// MRSA prompt-driven agreement sections generation
+router.post('/mrsa/generate-sections', AiController.generateMrsaSections);
 
 router.use(authenticate);
 

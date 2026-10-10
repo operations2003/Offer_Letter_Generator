@@ -376,5 +376,25 @@ export class AiController {
       next(error);
     }
   }
+
+  /**
+   * Generates prompt-driven sections for Master Recruitment Services Agreement (MRSA)
+   */
+  static async generateMrsaSections(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { prompt, currentClientName } = req.body;
+      if (!prompt || typeof prompt !== 'string') {
+        throw new BadRequestError('A prompt string is required');
+      }
+
+      const result = await AiService.generateMrsaSections(prompt, currentClientName);
+      res.status(200).json({
+        success: true,
+        data: result,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 

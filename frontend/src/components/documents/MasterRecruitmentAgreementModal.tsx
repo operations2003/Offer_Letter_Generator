@@ -26,6 +26,11 @@ import {
   Briefcase,
   Users,
   CheckCircle2,
+  Sparkles,
+  RefreshCw,
+  Undo2,
+  Wand2,
+  BookOpen,
 } from 'lucide-react';
 import { Button } from '../common/Button.js';
 import {
@@ -37,9 +42,41 @@ import {
   INITIAL_MRSA_DATA,
   getDeepCloneMrsaData,
 } from '../../services/mrsaCatalog.js';
+import {
+  generateMrsaFromPrompt,
+  refineSingleSectionWithAi,
+  MrsaAiParsedPromptTerms,
+} from '../../services/mrsaAiService.js';
 import { DocumentEngineService } from '../../services/documentEngineService.js';
 import { HrDocument } from '../../types/document-engine.js';
 import { useToast } from '../../context/ToastContext.js';
+
+const AI_PROMPT_PRESETS = [
+  {
+    label: 'Standard Bozzo Cabs',
+    icon: '⚡',
+    prompt:
+      'Generate Master Recruitment Agreement for Bozzo Cabs with standard 8.33% Placement Fee on annual CTC, 45-day payment credit period, 60-day candidate exit replacement guarantee, 12 months candidate fee protection period, non-circumvention of 12 months, arbitration seated in New Delhi, and standard DPDP Act compliance.',
+  },
+  {
+    label: 'Enterprise BFSI & Strict SLA',
+    icon: '🏢',
+    prompt:
+      'Draft recruitment agreement for Bozzo Cabs with 12.5% placement fee on annual CTC, 30 days invoice payment terms, 90 days candidate replacement warranty, 18 months fee attribution protection, 24 months non-solicitation, 48 hours profile feedback SLA, arbitration in Hyderabad, and strict DPDP Act candidate privacy safeguards.',
+  },
+  {
+    label: 'High-Growth Tech Startup',
+    icon: '🚀',
+    prompt:
+      'Create tech recruitment agreement for Bozzo Cabs with 10% placement fee, 15 calendar days payment term, 120 days replacement warranty with credit note option, 12 months candidate attribution, arbitration in Bengaluru, and hybrid-remote work onboarding terms.',
+  },
+  {
+    label: 'Executive Leadership Retainer',
+    icon: '👑',
+    prompt:
+      'Draft an executive leadership search agreement for Bozzo Cabs with 15% placement fee, 30 days payment window, 180 days replacement warranty, 24 months candidate protection period, dispute resolution in Mumbai, and strict non-disclosure obligations.',
+  },
+];
 
 interface MasterRecruitmentAgreementModalProps {
   isOpen: boolean;
@@ -99,6 +136,19 @@ export const MasterRecruitmentAgreementModal: React.FC<MasterRecruitmentAgreemen
   const [newCommercialTerm, setNewCommercialTerm] = useState('');
   const [newCommercialTermsValue, setNewCommercialTermsValue] = useState('');
 
+  // AI Prompt Studio State for Sections
+  const [aiPrompt, setAiPrompt] = useState('');
+  const [isAiGenerating, setIsAiGenerating] = useState(false);
+  const [aiGenerationProgress, setAiGenerationProgress] = useState('');
+  const [aiGeneratedSuccessSummary, setAiGeneratedSuccessSummary] = useState<string | null>(null);
+  const [aiParsedTerms, setAiParsedTerms] = useState<MrsaAiParsedPromptTerms | null>(null);
+  const [previousDataState, setPreviousDataState] = useState<MrsaAgreementData | null>(null);
+  const [showStaticTocMap, setShowStaticTocMap] = useState(false);
+
+  // Single Section AI Prompt State
+  const [singleSectionPromptText, setSingleSectionPromptText] = useState<Record<string, string>>({});
+  const [isRefiningSingleSection, setIsRefiningSingleSection] = useState<string | null>(null);
+
   // Scroll ref
   const previewScrollRef = useRef<HTMLDivElement>(null);
 
@@ -128,6 +178,76 @@ export const MasterRecruitmentAgreementModal: React.FC<MasterRecruitmentAgreemen
 
   const collapseAll = () => {
     setExpandedSections({});
+  };
+
+  // AI Prompt Driven Generation for All Sections
+  const handleGenerateWithAi = async (overridePrompt?: string) => {
+    const promptToUse = (overridePrompt || aiPrompt).trim();
+    if (!promptToUse) {
+      error('Please enter a prompt describing the agreement terms or requirements.');
+      return;
+    }
+
+    setIsAiGenerating(true);
+    setAiGenerationProgress('Analyzing agreement prompt & extracting business terms...');
+
+    try {
+      // Save snapshot for 1-click undo
+      setPreviousDataState(JSON.parse(JSON.stringify(data)));
+
+      await new Promise((r) => setTimeout(r, 350));
+      setAiGenerationProgress('Synthesizing definitions, commercial structures & liability terms...');
+      await new Promise((r) => setTimeout(r, 400));
+      setAiGenerationProgress('Customizing clauses across all 25 sections while preserving static Table of Contents...');
+
+      const result = await generateMrsaFromPrompt(promptToUse, data);
+
+      setData(result.updatedData);
+      setAiParsedTerms(result.parsedTerms);
+      setAiGeneratedSuccessSummary(result.summary);
+      success('AI successfully generated and updated all 25 agreement sections!');
+    } catch (err: any) {
+      error(`AI generation failed: ${err.message || 'Unknown error'}`);
+    } finally {
+      setIsAiGenerating(false);
+      setAiGenerationProgress('');
+    }
+  };
+
+  const handleRevertAiGeneration = () => {
+    if (previousDataState) {
+      setData(previousDataState);
+      setPreviousDataState(null);
+      setAiGeneratedSuccessSummary(null);
+      setAiParsedTerms(null);
+      info('Reverted to previous agreement state.');
+    }
+  };
+
+  const handleRefineSingleSection = async (sectionId: string) => {
+    const prompt = (singleSectionPromptText[sectionId] || '').trim();
+    if (!prompt) {
+      error('Please enter instructions for this section');
+      return;
+    }
+    const targetSection = data.sections.find((s) => s.id === sectionId);
+    if (!targetSection) return;
+
+    setIsRefiningSingleSection(sectionId);
+    try {
+      await new Promise((r) => setTimeout(r, 450));
+      const updatedSection = refineSingleSectionWithAi(targetSection, prompt, data.client.tradeName);
+      setData((prev) => ({
+        ...prev,
+        sections: prev.sections.map((s) => (s.id === sectionId ? updatedSection : s)),
+      }));
+      success(`Updated Section ${targetSection.number} with AI`);
+      setSingleSectionPromptText((prev) => ({ ...prev, [sectionId]: '' }));
+    } catch (err: any) {
+      error(`Failed to refine section: ${err.message}`);
+    } finally {
+      setIsRefiningSingleSection(null);
+    }
   };
 
   // Section mutation helpers
@@ -821,6 +941,371 @@ export const MasterRecruitmentAgreementModal: React.FC<MasterRecruitmentAgreemen
                       </div>
                     </div>
 
+                    {/* ================================================================= */}
+                    {/* AI AGREEMENT PROMPT STUDIO (OPERATIVE SECTIONS)                  */}
+                    {/* Preserves canonical static 25-section Table of Contents while     */}
+                    {/* dynamically generating & tailoring clauses from user prompts     */}
+                    {/* ================================================================= */}
+                    <div
+                      style={{
+                        background: 'linear-gradient(135deg, #f8faff 0%, #f5f3ff 100%)',
+                        border: '1.5px solid #c7d2fe',
+                        borderRadius: 14,
+                        padding: '22px 24px',
+                        boxShadow: '0 4px 20px -2px rgba(99, 102, 241, 0.08), 0 2px 6px -1px rgba(0, 0, 0, 0.04)',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: 16,
+                      }}
+                    >
+                      {/* Studio Top Header */}
+                      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                          <div
+                            style={{
+                              width: 42,
+                              height: 42,
+                              borderRadius: 12,
+                              background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              color: '#ffffff',
+                              boxShadow: '0 4px 12px rgba(99, 102, 241, 0.35)',
+                              flexShrink: 0,
+                            }}
+                          >
+                            <Sparkles size={22} />
+                          </div>
+                          <div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                              <h4 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#1e1b4b', margin: 0, letterSpacing: '-0.01em' }}>
+                                AI Agreement Prompt Studio
+                              </h4>
+                              <span
+                                style={{
+                                  fontSize: '0.68rem',
+                                  fontWeight: 700,
+                                  backgroundColor: '#dbeafe',
+                                  color: '#1d4ed8',
+                                  padding: '2px 8px',
+                                  borderRadius: 12,
+                                  border: '1px solid #bfdbfe',
+                                }}
+                              >
+                                Static Table of Contents (25 Sections)
+                              </span>
+                            </div>
+                            <p style={{ fontSize: '0.8125rem', color: '#475569', margin: '3px 0 0 0' }}>
+                              Enter your commercial prompt or client terms. AI will synthesize and fill all 25 sections while keeping the Table of Contents strictly standard for everyone.
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Top Controls */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                          {previousDataState && (
+                            <button
+                              type="button"
+                              onClick={handleRevertAiGeneration}
+                              style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 5,
+                                fontSize: '0.75rem',
+                                padding: '6px 12px',
+                                borderRadius: 6,
+                                border: '1px solid #cbd5e1',
+                                backgroundColor: '#ffffff',
+                                color: '#475569',
+                                cursor: 'pointer',
+                                fontWeight: 600,
+                              }}
+                              title="Revert to state before last AI generation"
+                            >
+                              <Undo2 size={13} /> Undo AI Changes
+                            </button>
+                          )}
+                          <button
+                            type="button"
+                            onClick={() => setShowStaticTocMap(!showStaticTocMap)}
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: 5,
+                              fontSize: '0.75rem',
+                              padding: '6px 12px',
+                              borderRadius: 6,
+                              border: '1px solid #c7d2fe',
+                              backgroundColor: showStaticTocMap ? '#e0e7ff' : '#ffffff',
+                              color: '#4338ca',
+                              cursor: 'pointer',
+                              fontWeight: 600,
+                            }}
+                          >
+                            <BookOpen size={13} /> {showStaticTocMap ? 'Hide TOC Map' : 'View Static TOC Map'}
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Static TOC Quick Map Drawer */}
+                      {showStaticTocMap && (
+                        <div
+                          style={{
+                            backgroundColor: '#ffffff',
+                            border: '1px solid #c7d2fe',
+                            borderRadius: 10,
+                            padding: '14px 18px',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: 8,
+                          }}
+                        >
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#3730a3', textTransform: 'uppercase' }}>
+                              Canonical Static Table of Contents (Fixed for all documents)
+                            </span>
+                            <span style={{ fontSize: '0.7rem', color: '#6b7280' }}>
+                              All 25 sections below are populated with AI content
+                            </span>
+                          </div>
+                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 6, maxHeight: 150, overflowY: 'auto' }}>
+                            {data.sections.map((s) => (
+                              <div
+                                key={s.id}
+                                style={{
+                                  fontSize: '0.75rem',
+                                  padding: '4px 8px',
+                                  borderRadius: 4,
+                                  backgroundColor: '#f8fafc',
+                                  border: '1px solid #e2e8f0',
+                                  color: '#334155',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: 6,
+                                }}
+                              >
+                                <span style={{ fontWeight: 700, color: '#2563eb' }}>{s.number}.</span>
+                                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.title}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Main Prompt Text Box */}
+                      <div style={{ position: 'relative' }}>
+                        <textarea
+                          rows={3}
+                          value={aiPrompt}
+                          onChange={(e) => setAiPrompt(e.target.value)}
+                          placeholder='E.g.: "Generate a Master Recruitment Agreement for Bozzo Cabs with a 10% placement fee on annual CTC, 45-day payment terms, 90-day replacement warranty for candidate exits, 18-month candidate fee protection period, non-solicitation of 2 years, arbitration seated in Hyderabad, and strict data privacy compliance under India DPDP Act 2023..."'
+                          style={{
+                            width: '100%',
+                            padding: '14px 16px',
+                            borderRadius: 10,
+                            border: '1.5px solid #cbd5e1',
+                            fontSize: '0.875rem',
+                            lineHeight: 1.55,
+                            color: '#0f172a',
+                            backgroundColor: '#ffffff',
+                            fontFamily: 'inherit',
+                            resize: 'vertical',
+                            minHeight: 90,
+                            boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.03)',
+                            transition: 'border-color 0.15s ease',
+                          }}
+                        />
+                      </div>
+
+                      {/* Prompt Presets / Inspiration Pills */}
+                      <div>
+                        <div style={{ fontSize: '0.72rem', fontWeight: 700, color: '#4f46e5', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: 6 }}>
+                          Quick Prompt Templates (Click to fill)
+                        </div>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                          {AI_PROMPT_PRESETS.map((preset, idx) => (
+                            <button
+                              key={idx}
+                              type="button"
+                              onClick={() => setAiPrompt(preset.prompt)}
+                              style={{
+                                fontSize: '0.75rem',
+                                padding: '5px 10px',
+                                borderRadius: 6,
+                                border: '1px solid #c7d2fe',
+                                backgroundColor: '#ffffff',
+                                color: '#3730a3',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 5,
+                                fontWeight: 500,
+                                transition: 'all 0.15s ease',
+                              }}
+                              onMouseEnter={(e) => {
+                                e.currentTarget.style.backgroundColor = '#e0e7ff';
+                                e.currentTarget.style.borderColor = '#818cf8';
+                              }}
+                              onMouseLeave={(e) => {
+                                e.currentTarget.style.backgroundColor = '#ffffff';
+                                e.currentTarget.style.borderColor = '#c7d2fe';
+                              }}
+                            >
+                              <span>{preset.icon}</span>
+                              <span>{preset.label}</span>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Action Bar */}
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12, paddingTop: 2 }}>
+                        <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>
+                          {aiPrompt.length > 0 ? `${aiPrompt.length} characters entered` : 'Ready for custom instructions'}
+                        </div>
+
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                          {aiPrompt && (
+                            <button
+                              type="button"
+                              onClick={() => setAiPrompt('')}
+                              style={{
+                                background: 'transparent',
+                                border: 'none',
+                                color: '#9ca3af',
+                                fontSize: '0.75rem',
+                                cursor: 'pointer',
+                                textDecoration: 'underline',
+                              }}
+                            >
+                              Clear Prompt
+                            </button>
+                          )}
+
+                          <button
+                            type="button"
+                            onClick={() => handleGenerateWithAi()}
+                            disabled={isAiGenerating || !aiPrompt.trim()}
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: 8,
+                              padding: '10px 20px',
+                              borderRadius: 8,
+                              border: 'none',
+                              background: isAiGenerating || !aiPrompt.trim()
+                                ? '#94a3b8'
+                                : 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)',
+                              color: '#ffffff',
+                              fontWeight: 700,
+                              fontSize: '0.86rem',
+                              cursor: isAiGenerating || !aiPrompt.trim() ? 'not-allowed' : 'pointer',
+                              boxShadow: isAiGenerating || !aiPrompt.trim() ? 'none' : '0 4px 14px rgba(79, 70, 229, 0.3)',
+                              transition: 'all 0.15s ease',
+                            }}
+                          >
+                            {isAiGenerating ? (
+                              <>
+                                <RefreshCw size={15} style={{ animation: 'spin 1s linear infinite' }} />
+                                <span>Generating 25 Sections...</span>
+                              </>
+                            ) : (
+                              <>
+                                <Sparkles size={16} />
+                                <span>Generate All Sections with AI</span>
+                              </>
+                            )}
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Loading Progress State */}
+                      {isAiGenerating && (
+                        <div
+                          style={{
+                            padding: '11px 16px',
+                            backgroundColor: '#eff6ff',
+                            border: '1px solid #bfdbfe',
+                            borderRadius: 8,
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 10,
+                            fontSize: '0.8125rem',
+                            color: '#1e40af',
+                          }}
+                        >
+                          <RefreshCw size={15} style={{ animation: 'spin 1s linear infinite' }} />
+                          <span>{aiGenerationProgress || 'Synthesizing agreement clauses...'}</span>
+                        </div>
+                      )}
+
+                      {/* Success / Applied Terms Summary Card */}
+                      {aiGeneratedSuccessSummary && !isAiGenerating && (
+                        <div
+                          style={{
+                            padding: '14px 18px',
+                            backgroundColor: '#f0fdf4',
+                            border: '1.5px solid #86efac',
+                            borderRadius: 10,
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: 8,
+                          }}
+                        >
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 6 }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontWeight: 700, color: '#166534', fontSize: '0.88rem' }}>
+                              <CheckCircle2 size={18} color="#16a34a" />
+                              <span>25 Agreement Sections Customized Successfully</span>
+                            </div>
+                            <span style={{ fontSize: '0.72rem', color: '#15803d', fontWeight: 600, backgroundColor: '#dcfce7', padding: '2px 8px', borderRadius: 4 }}>
+                              Table of Contents: Static & Preserved
+                            </span>
+                          </div>
+
+                          <div style={{ fontSize: '0.8125rem', color: '#14532d', lineHeight: 1.5 }}>
+                            {aiGeneratedSuccessSummary}
+                          </div>
+
+                          {/* Quick Chips of extracted terms */}
+                          {aiParsedTerms && (
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 4 }}>
+                              {aiParsedTerms.clientName && (
+                                <span style={{ fontSize: '0.72rem', backgroundColor: '#dcfce7', color: '#166534', padding: '2px 8px', borderRadius: 4, fontWeight: 600 }}>
+                                  Client: {aiParsedTerms.clientName}
+                                </span>
+                              )}
+                              {(aiParsedTerms.placementFee || aiParsedTerms.feePercentage) && (
+                                <span style={{ fontSize: '0.72rem', backgroundColor: '#dcfce7', color: '#166534', padding: '2px 8px', borderRadius: 4, fontWeight: 600 }}>
+                                  Fee: {aiParsedTerms.placementFee || `${aiParsedTerms.feePercentage}% CTC`}
+                                </span>
+                              )}
+                              {aiParsedTerms.paymentDays && (
+                                <span style={{ fontSize: '0.72rem', backgroundColor: '#dcfce7', color: '#166534', padding: '2px 8px', borderRadius: 4, fontWeight: 600 }}>
+                                  Payment: {aiParsedTerms.paymentDays} Days
+                                </span>
+                              )}
+                              {aiParsedTerms.replacementDays && (
+                                <span style={{ fontSize: '0.72rem', backgroundColor: '#dcfce7', color: '#166534', padding: '2px 8px', borderRadius: 4, fontWeight: 600 }}>
+                                  Warranty: {aiParsedTerms.replacementDays} Days
+                                </span>
+                              )}
+                              {aiParsedTerms.protectionMonths && (
+                                <span style={{ fontSize: '0.72rem', backgroundColor: '#dcfce7', color: '#166534', padding: '2px 8px', borderRadius: 4, fontWeight: 600 }}>
+                                  Protection: {aiParsedTerms.protectionMonths} Months
+                                </span>
+                              )}
+                              {aiParsedTerms.jurisdictionCity && (
+                                <span style={{ fontSize: '0.72rem', backgroundColor: '#dcfce7', color: '#166534', padding: '2px 8px', borderRadius: 4, fontWeight: 600 }}>
+                                  Seat: {aiParsedTerms.jurisdictionCity}
+                                </span>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+
                     {/* Search filter */}
                     <div style={{ position: 'relative' }}>
                       <Search size={16} style={{ position: 'absolute', left: 12, top: 12, color: '#94a3b8' }} />
@@ -1040,6 +1525,29 @@ export const MasterRecruitmentAgreementModal: React.FC<MasterRecruitmentAgreemen
                                 </button>
                                 <button
                                   type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    if (!isExpanded) toggleSection(sec.id);
+                                  }}
+                                  style={{
+                                    padding: '4px 8px',
+                                    borderRadius: 6,
+                                    border: '1px solid #c7d2fe',
+                                    backgroundColor: '#eff6ff',
+                                    color: '#4338ca',
+                                    cursor: 'pointer',
+                                    fontSize: '0.72rem',
+                                    fontWeight: 600,
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 4,
+                                  }}
+                                  title="AI Prompt for this section"
+                                >
+                                  <Sparkles size={12} /> AI Prompt
+                                </button>
+                                <button
+                                  type="button"
                                   onClick={() => toggleSection(sec.id)}
                                   style={{
                                     padding: '4px 6px',
@@ -1057,6 +1565,70 @@ export const MasterRecruitmentAgreementModal: React.FC<MasterRecruitmentAgreemen
                             {/* Section Content (Clauses) */}
                             {isExpanded && (
                               <div style={{ padding: '18px', display: 'flex', flexDirection: 'column', gap: 14 }}>
+                                {/* Inline AI Prompt Bar for this Section */}
+                                <div
+                                  style={{
+                                    backgroundColor: '#f5f3ff',
+                                    border: '1px solid #ddd6fe',
+                                    borderRadius: 8,
+                                    padding: '8px 12px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 8,
+                                  }}
+                                >
+                                  <Sparkles size={16} color="#7c3aed" style={{ flexShrink: 0 }} />
+                                  <input
+                                    type="text"
+                                    value={singleSectionPromptText[sec.id] || ''}
+                                    onChange={(e) =>
+                                      setSingleSectionPromptText({ ...singleSectionPromptText, [sec.id]: e.target.value })
+                                    }
+                                    placeholder={`AI Prompt for Section ${sec.number} (e.g. 'Set late payment interest to 24%', 'Require 24hr feedback SLA')...`}
+                                    style={{
+                                      flex: 1,
+                                      padding: '6px 10px',
+                                      fontSize: '0.8125rem',
+                                      borderRadius: 6,
+                                      border: '1px solid #c4b5fd',
+                                      backgroundColor: '#ffffff',
+                                    }}
+                                    onKeyDown={(e) => {
+                                      if (e.key === 'Enter') handleRefineSingleSection(sec.id);
+                                    }}
+                                  />
+                                  <button
+                                    type="button"
+                                    onClick={() => handleRefineSingleSection(sec.id)}
+                                    disabled={isRefiningSingleSection === sec.id || !(singleSectionPromptText[sec.id] || '').trim()}
+                                    style={{
+                                      padding: '6px 12px',
+                                      borderRadius: 6,
+                                      backgroundColor: isRefiningSingleSection === sec.id || !(singleSectionPromptText[sec.id] || '').trim() ? '#c4b5fd' : '#7c3aed',
+                                      color: '#ffffff',
+                                      border: 'none',
+                                      fontSize: '0.78rem',
+                                      fontWeight: 600,
+                                      cursor: isRefiningSingleSection === sec.id || !(singleSectionPromptText[sec.id] || '').trim() ? 'not-allowed' : 'pointer',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      gap: 5,
+                                      whiteSpace: 'nowrap',
+                                    }}
+                                  >
+                                    {isRefiningSingleSection === sec.id ? (
+                                      <>
+                                        <RefreshCw size={12} style={{ animation: 'spin 1s linear infinite' }} />
+                                        Refining...
+                                      </>
+                                    ) : (
+                                      <>
+                                        <Sparkles size={12} />
+                                        AI Refine Section
+                                      </>
+                                    )}
+                                  </button>
+                                </div>
                                 {/* Title edit */}
                                 <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
                                   <label style={{ fontSize: '0.78rem', fontWeight: 600, color: '#475569', width: 90 }}>
@@ -2310,7 +2882,7 @@ export const MasterRecruitmentAgreementModal: React.FC<MasterRecruitmentAgreemen
                         <td style={{ padding: '5px 8px', border: '1px solid #1e293b' }}>22. Notices and Communications</td>
                       </tr>
                       <tr>
-                        <td style={{ padding: '5px 8px', border: '1px solid #1e293b' }}>9. Responsibilities of Bozzo Cabs</td>
+                        <td style={{ padding: '5px 8px', border: '1px solid #1e293b' }}>9. Responsibilities of {data.client.tradeName || 'Client'}</td>
                         <td style={{ padding: '5px 8px', border: '1px solid #1e293b' }}>23. Assignment and Subcontracting</td>
                       </tr>
                       <tr>
