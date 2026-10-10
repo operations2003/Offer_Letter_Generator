@@ -1230,6 +1230,12 @@ button, input, select, textarea {
   #printable-character-certificate *,
   #printable-experience-letter,
   #printable-experience-letter *,
+  #printable-completion-certificate,
+  #printable-completion-certificate *,
+  #printable-relieving-certificate,
+  #printable-relieving-certificate *,
+  #printable-bonafide-certificate,
+  #printable-bonafide-certificate *,
   .printable-letterhead-paper,
   .printable-letterhead-paper *,
   .printable-character-sheet,
@@ -1246,7 +1252,10 @@ button, input, select, textarea {
   #printable-character-certificate,
   .printable-character-sheet,
   #printable-experience-letter,
-  .printable-experience-sheet {
+  .printable-experience-sheet,
+  #printable-completion-certificate,
+  #printable-relieving-certificate,
+  #printable-bonafide-certificate {
     position: absolute !important;
     left: 0 !important;
     top: 0 !important;
@@ -1264,7 +1273,10 @@ button, input, select, textarea {
   #printable-character-certificate,
   .printable-character-sheet,
   #printable-experience-letter,
-  .printable-experience-sheet {
+  .printable-experience-sheet,
+  #printable-completion-certificate,
+  #printable-relieving-certificate,
+  #printable-bonafide-certificate {
     min-height: auto !important;
     height: auto !important;
     page-break-after: avoid !important;
