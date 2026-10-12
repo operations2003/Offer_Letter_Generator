@@ -467,8 +467,6 @@ export const MasterRecruitmentAgreementModal: React.FC<MasterRecruitmentAgreemen
       return;
     }
 
-    const docTitle = `TaskNera_MRSA_${data.client.tradeName.replace(/\s+/g, '_')}_${data.agreementNumber.replace(/[\/\\]/g, '_')}`;
-
     const iframe = document.createElement('iframe');
     iframe.style.position = 'fixed';
     iframe.style.right = '0';
@@ -489,12 +487,12 @@ export const MasterRecruitmentAgreementModal: React.FC<MasterRecruitmentAgreemen
       <!DOCTYPE html>
       <html>
         <head>
-          <title>${docTitle}</title>
+          <title></title>
           <meta charset="utf-8" />
           <style>
             @page {
               size: A4 portrait;
-              margin: 14mm 16mm 14mm 16mm;
+              margin: 0 !important;
             }
             * {
               box-sizing: border-box;
@@ -502,13 +500,21 @@ export const MasterRecruitmentAgreementModal: React.FC<MasterRecruitmentAgreemen
               print-color-adjust: exact !important;
             }
             html, body {
-              margin: 0;
-              padding: 0;
+              margin: 0 !important;
+              padding: 12mm 16mm !important;
               background: #ffffff;
               color: #0f172a;
               font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-              font-size: 9pt;
+              font-size: 8.85pt;
               line-height: 1.5;
+            }
+            #printable-mrsa-agreement {
+              box-shadow: none !important;
+              border-radius: 0 !important;
+              max-width: 100% !important;
+              width: 100% !important;
+              padding: 0 !important;
+              margin: 0 !important;
             }
             .page-break {
               page-break-before: always !important;

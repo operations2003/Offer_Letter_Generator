@@ -103,20 +103,20 @@ export async function runSeed() {
   }
 
   // 3. Create Default Super Admin User
-  const adminPasswordHash = await CryptoUtil.hashPassword('Admin@Password123');
+  const adminPasswordHash = await CryptoUtil.hashPassword('Tasknera@9312506515');
   const adminUser = await prisma.user.upsert({
-    where: { email: 'admin@acme.com' },
+    where: { email: 'sheetalbedi@tasknera.com' },
     update: {
       passwordHash: adminPasswordHash,
       status: 'ACTIVE',
     },
     create: {
       companyId: company.id,
-      email: 'admin@acme.com',
+      email: 'sheetalbedi@tasknera.com',
       passwordHash: adminPasswordHash,
-      firstName: 'System',
-      lastName: 'Administrator',
-      title: 'Head of People Systems',
+      firstName: 'Sheetal',
+      lastName: 'Bedi',
+      title: 'Administrator',
       department: 'Executive',
       status: 'ACTIVE',
     },
@@ -136,23 +136,23 @@ export async function runSeed() {
       roleId: seededRoles['SUPER_ADMIN'],
     },
   });
-  console.log(`✅ Default Super Admin seeded: ${adminUser.email} (Password: Admin@Password123)`);
+  console.log(`✅ Default Super Admin seeded: ${adminUser.email} (Password: Tasknera@9312506515)`);
 
   // 4. Create Default HR Manager User
-  const hrPasswordHash = await CryptoUtil.hashPassword('Hr@Password123');
+  const hrPasswordHash = await CryptoUtil.hashPassword('hr@123');
   const hrUser = await prisma.user.upsert({
-    where: { email: 'hr@acme.com' },
+    where: { email: 'hr@gmail.com' },
     update: {
       passwordHash: hrPasswordHash,
       status: 'ACTIVE',
     },
     create: {
       companyId: company.id,
-      email: 'hr@acme.com',
+      email: 'hr@gmail.com',
       passwordHash: hrPasswordHash,
-      firstName: 'Sarah',
-      lastName: 'Jenkins',
-      title: 'Lead HR Business Partner',
+      firstName: 'HR',
+      lastName: 'Manager',
+      title: 'HR Manager',
       department: 'Human Resources',
       status: 'ACTIVE',
     },
@@ -172,7 +172,7 @@ export async function runSeed() {
       roleId: seededRoles['HR_MANAGER'],
     },
   });
-  console.log(`✅ Default HR Manager seeded: ${hrUser.email} (Password: Hr@Password123)`);
+  console.log(`✅ Default HR Manager seeded: ${hrUser.email} (Password: hr@123)`);
 
   console.log('🎉 Database seeding completed successfully.');
 }

@@ -17,9 +17,9 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 const DEMO_USERS: Record<string, User> = {
   SUPER_ADMIN: {
     id: 'usr_admin_001',
-    email: 'admin@tasknera.com',
-    firstName: 'Admin',
-    lastName: 'TaskNera',
+    email: 'sheetalbedi@tasknera.com',
+    firstName: 'Sheetal',
+    lastName: 'Bedi',
     title: 'Enterprise Administrator',
     department: 'Executive',
     status: 'ACTIVE',
@@ -33,12 +33,12 @@ const DEMO_USERS: Record<string, User> = {
     permissions: ['*'],
   },
   HR_MANAGER: {
-    id: 'usr_sakshi_1048',
-    email: 'sakshi@tasknera.com',
-    firstName: 'Sakshi',
-    lastName: 'Koparde',
-    title: 'Senior People Partner & Operations',
-    department: 'People & Operations',
+    id: 'usr_hr_002',
+    email: 'hr@gmail.com',
+    firstName: 'HR',
+    lastName: 'Manager',
+    title: 'HR Operations Manager',
+    department: 'Human Resources',
     status: 'ACTIVE',
     company: {
       id: 'cmp_tasknera_001',
@@ -88,6 +88,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     const initializeAuth = async () => {
+      // If user is currently visiting the login page, do not autofill or restore credentials
+      if (typeof window !== 'undefined' && window.location.pathname === '/login') {
+        setUser(null);
+        setToken(null);
+        setIsLoading(false);
+        return;
+      }
+
       const savedUser = localStorage.getItem('offergen_user');
       const savedToken = localStorage.getItem('offergen_token');
 
@@ -104,16 +112,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         } catch {
           localStorage.removeItem('offergen_user');
           localStorage.removeItem('offergen_token');
-          const defaultUser = DEMO_USERS.HR_MANAGER;
-          setUser(defaultUser);
+          setUser(null);
+          setToken(null);
         }
       } else {
-        // By default on initial load, pre-authenticate as HR_MANAGER so user lands directly in working app
-        const defaultUser = DEMO_USERS.HR_MANAGER;
-        setUser(defaultUser);
-        setToken('demo_jwt_token_sample');
-        localStorage.setItem('offergen_user', JSON.stringify(defaultUser));
-        localStorage.setItem('offergen_token', 'demo_jwt_token_sample');
+        setUser(null);
+        setToken(null);
       }
       setIsLoading(false);
     };
@@ -123,22 +127,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (email: string, passwordPlain: string) => {
     setIsLoading(true);
+    const cleanEmail = email.trim().toLowerCase();
     try {
       const response = await fetch('/api/v1/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password: passwordPlain }),
+        body: JSON.stringify({ email: email.trim(), password: passwordPlain }),
       });
 
       if (!response.ok) {
-        // If backend DB is not configured, fall back to matching demo accounts
-        if (email.toLowerCase().includes('admin')) {
+        // Direct credential verification fallback if backend DB returns 401/network issue
+        if (cleanEmail === 'sheetalbedi@tasknera.com' && passwordPlain === 'Tasknera@9312506515') {
           loginAsDemo('SUPER_ADMIN');
           return;
-        } else {
+        } else if (cleanEmail === 'hr@gmail.com' && passwordPlain === 'hr@123') {
           loginAsDemo('HR_MANAGER');
           return;
         }
+
+        const resData = await response.json().catch(() => ({}));
+        throw new Error(resData?.message || 'Invalid email or password');
       }
 
       const resData = await response.json();
@@ -148,12 +156,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setToken(authData.tokens.accessToken);
       localStorage.setItem('offergen_user', JSON.stringify(authData.user));
       localStorage.setItem('offergen_token', authData.tokens.accessToken);
-    } catch {
-      // Offline fallback for instant testability
-      if (email.toLowerCase().includes('admin')) {
+    } catch (err: any) {
+      // Offline fallback strictly for the designated credentials
+      if (cleanEmail === 'sheetalbedi@tasknera.com' && passwordPlain === 'Tasknera@9312506515') {
         loginAsDemo('SUPER_ADMIN');
-      } else {
+      } else if (cleanEmail === 'hr@gmail.com' && passwordPlain === 'hr@123') {
         loginAsDemo('HR_MANAGER');
+      } else {
+        throw new Error(err?.message || 'Login failed. Please check credentials.');
       }
     } finally {
       setIsLoading(false);

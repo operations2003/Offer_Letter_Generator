@@ -4,8 +4,6 @@ import {
   Menu,
   Bell,
   ChevronDown,
-  User,
-  Shield,
   LogOut,
   CheckCircle2,
   FileCheck2,
@@ -56,7 +54,7 @@ const INITIAL_NOTIFICATIONS: NotificationItem[] = [
 ];
 
 export const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
-  const { user, logout, loginAsDemo } = useAuth();
+  const { user, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -423,67 +421,20 @@ export const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
                 </div>
               </div>
 
-              <div style={{ padding: '6px 0' }}>
-                <div
-                  style={{
-                    padding: '4px 12px',
-                    fontSize: '0.6875rem',
-                    fontWeight: 700,
-                    textTransform: 'uppercase',
-                    color: '#94a3b8',
-                  }}
-                >
-                  Quick Role Switch:
-                </div>
+              <div style={{ padding: '4px 0' }}>
                 <button
                   type="button"
-                  className="dropdown-item"
+                  className="dropdown-item danger"
                   onClick={() => {
-                    loginAsDemo('HR_MANAGER');
                     setShowUserMenu(false);
+                    logout();
+                    navigate('/login');
                   }}
                 >
-                  <Shield size={14} style={{ color: '#059669' }} />
-                  <span>HR Partner (Sakshi)</span>
-                </button>
-                <button
-                  type="button"
-                  className="dropdown-item"
-                  onClick={() => {
-                    loginAsDemo('SUPER_ADMIN');
-                    setShowUserMenu(false);
-                  }}
-                >
-                  <Shield size={14} style={{ color: '#2563eb' }} />
-                  <span>Super Admin</span>
-                </button>
-                <button
-                  type="button"
-                  className="dropdown-item"
-                  onClick={() => {
-                    loginAsDemo('RECRUITER');
-                    setShowUserMenu(false);
-                  }}
-                >
-                  <User size={14} style={{ color: '#7c3aed' }} />
-                  <span>Recruiter</span>
+                  <LogOut size={14} />
+                  <span>Sign Out</span>
                 </button>
               </div>
-
-              <div className="dropdown-divider" />
-
-              <button
-                type="button"
-                className="dropdown-item danger"
-                onClick={() => {
-                  setShowUserMenu(false);
-                  logout();
-                  navigate('/login');
-                }}
-              >
-                <LogOut size={14} />
-                <span>Sign Out</span>
-              </button>
             </div>
           )}
         </div>

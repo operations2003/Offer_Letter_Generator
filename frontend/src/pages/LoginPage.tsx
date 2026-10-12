@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Lock, Mail, ArrowRight, Eye, EyeOff, ShieldCheck, CheckCircle2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.js';
@@ -13,6 +13,11 @@ export const LoginPage: React.FC = () => {
   const { login, loginAsDemo } = useAuth();
   const { success, error } = useToast();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    setEmail('');
+    setPassword('');
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -84,85 +89,10 @@ export const LoginPage: React.FC = () => {
         </div>
 
         {/* Demo Fast Login Pills */}
-        <div
-          style={{
-            padding: '12px 14px',
-            borderRadius: 10,
-            background: '#f8fafc',
-            border: '1px solid #e2e8f0',
-            marginBottom: 24,
-          }}
-        >
-          <div
-            style={{
-              fontSize: '0.6875rem',
-              color: '#64748b',
-              fontWeight: 700,
-              textTransform: 'uppercase',
-              letterSpacing: '0.05em',
-              marginBottom: 8,
-              textAlign: 'center',
-            }}
-          >
-            Quick 1-Click Access:
-          </div>
-          <div style={{ display: 'flex', gap: 8 }}>
-            <button
-              type="button"
-              onClick={() => handleDemoLogin('HR_MANAGER')}
-              style={{
-                flex: 1,
-                padding: '7px 10px',
-                fontSize: '0.75rem',
-                fontWeight: 600,
-                background: '#eff6ff',
-                color: '#1d4ed8',
-                border: '1px solid #bfdbfe',
-                borderRadius: 6,
-                cursor: 'pointer',
-              }}
-            >
-              Sakshi (HR)
-            </button>
-            <button
-              type="button"
-              onClick={() => handleDemoLogin('SUPER_ADMIN')}
-              style={{
-                flex: 1,
-                padding: '7px 10px',
-                fontSize: '0.75rem',
-                fontWeight: 600,
-                background: '#ffffff',
-                color: '#334155',
-                border: '1px solid #cbd5e1',
-                borderRadius: 6,
-                cursor: 'pointer',
-              }}
-            >
-              Admin
-            </button>
-            <button
-              type="button"
-              onClick={() => handleDemoLogin('RECRUITER')}
-              style={{
-                flex: 1,
-                padding: '7px 10px',
-                fontSize: '0.75rem',
-                fontWeight: 600,
-                background: '#ffffff',
-                color: '#334155',
-                border: '1px solid #cbd5e1',
-                borderRadius: 6,
-                cursor: 'pointer',
-              }}
-            >
-              Recruiter
-            </button>
-          </div>
-        </div>
+        
 
         {/* Login Form */}
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} autoComplete="off">
           <div className="form-group">
             <label className="form-label" style={{ color: '#334155', fontSize: '0.8125rem', fontWeight: 600 }}>
               Work Email
@@ -170,8 +100,13 @@ export const LoginPage: React.FC = () => {
             <div style={{ position: 'relative' }}>
               <input
                 type="email"
+                name="email"
+                autoComplete="off"
+                autoCorrect="off"
+                autoCapitalize="off"
+                spellCheck={false}
                 className="form-input"
-                placeholder="sakshi@tasknera.com"
+                placeholder="jhon@gmail.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 style={{ paddingLeft: 38 }}
@@ -197,8 +132,11 @@ export const LoginPage: React.FC = () => {
             <div style={{ position: 'relative' }}>
               <input
                 type={showPassword ? 'text' : 'password'}
+                name="password"
+                autoComplete="new-password"
+                spellCheck={false}
                 className="form-input"
-                placeholder="••••••••••••"
+                placeholder="**********"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 style={{ paddingLeft: 38, paddingRight: 38 }}
