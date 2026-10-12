@@ -10,3 +10,4 @@ if (!fs.existsSync(distDir)) {
 const entryContent = `require('./backend/src/server.js');\n`;
 fs.writeFileSync(path.join(distDir, 'server.js'), entryContent, 'utf8');
 console.log('✅ Successfully created dist/server.js entrypoint');
+
