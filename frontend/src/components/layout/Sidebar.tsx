@@ -6,6 +6,7 @@ import {
   Layers,
   Users2,
   LogOut,
+  UserPlus,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext.js';
 
@@ -41,6 +42,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
       label: 'Documents Generated',
       icon: <Layers size={18} />,
       roles: ['SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER', 'APPROVER'],
+    },
+    {
+      to: '/users',
+      label: 'System Users',
+      icon: <UserPlus size={18} />,
+      roles: ['SUPER_ADMIN', 'HR_MANAGER'],
     },
   ];
 

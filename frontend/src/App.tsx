@@ -10,6 +10,7 @@ import { AuditLogsPage } from './pages/AuditLogsPage.js';
 import { PdfToStructuredLetterPage } from './pages/PdfToStructuredLetterPage.js';
 import { EmployeesPage } from './pages/EmployeesPage.js';
 import { EmployeeProfilePage } from './pages/EmployeeProfilePage.js';
+import { UsersPage } from './pages/UsersPage.js';
 import { AppLayout } from './components/layout/AppLayout.js';
 import { ProtectedRoute } from './components/layout/ProtectedRoute.js';
 import { EmptyState } from './components/common/FeedbackStates.js';
@@ -44,6 +45,14 @@ export const App: React.FC = () => {
           element={
             <ProtectedRoute allowedRoles={['SUPER_ADMIN', 'HR_MANAGER', 'AUDITOR']}>
               <AuditLogsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="users"
+          element={
+            <ProtectedRoute allowedRoles={['SUPER_ADMIN', 'HR_MANAGER']}>
+              <UsersPage />
             </ProtectedRoute>
           }
         />

@@ -30,7 +30,7 @@ router.get(
 
 router.post(
   '/',
-  requireRoles('SUPER_ADMIN'),
+  requireRoles('SUPER_ADMIN', 'HR_MANAGER'),
   validateRequest({ body: createUserSchema }),
   UserController.createUser
 );
