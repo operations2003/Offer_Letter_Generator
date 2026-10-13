@@ -424,6 +424,21 @@ export const InternshipConcludingModal: React.FC<InternshipConcludingModalProps>
       };
 
       try {
+        const existingSaved: HrDocument[] = JSON.parse(
+          localStorage.getItem('tasknera_saved_documents') || '[]'
+        );
+        const updatedList = [
+          localDoc,
+          ...existingSaved.filter(
+            (d) => d.id !== localDoc.id && d.referenceNumber !== localDoc.referenceNumber
+          ),
+        ];
+        localStorage.setItem('tasknera_saved_documents', JSON.stringify(updatedList));
+      } catch (err) {
+        console.warn('LocalStorage tasknera_saved_documents save failed:', err);
+      }
+
+      try {
         const stored = localStorage.getItem('TASKNERA_HR_DOCUMENTS');
         const docs: HrDocument[] = stored ? JSON.parse(stored) : [];
         const existingIdx = docs.findIndex((d) => d.id === localDoc.id);
