@@ -612,7 +612,26 @@ export const MasterRecruitmentAgreementModal: React.FC<MasterRecruitmentAgreemen
         effectiveDate: data.effectiveDate,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
+        hrConfirmedData: {
+          ...data,
+          mrsaData: data,
+        },
       } as unknown as HrDocument;
+
+      try {
+        const existingSaved: HrDocument[] = JSON.parse(
+          localStorage.getItem('tasknera_saved_documents') || '[]'
+        );
+        const updatedList = [
+          localDoc,
+          ...existingSaved.filter(
+            (d) => d.id !== localDoc.id && d.referenceNumber !== localDoc.referenceNumber
+          ),
+        ];
+        localStorage.setItem('tasknera_saved_documents', JSON.stringify(updatedList));
+      } catch (storageErr) {
+        console.warn('LocalStorage save failed:', storageErr);
+      }
 
       success(`MRSA Agreement for ${data.client.tradeName} saved successfully!`);
       if (onSuccess) {

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   Download,
   Send,
@@ -18,6 +18,16 @@ import { DocumentTypeDefinition, HrDocument } from '../../types/document-engine.
 import { Button } from '../common/Button.js';
 import { DocumentEngineService } from '../../services/documentEngineService.js';
 import { useToast } from '../../context/ToastContext.js';
+import {
+  MrsaAgreementData,
+  INITIAL_MRSA_DATA,
+  getDeepCloneMrsaData,
+} from '../../services/mrsaCatalog.js';
+import {
+  DEFAULT_OFFER_SECTIONS,
+  DEFAULT_ANNEXURE_ROWS,
+  MANDATORY_DOCS,
+} from '../offers/QuickTemplateOfferModal.js';
 
 interface DocumentPreviewProps {
   document: HrDocument;
@@ -54,15 +64,29 @@ export const DocumentPreview: React.FC<DocumentPreviewProps> = ({
     document.templateId?.includes('experience') ||
     document.title?.toLowerCase().includes('experience');
 
-  const isOfferLetter =
-    document.documentTypeCode === 'OFFER_LETTER' ||
-    document.templateId?.includes('offer') ||
-    document.title?.toLowerCase().includes('offer');
+  const isMrsa =
+    document.documentTypeCode === 'MSA' ||
+    document.templateId?.includes('mrsa') ||
+    document.templateId?.includes('msa') ||
+    document.title?.toLowerCase().includes('master recruitment') ||
+    document.title?.toLowerCase().includes('master service') ||
+    Boolean(terms.agreementNumber && (terms.agreementNumber.includes('MRSA') || terms.agreementNumber.includes('TASK/MRSA'))) ||
+    Boolean(terms.sectionsCount) ||
+    Boolean(terms.scheduleA);
 
-  // Shared / Document Variables
+  const isOfferLetter =
+    !isMrsa &&
+    !isCharacterCertificate &&
+    !isExperienceLetter &&
+    (document.documentTypeCode === 'OFFER_LETTER' ||
+      document.templateId?.includes('offer') ||
+      document.title?.toLowerCase().includes('offer') ||
+      Boolean(terms.annualCtc || terms.annual_ctc || terms.basic_salary || terms.totalCtc));
+
+  // Shared / Certificate / Experience Variables
   const salutation = terms.salutation || 'Mr.';
-  const fullName = terms.fullName || document.recipientName || 'Employee';
-  const designation = terms.designation || 'Staff Member';
+  const fullName = terms.fullName || terms.candidateName || document.recipientName || 'Employee';
+  const designation = terms.designation || terms.jobTitle || 'Staff Member';
   const department = terms.department || 'Operations';
   const associationType = terms.associationType || 'employment';
   const startDate = terms.startDate || 'October 2, 2026';
@@ -101,7 +125,121 @@ export const DocumentPreview: React.FC<DocumentPreviewProps> = ({
   const pronounHimHer = salutation === 'Ms.' || salutation === 'Mrs.' ? 'her' : 'him';
   const designationArticle = /^[aeiou]/i.test(designation.trim()) ? 'an' : 'a';
 
-  // Isolated iframe print
+  // =========================================================================
+  // MRSA (Master Recruitment Services Agreement) Data Merging
+  // =========================================================================
+  const mrsaData = useMemo<MrsaAgreementData>(() => {
+    const base = getDeepCloneMrsaData();
+    if (!isMrsa) return base;
+
+    const savedClient = terms.client || {};
+    const savedServiceProvider = terms.serviceProvider || {};
+
+    return {
+      ...base,
+      documentTitle: terms.documentTitle || base.documentTitle,
+      documentSubtitle: terms.documentSubtitle || base.documentSubtitle,
+      agreementNumber: terms.agreementNumber || document.referenceNumber || base.agreementNumber,
+      effectiveDate: terms.effectiveDate || document.effectiveDate || base.effectiveDate,
+      client: {
+        ...base.client,
+        ...savedClient,
+        legalName: savedClient.legalName || document.recipientName || base.client.legalName,
+        tradeName: savedClient.tradeName || savedClient.legalName || document.recipientName || base.client.tradeName,
+        email: savedClient.email || document.recipientEmail || base.client.email,
+        signatoryName: savedClient.signatoryName || terms.recipientName || base.client.signatoryName,
+      },
+      serviceProvider: {
+        ...base.serviceProvider,
+        ...savedServiceProvider,
+        signatoryName: savedServiceProvider.signatoryName || terms.signatoryName || document.signatoryName || base.serviceProvider.signatoryName,
+        signatoryDesignation: savedServiceProvider.signatoryDesignation || terms.signatoryTitle || document.signatoryTitle || base.serviceProvider.signatoryDesignation,
+      },
+      executiveSummary: Array.isArray(terms.executiveSummary) && terms.executiveSummary.length > 0 ? terms.executiveSummary : base.executiveSummary,
+      recitals: Array.isArray(terms.recitals) && terms.recitals.length > 0 ? terms.recitals : base.recitals,
+      sections: Array.isArray(terms.sections) && terms.sections.length > 0 ? terms.sections : base.sections,
+      scheduleA: Array.isArray(terms.scheduleA) && terms.scheduleA.length > 0 ? terms.scheduleA : base.scheduleA,
+      scheduleB: Array.isArray(terms.scheduleB) && terms.scheduleB.length > 0 ? terms.scheduleB : base.scheduleB,
+      witness1: terms.witness1 || base.witness1,
+      witness2: terms.witness2 || base.witness2,
+      clientSignatoryDate: terms.clientSignatoryDate || base.clientSignatoryDate,
+      taskneraSignatoryDate: terms.taskneraSignatoryDate || base.taskneraSignatoryDate,
+    };
+  }, [isMrsa, terms, document]);
+
+  // =========================================================================
+  // Offer Letter Data Merging & Interpolation
+  // =========================================================================
+  const offerValues = useMemo(() => {
+    const rawAll = (terms.allValues || {}) as Record<string, string>;
+    const empName =
+      terms.candidateName ||
+      terms.employee_name ||
+      rawAll.employee_name ||
+      rawAll.candidate_name ||
+      document.recipientName ||
+      'Candidate';
+    const salutationVal = terms.salutation || rawAll.salutation || 'Mr.';
+    const designationVal = terms.jobTitle || terms.designation || rawAll.designation || 'Staff Member';
+    const departmentVal = terms.department || rawAll.department || 'Platform Engineering';
+    const refNum = terms.referenceNumber || rawAll.reference_number || document.referenceNumber || 'TASK/2026/001';
+    const dateVal =
+      terms.issueDate ||
+      rawAll.date ||
+      document.effectiveDate ||
+      new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    const joiningVal = terms.joiningDate || rawAll.joining_date || '15/10/2026';
+    const annualCtcVal =
+      terms.annualCtc ||
+      terms.annual_ctc ||
+      rawAll.annual_ctc ||
+      (typeof terms.totalCtc === 'number' ? terms.totalCtc.toLocaleString('en-IN') : terms.totalCtc) ||
+      '18,00,000';
+    const basicVal = terms.baseSalary || terms.basic_salary || rawAll.basic_salary || '60,000';
+    const hraVal = terms.hra || rawAll.hra || '30,000';
+    const specialVal = terms.specialAllowance || terms.special_allowance || rawAll.special_allowance || '60,000';
+    const monthlyVal = terms.monthlySalary || terms.gross_monthly || rawAll.gross_monthly || '1,50,000';
+    const locationVal = terms.workLocation || terms.work_location || rawAll.work_location || 'Remote / On-site / Hybrid';
+    const probationVal = terms.probationPeriod || rawAll.probation_period || '6 Months';
+    const noticeVal = terms.noticePeriod || rawAll.notice_period || '45 days';
+    const reportingVal = terms.reportingManager || rawAll.reporting_manager || 'Sheetal Bedi (CEO & Founder)';
+
+    return {
+      salutation: salutationVal,
+      employee_name: empName,
+      candidate_name: empName,
+      designation: designationVal,
+      department: departmentVal,
+      annual_ctc: annualCtcVal,
+      salary: annualCtcVal,
+      ctc_per_month: monthlyVal,
+      basic_salary: basicVal,
+      hra: hraVal,
+      special_allowance: specialVal,
+      gross_monthly: monthlyVal,
+      employer_contributions: rawAll.employer_contributions || 'NA',
+      total_ctc_per_annum: annualCtcVal,
+      work_location: locationVal,
+      probation_period: probationVal,
+      notice_period: noticeVal,
+      reporting_manager: reportingVal,
+      employment_type: rawAll.employment_type || 'Full-Time',
+      working_days_shift: rawAll.working_days_shift || '6 working days and a 9-hour shift (may vary depending on business requirements)',
+      date: dateVal,
+      joining_date: joiningVal,
+      offer_validity_date: rawAll.offer_validity_date || '14 days from issue date',
+      reference_number: refNum,
+      ...rawAll,
+    };
+  }, [terms, document]);
+
+  const interpolateOfferText = (text: string) => {
+    return text.replace(/\{\{([a-zA-Z0-9_]+)\}\}/g, (_, key) => {
+      return (offerValues as any)[key] ?? '';
+    });
+  };
+
+  // High-fidelity Isolated iframe print
   const printIframe = (elementId: string, docTitle: string) => {
     const el = window.document.getElementById(elementId);
     if (!el) {
@@ -124,6 +262,10 @@ export const DocumentPreview: React.FC<DocumentPreviewProps> = ({
       return;
     }
 
+    const styles = Array.from(window.document.querySelectorAll('style, link[rel="stylesheet"]'))
+      .map((s) => s.outerHTML)
+      .join('\n');
+
     doc.open();
     doc.write(`
       <!DOCTYPE html>
@@ -131,10 +273,11 @@ export const DocumentPreview: React.FC<DocumentPreviewProps> = ({
         <head>
           <title>${docTitle}</title>
           <meta charset="utf-8" />
+          ${styles}
           <style>
             @page {
               size: A4 portrait;
-              margin: 10mm 15mm 10mm 15mm;
+              margin: 8mm 12mm 12mm 12mm !important;
             }
             * {
               box-sizing: border-box;
@@ -142,18 +285,18 @@ export const DocumentPreview: React.FC<DocumentPreviewProps> = ({
               print-color-adjust: exact !important;
             }
             html, body {
-              margin: 0;
-              padding: 0;
-              background: #ffffff;
+              margin: 0 !important;
+              padding: 0 !important;
+              background: #ffffff !important;
               color: #1e293b;
-              font-family: "Times New Roman", Times, Georgia, serif;
-              font-size: 10.5pt;
-              line-height: 1.5;
+              font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             }
             #printable-character-certificate,
             .printable-character-sheet,
             #printable-experience-letter,
-            .printable-experience-sheet {
+            .printable-experience-sheet,
+            #printable-mrsa-agreement,
+            #printable-offer-document {
               border: none !important;
               box-shadow: none !important;
               padding: 0 !important;
@@ -161,15 +304,27 @@ export const DocumentPreview: React.FC<DocumentPreviewProps> = ({
               width: 100% !important;
               min-height: auto !important;
               height: auto !important;
-              page-break-after: avoid !important;
-              break-after: avoid !important;
-              page-break-inside: avoid !important;
-              break-inside: avoid !important;
             }
-            p {
-              margin: 0;
-              text-align: justify;
-              line-height: 1.5;
+            .document-page-sheet {
+              page-break-after: always;
+              break-after: page;
+              min-height: auto !important;
+              padding: 0 !important;
+              margin-bottom: 20px !important;
+            }
+            table {
+              border-collapse: collapse;
+              width: 100%;
+            }
+            th, td {
+              border: 1px solid #cbd5e1;
+              padding: 6px 8px;
+              vertical-align: top;
+            }
+            th {
+              background-color: #f1f5f9 !important;
+              font-weight: 700;
+              color: #0f172a;
             }
           </style>
         </head>
@@ -184,7 +339,7 @@ export const DocumentPreview: React.FC<DocumentPreviewProps> = ({
       try {
         iframe.contentWindow?.focus();
         iframe.contentWindow?.print();
-      } catch (err) {
+      } catch {
         window.print();
       } finally {
         setTimeout(() => {
@@ -197,6 +352,22 @@ export const DocumentPreview: React.FC<DocumentPreviewProps> = ({
   };
 
   const handleDownload = async () => {
+    if (isOfferLetter) {
+      printIframe(
+        'printable-offer-document',
+        `TaskNera_Offer_Letter_${(offerValues.employee_name || 'Candidate').replace(/\s+/g, '_')}_${offerValues.reference_number.replace(/[\/\\]/g, '_')}`
+      );
+      return;
+    }
+
+    if (isMrsa) {
+      printIframe(
+        'printable-mrsa-agreement',
+        `TaskNera_MRSA_${(mrsaData.client.tradeName || 'Client').replace(/\s+/g, '_')}_${mrsaData.agreementNumber.replace(/[\/\\]/g, '_')}`
+      );
+      return;
+    }
+
     if (isCharacterCertificate) {
       printIframe(
         'printable-character-certificate',
@@ -217,7 +388,7 @@ export const DocumentPreview: React.FC<DocumentPreviewProps> = ({
     try {
       await DocumentEngineService.downloadPdf(document.id, `${document.referenceNumber}_${typeDef.code}.pdf`);
       success('Downloaded official PDF!');
-    } catch (err: any) {
+    } catch {
       window.print();
     } finally {
       setIsDownloading(false);
@@ -225,6 +396,22 @@ export const DocumentPreview: React.FC<DocumentPreviewProps> = ({
   };
 
   const handlePrint = () => {
+    if (isOfferLetter) {
+      printIframe(
+        'printable-offer-document',
+        `TaskNera_Offer_Letter_${(offerValues.employee_name || 'Candidate').replace(/\s+/g, '_')}_${offerValues.reference_number.replace(/[\/\\]/g, '_')}`
+      );
+      return;
+    }
+
+    if (isMrsa) {
+      printIframe(
+        'printable-mrsa-agreement',
+        `TaskNera_MRSA_${(mrsaData.client.tradeName || 'Client').replace(/\s+/g, '_')}_${mrsaData.agreementNumber.replace(/[\/\\]/g, '_')}`
+      );
+      return;
+    }
+
     if (isCharacterCertificate) {
       printIframe(
         'printable-character-certificate',
@@ -248,172 +435,813 @@ export const DocumentPreview: React.FC<DocumentPreviewProps> = ({
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
       {/* Action Toolbar */}
       <div
-        className="glass-panel no-print"
+        className="glass-panel"
         style={{
           padding: '14px 20px',
           borderRadius: 'var(--radius-lg)',
           display: 'flex',
-          alignItems: 'center',
           justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: 12,
         }}
       >
         <button
           type="button"
-          onClick={onBackToList}
           className="btn btn-ghost"
-          style={{ fontSize: '0.8125rem' }}
+          onClick={onBackToList}
+          style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.875rem' }}
         >
           <ArrowLeft size={16} /> Back to Document Registry
         </button>
 
-        <div style={{ display: 'flex', gap: 10 }}>
-          <Button variant="secondary" onClick={handlePrint} style={{ fontSize: '0.8125rem' }}>
-            <Printer size={14} /> Print
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <Button variant="secondary" onClick={handlePrint} icon={<Printer size={15} />}>
+            Print
           </Button>
-
           <Button
             variant="secondary"
             onClick={handleDownload}
-            disabled={isDownloading}
-            style={{ fontSize: '0.8125rem' }}
+            isLoading={isDownloading}
+            icon={<Download size={15} />}
           >
-            <Download size={14} /> Download Official PDF
+            Download Official PDF
           </Button>
-
-          <Button variant="primary" onClick={onSendClick} style={{ fontSize: '0.8125rem' }}>
-            <Send size={14} /> Send to Recipient
+          <Button variant="primary" onClick={onSendClick} icon={<Send size={15} />}>
+            Send to Recipient
           </Button>
         </div>
       </div>
 
-      {/* DOCUMENT CANVAS */}
-      {isCharacterCertificate ? (
-        /* OFFICIAL TASKNERA CHARACTER CERTIFICATE */
+      {/* ========================================================================= */}
+      {/* 1. OFFICIAL OFFER LETTER CANVAS (From Offer Pipeline)                     */}
+      {/* ========================================================================= */}
+      {isOfferLetter ? (
+        terms.renderedHtml ? (
+          <div
+            id="printable-offer-document"
+            style={{
+              maxWidth: 820,
+              margin: '0 auto',
+              width: '100%',
+              backgroundColor: '#ffffff',
+              color: '#1f2937',
+              padding: '44px 52px',
+              borderRadius: 4,
+              boxShadow: '0 10px 40px rgba(0, 0, 0, 0.25)',
+              fontFamily: "'Inter', sans-serif",
+              fontSize: '13px',
+              lineHeight: 1.65,
+            }}
+          >
+            <div dangerouslySetInnerHTML={{ __html: terms.renderedHtml }} />
+          </div>
+        ) : (
+          <div
+            id="printable-offer-document"
+            style={{
+              maxWidth: 840,
+              margin: '0 auto',
+              width: '100%',
+              backgroundColor: '#ffffff',
+              color: '#1e293b',
+              padding: '44px 52px',
+              borderRadius: 4,
+              boxShadow: '0 10px 40px rgba(0, 0, 0, 0.25)',
+              fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+              fontSize: '12.8px',
+              lineHeight: 1.6,
+            }}
+          >
+            {/* Page 1: Official Header Banner */}
+            <div style={{ position: 'relative', marginBottom: 16 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+                <div style={{ width: 280, height: 16, background: '#fae1c3', borderRadius: '0 0 14px 0' }}></div>
+                <div style={{ width: 220, height: 7, background: '#9c7a82' }}></div>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 8px 8px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <img src="/logo.png" alt="TaskNera" style={{ width: 44, height: 44, objectFit: 'contain' }} />
+                  <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                    <div style={{ fontSize: '24px', fontWeight: 800, letterSpacing: '-0.02em', lineHeight: 1.1 }}>
+                      <span style={{ color: '#252c38' }}>Task</span>
+                      <span style={{ color: '#f56637' }}>Nera</span>
+                    </div>
+                    <div style={{ fontSize: '10px', fontWeight: 600, color: '#475569', letterSpacing: '0.02em', marginTop: 2 }}>
+                      People. Processes. Performance.
+                    </div>
+                  </div>
+                </div>
+                <div style={{ borderLeft: '2px solid #0f172a', paddingLeft: 14, fontSize: '11px', lineHeight: 1.5, color: '#1e293b' }}>
+                  <div><strong>Phone:</strong> +91 7065278229</div>
+                  <div><strong>Email:</strong> careers@tasknera.com</div>
+                  <div><strong>ADD:</strong> D-57 Dilshad Colony, Delhi, 110095</div>
+                </div>
+              </div>
+              <div style={{ height: 2.5, background: '#1e293b', width: '100%' }}></div>
+            </div>
+
+            {/* Top Metadata */}
+            <div style={{ fontSize: '12.8px', lineHeight: 1.6, marginBottom: 14, color: '#1e293b' }}>
+              <p style={{ margin: '2px 0' }}>
+                <strong>Reference:</strong> {offerValues.reference_number}
+              </p>
+              <p style={{ margin: '2px 0' }}>
+                <strong>Date:</strong> {offerValues.date}
+              </p>
+              <p style={{ margin: '8px 0 2px' }}>
+                <strong>Employee Name:</strong> {offerValues.employee_name}
+              </p>
+              <p style={{ margin: '2px 0' }}>
+                <strong>Designation:</strong> {offerValues.designation}
+              </p>
+            </div>
+
+            {/* Centered Document Title */}
+            <h2
+              style={{
+                textAlign: 'center',
+                fontSize: '21px',
+                fontWeight: 700,
+                color: '#a35d39',
+                margin: '16px 0 12px',
+                fontFamily: "'Georgia', serif",
+                letterSpacing: '0.02em',
+              }}
+            >
+              Offer of Employment
+            </h2>
+
+            {/* Salutation & Subject */}
+            <p style={{ marginBottom: 8, fontSize: '12.8px', color: '#1e293b' }}>
+              Dear {offerValues.salutation} {(offerValues.employee_name || '').replace(/^(?:Mr\.|Ms\.|Mrs\.|Dr\.)\s+/i, '')},
+            </p>
+            <p style={{ marginBottom: 10, fontWeight: 700, fontSize: '13px', color: '#0f172a' }}>
+              Subject: Offer of Employment with TaskNera
+            </p>
+            <p style={{ marginBottom: 16, fontSize: '12.8px', lineHeight: 1.65, textAlign: 'justify', color: '#334155' }}>
+              Further to our discussions and subject to satisfactory completion of the Company&apos;s joining and verification requirements, TaskNera (the “Company”) is pleased to offer you employment for the position of <strong>{offerValues.designation}</strong>, on the terms and conditions set out in this Offer Letter, its Annexures, and the Company&apos;s applicable policies as amended from time to time.
+            </p>
+
+            {/* Operative Sections */}
+            {DEFAULT_OFFER_SECTIONS.map((sec) => (
+              <div key={sec.id} style={{ marginBottom: 14 }}>
+                <h3
+                  style={{
+                    fontSize: '13.5px',
+                    fontWeight: 700,
+                    color: '#a35d39',
+                    borderBottom: '1px solid #e2d3ca',
+                    paddingBottom: 3,
+                    marginBottom: 6,
+                    fontFamily: "'Georgia', serif",
+                  }}
+                >
+                  {sec.number}. {sec.title}
+                </h3>
+                {sec.paragraphs.map((p, pIdx) => (
+                  <p
+                    key={pIdx}
+                    style={{
+                      fontSize: '12.8px',
+                      lineHeight: 1.65,
+                      color: '#334155',
+                      marginBottom: pIdx === sec.paragraphs.length - 1 ? 0 : 6,
+                      textAlign: 'justify',
+                    }}
+                  >
+                    {interpolateOfferText(p)}
+                  </p>
+                ))}
+                {sec.bullets && (
+                  <ul style={{ margin: '6px 0 0 18px', padding: 0, fontSize: '12.5px', color: '#334155', lineHeight: 1.6 }}>
+                    {sec.bullets.map((b, bIdx) => (
+                      <li key={bIdx} style={{ marginBottom: 4 }}>
+                        {interpolateOfferText(b)}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                {sec.footnote && (
+                  <div style={{ fontSize: '11px', color: '#64748b', fontStyle: 'italic', marginTop: 4 }}>
+                    {sec.footnote}
+                  </div>
+                )}
+              </div>
+            ))}
+
+            {/* Annexure I: Terms of Employment */}
+            <div style={{ marginTop: 28, marginBottom: 20 }}>
+              <h3 style={{ fontSize: '14.5px', fontWeight: 800, color: '#a35d39', textAlign: 'center', marginBottom: 10 }}>
+                ANNEXURE I – TERMS OF EMPLOYMENT
+              </h3>
+              <table style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid #cbd5e1', fontSize: '12.5px' }}>
+                <tbody>
+                  {DEFAULT_ANNEXURE_ROWS.map((row) => (
+                    <tr key={row.key} style={{ borderBottom: '1px solid #e2e8f0' }}>
+                      <td style={{ width: '38%', padding: '7px 12px', fontWeight: 700, color: '#1e293b', backgroundColor: '#f8fafc' }}>
+                        {row.label}
+                      </td>
+                      <td style={{ padding: '7px 12px', color: '#0f172a' }}>
+                        {(offerValues as any)[row.key] || row.defaultValue}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Annexure II: Mandatory Documents */}
+            <div style={{ marginTop: 24, marginBottom: 20 }}>
+              <h3 style={{ fontSize: '14.5px', fontWeight: 800, color: '#a35d39', textAlign: 'center', marginBottom: 10 }}>
+                ANNEXURE II – MANDATORY DOCUMENTS FOR JOINING
+              </h3>
+              <ul style={{ margin: '0 0 0 20px', padding: 0, fontSize: '12.5px', color: '#334155', lineHeight: 1.65 }}>
+                {MANDATORY_DOCS.map((docItem, dIdx) => (
+                  <li key={dIdx} style={{ marginBottom: 4 }}>
+                    {docItem}
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Annexure III: Detailed Compensation Structure */}
+            <div style={{ marginTop: 24, marginBottom: 24 }}>
+              <h3 style={{ fontSize: '14.5px', fontWeight: 800, color: '#a35d39', textAlign: 'center', marginBottom: 10 }}>
+                ANNEXURE III – COMPENSATION STRUCTURE (CTC)
+              </h3>
+              <table style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid #cbd5e1', fontSize: '12.5px' }}>
+                <thead>
+                  <tr style={{ backgroundColor: '#f1f5f9' }}>
+                    <th style={{ padding: '8px 12px', textAlign: 'left', border: '1px solid #cbd5e1' }}>Salary Component</th>
+                    <th style={{ padding: '8px 12px', textAlign: 'right', border: '1px solid #cbd5e1' }}>Monthly (INR)</th>
+                    <th style={{ padding: '8px 12px', textAlign: 'right', border: '1px solid #cbd5e1' }}>Annual (INR)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td style={{ padding: '7px 12px', border: '1px solid #cbd5e1' }}>Basic Salary</td>
+                    <td style={{ padding: '7px 12px', textAlign: 'right', border: '1px solid #cbd5e1' }}>{offerValues.basic_salary}</td>
+                    <td style={{ padding: '7px 12px', textAlign: 'right', border: '1px solid #cbd5e1' }}>
+                      {typeof offerValues.basic_salary === 'string' && !isNaN(Number(offerValues.basic_salary.replace(/,/g, '')))
+                        ? (Number(offerValues.basic_salary.replace(/,/g, '')) * 12).toLocaleString('en-IN')
+                        : '—'}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style={{ padding: '7px 12px', border: '1px solid #cbd5e1' }}>House Rent Allowance (HRA)</td>
+                    <td style={{ padding: '7px 12px', textAlign: 'right', border: '1px solid #cbd5e1' }}>{offerValues.hra}</td>
+                    <td style={{ padding: '7px 12px', textAlign: 'right', border: '1px solid #cbd5e1' }}>
+                      {typeof offerValues.hra === 'string' && !isNaN(Number(offerValues.hra.replace(/,/g, '')))
+                        ? (Number(offerValues.hra.replace(/,/g, '')) * 12).toLocaleString('en-IN')
+                        : '—'}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style={{ padding: '7px 12px', border: '1px solid #cbd5e1' }}>Special Allowance</td>
+                    <td style={{ padding: '7px 12px', textAlign: 'right', border: '1px solid #cbd5e1' }}>{offerValues.special_allowance}</td>
+                    <td style={{ padding: '7px 12px', textAlign: 'right', border: '1px solid #cbd5e1' }}>
+                      {typeof offerValues.special_allowance === 'string' && !isNaN(Number(offerValues.special_allowance.replace(/,/g, '')))
+                        ? (Number(offerValues.special_allowance.replace(/,/g, '')) * 12).toLocaleString('en-IN')
+                        : '—'}
+                    </td>
+                  </tr>
+                  <tr style={{ backgroundColor: '#faf5ff', fontWeight: 700 }}>
+                    <td style={{ padding: '8px 12px', border: '1px solid #cbd5e1' }}>Gross Monthly Total</td>
+                    <td style={{ padding: '8px 12px', textAlign: 'right', border: '1px solid #cbd5e1' }}>{offerValues.ctc_per_month}</td>
+                    <td style={{ padding: '8px 12px', textAlign: 'right', border: '1px solid #cbd5e1' }}>—</td>
+                  </tr>
+                  <tr style={{ backgroundColor: '#f8fafc', fontWeight: 800 }}>
+                    <td style={{ padding: '9px 12px', border: '1px solid #cbd5e1', color: '#0f172a' }}>Total Cost to Company (CTC)</td>
+                    <td style={{ padding: '9px 12px', textAlign: 'right', border: '1px solid #cbd5e1' }}>—</td>
+                    <td style={{ padding: '9px 12px', textAlign: 'right', border: '1px solid #cbd5e1', color: '#0f172a' }}>
+                      INR {offerValues.annual_ctc}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            {/* Execution Page / Sign-offs */}
+            <div style={{ marginTop: 36, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              <div>
+                <div style={{ fontWeight: 700, fontSize: '13px', color: '#0f172a', marginBottom: 28 }}>
+                  For TaskNera
+                </div>
+                <div style={{ borderBottom: '1px solid #475569', width: 200, marginBottom: 6 }} />
+                <div style={{ fontSize: '12px', color: '#334155' }}>
+                  <div style={{ fontWeight: 600 }}>Authorized Signatory</div>
+                  <div>Name: Sheetal Bedi</div>
+                  <div>Designation: CEO & Founder</div>
+                  <div>Date: {offerValues.date}</div>
+                  <div>Place: Delhi, India</div>
+                </div>
+              </div>
+
+              <div style={{ textAlign: 'left', minWidth: 220 }}>
+                <div style={{ fontWeight: 700, fontSize: '13px', color: '#0f172a', marginBottom: 28 }}>
+                  Candidate Acceptance
+                </div>
+                <div style={{ borderBottom: '1px solid #475569', width: 200, marginBottom: 6 }} />
+                <div style={{ fontSize: '12px', color: '#334155' }}>
+                  <div style={{ fontWeight: 600 }}>I accept the offer on the terms stated</div>
+                  <div>Name: {offerValues.employee_name}</div>
+                  <div>Signature: ____________________</div>
+                  <div>Date: ____________________</div>
+                  <div>Place: ____________________</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Digital Security Footer */}
+            <div
+              style={{
+                borderTop: '1px solid #e2e8f0',
+                paddingTop: 12,
+                marginTop: 36,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                fontSize: '11px',
+                color: '#64748b',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <Lock size={12} color="#10b981" />
+                <span>Digital Token: <strong>{verificationToken}</strong></span>
+              </div>
+              <div>SHA-256: {checksum.substring(0, 16)}...{checksum.substring(48)}</div>
+            </div>
+          </div>
+        )
+      ) : isMrsa ? (
+        /* ========================================================================= */
+        /* 2. OFFICIAL MASTER RECRUITMENT AGREEMENT (MRSA / MSA)                     */
+        /* ========================================================================= */
+        <div
+          id="printable-mrsa-agreement"
+          style={{
+            maxWidth: 840,
+            margin: '0 auto',
+            width: '100%',
+            backgroundColor: '#ffffff',
+            padding: '44px 52px',
+            boxShadow: '0 4px 24px rgba(0,0,0,0.1)',
+            borderRadius: 4,
+            color: '#0f172a',
+            fontFamily: '"Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, sans-serif',
+            fontSize: '8.85pt',
+            lineHeight: 1.55,
+          }}
+        >
+          {/* Top Brand Logo & Header */}
+          <div style={{ textAlign: 'center', marginBottom: 18 }}>
+            <img
+              src="/logo.png"
+              alt="TaskNera"
+              style={{
+                width: 76,
+                height: 76,
+                objectFit: 'contain',
+                margin: '0 auto 10px auto',
+                display: 'block',
+              }}
+              onError={(e) => {
+                e.currentTarget.style.display = 'none';
+              }}
+            />
+            <div
+              style={{
+                fontWeight: 900,
+                fontSize: '15pt',
+                letterSpacing: '0.04em',
+                color: '#111827',
+                textTransform: 'uppercase',
+                lineHeight: 1.2,
+              }}
+            >
+              TASKNERA
+            </div>
+            <div style={{ fontSize: '8.5pt', color: '#475569', fontWeight: 500, letterSpacing: '0.03em', marginTop: 3 }}>
+              Recruitment &nbsp;•&nbsp; Talent Acquisition &nbsp;•&nbsp; Candidate Sourcing
+            </div>
+          </div>
+
+          {/* Document Title & Subtitle */}
+          <div style={{ textAlign: 'center', margin: '18px 0 14px 0' }}>
+            <h1
+              style={{
+                fontSize: '13pt',
+                fontWeight: 800,
+                color: '#111827',
+                letterSpacing: '0.02em',
+                margin: '0 0 4px 0',
+                textTransform: 'uppercase',
+                lineHeight: 1.3,
+              }}
+            >
+              {mrsaData.documentTitle}
+            </h1>
+            <div style={{ fontSize: '9.2pt', color: '#475569', fontWeight: 500 }}>
+              {mrsaData.documentSubtitle}
+            </div>
+          </div>
+
+          {/* BETWEEN */}
+          <div style={{ textAlign: 'center', margin: '14px 0', display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <div style={{ fontSize: '8pt', letterSpacing: '0.18em', textTransform: 'uppercase', color: '#64748b', fontWeight: 700 }}>
+              BETWEEN
+            </div>
+            <div style={{ fontSize: '12pt', fontWeight: 800, color: '#111827', textTransform: 'uppercase' }}>
+              {mrsaData.client.tradeName || mrsaData.client.legalName || 'CLIENT'}
+            </div>
+            <div style={{ fontSize: '8.2pt', color: '#64748b' }}>(the Client / Hiring Company)</div>
+
+            <div style={{ fontSize: '8pt', letterSpacing: '0.18em', textTransform: 'uppercase', color: '#64748b', fontWeight: 700, margin: '6px 0 2px 0' }}>
+              AND
+            </div>
+            <div style={{ fontSize: '12pt', fontWeight: 800, color: '#111827', textTransform: 'uppercase' }}>
+              TASKNERA
+            </div>
+            <div style={{ fontSize: '8.2pt', color: '#64748b' }}>(the Recruitment Services Provider)</div>
+          </div>
+
+          {/* Effective Date & Agreement Number */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', margin: '14px 0 10px 0', fontSize: '8.8pt' }}>
+            <div>
+              <span style={{ fontWeight: 700 }}>Ref: </span>
+              <span>{mrsaData.agreementNumber}</span>
+            </div>
+            <div>
+              <span style={{ fontWeight: 700 }}>Effective Date: </span>
+              <span>{mrsaData.effectiveDate}</span>
+            </div>
+          </div>
+
+          {/* Executive Summary Table */}
+          <table style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid #1e293b', fontSize: '8.5pt', marginBottom: 6 }}>
+            <tbody>
+              {mrsaData.executiveSummary.map((row) => (
+                <tr key={row.id}>
+                  <td style={{ width: '22%', fontWeight: 700, padding: '6px 10px', border: '1px solid #1e293b', backgroundColor: '#fafafa', color: '#0f172a', verticalAlign: 'top' }}>
+                    {row.label}
+                  </td>
+                  <td style={{ padding: '6px 10px', border: '1px solid #1e293b', textAlign: 'justify' }}>
+                    {row.content}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          <div style={{ fontSize: '7.8pt', color: '#64748b', fontStyle: 'italic', marginBottom: 18 }}>
+            The summary above is for convenience only. In the event of any conflict, the operative clauses of this Agreement and Clause 25.2 prevail.
+          </div>
+
+          {/* Table of Contents */}
+          <div style={{ textAlign: 'center', margin: '18px 0 8px 0' }}>
+            <div style={{ fontSize: '10.5pt', fontWeight: 800, color: '#111827', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+              TABLE OF CONTENTS
+            </div>
+          </div>
+
+          <table style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid #1e293b', fontSize: '8.2pt', marginBottom: 22 }}>
+            <tbody>
+              <tr>
+                <td style={{ width: '50%', padding: '5px 8px', border: '1px solid #1e293b' }}>1. Definitions and Interpretation</td>
+                <td style={{ width: '50%', padding: '5px 8px', border: '1px solid #1e293b' }}>15. Indemnity</td>
+              </tr>
+              <tr>
+                <td style={{ padding: '5px 8px', border: '1px solid #1e293b' }}>2. Appointment and Nature of Relationship</td>
+                <td style={{ padding: '5px 8px', border: '1px solid #1e293b' }}>16. Limitation of Liability</td>
+              </tr>
+              <tr>
+                <td style={{ padding: '5px 8px', border: '1px solid #1e293b' }}>3. Scope of Recruitment Services</td>
+                <td style={{ padding: '5px 8px', border: '1px solid #1e293b' }}>17. Compliance, Ethics and Anti-Bribery</td>
+              </tr>
+              <tr>
+                <td style={{ padding: '5px 8px', border: '1px solid #1e293b' }}>4. Candidate Submission and Attribution</td>
+                <td style={{ padding: '5px 8px', border: '1px solid #1e293b' }}>18. Term, Suspension and Termination</td>
+              </tr>
+              <tr>
+                <td style={{ padding: '5px 8px', border: '1px solid #1e293b' }}>5. Candidate Fee Protection</td>
+                <td style={{ padding: '5px 8px', border: '1px solid #1e293b' }}>19. Force Majeure</td>
+              </tr>
+              <tr>
+                <td style={{ padding: '5px 8px', border: '1px solid #1e293b' }}>6. Non-Circumvention and Commercial Protection</td>
+                <td style={{ padding: '5px 8px', border: '1px solid #1e293b' }}>20. Dispute Resolution</td>
+              </tr>
+              <tr>
+                <td style={{ padding: '5px 8px', border: '1px solid #1e293b' }}>7. Fees, Taxes, Invoicing and Payment</td>
+                <td style={{ padding: '5px 8px', border: '1px solid #1e293b' }}>21. Governing Law and Jurisdiction</td>
+              </tr>
+              <tr>
+                <td style={{ padding: '5px 8px', border: '1px solid #1e293b' }}>8. Replacement of Placed Candidates</td>
+                <td style={{ padding: '5px 8px', border: '1px solid #1e293b' }}>22. Notices and Communications</td>
+              </tr>
+              <tr>
+                <td style={{ padding: '5px 8px', border: '1px solid #1e293b' }}>9. Responsibilities of {mrsaData.client.tradeName || 'Client'}</td>
+                <td style={{ padding: '5px 8px', border: '1px solid #1e293b' }}>23. Assignment and Subcontracting</td>
+              </tr>
+              <tr>
+                <td style={{ padding: '5px 8px', border: '1px solid #1e293b' }}>10. Responsibilities of Tasknera</td>
+                <td style={{ padding: '5px 8px', border: '1px solid #1e293b' }}>24. Electronic Execution and Records</td>
+              </tr>
+              <tr>
+                <td style={{ padding: '5px 8px', border: '1px solid #1e293b' }}>11. Confidentiality</td>
+                <td style={{ padding: '5px 8px', border: '1px solid #1e293b' }}>25. General</td>
+              </tr>
+              <tr>
+                <td style={{ padding: '5px 8px', border: '1px solid #1e293b' }}>12. Data Protection and Candidate Privacy</td>
+                <td style={{ padding: '5px 8px', border: '1px solid #1e293b' }}>Execution Page</td>
+              </tr>
+              <tr>
+                <td style={{ padding: '5px 8px', border: '1px solid #1e293b' }}>13. Intellectual Property</td>
+                <td style={{ padding: '5px 8px', border: '1px solid #1e293b' }}>Schedule A – Master Commercial Terms</td>
+              </tr>
+              <tr>
+                <td style={{ padding: '5px 8px', border: '1px solid #1e293b' }}>14. Representations, Warranties and Disclaimers</td>
+                <td style={{ padding: '5px 8px', border: '1px solid #1e293b' }}>Schedule B – Candidate Data Protection and Security</td>
+              </tr>
+            </tbody>
+          </table>
+
+          {/* Party Details Table */}
+          <div style={{ margin: '14px 0 6px 0', fontSize: '9.2pt', fontWeight: 800, color: '#111827', textTransform: 'uppercase' }}>
+            PARTY DETAILS
+          </div>
+
+          <table style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid #1e293b', fontSize: '8.2pt', marginBottom: 16 }}>
+            <thead>
+              <tr style={{ backgroundColor: '#f1f5f9' }}>
+                <th style={{ width: '28%', padding: '6px 8px', textAlign: 'left', border: '1px solid #1e293b', fontWeight: 700 }}>Particulars</th>
+                <th style={{ width: '36%', padding: '6px 8px', textAlign: 'left', border: '1px solid #1e293b', fontWeight: 700 }}>{mrsaData.client.tradeName} (Client)</th>
+                <th style={{ width: '36%', padding: '6px 8px', textAlign: 'left', border: '1px solid #1e293b', fontWeight: 700 }}>Tasknera (Service Provider)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {[
+                { label: 'Full legal name / trade name', client: `${mrsaData.client.legalName} (${mrsaData.client.tradeName})`, sp: mrsaData.serviceProvider.tradeName },
+                { label: 'Legal form', client: mrsaData.client.legalForm, sp: mrsaData.serviceProvider.legalForm },
+                { label: 'Signatory', client: mrsaData.client.signatoryName, sp: mrsaData.serviceProvider.signatoryName },
+                { label: 'Designation', client: mrsaData.client.signatoryDesignation, sp: mrsaData.serviceProvider.signatoryDesignation },
+                { label: 'Address', client: mrsaData.client.registeredAddress, sp: mrsaData.serviceProvider.registeredAddress },
+                { label: 'CIN / Registration No.', client: mrsaData.client.cinNumber, sp: mrsaData.serviceProvider.cinNumber },
+                { label: 'GSTIN', client: mrsaData.client.gstin, sp: mrsaData.serviceProvider.gstin },
+                { label: 'Email', client: mrsaData.client.email, sp: mrsaData.serviceProvider.email },
+                { label: 'Phone', client: mrsaData.client.phone, sp: mrsaData.serviceProvider.phone },
+              ].map((row, rIdx) => (
+                <tr key={rIdx}>
+                  <td style={{ fontWeight: 700, padding: '5px 8px', border: '1px solid #1e293b', backgroundColor: '#fafafa' }}>{row.label}</td>
+                  <td style={{ padding: '5px 8px', border: '1px solid #1e293b' }}>{row.client}</td>
+                  <td style={{ padding: '5px 8px', border: '1px solid #1e293b' }}>{row.sp}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          {/* Recitals */}
+          <div style={{ margin: '14px 0 6px 0', fontSize: '9.2pt', fontWeight: 800, color: '#111827', textTransform: 'uppercase' }}>
+            RECITALS
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6, fontSize: '8.8pt', textAlign: 'justify', lineHeight: 1.6 }}>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <span style={{ fontWeight: 700 }}>(1)</span>
+              <span>{mrsaData.client.tradeName} is engaged in business and, from time to time, requires to hire employees, consultants or other personnel directly.</span>
+            </div>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <span style={{ fontWeight: 700 }}>(2)</span>
+              <span>Tasknera is an independent recruitment services provider offering candidate sourcing, talent acquisition, screening, coordination and related recruitment support services.</span>
+            </div>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <span style={{ fontWeight: 700 }}>(3)</span>
+              <span>{mrsaData.client.tradeName} wishes to engage Tasknera as a non-exclusive recruitment services provider on the terms of this Agreement, and Tasknera agrees to provide such services on an assignment-by-assignment basis.</span>
+            </div>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <span style={{ fontWeight: 700 }}>(4)</span>
+              <span>The Parties intend this Agreement to provide a consistent legal and commercial framework for future recruitment assignments.</span>
+            </div>
+          </div>
+
+          <p style={{ fontSize: '8.8pt', margin: '14px 0 16px 0', lineHeight: 1.6 }}>
+            NOW, THEREFORE, in consideration of the mutual covenants contained in this Agreement, the Parties agree as follows:
+          </p>
+
+          {/* Operative Clauses 1 to 25 */}
+          {mrsaData.sections.map((sec) => (
+            <div key={sec.id} style={{ marginBottom: 16 }}>
+              <div style={{ marginTop: 16, marginBottom: 8 }}>
+                <span style={{ fontWeight: 800, fontSize: '9.5pt', textTransform: 'uppercase', color: '#111827' }}>
+                  {sec.number}.&nbsp;&nbsp;{sec.title}
+                </span>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                {sec.clauses.map((clause) => {
+                  const isDefinitionSection = sec.number === 1;
+                  const showTitle = !isDefinitionSection && clause.title && !clause.paragraphs[0]?.startsWith(clause.title);
+
+                  return (
+                    <div key={clause.id} style={{ fontSize: '8.8pt', textAlign: 'justify', lineHeight: 1.6 }}>
+                      <span style={{ fontWeight: 700 }}>{clause.clauseNumber}&nbsp;&nbsp;</span>
+                      {showTitle && <span style={{ fontWeight: 700 }}>{clause.title}.&nbsp;</span>}
+                      <span>{clause.paragraphs.join(' ')}</span>
+                      {clause.subclauses && clause.subclauses.length > 0 && (
+                        <div style={{ paddingLeft: 18, marginTop: 4, display: 'flex', flexDirection: 'column', gap: 3 }}>
+                          {clause.subclauses.map((sub) => (
+                            <div key={sub.id} style={{ display: 'flex', gap: 8 }}>
+                              <span style={{ fontWeight: 600 }}>{sub.clauseId}</span>
+                              <span>{sub.text}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+
+          {/* Execution Page */}
+          <div style={{ marginTop: 24, marginBottom: 8, textAlign: 'left' }}>
+            <span style={{ fontWeight: 800, fontSize: '9.5pt', textTransform: 'uppercase', color: '#111827' }}>
+              EXECUTION PAGE
+            </span>
+          </div>
+
+          <table style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid #1e293b', fontSize: '8.2pt', marginBottom: 16 }}>
+            <thead>
+              <tr style={{ backgroundColor: '#f1f5f9' }}>
+                <th style={{ width: '50%', padding: '6px 10px', textAlign: 'left', border: '1px solid #1e293b', fontWeight: 700 }}>
+                  FOR {mrsaData.client.tradeName.toUpperCase()}
+                </th>
+                <th style={{ width: '50%', padding: '6px 10px', textAlign: 'left', border: '1px solid #1e293b', fontWeight: 700 }}>
+                  FOR TASKNERA
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style={{ padding: '10px 12px', border: '1px solid #1e293b', verticalAlign: 'top' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                    <div><span style={{ fontWeight: 700 }}>Authorised Signatory: </span>{mrsaData.client.signatoryName}</div>
+                    <div><span style={{ fontWeight: 700 }}>Designation: </span>{mrsaData.client.signatoryDesignation}</div>
+                    <div><span style={{ fontWeight: 700 }}>Signature: </span>____________________</div>
+                    <div><span style={{ fontWeight: 700 }}>Date: </span>{mrsaData.clientSignatoryDate || mrsaData.effectiveDate}</div>
+                    <div><span style={{ fontWeight: 700 }}>Place: </span>{mrsaData.client.registeredAddress?.split(',')?.[0] || 'Hyderabad'}</div>
+                  </div>
+                </td>
+                <td style={{ padding: '10px 12px', border: '1px solid #1e293b', verticalAlign: 'top' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                    <div><span style={{ fontWeight: 700 }}>Proprietor: </span>{mrsaData.serviceProvider.signatoryName}</div>
+                    <div><span style={{ fontWeight: 700 }}>Designation: </span>{mrsaData.serviceProvider.signatoryDesignation}</div>
+                    <div><span style={{ fontWeight: 700 }}>Signature: </span>____________________</div>
+                    <div><span style={{ fontWeight: 700 }}>Date: </span>{mrsaData.taskneraSignatoryDate || mrsaData.effectiveDate}</div>
+                    <div><span style={{ fontWeight: 700 }}>Place: </span>Delhi, India</div>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          {/* Schedule A – Master Commercial Terms */}
+          <div style={{ marginTop: 22, marginBottom: 8, textAlign: 'left' }}>
+            <span style={{ fontWeight: 800, fontSize: '9.5pt', textTransform: 'uppercase', color: '#111827' }}>
+              SCHEDULE A – MASTER COMMERCIAL TERMS
+            </span>
+          </div>
+
+          <table style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid #1e293b', fontSize: '8.2pt', marginBottom: 22 }}>
+            <thead>
+              <tr style={{ backgroundColor: '#f1f5f9' }}>
+                <th style={{ width: '28%', padding: '6px 8px', textAlign: 'left', border: '1px solid #1e293b', fontWeight: 700 }}>Term</th>
+                <th style={{ padding: '6px 8px', textAlign: 'left', border: '1px solid #1e293b', fontWeight: 700 }}>Master Terms</th>
+              </tr>
+            </thead>
+            <tbody>
+              {mrsaData.scheduleA.map((row) => (
+                <tr key={row.id}>
+                  <td style={{ fontWeight: 700, padding: '5px 8px', border: '1px solid #1e293b', verticalAlign: 'top', backgroundColor: '#fafafa' }}>
+                    {row.term}
+                  </td>
+                  <td style={{ padding: '5px 8px', border: '1px solid #1e293b', verticalAlign: 'top', textAlign: 'justify', lineHeight: 1.5 }}>
+                    {row.masterTerms}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          {/* Schedule B – Data Protection */}
+          <div style={{ marginTop: 22, marginBottom: 8, textAlign: 'left' }}>
+            <span style={{ fontWeight: 800, fontSize: '9.5pt', textTransform: 'uppercase', color: '#111827' }}>
+              SCHEDULE B – CANDIDATE DATA PROTECTION AND SECURITY
+            </span>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6, fontSize: '8.5pt', textAlign: 'justify', lineHeight: 1.5 }}>
+            {mrsaData.scheduleB.map((secB) => (
+              <div key={secB.id}>
+                <span style={{ fontWeight: 800 }}>{secB.code}&nbsp;&nbsp;</span>
+                <span style={{ fontWeight: 700 }}>{secB.title}:&nbsp;</span>
+                <span>{secB.content}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* Digital Security Footer */}
+          <div
+            style={{
+              borderTop: '1px solid #cbd5e1',
+              paddingTop: 12,
+              marginTop: 24,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              fontSize: '8pt',
+              color: '#64748b',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <Lock size={12} color="#10b981" />
+              <span>Digital Security Token: <strong>{verificationToken}</strong></span>
+            </div>
+            <div>SHA-256: {checksum.substring(0, 16)}...{checksum.substring(48)}</div>
+          </div>
+        </div>
+      ) : isCharacterCertificate ? (
+        /* ========================================================================= */
+        /* 3. CHARACTER CERTIFICATE CANVAS                                           */
+        /* ========================================================================= */
         <div
           id="printable-character-certificate"
           className="printable-character-sheet"
           style={{
-            maxWidth: 820,
+            maxWidth: 780,
             margin: '0 auto',
             width: '100%',
             backgroundColor: '#ffffff',
-            boxShadow: '0 4px 25px rgba(0, 0, 0, 0.08)',
-            borderRadius: 8,
-            padding: '40px 48px',
-            fontFamily: '"Times New Roman", Times, Georgia, serif',
             color: '#1e293b',
-            lineHeight: 1.55,
-            fontSize: '0.9375rem',
-            border: '1px solid #e2e8f0',
+            padding: '44px 50px',
+            borderRadius: 4,
+            boxShadow: '0 8px 30px rgba(0, 0, 0, 0.12)',
+            fontFamily: '"Times New Roman", Times, Georgia, serif',
+            fontSize: '11pt',
+            lineHeight: 1.6,
           }}
         >
-          {/* Header with Logo Left + Address Right */}
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'flex-start',
-              justifyContent: 'space-between',
-              borderBottom: '1px solid #f1f5f9',
-              paddingBottom: 14,
-              marginBottom: 16,
-            }}
-          >
-            <div>
-              <img
-                src="/logo.png"
-                alt="TaskNera Logo"
-                style={{ width: 48, height: 48, objectFit: 'contain' }}
-              />
-            </div>
-            <div style={{ textAlign: 'right', fontFamily: 'Arial, sans-serif' }}>
-              <div style={{ fontWeight: 800, fontSize: '1.15rem', color: '#0f172a', letterSpacing: '-0.02em' }}>
-                TaskNera
-              </div>
-              <div style={{ fontSize: '0.72rem', color: '#475569', marginTop: 2 }}>
-                D-57 F1 Dilshad Colony, Shahdara, Delhi – 110095
-              </div>
-              <div style={{ fontSize: '0.72rem', color: '#475569' }}>
-                Email: careers@tasknera.com
-              </div>
-            </div>
-          </div>
-
-          {/* Reference & Date */}
-          <div style={{ marginBottom: 16, fontFamily: 'Arial, sans-serif', fontSize: '0.82rem', color: '#334155' }}>
-            <div>
-              <strong>Reference:</strong> {referenceNumber}
-            </div>
-            <div>
-              <strong>Date:</strong> {issueDate}
-            </div>
-          </div>
-
-          {/* Centered Document Title */}
-          <div style={{ textAlign: 'center', marginBottom: 18 }}>
-            <h1
-              style={{
-                margin: '0 0 4px',
-                fontSize: '1.6rem',
-                fontWeight: 700,
-                color: '#0f172a',
-                letterSpacing: '0.01em',
-                fontFamily: '"Times New Roman", Times, serif',
+          {/* Official Letterhead Header */}
+          <div style={{ textAlign: 'center', borderBottom: '2px solid #0f172a', paddingBottom: 12, marginBottom: 16 }}>
+            <img
+              src="/logo.png"
+              alt="TaskNera"
+              style={{ width: 52, height: 52, objectFit: 'contain', margin: '0 auto 6px', display: 'block' }}
+              onError={(e) => {
+                e.currentTarget.style.display = 'none';
               }}
-            >
+            />
+            <div style={{ fontSize: '1.45rem', fontWeight: 800, color: '#0f172a', letterSpacing: '0.04em', textTransform: 'uppercase' }}>
+              TaskNera HR Solutions
+            </div>
+            <div style={{ fontSize: '0.85rem', color: '#475569', fontStyle: 'italic', marginTop: 2 }}>
+              People • Processes • Performance
+            </div>
+            <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: 4 }}>
+              D-57 Dilshad Colony, Shahdara, Delhi &ndash; 110095 • Email: careers@tasknera.com • Phone: +91 7065278229
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem', color: '#334155', marginBottom: 18 }}>
+            <div><strong>Ref:</strong> {referenceNumber}</div>
+            <div><strong>Date:</strong> {issueDate}</div>
+          </div>
+
+          <div style={{ textAlign: 'center', marginBottom: 18 }}>
+            <h1 style={{ margin: '0 0 4px', fontSize: '1.6rem', fontWeight: 700, color: '#0f172a', textTransform: 'uppercase' }}>
               Character Certificate
             </h1>
-            <div
-              style={{
-                fontSize: '1rem',
-                fontStyle: 'italic',
-                color: '#334155',
-                fontWeight: 600,
-              }}
-            >
+            <div style={{ fontSize: '1rem', fontStyle: 'italic', color: '#334155', fontWeight: 600 }}>
               To Whomsoever It May Concern
             </div>
           </div>
 
-          {/* 8 Body Paragraphs */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10, textAlign: 'justify' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12, textAlign: 'justify' }}>
             <p style={{ margin: 0 }}>
-              This is to certify that {salutation} {fullName} was associated with TaskNera HR Solutions as {designationArticle} {designation}, contributing to the {department}, from {startDate} to {endDate}.
+              This is to certify that {salutation} {fullName} was associated with TaskNera HR Solutions as {designationArticle} {designation} in the {department} Department from {startDate} to {endDate}.
             </p>
-
             <p style={{ margin: 0 }}>
-              During the period of {pronounHisHer} {associationType}, {fullName} was part of the {department} and contributed to {areaOfWork} activities throughout {pronounHisHer} association with the organization.
+              During {pronounHisHer} tenure with our organization, {pronounHeShe} was found to be honest, sincere, diligent, and of good moral character. {pronounHisHerCap} conduct and behaviour towards colleagues, superiors, and clients were exemplary and professional.
             </p>
-
             <p style={{ margin: 0 }}>
-              As part of the {department}, {pronounHeShe} {responsibilityLevel} {keyResponsibilities}, and supporting other {department} activities as assigned.
+              To the best of our knowledge and belief, {pronounHeShe} bears a good reputation and has not come to adverse notice during {pronounHisHer} period of service.
             </p>
-
             <p style={{ margin: 0 }}>
-              Throughout {pronounHisHer} association with TaskNera HR Solutions, {fullName} demonstrated {demonstratedQualities} in carrying out {pronounHisHer} responsibilities.
-            </p>
-
-            <p style={{ margin: 0 }}>
-              To the best of our knowledge, {pronounHisHer} conduct and character during the {associationType} period were {conductEvaluation}. We found {pronounHimHer} to be {characterTraits} to the responsibilities entrusted to {pronounHimHer}.
-            </p>
-
-            {includeDisciplinaryClause && (
-              <p style={{ margin: 0 }}>
-                No disciplinary action or complaint relating to misconduct was recorded against {pronounHimHer} during the period of association.
-              </p>
-            )}
-
-            <p style={{ margin: 0 }}>
-              We appreciate {pronounHisHer} contribution to the {department} function and wish {pronounHimHer} continued success and growth in {pronounHisHer} future {futureEndeavours} endeavours.
-            </p>
-
-            <p style={{ margin: 0 }}>
-              This certificate is being issued upon {issuanceReason} with TaskNera HR Solutions.
+              We wish {pronounHimHer} all success in {pronounHisHer} future endeavours.
             </p>
           </div>
 
-          {/* Signatory Section */}
-          <div style={{ marginTop: 24, display: 'inline-block' }}>
-            <div style={{ fontWeight: 700, fontSize: '0.95rem', color: '#0f172a', marginBottom: 22 }}>
+          <div style={{ marginTop: 28, display: 'inline-block' }}>
+            <div style={{ fontWeight: 700, fontSize: '0.95rem', color: '#0f172a', marginBottom: 24 }}>
               For TaskNera HR Solutions
             </div>
             <div style={{ borderBottom: '1px solid #475569', width: 200, marginBottom: 6 }} />
@@ -421,141 +1249,92 @@ export const DocumentPreview: React.FC<DocumentPreviewProps> = ({
               <div style={{ fontWeight: 600 }}>Authorized Signatory</div>
               <div>Name: {signatoryName}</div>
               <div>Designation: {signatoryTitle}</div>
-              <div>Date of Issue: {issueDate}</div>
+              <div>Date: {issueDate}</div>
               <div>Place: {place}</div>
             </div>
           </div>
 
-          {/* Footer */}
-          <div
-            style={{
-              borderTop: '1px solid #f1f5f9',
-              paddingTop: 10,
-              marginTop: 20,
-              textAlign: 'center',
-              fontSize: '0.75rem',
-              color: '#94a3b8',
-              fontFamily: 'Arial, sans-serif',
-            }}
-          >
+          <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: 10, marginTop: 20, textAlign: 'center', fontSize: '0.75rem', color: '#94a3b8' }}>
             TaskNera | Page 1 of 1
           </div>
         </div>
       ) : isExperienceLetter ? (
-        /* OFFICIAL TASKNERA EXPERIENCE LETTER */
+        /* ========================================================================= */
+        /* 4. EXPERIENCE LETTER CANVAS                                               */
+        /* ========================================================================= */
         <div
           id="printable-experience-letter"
           className="printable-experience-sheet"
           style={{
-            maxWidth: 820,
+            maxWidth: 780,
             margin: '0 auto',
             width: '100%',
             backgroundColor: '#ffffff',
-            boxShadow: '0 4px 25px rgba(0, 0, 0, 0.08)',
-            borderRadius: 8,
-            padding: '40px 48px',
-            fontFamily: '"Times New Roman", Times, Georgia, serif',
             color: '#1e293b',
-            lineHeight: 1.55,
-            fontSize: '0.9375rem',
-            border: '1px solid #e2e8f0',
+            padding: '44px 50px',
+            borderRadius: 4,
+            boxShadow: '0 8px 30px rgba(0, 0, 0, 0.12)',
+            fontFamily: '"Times New Roman", Times, Georgia, serif',
+            fontSize: '11pt',
+            lineHeight: 1.6,
           }}
         >
-          {/* Header with Logo Left + Address Right */}
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'flex-start',
-              justifyContent: 'space-between',
-              borderBottom: '1px solid #f1f5f9',
-              paddingBottom: 14,
-              marginBottom: 16,
-            }}
-          >
-            <div>
-              <img
-                src="/logo.png"
-                alt="TaskNera Logo"
-                style={{ width: 48, height: 48, objectFit: 'contain' }}
-              />
-            </div>
-            <div style={{ textAlign: 'right', fontFamily: 'Arial, sans-serif' }}>
-              <div style={{ fontWeight: 800, fontSize: '1.15rem', color: '#0f172a', letterSpacing: '-0.02em' }}>
-                TaskNera
-              </div>
-              <div style={{ fontSize: '0.72rem', color: '#475569', marginTop: 2 }}>
-                D-57 F1 Dilshad Colony, Shahdara, Delhi – 110095
-              </div>
-              <div style={{ fontSize: '0.72rem', color: '#475569' }}>
-                Email: careers@tasknera.com
-              </div>
-            </div>
-          </div>
-
-          {/* Reference & Date */}
-          <div style={{ marginBottom: 16, fontFamily: 'Arial, sans-serif', fontSize: '0.82rem', color: '#334155' }}>
-            <div>
-              <strong>Reference:</strong> {referenceNumber}
-            </div>
-            <div>
-              <strong>Date:</strong> {issueDate}
-            </div>
-          </div>
-
-          {/* Centered Document Title */}
-          <div style={{ textAlign: 'center', marginBottom: 18 }}>
-            <h1
-              style={{
-                margin: '0 0 4px',
-                fontSize: '1.6rem',
-                fontWeight: 700,
-                color: '#0f172a',
-                letterSpacing: '0.01em',
-                fontFamily: '"Times New Roman", Times, serif',
+          {/* Official Letterhead Header */}
+          <div style={{ textAlign: 'center', borderBottom: '2px solid #0f172a', paddingBottom: 12, marginBottom: 16 }}>
+            <img
+              src="/logo.png"
+              alt="TaskNera"
+              style={{ width: 52, height: 52, objectFit: 'contain', margin: '0 auto 6px', display: 'block' }}
+              onError={(e) => {
+                e.currentTarget.style.display = 'none';
               }}
-            >
+            />
+            <div style={{ fontSize: '1.45rem', fontWeight: 800, color: '#0f172a', letterSpacing: '0.04em', textTransform: 'uppercase' }}>
+              TaskNera HR Solutions
+            </div>
+            <div style={{ fontSize: '0.85rem', color: '#475569', fontStyle: 'italic', marginTop: 2 }}>
+              People • Processes • Performance
+            </div>
+            <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: 4 }}>
+              D-57 Dilshad Colony, Shahdara, Delhi &ndash; 110095 • Email: careers@tasknera.com • Phone: +91 7065278229
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem', color: '#334155', marginBottom: 18 }}>
+            <div><strong>Ref:</strong> {referenceNumber}</div>
+            <div><strong>Date:</strong> {issueDate}</div>
+          </div>
+
+          <div style={{ textAlign: 'center', marginBottom: 18 }}>
+            <h1 style={{ margin: '0 0 4px', fontSize: '1.6rem', fontWeight: 700, color: '#0f172a', textTransform: 'uppercase' }}>
               Experience Letter
             </h1>
-            <div
-              style={{
-                fontSize: '1rem',
-                fontStyle: 'italic',
-                color: '#334155',
-                fontWeight: 600,
-              }}
-            >
+            <div style={{ fontSize: '1rem', fontStyle: 'italic', color: '#334155', fontWeight: 600 }}>
               To Whomsoever It May Concern
             </div>
           </div>
 
-          {/* Body Paragraphs matching PDF template exactly */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 11, textAlign: 'justify' }}>
             <p style={{ margin: 0 }}>
               This is to certify that {salutation} {fullName} was associated with TaskNera HR Solutions as {designationArticle} {designation} from {startDate} to {endDate}.
             </p>
-
             <p style={{ margin: 0 }}>
               During {pronounHisHer} {associationType}, {pronounHeShe} was part of the {department} and contributed to {areaOfWork}-related activities throughout {pronounHisHer} association with the organization.
             </p>
-
             <p style={{ margin: 0 }}>
-              As part of the {department}, {pronounHeShe} {responsibilityLevel} {keyResponsibilities}, and supporting other {department} activities as assigned.
+              As part of the {department}, {pronounHeShe} {responsibilityLevel} {keyResponsibilities}, and supported other {department} activities as assigned.
             </p>
-
             <p style={{ margin: 0 }}>
               Throughout {pronounHisHer} association with TaskNera HR Solutions, {pronounHeShe} demonstrated {demonstratedQualities} in carrying out {pronounHisHer} responsibilities.
             </p>
-
             <p style={{ margin: 0 }}>
               {pronounHisHerCap} association with TaskNera HR Solutions {statusMode === 'ended' ? `ended on ${endDate}` : 'is continuing as on the date of this letter'}.
             </p>
-
             <p style={{ margin: 0 }}>
               We appreciate {pronounHisHer} contribution to the organization and wish {pronounHimHer} continued success and growth in all {pronounHisHer} future endeavours.
             </p>
           </div>
 
-          {/* Signatory Section */}
           <div style={{ marginTop: 24, display: 'inline-block' }}>
             <div style={{ fontWeight: 700, fontSize: '0.95rem', color: '#0f172a', marginBottom: 22 }}>
               For TaskNera HR Solutions
@@ -570,23 +1349,14 @@ export const DocumentPreview: React.FC<DocumentPreviewProps> = ({
             </div>
           </div>
 
-          {/* Footer */}
-          <div
-            style={{
-              borderTop: '1px solid #f1f5f9',
-              paddingTop: 10,
-              marginTop: 20,
-              textAlign: 'center',
-              fontSize: '0.75rem',
-              color: '#94a3b8',
-              fontFamily: 'Arial, sans-serif',
-            }}
-          >
+          <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: 10, marginTop: 20, textAlign: 'center', fontSize: '0.75rem', color: '#94a3b8' }}>
             TaskNera | Page 1 of 1
           </div>
         </div>
       ) : (
-        /* STANDARD OR OTHER DOCUMENT CANVAS */
+        /* ========================================================================= */
+        /* 5. STANDARD OR CUSTOM DOCUMENT CANVAS                                    */
+        /* ========================================================================= */
         <div
           style={{
             maxWidth: 820,
@@ -642,57 +1412,80 @@ export const DocumentPreview: React.FC<DocumentPreviewProps> = ({
               {document.recipientName}
             </div>
             <div style={{ fontSize: '0.8125rem', color: '#4b5563' }}>{document.recipientEmail}</div>
-            {terms.address ? (
-              <div style={{ fontSize: '0.8125rem', color: '#4b5563' }}>{String(terms.address)}</div>
+            {terms.address && typeof terms.address === 'string' ? (
+              <div style={{ fontSize: '0.8125rem', color: '#4b5563' }}>{terms.address}</div>
             ) : null}
           </div>
 
-          {/* Structured Terms Key-Value Grid */}
-          <div style={{ marginBottom: 28 }}>
+          {/* Custom Compiled Document Text (if present) */}
+          {terms.documentText || terms.templateContent ? (
             <div
               style={{
-                fontSize: '0.8125rem',
-                fontWeight: 800,
-                textTransform: 'uppercase',
-                color: '#374151',
-                borderBottom: '2px solid #e5e7eb',
-                paddingBottom: 6,
-                marginBottom: 12,
+                fontSize: '0.875rem',
+                lineHeight: 1.7,
+                color: '#1e293b',
+                whiteSpace: 'pre-wrap',
+                marginBottom: 28,
+                padding: '16px 20px',
+                backgroundColor: '#f8fafc',
+                borderRadius: 8,
+                border: '1px solid #e2e8f0',
               }}
             >
-              Authorized Document Terms & Specifications
+              {terms.documentText || terms.templateContent}
             </div>
+          ) : (
+            /* Structured Terms Key-Value Grid without [object Object] */
+            <div style={{ marginBottom: 28 }}>
+              <div
+                style={{
+                  fontSize: '0.8125rem',
+                  fontWeight: 800,
+                  textTransform: 'uppercase',
+                  color: '#374151',
+                  borderBottom: '2px solid #e5e7eb',
+                  paddingBottom: 6,
+                  marginBottom: 12,
+                }}
+              >
+                Authorized Document Terms & Specifications
+              </div>
 
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8125rem' }}>
-              <tbody>
-                {Object.entries(terms)
-                  .filter(([k]) => !['signatoryName', 'signatoryTitle', 'parsedSections'].includes(k))
-                  .slice(0, 14)
-                  .map(([key, val]) => (
-                    <tr key={key} style={{ borderBottom: '1px solid #f3f4f6' }}>
-                      <td
-                        style={{
-                          padding: '6px 0',
-                          fontWeight: 600,
-                          color: '#4b5563',
-                          width: '40%',
-                          textTransform: 'capitalize',
-                        }}
-                      >
-                        {key.replace(/([A-Z])/g, ' $1').trim()}
-                      </td>
-                      <td style={{ padding: '6px 0', color: '#111827', fontWeight: 700 }}>
-                        {typeof val === 'number'
-                          ? terms.currency
-                            ? `${val.toLocaleString()} ${String(terms.currency)}`
-                            : val.toLocaleString()
-                          : String(val ?? '')}
-                      </td>
-                    </tr>
-                  ))}
-              </tbody>
-            </table>
-          </div>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8125rem' }}>
+                <tbody>
+                  {Object.entries(terms)
+                    .filter(
+                      ([k, v]) =>
+                        !['signatoryName', 'signatoryTitle', 'parsedSections', 'client', 'serviceProvider', 'scheduleA', 'scheduleB', 'sections', 'recitals', 'executiveSummary', 'mrsaData', 'allValues'].includes(k) &&
+                        typeof v !== 'object'
+                    )
+                    .slice(0, 14)
+                    .map(([key, val]) => (
+                      <tr key={key} style={{ borderBottom: '1px solid #f3f4f6' }}>
+                        <td
+                          style={{
+                            padding: '6px 0',
+                            fontWeight: 600,
+                            color: '#4b5563',
+                            width: '40%',
+                            textTransform: 'capitalize',
+                          }}
+                        >
+                          {key.replace(/([A-Z])/g, ' $1').trim()}
+                        </td>
+                        <td style={{ padding: '6px 0', color: '#111827', fontWeight: 700 }}>
+                          {typeof val === 'number'
+                            ? terms.currency
+                              ? `${val.toLocaleString()} ${String(terms.currency)}`
+                              : val.toLocaleString()
+                            : String(val ?? '')}
+                        </td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+            </div>
+          )}
 
           {/* Legal Text / Governance Declaration */}
           <div style={{ marginBottom: 32, fontSize: '0.8125rem', color: '#4b5563', lineHeight: 1.6 }}>
@@ -708,10 +1501,10 @@ export const DocumentPreview: React.FC<DocumentPreviewProps> = ({
             <div>
               <div style={{ width: 180, borderBottom: '1px solid #9ca3af', marginBottom: 6 }} />
               <div style={{ fontWeight: 800, fontSize: '0.875rem', color: '#111827' }}>
-                {String(terms.signatoryName || 'Authorized Signatory')}
+                {String(terms.signatoryName || document.signatoryName || 'Authorized Signatory')}
               </div>
               <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>
-                {String(terms.signatoryTitle || 'VP of People Operations')}
+                {String(terms.signatoryTitle || document.signatoryTitle || 'CEO & Founder')}
               </div>
               <div style={{ fontSize: '0.7rem', color: '#64748b' }}>TaskNera Enterprise</div>
             </div>

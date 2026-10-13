@@ -68,7 +68,7 @@ export interface DocumentAnnexureRow {
 }
 
 // Default TaskNera 18-Section Legal Structure (From Official Contract)
-const DEFAULT_OFFER_SECTIONS: DocumentSectionItem[] = [
+export const DEFAULT_OFFER_SECTIONS: DocumentSectionItem[] = [
   {
     id: 'sec_1',
     number: 1,
@@ -323,7 +323,7 @@ const APPOINTMENT_SECTIONS: DocumentSectionItem[] = [
   },
 ];
 
-const DEFAULT_ANNEXURE_ROWS: DocumentAnnexureRow[] = [
+export const DEFAULT_ANNEXURE_ROWS: DocumentAnnexureRow[] = [
   { label: 'Employee Name', key: 'employee_name', defaultValue: '' },
   { label: 'Designation', key: 'designation', defaultValue: 'Senior Platform Engineer' },
   { label: 'Department', key: 'department', defaultValue: 'Platform Engineering' },
@@ -336,7 +336,7 @@ const DEFAULT_ANNEXURE_ROWS: DocumentAnnexureRow[] = [
   { label: 'Working Days / Shift', key: 'working_days_shift', defaultValue: '6 working days and a 9-hour shift (may vary depending on business requirements)' },
 ];
 
-const MANDATORY_DOCS = [
+export const MANDATORY_DOCS = [
   'Government-issued identity/address proof and PAN, as applicable.',
   'Education/qualification documents relevant to the role.',
   'Previous employment/relieving or resignation documentation, where applicable.',
