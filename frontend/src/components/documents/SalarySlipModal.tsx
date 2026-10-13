@@ -535,7 +535,27 @@ export const SalarySlipModal: React.FC<SalarySlipModalProps> = ({
           employeeId,
           designation,
           department,
+          dateOfJoining,
           payPeriod,
+          bankName,
+          bankAccountNumber,
+          panNumber,
+          pfUanNumber,
+          payableDays,
+          lopDays,
+          basicSalary,
+          hra,
+          conveyanceAllowance,
+          medicalAllowance,
+          specialAllowance,
+          performanceBonus,
+          providentFund,
+          professionalTax,
+          incomeTax,
+          loanAdvanceRecovery,
+          otherDeductions,
+          grossEarnings,
+          totalDeductions,
           netPay,
           amountInWords,
         },
@@ -551,6 +571,21 @@ export const SalarySlipModal: React.FC<SalarySlipModalProps> = ({
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
+
+      try {
+        const existingSaved: HrDocument[] = JSON.parse(
+          localStorage.getItem('tasknera_saved_documents') || '[]'
+        );
+        const updatedList = [
+          localDoc,
+          ...existingSaved.filter(
+            (d) => d.id !== localDoc.id && d.referenceNumber !== localDoc.referenceNumber
+          ),
+        ];
+        localStorage.setItem('tasknera_saved_documents', JSON.stringify(updatedList));
+      } catch (err) {
+        console.warn('LocalStorage tasknera_saved_documents save failed:', err);
+      }
 
       try {
         const stored = localStorage.getItem('TASKNERA_HR_DOCUMENTS');

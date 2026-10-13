@@ -39,6 +39,8 @@ const DOCUMENT_TYPE_LABELS: Record<string, string> = {
   FNF_SETTLEMENT: 'FNF Settlement',
   CONTRACT_LETTER: 'Contract Letter',
   MSA: 'Master Services Agreement',
+  SALARY_SLIP: 'Salary Slip',
+  CERTIFICATE: 'Certificate',
 };
 
 const INITIAL_MOCK_DOCS: HrDocument[] = [];
@@ -87,7 +89,16 @@ export const DocumentList: React.FC<DocumentListProps> = ({
         console.warn('LocalStorage mock remove failed:', err);
       }
 
-      // 4. Update component state immediately
+      // 4. Remove from TASKNERA_HR_DOCUMENTS
+      try {
+        const hrSaved: HrDocument[] = JSON.parse(localStorage.getItem('TASKNERA_HR_DOCUMENTS') || '[]');
+        const updatedHr = hrSaved.filter((d) => d.id !== doc.id && d.referenceNumber !== doc.referenceNumber);
+        localStorage.setItem('TASKNERA_HR_DOCUMENTS', JSON.stringify(updatedHr));
+      } catch (err) {
+        console.warn('LocalStorage TASKNERA_HR_DOCUMENTS remove failed:', err);
+      }
+
+      // 5. Update component state immediately
       setDocuments((prev) => prev.filter((d) => d.id !== doc.id && d.referenceNumber !== doc.referenceNumber));
       success(`Document "${docName}" deleted successfully.`);
     } catch (err: any) {
@@ -118,10 +129,20 @@ export const DocumentList: React.FC<DocumentListProps> = ({
         console.warn('Backend listDocuments notice:', err);
       }
 
-      // Load saved documents from localStorage
+      // Load saved documents from localStorage (check both keys for seamless sync)
       let localSaved: HrDocument[] = [];
       try {
-        localSaved = JSON.parse(localStorage.getItem('tasknera_saved_documents') || '[]');
+        const saved1: HrDocument[] = JSON.parse(localStorage.getItem('tasknera_saved_documents') || '[]');
+        const saved2: HrDocument[] = JSON.parse(localStorage.getItem('TASKNERA_HR_DOCUMENTS') || '[]');
+        const localDocMap = new Map<string, HrDocument>();
+        saved1.forEach((d) => localDocMap.set(d.referenceNumber || d.id, d));
+        saved2.forEach((d) => {
+          const key = d.referenceNumber || d.id;
+          if (!localDocMap.has(key)) {
+            localDocMap.set(key, d);
+          }
+        });
+        localSaved = Array.from(localDocMap.values());
       } catch {
         localSaved = [];
       }

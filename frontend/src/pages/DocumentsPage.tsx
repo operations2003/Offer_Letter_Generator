@@ -43,14 +43,38 @@ export const DocumentsPage: React.FC<DocumentsPageProps> = ({ createMode = false
 
   const handleViewDocument = async (doc: HrDocument) => {
     try {
-      const typeDef = await DocumentEngineService.getDocumentTypeByCode(doc.documentTypeCode);
-      if (typeDef) {
-        setPreviewTypeDef(typeDef);
-        setSelectedDocForPreview(doc);
-        setIsCreating(false);
-      }
+      const typeDef =
+        (await DocumentEngineService.getDocumentTypeByCode(doc.documentTypeCode)) || {
+          code: doc.documentTypeCode,
+          name: doc.title,
+          category: 'EMPLOYMENT',
+          description: doc.title,
+          iconName: 'FileText',
+          isImplemented: true,
+          version: 1,
+          sections: [],
+          requiredFields: [],
+          optionalFields: [],
+        } as any;
+      setPreviewTypeDef(typeDef);
+      setSelectedDocForPreview(doc);
+      setIsCreating(false);
     } catch {
-      error(`Could not load specifications for ${doc.documentTypeCode}`);
+      const fallbackDef = {
+        code: doc.documentTypeCode,
+        name: doc.title,
+        category: 'EMPLOYMENT',
+        description: doc.title,
+        iconName: 'FileText',
+        isImplemented: true,
+        version: 1,
+        sections: [],
+        requiredFields: [],
+        optionalFields: [],
+      } as any;
+      setPreviewTypeDef(fallbackDef);
+      setSelectedDocForPreview(doc);
+      setIsCreating(false);
     }
   };
 

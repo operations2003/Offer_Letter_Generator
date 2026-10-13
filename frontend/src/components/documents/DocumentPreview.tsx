@@ -93,27 +93,50 @@ export const DocumentPreview: React.FC<DocumentPreviewProps> = ({
     latestFile?.sha256Checksum ||
     'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855';
 
+  const isSalarySlip =
+    (document.documentTypeCode as string) === 'SALARY_SLIP' ||
+    document.templateId?.includes('salary') ||
+    document.templateId?.includes('slip') ||
+    document.templateId?.includes('payslip') ||
+    document.title?.toLowerCase().includes('salary slip') ||
+    document.title?.toLowerCase().includes('payslip') ||
+    Boolean(terms.payPeriod && (terms.netPay !== undefined || terms.basicSalary !== undefined));
+
+  const isInternshipConcluding =
+    document.templateId?.includes('internship_concluding') ||
+    document.title?.toLowerCase().includes('internship concluding') ||
+    document.title?.toLowerCase().includes('concluding letter') ||
+    Boolean(terms.offerLetterRef && terms.concludedDate);
+
   const isCharacterCertificate =
-    document.documentTypeCode === 'CERTIFICATE' ||
-    document.templateId?.includes('character') ||
-    document.title?.toLowerCase().includes('character');
+    !isSalarySlip &&
+    !isInternshipConcluding &&
+    (document.documentTypeCode === 'CERTIFICATE' ||
+      document.templateId?.includes('character') ||
+      document.title?.toLowerCase().includes('character'));
 
   const isExperienceLetter =
-    document.documentTypeCode === 'EXPERIENCE_LETTER' ||
-    document.templateId?.includes('experience') ||
-    document.title?.toLowerCase().includes('experience');
+    !isSalarySlip &&
+    !isInternshipConcluding &&
+    (document.documentTypeCode === 'EXPERIENCE_LETTER' ||
+      document.templateId?.includes('experience') ||
+      document.title?.toLowerCase().includes('experience'));
 
   const isMrsa =
-    document.documentTypeCode === 'MSA' ||
-    document.templateId?.includes('mrsa') ||
-    document.templateId?.includes('msa') ||
-    document.title?.toLowerCase().includes('master recruitment') ||
-    document.title?.toLowerCase().includes('master service') ||
-    Boolean(terms.agreementNumber && (terms.agreementNumber.includes('MRSA') || terms.agreementNumber.includes('TASK/MRSA'))) ||
-    Boolean(terms.sectionsCount) ||
-    Boolean(terms.scheduleA);
+    !isSalarySlip &&
+    !isInternshipConcluding &&
+    (document.documentTypeCode === 'MSA' ||
+      document.templateId?.includes('mrsa') ||
+      document.templateId?.includes('msa') ||
+      document.title?.toLowerCase().includes('master recruitment') ||
+      document.title?.toLowerCase().includes('master service') ||
+      Boolean(terms.agreementNumber && (terms.agreementNumber.includes('MRSA') || terms.agreementNumber.includes('TASK/MRSA'))) ||
+      Boolean(terms.sectionsCount) ||
+      Boolean(terms.scheduleA));
 
   const isOfferLetter =
+    !isSalarySlip &&
+    !isInternshipConcluding &&
     !isMrsa &&
     !isCharacterCertificate &&
     !isExperienceLetter &&
@@ -121,6 +144,69 @@ export const DocumentPreview: React.FC<DocumentPreviewProps> = ({
       document.templateId?.includes('offer') ||
       document.title?.toLowerCase().includes('offer') ||
       Boolean(terms.annualCtc || terms.annual_ctc || terms.basic_salary || terms.totalCtc));
+
+  // Payslip Variables
+  const payslipFullName = terms.fullName || terms.candidateName || document.recipientName || 'Employee';
+  const payslipEmployeeId = terms.employeeId || 'TN-EMP-001';
+  const payslipDesignation = terms.designation || terms.jobTitle || 'Staff Member';
+  const payslipDepartment = terms.department || 'Operations';
+  const payslipDateOfJoining = terms.dateOfJoining || '10/01/2026';
+  const payslipPayPeriod = terms.payPeriod || document.effectiveDate || 'October 2026';
+  const payslipBankName = terms.bankName || 'HDFC Bank';
+  const payslipBankAccountNumber = terms.bankAccountNumber || '••••••••1234';
+  const payslipPanNumber = terms.panNumber || 'ABCDE1234F';
+  const payslipPfUanNumber = terms.pfUanNumber || '100123456789';
+  const payslipPayableDays = terms.payableDays ?? 30;
+  const payslipLopDays = terms.lopDays ?? 0;
+  const payslipBasicSalary = terms.basicSalary ?? 25000;
+  const payslipHra = terms.hra ?? 10000;
+  const payslipConveyanceAllowance = terms.conveyanceAllowance ?? 1600;
+  const payslipMedicalAllowance = terms.medicalAllowance ?? 1250;
+  const payslipSpecialAllowance = terms.specialAllowance ?? 5000;
+  const payslipPerformanceBonus = terms.performanceBonus ?? 0;
+  const payslipProvidentFund = terms.providentFund ?? 1800;
+  const payslipProfessionalTax = terms.professionalTax ?? 200;
+  const payslipIncomeTax = terms.incomeTax ?? 0;
+  const payslipLoanAdvanceRecovery = terms.loanAdvanceRecovery ?? 0;
+  const payslipOtherDeductions = terms.otherDeductions ?? 0;
+  const payslipGrossEarnings =
+    terms.grossEarnings ??
+    (Number(payslipBasicSalary) +
+      Number(payslipHra) +
+      Number(payslipConveyanceAllowance) +
+      Number(payslipMedicalAllowance) +
+      Number(payslipSpecialAllowance) +
+      Number(payslipPerformanceBonus));
+  const payslipTotalDeductions =
+    terms.totalDeductions ??
+    (Number(payslipProvidentFund) +
+      Number(payslipProfessionalTax) +
+      Number(payslipIncomeTax) +
+      Number(payslipLoanAdvanceRecovery) +
+      Number(payslipOtherDeductions));
+  const payslipNetPay = terms.netPay ?? (Number(payslipGrossEarnings) - Number(payslipTotalDeductions));
+  const payslipAmountInWords = terms.amountInWords || 'Rupees Only';
+
+  const formatSlipAmount = (val: number | string) => {
+    const num = typeof val === 'string' ? parseFloat(val) || 0 : Number(val) || 0;
+    return num.toLocaleString('en-IN', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+  };
+
+  // Internship Concluding Variables
+  const internSalutation = terms.salutation || 'Mr.';
+  const internName = terms.internName || terms.candidateName || document.recipientName || 'Intern';
+  const internshipRole = terms.internshipRole || terms.designation || 'Management Trainee';
+  const internDepartment = terms.department || 'Operations';
+  const internCommencedDate = terms.commencedDate || '01/07/2026';
+  const internConcludedDate = terms.concludedDate || document.effectiveDate || '30/09/2026';
+  const internOfferLetterRef = terms.offerLetterRef || 'TASK/2026/OFF-0101';
+  const internReferenceNumber = terms.referenceNumber || document.referenceNumber || 'TASK/2026/INT-0101';
+  const internIssueDate = terms.issueDate || document.effectiveDate || new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+  const internSignatoryName = terms.signatoryName || document.signatoryName || 'Sheetal Bedi';
+  const internSignatoryTitle = terms.signatoryTitle || document.signatoryTitle || 'Lead HR Partner';
 
   // Shared / Certificate / Experience Variables
   const salutation = terms.salutation || 'Mr.';
@@ -335,7 +421,9 @@ export const DocumentPreview: React.FC<DocumentPreviewProps> = ({
             #printable-experience-letter,
             .printable-experience-sheet,
             #printable-mrsa-agreement,
-            #printable-offer-document {
+            #printable-offer-document,
+            #printable-salary-slip,
+            #printable-internship-concluding-letter {
               border: none !important;
               box-shadow: none !important;
               padding: 0 !important;
@@ -407,6 +495,22 @@ export const DocumentPreview: React.FC<DocumentPreviewProps> = ({
       return;
     }
 
+    if (isSalarySlip) {
+      printIframe(
+        'printable-salary-slip',
+        `TaskNera_Payslip_${payslipFullName.replace(/\s+/g, '_')}_${payslipPayPeriod.replace(/\s+/g, '_')}`
+      );
+      return;
+    }
+
+    if (isInternshipConcluding) {
+      printIframe(
+        'printable-internship-concluding-letter',
+        `TaskNera_Internship_Concluding_${internName.replace(/\s+/g, '_')}_${internReferenceNumber.replace(/[\/\\]/g, '_')}`
+      );
+      return;
+    }
+
     if (isCharacterCertificate) {
       printIframe(
         'printable-character-certificate',
@@ -447,6 +551,22 @@ export const DocumentPreview: React.FC<DocumentPreviewProps> = ({
       printIframe(
         'printable-mrsa-agreement',
         `TaskNera_MRSA_${(mrsaData.client.tradeName || 'Client').replace(/\s+/g, '_')}_${mrsaData.agreementNumber.replace(/[\/\\]/g, '_')}`
+      );
+      return;
+    }
+
+    if (isSalarySlip) {
+      printIframe(
+        'printable-salary-slip',
+        `TaskNera_Payslip_${payslipFullName.replace(/\s+/g, '_')}_${payslipPayPeriod.replace(/\s+/g, '_')}`
+      );
+      return;
+    }
+
+    if (isInternshipConcluding) {
+      printIframe(
+        'printable-internship-concluding-letter',
+        `TaskNera_Internship_Concluding_${internName.replace(/\s+/g, '_')}_${internReferenceNumber.replace(/[\/\\]/g, '_')}`
       );
       return;
     }
@@ -1237,6 +1357,513 @@ export const DocumentPreview: React.FC<DocumentPreviewProps> = ({
               <span>Digital Security Token: <strong>{verificationToken}</strong></span>
             </div>
             <div>SHA-256: {checksum.substring(0, 16)}...{checksum.substring(48)}</div>
+          </div>
+        </div>
+      ) : isSalarySlip ? (
+        /* ========================================================================= */
+        /* 2B. HIGH-FIDELITY OFFICIAL TASKNERA PAYSLIP CANVAS (A4)                   */
+        /* ========================================================================= */
+        <div style={{ display: 'flex', justifyContent: 'center' }}>
+          <div
+            id="printable-salary-slip"
+            style={{
+              width: '100%',
+              maxWidth: '780px',
+              backgroundColor: '#ffffff',
+              boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
+              padding: '40px 48px',
+              color: '#0f172a',
+              fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+              boxSizing: 'border-box',
+            }}
+          >
+            {/* 1. Header Banner */}
+            <div style={{ marginBottom: 18 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                <img
+                  src="/logo.png"
+                  alt="TaskNera"
+                  style={{ width: 44, height: 44, objectFit: 'contain' }}
+                  onError={(e) => {
+                    (e.target as HTMLElement).style.display = 'none';
+                  }}
+                />
+                <div>
+                  <div
+                    style={{
+                      fontSize: '26px',
+                      fontWeight: 800,
+                      color: '#0f172a',
+                      lineHeight: 1.1,
+                      letterSpacing: '-0.02em',
+                    }}
+                  >
+                    TaskNera
+                  </div>
+                  <div
+                    style={{
+                      fontSize: '12px',
+                      fontStyle: 'italic',
+                      color: '#64748b',
+                      marginTop: 3,
+                    }}
+                  >
+                    Payslip for the month of {payslipPayPeriod}
+                  </div>
+                </div>
+              </div>
+
+              {/* Top Terracotta Accent Divider Line */}
+              <div
+                style={{
+                  height: 2,
+                  backgroundColor: '#c26d4d',
+                  width: '100%',
+                  marginTop: 14,
+                  borderRadius: 1,
+                }}
+              />
+            </div>
+
+            {/* 2. Employee Details Grid Table */}
+            <div style={{ marginBottom: 20 }}>
+              <table
+                style={{
+                  width: '100%',
+                  borderCollapse: 'collapse',
+                  fontSize: '11px',
+                  border: '1px solid #cbd5e1',
+                }}
+              >
+                <tbody>
+                  <tr>
+                    <td style={{ width: '22%', padding: '7px 10px', fontWeight: 600, color: '#334155', border: '1px solid #cbd5e1', backgroundColor: '#fcfaf8' }}>
+                      Employee Name
+                    </td>
+                    <td style={{ width: '28%', padding: '7px 10px', color: '#0f172a', border: '1px solid #cbd5e1' }}>
+                      {payslipFullName}
+                    </td>
+                    <td style={{ width: '22%', padding: '7px 10px', fontWeight: 600, color: '#334155', border: '1px solid #cbd5e1', backgroundColor: '#fcfaf8' }}>
+                      Employee ID
+                    </td>
+                    <td style={{ width: '28%', padding: '7px 10px', color: '#0f172a', border: '1px solid #cbd5e1' }}>
+                      {payslipEmployeeId}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style={{ padding: '7px 10px', fontWeight: 600, color: '#334155', border: '1px solid #cbd5e1', backgroundColor: '#fcfaf8' }}>
+                      Designation
+                    </td>
+                    <td style={{ padding: '7px 10px', color: '#0f172a', border: '1px solid #cbd5e1' }}>
+                      {payslipDesignation}
+                    </td>
+                    <td style={{ padding: '7px 10px', fontWeight: 600, color: '#334155', border: '1px solid #cbd5e1', backgroundColor: '#fcfaf8' }}>
+                      Department
+                    </td>
+                    <td style={{ padding: '7px 10px', color: '#0f172a', border: '1px solid #cbd5e1' }}>
+                      {payslipDepartment}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style={{ padding: '7px 10px', fontWeight: 600, color: '#334155', border: '1px solid #cbd5e1', backgroundColor: '#fcfaf8' }}>
+                      Date of Joining
+                    </td>
+                    <td style={{ padding: '7px 10px', color: '#0f172a', border: '1px solid #cbd5e1' }}>
+                      {payslipDateOfJoining}
+                    </td>
+                    <td style={{ padding: '7px 10px', fontWeight: 600, color: '#334155', border: '1px solid #cbd5e1', backgroundColor: '#fcfaf8' }}>
+                      Pay Period
+                    </td>
+                    <td style={{ padding: '7px 10px', color: '#0f172a', border: '1px solid #cbd5e1' }}>
+                      {payslipPayPeriod}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style={{ padding: '7px 10px', fontWeight: 600, color: '#334155', border: '1px solid #cbd5e1', backgroundColor: '#fcfaf8' }}>
+                      Bank Name
+                    </td>
+                    <td style={{ padding: '7px 10px', color: '#0f172a', border: '1px solid #cbd5e1' }}>
+                      {payslipBankName}
+                    </td>
+                    <td style={{ padding: '7px 10px', fontWeight: 600, color: '#334155', border: '1px solid #cbd5e1', backgroundColor: '#fcfaf8' }}>
+                      Bank A/C No.
+                    </td>
+                    <td style={{ padding: '7px 10px', color: '#0f172a', border: '1px solid #cbd5e1' }}>
+                      {payslipBankAccountNumber}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style={{ padding: '7px 10px', fontWeight: 600, color: '#334155', border: '1px solid #cbd5e1', backgroundColor: '#fcfaf8' }}>
+                      PAN
+                    </td>
+                    <td style={{ padding: '7px 10px', color: '#0f172a', border: '1px solid #cbd5e1' }}>
+                      {payslipPanNumber}
+                    </td>
+                    <td style={{ padding: '7px 10px', fontWeight: 600, color: '#334155', border: '1px solid #cbd5e1', backgroundColor: '#fcfaf8' }}>
+                      PF/UAN No.
+                    </td>
+                    <td style={{ padding: '7px 10px', color: '#0f172a', border: '1px solid #cbd5e1' }}>
+                      {payslipPfUanNumber}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style={{ padding: '7px 10px', fontWeight: 600, color: '#334155', border: '1px solid #cbd5e1', backgroundColor: '#fcfaf8' }}>
+                      Payable Days
+                    </td>
+                    <td style={{ padding: '7px 10px', color: '#0f172a', border: '1px solid #cbd5e1' }}>
+                      {payslipPayableDays}
+                    </td>
+                    <td style={{ padding: '7px 10px', fontWeight: 600, color: '#334155', border: '1px solid #cbd5e1', backgroundColor: '#fcfaf8' }}>
+                      LOP Days
+                    </td>
+                    <td style={{ padding: '7px 10px', color: '#0f172a', border: '1px solid #cbd5e1' }}>
+                      {payslipLopDays}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            {/* 3. Earnings & Deductions Breakdown Table */}
+            <div style={{ marginBottom: 16 }}>
+              <table
+                style={{
+                  width: '100%',
+                  borderCollapse: 'collapse',
+                  fontSize: '11px',
+                  border: '1px solid #cbd5e1',
+                }}
+              >
+                <thead>
+                  <tr style={{ backgroundColor: '#c26d4d', color: '#ffffff' }}>
+                    <th style={{ width: '28%', padding: '9px 12px', textAlign: 'left', fontWeight: 800, letterSpacing: '0.03em', border: '1px solid #c26d4d' }}>
+                      EARNINGS
+                    </th>
+                    <th style={{ width: '22%', padding: '9px 12px', textAlign: 'right', fontWeight: 800, letterSpacing: '0.03em', border: '1px solid #c26d4d' }}>
+                      AMOUNT (₹)
+                    </th>
+                    <th style={{ width: '28%', padding: '9px 12px', textAlign: 'left', fontWeight: 800, letterSpacing: '0.03em', border: '1px solid #c26d4d' }}>
+                      DEDUCTIONS
+                    </th>
+                    <th style={{ width: '22%', padding: '9px 12px', textAlign: 'right', fontWeight: 800, letterSpacing: '0.03em', border: '1px solid #c26d4d' }}>
+                      AMOUNT (₹)
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td style={{ padding: '7px 12px', border: '1px solid #cbd5e1', color: '#334155' }}>Basic Salary</td>
+                    <td style={{ padding: '7px 12px', border: '1px solid #cbd5e1', textAlign: 'right', color: '#0f172a' }}>{formatSlipAmount(payslipBasicSalary)}</td>
+                    <td style={{ padding: '7px 12px', border: '1px solid #cbd5e1', color: '#334155' }}>Provident Fund (PF)</td>
+                    <td style={{ padding: '7px 12px', border: '1px solid #cbd5e1', textAlign: 'right', color: '#0f172a' }}>{formatSlipAmount(payslipProvidentFund)}</td>
+                  </tr>
+                  <tr style={{ backgroundColor: '#fcfaf8' }}>
+                    <td style={{ padding: '7px 12px', border: '1px solid #cbd5e1', color: '#334155' }}>House Rent Allowance (HRA)</td>
+                    <td style={{ padding: '7px 12px', border: '1px solid #cbd5e1', textAlign: 'right', color: '#0f172a' }}>{formatSlipAmount(payslipHra)}</td>
+                    <td style={{ padding: '7px 12px', border: '1px solid #cbd5e1', color: '#334155' }}>Professional Tax</td>
+                    <td style={{ padding: '7px 12px', border: '1px solid #cbd5e1', textAlign: 'right', color: '#0f172a' }}>{formatSlipAmount(payslipProfessionalTax)}</td>
+                  </tr>
+                  <tr>
+                    <td style={{ padding: '7px 12px', border: '1px solid #cbd5e1', color: '#334155' }}>Conveyance Allowance</td>
+                    <td style={{ padding: '7px 12px', border: '1px solid #cbd5e1', textAlign: 'right', color: '#0f172a' }}>{formatSlipAmount(payslipConveyanceAllowance)}</td>
+                    <td style={{ padding: '7px 12px', border: '1px solid #cbd5e1', color: '#334155' }}>Income Tax (TDS)</td>
+                    <td style={{ padding: '7px 12px', border: '1px solid #cbd5e1', textAlign: 'right', color: '#0f172a' }}>{formatSlipAmount(payslipIncomeTax)}</td>
+                  </tr>
+                  <tr style={{ backgroundColor: '#fcfaf8' }}>
+                    <td style={{ padding: '7px 12px', border: '1px solid #cbd5e1', color: '#334155' }}>Medical Allowance</td>
+                    <td style={{ padding: '7px 12px', border: '1px solid #cbd5e1', textAlign: 'right', color: '#0f172a' }}>{formatSlipAmount(payslipMedicalAllowance)}</td>
+                    <td style={{ padding: '7px 12px', border: '1px solid #cbd5e1', color: '#334155' }}>Loan/Advance Recovery</td>
+                    <td style={{ padding: '7px 12px', border: '1px solid #cbd5e1', textAlign: 'right', color: '#0f172a' }}>{formatSlipAmount(payslipLoanAdvanceRecovery)}</td>
+                  </tr>
+                  <tr>
+                    <td style={{ padding: '7px 12px', border: '1px solid #cbd5e1', color: '#334155' }}>Special Allowance</td>
+                    <td style={{ padding: '7px 12px', border: '1px solid #cbd5e1', textAlign: 'right', color: '#0f172a' }}>{formatSlipAmount(payslipSpecialAllowance)}</td>
+                    <td style={{ padding: '7px 12px', border: '1px solid #cbd5e1', color: '#334155' }}>Other Deductions</td>
+                    <td style={{ padding: '7px 12px', border: '1px solid #cbd5e1', textAlign: 'right', color: '#0f172a' }}>{formatSlipAmount(payslipOtherDeductions)}</td>
+                  </tr>
+                  <tr style={{ backgroundColor: '#fcfaf8' }}>
+                    <td style={{ padding: '7px 12px', border: '1px solid #cbd5e1', color: '#334155' }}>Performance Bonus</td>
+                    <td style={{ padding: '7px 12px', border: '1px solid #cbd5e1', textAlign: 'right', color: '#0f172a' }}>{formatSlipAmount(payslipPerformanceBonus)}</td>
+                    <td style={{ padding: '7px 12px', border: '1px solid #cbd5e1', color: '#334155' }}></td>
+                    <td style={{ padding: '7px 12px', border: '1px solid #cbd5e1', textAlign: 'right', color: '#0f172a' }}></td>
+                  </tr>
+                  {/* Subtotals Row */}
+                  <tr style={{ borderTop: '2px solid #cbd5e1', backgroundColor: '#f1f5f9' }}>
+                    <td style={{ padding: '8px 12px', border: '1px solid #cbd5e1', fontWeight: 800, color: '#0f172a' }}>
+                      Gross Earnings
+                    </td>
+                    <td style={{ padding: '8px 12px', border: '1px solid #cbd5e1', textAlign: 'right', fontWeight: 800, color: '#0f172a' }}>
+                      ₹ {formatSlipAmount(payslipGrossEarnings)}
+                    </td>
+                    <td style={{ padding: '8px 12px', border: '1px solid #cbd5e1', fontWeight: 800, color: '#0f172a' }}>
+                      Total Deductions
+                    </td>
+                    <td style={{ padding: '8px 12px', border: '1px solid #cbd5e1', textAlign: 'right', fontWeight: 800, color: '#0f172a' }}>
+                      ₹ {formatSlipAmount(payslipTotalDeductions)}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            {/* 4. NET PAY Callout Banner */}
+            <div
+              style={{
+                backgroundColor: '#262626',
+                color: '#ffffff',
+                padding: '11px 16px',
+                borderRadius: 3,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                marginBottom: 16,
+              }}
+            >
+              <span style={{ fontSize: '11.5px', fontWeight: 800, letterSpacing: '0.02em', textTransform: 'uppercase' }}>
+                NET PAY (Gross Earnings − Total Deductions)
+              </span>
+              <span style={{ fontSize: '14px', fontWeight: 900, color: '#e07a5f' }}>
+                ₹ {formatSlipAmount(payslipNetPay)}
+              </span>
+            </div>
+
+            {/* 5. Amount in Words */}
+            <div
+              style={{
+                fontSize: '11.5px',
+                color: '#1e293b',
+                marginBottom: 28,
+              }}
+            >
+              <strong>Amount in Words:</strong> {payslipAmountInWords}
+            </div>
+
+            {/* 6. Footer Disclaimers */}
+            <div
+              style={{
+                borderTop: '1px solid #e2e8f0',
+                paddingTop: 12,
+                fontSize: '9.5px',
+                color: '#64748b',
+                lineHeight: 1.5,
+                fontStyle: 'italic',
+              }}
+            >
+              <div>This is a system-generated payslip and does not require a signature.</div>
+              <div>TaskNera • Compensation & Benefits Policy applies to all salary computations.</div>
+            </div>
+          </div>
+        </div>
+      ) : isInternshipConcluding ? (
+        /* ========================================================================= */
+        /* 2C. HIGH-FIDELITY OFFICIAL TASKNERA INTERNSHIP CONCLUDING LETTER (A4)     */
+        /* ========================================================================= */
+        <div style={{ display: 'flex', justifyContent: 'center', padding: '10px 0 30px' }}>
+          <div
+            id="printable-internship-concluding-letter"
+            style={{
+              width: '100%',
+              maxWidth: '780px',
+              backgroundColor: '#ffffff',
+              boxShadow: '0 10px 30px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.05)',
+              border: '1px solid #e2e8f0',
+              padding: '42px 48px',
+              color: '#0f172a',
+              fontFamily: 'Arial, "Helvetica Neue", Helvetica, sans-serif',
+              fontSize: '13.5px',
+              lineHeight: '1.6',
+              position: 'relative',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              minHeight: '1020px',
+            }}
+          >
+            <div>
+              {/* Top Header: TaskNera Logo Left + Contact Right */}
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  justifyContent: 'space-between',
+                  marginBottom: 24,
+                }}
+              >
+                <div>
+                  <img
+                    src="/logo.png"
+                    alt="TaskNera"
+                    style={{ width: 48, height: 48, objectFit: 'contain' }}
+                    onError={(e) => {
+                      (e.target as HTMLElement).style.display = 'none';
+                    }}
+                  />
+                </div>
+                <div style={{ textAlign: 'right', fontSize: '11px', color: '#334155', lineHeight: 1.45 }}>
+                  <div style={{ fontSize: '15px', fontWeight: 800, color: '#0f172a', letterSpacing: '-0.01em' }}>
+                    TaskNera
+                  </div>
+                  <div>D-57 F1 Dilshad Colony, Shahdara, Delhi – 110095</div>
+                  <div>Email: careers@tasknera.com</div>
+                </div>
+              </div>
+
+              {/* Metadata Block (Left) */}
+              <div
+                style={{
+                  marginBottom: 24,
+                  fontSize: '13px',
+                  color: '#0f172a',
+                  lineHeight: 1.6,
+                }}
+              >
+                <div>
+                  <strong>Reference:</strong> {internReferenceNumber}
+                </div>
+                <div>
+                  <strong>Date:</strong> {internIssueDate}
+                </div>
+                <div>
+                  <strong>Intern Name:</strong> {internName}
+                </div>
+                <div>
+                  <strong>Designation / Role:</strong> {internshipRole}
+                </div>
+              </div>
+
+              {/* Centered Document Title */}
+              <div style={{ textAlign: 'center', margin: '28px 0 24px 0' }}>
+                <h1
+                  className="terracotta-title"
+                  style={{
+                    margin: 0,
+                    fontSize: '22px',
+                    fontWeight: 700,
+                    color: '#8f422b',
+                    fontFamily: 'Georgia, Cambria, "Times New Roman", Times, serif',
+                    letterSpacing: '-0.01em',
+                  }}
+                >
+                  Internship Concluding Letter
+                </h1>
+              </div>
+
+              {/* Salutation */}
+              <div style={{ marginBottom: 14, fontWeight: 600 }}>
+                Dear {internSalutation} {internName},
+              </div>
+
+              {/* Subject Line */}
+              <div style={{ marginBottom: 16, fontWeight: 700 }}>
+                Subject: Conclusion of Internship with TaskNera
+              </div>
+
+              {/* Body Paragraph 1: Reference to Offer Letter */}
+              <p style={{ margin: '0 0 14px 0', textAlign: 'justify', lineHeight: 1.6 }}>
+                With reference to the Offer Letter bearing reference number {internOfferLetterRef}, issued to you by
+                TaskNera, this letter formally confirms the conclusion of your internship engagement with the Company.
+              </p>
+
+              {/* Body Paragraph 2: Commencement and Role */}
+              <p style={{ margin: '0 0 18px 0', textAlign: 'justify', lineHeight: 1.6 }}>
+                As per the terms communicated in your Offer Letter, your internship commenced on {internCommencedDate} and
+                concluded on {internConcludedDate}. Your internship was undertaken in the role of {internshipRole} with{' '}
+                {internDepartment}.
+              </p>
+
+              {/* Section 1: Internship Completion */}
+              <div style={{ marginBottom: 16 }}>
+                <h3
+                  className="terracotta-title"
+                  style={{
+                    fontSize: '14px',
+                    fontWeight: 700,
+                    color: '#8f422b',
+                    margin: '0 0 6px 0',
+                    fontFamily: 'Georgia, Cambria, "Times New Roman", Times, serif',
+                  }}
+                >
+                  Internship Completion
+                </h3>
+                <p style={{ margin: 0, textAlign: 'justify', lineHeight: 1.6 }}>
+                  This letter is issued to formally acknowledge that the above internship period has been completed and the
+                  engagement stands concluded with effect from {internConcludedDate}. Any applicable completion
+                  formalities, including the return of Company property and closure of access to Company systems and
+                  information, shall be completed in accordance with Company policy.
+                </p>
+              </div>
+
+              {/* Section 2: Continuing Obligations */}
+              <div style={{ marginBottom: 16 }}>
+                <h3
+                  className="terracotta-title"
+                  style={{
+                    fontSize: '14px',
+                    fontWeight: 700,
+                    color: '#8f422b',
+                    margin: '0 0 6px 0',
+                    fontFamily: 'Georgia, Cambria, "Times New Roman", Times, serif',
+                  }}
+                >
+                  Continuing Obligations
+                </h3>
+                <p style={{ margin: 0, textAlign: 'justify', lineHeight: 1.6 }}>
+                  The confidentiality, intellectual property, data protection, information security and other
+                  obligations that are expressly stated to survive the end of the engagement shall continue to apply in
+                  accordance with the Offer Letter, its annexures and applicable Company policies.
+                </p>
+              </div>
+
+              {/* Section 3: Acknowledgement */}
+              <div style={{ marginBottom: 28 }}>
+                <h3
+                  className="terracotta-title"
+                  style={{
+                    fontSize: '14px',
+                    fontWeight: 700,
+                    color: '#8f422b',
+                    margin: '0 0 6px 0',
+                    fontFamily: 'Georgia, Cambria, "Times New Roman", Times, serif',
+                  }}
+                >
+                  Acknowledgement
+                </h3>
+                <p style={{ margin: 0, textAlign: 'justify', lineHeight: 1.6 }}>
+                  We appreciate your time, efforts and contributions during your internship with TaskNera and thank you
+                  for your association with the Company. We wish you continued learning, growth and success in your
+                  future endeavours.
+                </p>
+              </div>
+
+              {/* Signatory Block */}
+              <div style={{ marginTop: 24, fontSize: '13px', lineHeight: 1.55 }}>
+                <div style={{ fontWeight: 600, marginBottom: 20 }}>For TaskNera</div>
+                <div style={{ width: 220, borderBottom: '1px solid #64748b', marginBottom: 8 }} />
+                <div>
+                  <strong>Name:</strong> {internSignatoryName}
+                </div>
+                <div>
+                  <strong>Designation:</strong> {internSignatoryTitle}
+                </div>
+                <div>
+                  <strong>Date:</strong> {internIssueDate}
+                </div>
+              </div>
+            </div>
+
+            {/* Footer: TaskNera | Page 1 of 1 */}
+            <div
+              style={{
+                marginTop: 36,
+                paddingTop: 12,
+                textAlign: 'center',
+                fontSize: '11px',
+                color: '#64748b',
+                letterSpacing: '0.02em',
+              }}
+            >
+              TaskNera | Page 1 of 1
+            </div>
           </div>
         </div>
       ) : isCharacterCertificate ? (
