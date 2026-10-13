@@ -4,46 +4,44 @@ import {
   Sparkles,
   FileCheck2,
   FileText,
-  Plus,
-  Search,
-  CheckCircle2,
   TrendingUp,
-  AlertCircle,
   Eye,
   Send,
-  Download,
-  Upload,
   Layers,
   ArrowRight,
   ShieldCheck,
-  Lock,
   Clock,
   User,
-  ExternalLink,
   ChevronRight,
-  Copy,
   Briefcase,
+  Users2,
+  Award,
+  DollarSign,
+  RefreshCw,
+  Plus,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.js';
 import { Button } from '../components/common/Button.js';
-import { OfferStatusBadge, AiAdvisoryBadge, HrConfirmedBadge } from '../components/common/Badge.js';
+import { OfferStatusBadge } from '../components/common/Badge.js';
 import { offerService } from '../services/offerService.js';
-import { templateService } from '../services/templateService.js';
+import { EmployeeService } from '../services/employeeService.js';
+import { DocumentEngineService } from '../services/documentEngineService.js';
 import { OfferListItem, DashboardStatistics } from '../types/offer.js';
-import { OfferItem, OfferStatus } from '../types/index.js';
-import { OfferTemplate } from '../types/template.js';
+import { OfferStatus } from '../types/index.js';
 import { OfferDetailModal } from '../components/offers/OfferDetailModal.js';
 import { EmailSendModal } from '../components/offers/EmailSendModal.js';
 import { EmailHistoryModal } from '../components/offers/EmailHistoryModal.js';
 import { QuickTemplateOfferModal } from '../components/offers/QuickTemplateOfferModal.js';
+import { CharacterCertificateModal } from '../components/documents/CharacterCertificateModal.js';
+import { ExperienceLetterModal } from '../components/documents/ExperienceLetterModal.js';
+import { SalarySlipModal } from '../components/documents/SalarySlipModal.js';
+import { RelievingCertificateModal } from '../components/documents/RelievingCertificateModal.js';
 import { useToast } from '../context/ToastContext.js';
-
-const INITIAL_OFFERS: OfferListItem[] = [];
 
 export const DashboardPage: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const { success, error } = useToast();
+  const { success } = useToast();
 
   const [stats, setStats] = useState<DashboardStatistics>({
     total: 0,
@@ -57,37 +55,43 @@ export const DashboardPage: React.FC = () => {
     expired: 0,
   });
 
-  const [offers, setOffers] = useState<OfferListItem[]>(INITIAL_OFFERS);
-  const [templates, setTemplates] = useState<OfferTemplate[]>([]);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState('ALL');
+  const [recentOffers, setRecentOffers] = useState<OfferListItem[]>([]);
+  const [totalEmployees, setTotalEmployees] = useState<number>(0);
+  const [totalDocuments, setTotalDocuments] = useState<number>(0);
   const [loading, setLoading] = useState(false);
 
   // Active Modals
   const [isQuickModalOpen, setIsQuickModalOpen] = useState(false);
+  const [isCharacterModalOpen, setIsCharacterModalOpen] = useState(false);
+  const [isExperienceModalOpen, setIsExperienceModalOpen] = useState(false);
+  const [isSalarySlipModalOpen, setIsSalarySlipModalOpen] = useState(false);
+  const [isRelievingModalOpen, setIsRelievingModalOpen] = useState(false);
+
   const [selectedOfferForDetail, setSelectedOfferForDetail] = useState<OfferListItem | null>(null);
   const [selectedOfferForEmail, setSelectedOfferForEmail] = useState<OfferListItem | null>(null);
   const [selectedOfferForHistory, setSelectedOfferForHistory] = useState<OfferListItem | null>(null);
 
-  useEffect(() => {
-    loadDashboardData();
-  }, []);
-
   const loadDashboardData = async () => {
     setLoading(true);
     try {
-      const [statsRes, offersRes, templatesRes] = await Promise.all([
+      const [statsRes, offersRes, empRes, docRes] = await Promise.allSettled([
         offerService.getDashboardStatistics(),
-        offerService.listOffers({ limit: 10 }),
-        templateService.getTemplates(),
+        offerService.listOffers({ limit: 5 }),
+        EmployeeService.listEmployees().catch(() => []),
+        DocumentEngineService.listDocuments().catch(() => []),
       ]);
 
-      if (statsRes) setStats(statsRes);
-      if (offersRes && Array.isArray(offersRes.items)) {
-        setOffers(offersRes.items);
+      if (statsRes.status === 'fulfilled' && statsRes.value) {
+        setStats(statsRes.value);
       }
-      if (templatesRes && Array.isArray(templatesRes)) {
-        setTemplates(templatesRes);
+      if (offersRes.status === 'fulfilled' && offersRes.value?.items) {
+        setRecentOffers(offersRes.value.items);
+      }
+      if (empRes.status === 'fulfilled' && Array.isArray(empRes.value)) {
+        setTotalEmployees(empRes.value.length);
+      }
+      if (docRes.status === 'fulfilled' && Array.isArray(docRes.value)) {
+        setTotalDocuments(docRes.value.length);
       }
     } catch {
       // Graceful fallback
@@ -96,360 +100,420 @@ export const DashboardPage: React.FC = () => {
     }
   };
 
-  const filteredOffers = offers.filter((o) => {
-    if (statusFilter !== 'ALL' && o.status !== statusFilter) return false;
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase();
-      return (
-        o.candidateName.toLowerCase().includes(q) ||
-        o.position.toLowerCase().includes(q) ||
-        o.referenceNumber.toLowerCase().includes(q) ||
-        o.department.toLowerCase().includes(q)
-      );
-    }
-    return true;
-  });
+  useEffect(() => {
+    loadDashboardData();
+  }, []);
+
+  const todayFormatted = new Intl.DateTimeFormat('en-US', {
+    weekday: 'long',
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  }).format(new Date());
+
+  const acceptanceRate =
+    stats.sent > 0 ? Math.round((stats.accepted / Math.max(1, stats.sent)) * 100) : 100;
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 24, paddingBottom: 60 }}>
-      {/* 1. Executive Master Hero Banner */}
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 24, paddingBottom: 48 }}>
+      {/* 1. Header & Welcome Area */}
       <div
+        className="glass-panel"
         style={{
-          background: 'linear-gradient(135deg, #090e1d 0%, #1e1b4b 50%, #0f172a 100%)',
-          borderRadius: 20,
-          padding: '32px 36px',
-          color: '#ffffff',
-          position: 'relative',
-          overflow: 'hidden',
-          boxShadow: '0 10px 30px -5px rgba(15, 23, 42, 0.3)',
-          border: '1px solid rgba(255, 255, 255, 0.1)',
+          padding: '24px 28px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: 16,
+          borderLeft: '4px solid #2563eb',
         }}
       >
-        <div style={{ position: 'relative', zIndex: 2, maxWidth: 900 }}>
-          <div
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 8,
-              padding: '4px 14px',
-              borderRadius: 9999,
-              background: 'rgba(99, 102, 241, 0.2)',
-              border: '1px solid rgba(99, 102, 241, 0.35)',
-              color: '#c7d2fe',
-              fontSize: '0.75rem',
-              fontWeight: 700,
-              letterSpacing: '0.04em',
-              marginBottom: 16,
-              textTransform: 'uppercase',
-            }}
-          >
-            <Sparkles size={13} style={{ color: '#818cf8' }} />
-            <span>TaskNera Enterprise &bull; Offer Letter Studio</span>
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
+            <h1 style={{ fontSize: '1.45rem', fontWeight: 800, color: '#0f172a', margin: 0 }}>
+              Welcome back, {user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'Administrator' : 'Administrator'}
+            </h1>
+            <span
+              style={{
+                fontSize: '0.72rem',
+                fontWeight: 700,
+                padding: '2px 8px',
+                borderRadius: 12,
+                background: '#eff6ff',
+                color: '#2563eb',
+                border: '1px solid #bfdbfe',
+              }}
+            >
+              Operations Hub
+            </span>
           </div>
-
-          <h1
-            style={{
-              fontSize: '2rem',
-              fontWeight: 800,
-              color: '#ffffff',
-              letterSpacing: '-0.025em',
-              marginBottom: 10,
-              lineHeight: 1.2,
-            }}
-          >
-            Offer Letter Command Center
-          </h1>
-
-          <p
-            style={{
-              fontSize: '0.9375rem',
-              color: '#94a3b8',
-              lineHeight: 1.6,
-              maxWidth: 720,
-              marginBottom: 24,
-            }}
-          >
-            Author, audit, verify, and dispatch legally binding, tamper-evident offer letters.
-            AI extraction provides structured recommendations while strict HR oversight ensures complete statutory compliance.
+          <p style={{ fontSize: '0.84rem', color: '#64748b', margin: 0 }}>
+            {todayFormatted} &bull; Manage offers, credentials, and official corporate documentation.
           </p>
-
-          <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
-            <Button
-              variant="primary"
-              onClick={() => setIsQuickModalOpen(true)}
-              style={{
-                padding: '10px 22px',
-                fontSize: '0.9rem',
-                boxShadow: '0 4px 18px var(--primary-glow)',
-              }}
-              icon={<Sparkles size={16} />}
-            >
-              Generate Letter in TaskNera Letterhead
-            </Button>
-
-            <Button
-              variant="secondary"
-              onClick={() => navigate('/templates')}
-              style={{
-                padding: '10px 18px',
-                fontSize: '0.9rem',
-                background: 'rgba(255, 255, 255, 0.08)',
-                color: '#ffffff',
-                borderColor: 'rgba(255, 255, 255, 0.2)',
-              }}
-            >
-              <FileText size={16} style={{ marginRight: 6 }} /> Offer Templates
-            </Button>
-
-            <Button
-              variant="secondary"
-              onClick={() => navigate('/audit-logs')}
-              style={{
-                padding: '10px 18px',
-                fontSize: '0.9rem',
-                background: 'rgba(255, 255, 255, 0.08)',
-                color: '#ffffff',
-                borderColor: 'rgba(255, 255, 255, 0.2)',
-              }}
-            >
-              <ShieldCheck size={16} style={{ marginRight: 6 }} /> Compliance Ledger
-            </Button>
-          </div>
         </div>
 
-        {/* Decorative background glow */}
-        <div
-          style={{
-            position: 'absolute',
-            right: -60,
-            bottom: -60,
-            width: 340,
-            height: 340,
-            borderRadius: '50%',
-            background: 'radial-gradient(circle, rgba(99, 102, 241, 0.25) 0%, transparent 70%)',
-            pointerEvents: 'none',
-          }}
-        />
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+          <Button
+            variant="secondary"
+            onClick={loadDashboardData}
+            icon={<RefreshCw size={14} className={loading ? 'spin' : ''} />}
+            style={{ fontSize: '0.8125rem', padding: '8px 14px' }}
+          >
+            Refresh
+          </Button>
+
+          <Button
+            variant="secondary"
+            onClick={() => navigate('/documents?create=true')}
+            icon={<Plus size={14} />}
+            style={{ fontSize: '0.8125rem', padding: '8px 14px' }}
+          >
+            Issue Document
+          </Button>
+
+          <Button
+            variant="primary"
+            onClick={() => setIsQuickModalOpen(true)}
+            icon={<Sparkles size={14} />}
+            style={{ fontSize: '0.8125rem', padding: '8px 18px', backgroundColor: '#2563eb' }}
+          >
+            Generate Offer Letter
+          </Button>
+        </div>
       </div>
 
-      {/* 2. Key Performance Indicators Bar */}
+      {/* 2. Executive Key Performance Indicators */}
       <div
         style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
           gap: 16,
         }}
       >
-        <div className="card" style={{ padding: '20px 22px' }}>
+        {/* KPI 1: Total Offers */}
+        <div
+          className="card"
+          style={{
+            padding: '20px 22px',
+            cursor: 'pointer',
+            transition: 'transform 0.15s ease, box-shadow 0.15s ease',
+          }}
+          onClick={() => navigate('/offers')}
+        >
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <span style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--text-muted)' }}>
+            <span style={{ fontSize: '0.8125rem', fontWeight: 600, color: '#64748b' }}>
               Total Offers
             </span>
             <div
               style={{
-                width: 34,
-                height: 34,
-                borderRadius: 'var(--radius-sm)',
-                background: 'rgba(37, 99, 235, 0.1)',
+                width: 36,
+                height: 36,
+                borderRadius: 8,
+                background: '#eff6ff',
                 color: '#2563eb',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
+                border: '1px solid #bfdbfe',
               }}
             >
               <FileCheck2 size={18} />
             </div>
           </div>
-          <div style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--text-main, #0f172a)', marginTop: 8 }}>
+          <div style={{ fontSize: '1.85rem', fontWeight: 800, color: '#0f172a', marginTop: 8 }}>
             {stats.total}
           </div>
-          <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)', marginTop: 4 }}>
-            All active & historical offers
+          <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: 4 }}>
+            {stats.generated} ready &bull; {stats.draft} in draft
           </div>
         </div>
 
-        <div className="card" style={{ padding: '20px 22px' }}>
+        {/* KPI 2: Action Required */}
+        <div
+          className="card"
+          style={{
+            padding: '20px 22px',
+            cursor: 'pointer',
+            transition: 'transform 0.15s ease, box-shadow 0.15s ease',
+          }}
+          onClick={() => navigate('/offers?status=HR_REVIEW')}
+        >
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <span style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--text-muted)' }}>
-              Awaiting HR Review
+            <span style={{ fontSize: '0.8125rem', fontWeight: 600, color: '#64748b' }}>
+              Pending HR Review
             </span>
             <div
               style={{
-                width: 34,
-                height: 34,
-                borderRadius: 'var(--radius-sm)',
-                background: 'rgba(245, 158, 11, 0.12)',
-                color: '#f59e0b',
+                width: 36,
+                height: 36,
+                borderRadius: 8,
+                background: '#fffbeb',
+                color: '#d97706',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
+                border: '1px solid #fde68a',
               }}
             >
               <Clock size={18} />
             </div>
           </div>
-          <div style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--text-main, #0f172a)', marginTop: 8 }}>
+          <div style={{ fontSize: '1.85rem', fontWeight: 800, color: '#0f172a', marginTop: 8 }}>
             {stats.awaitingReview + stats.draft}
           </div>
-          <div style={{ fontSize: '0.75rem', color: '#d97706', marginTop: 4, fontWeight: 500 }}>
-            {stats.awaitingReview} pending audit sign-off
+          <div style={{ fontSize: '0.75rem', color: '#d97706', marginTop: 4, fontWeight: 600 }}>
+            {stats.awaitingReview > 0
+              ? `${stats.awaitingReview} awaiting sign-off`
+              : 'All reviews up to date'}
           </div>
         </div>
 
-        <div className="card" style={{ padding: '20px 22px' }}>
+        {/* KPI 3: Dispatched & Issued */}
+        <div
+          className="card"
+          style={{
+            padding: '20px 22px',
+            cursor: 'pointer',
+            transition: 'transform 0.15s ease, box-shadow 0.15s ease',
+          }}
+          onClick={() => navigate('/offers?status=ISSUED')}
+        >
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <span style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--text-muted)' }}>
-              Approved & Ready
+            <span style={{ fontSize: '0.8125rem', fontWeight: 600, color: '#64748b' }}>
+              Issued to Candidates
             </span>
             <div
               style={{
-                width: 34,
-                height: 34,
-                borderRadius: 'var(--radius-sm)',
-                background: 'rgba(99, 102, 241, 0.1)',
-                color: '#6366f1',
+                width: 36,
+                height: 36,
+                borderRadius: 8,
+                background: '#f5f3ff',
+                color: '#7c3aed',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-              }}
-            >
-              <CheckCircle2 size={18} />
-            </div>
-          </div>
-          <div style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--text-main, #0f172a)', marginTop: 8 }}>
-            {stats.generated}
-          </div>
-          <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)', marginTop: 4 }}>
-            Minted official documents
-          </div>
-        </div>
-
-        <div className="card" style={{ padding: '20px 22px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <span style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--text-muted)' }}>
-              Dispatched & Issued
-            </span>
-            <div
-              style={{
-                width: 34,
-                height: 34,
-                borderRadius: 'var(--radius-sm)',
-                background: 'rgba(16, 185, 129, 0.1)',
-                color: '#059669',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
+                border: '1px solid #ddd6fe',
               }}
             >
               <Send size={18} />
             </div>
           </div>
-          <div style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--text-main, #0f172a)', marginTop: 8 }}>
+          <div style={{ fontSize: '1.85rem', fontWeight: 800, color: '#0f172a', marginTop: 8 }}>
             {stats.sent}
           </div>
-          <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)', marginTop: 4 }}>
-            Candidate portal token active
+          <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: 4 }}>
+            Candidate review portal active
           </div>
         </div>
 
-        <div className="card" style={{ padding: '20px 22px' }}>
+        {/* KPI 4: Accepted & Rate */}
+        <div
+          className="card"
+          style={{
+            padding: '20px 22px',
+            cursor: 'pointer',
+            transition: 'transform 0.15s ease, box-shadow 0.15s ease',
+          }}
+          onClick={() => navigate('/offers?status=ACCEPTED')}
+        >
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <span style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--text-muted)' }}>
-              Accepted Offers
+            <span style={{ fontSize: '0.8125rem', fontWeight: 600, color: '#64748b' }}>
+              Acceptance Rate
             </span>
             <div
               style={{
-                width: 34,
-                height: 34,
-                borderRadius: 'var(--radius-sm)',
-                background: 'rgba(16, 185, 129, 0.15)',
+                width: 36,
+                height: 36,
+                borderRadius: 8,
+                background: '#f0fdf4',
                 color: '#059669',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
+                border: '1px solid #bbf7d0',
               }}
             >
               <TrendingUp size={18} />
             </div>
           </div>
-          <div style={{ fontSize: '1.75rem', fontWeight: 800, color: '#059669', marginTop: 8 }}>
-            {stats.accepted}
+          <div style={{ fontSize: '1.85rem', fontWeight: 800, color: '#059669', marginTop: 8 }}>
+            {acceptanceRate}%
           </div>
           <div style={{ fontSize: '0.75rem', color: '#059669', marginTop: 4, fontWeight: 600 }}>
-            {Math.round((stats.accepted / Math.max(1, stats.sent)) * 100)}% Acceptance rate
+            {stats.accepted} accepted offers
           </div>
         </div>
       </div>
 
-      {/* 3. Action Launchpad & Flow Shortcuts */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 18 }}>
+      {/* 3. Core Modules Quick Hub */}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr)))',
+          gap: 16,
+        }}
+      >
+        {/* Module 1: Offer Letters */}
         <div
           className="card"
           style={{
-            padding: 24,
+            padding: '18px 20px',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'space-between',
-            borderLeft: '4px solid #2563eb',
+            gap: 14,
+            borderLeft: '3px solid #2563eb',
+            transition: 'all 0.15s ease',
           }}
         >
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
               <div
                 style={{
-                  width: 38,
-                  height: 38,
-                  borderRadius: 'var(--radius-sm)',
-                  background: 'rgba(37, 99, 235, 0.1)',
+                  width: 34,
+                  height: 34,
+                  borderRadius: 8,
+                  backgroundColor: '#eff6ff',
                   color: '#2563eb',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                 }}
               >
-                <Upload size={18} />
+                <FileCheck2 size={18} />
               </div>
-              <div>
-                <h3 style={{ fontSize: '1.05rem', fontWeight: 700, margin: 0, color: 'var(--text-main, #0f172a)' }}>
-                  Candidate CV Upload
-                </h3>
-                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                  Extract candidate details with AI
-                </span>
-              </div>
+              <h3 style={{ fontSize: '0.98rem', fontWeight: 700, margin: 0, color: '#0f172a' }}>
+                Offer Letters
+              </h3>
             </div>
-            <p style={{ fontSize: '0.8125rem', color: 'var(--text-muted)', lineHeight: 1.5, marginBottom: 16 }}>
-              Upload any candidate PDF, DOCX, or text file. The AI extraction parser structures names, contact details, experience, and proposed terms for strict HR confirmation.
+            <p style={{ fontSize: '0.8rem', color: '#64748b', margin: 0, lineHeight: 1.45 }}>
+              Generate verified offer letters on company letterhead with salary breakdown.
             </p>
           </div>
           <Button
-            variant="primary"
-            onClick={() => navigate('/offers?create=true&step=2')}
-            style={{ width: '100%', justifyContent: 'center' }}
+            variant="secondary"
+            onClick={() => setIsQuickModalOpen(true)}
+            style={{ width: '100%', justifyContent: 'center', fontSize: '0.8125rem', padding: '7px 12px' }}
           >
-            Upload Resume / Document <ArrowRight size={14} style={{ marginLeft: 6 }} />
+            Create Offer Letter <ChevronRight size={13} style={{ marginLeft: 4 }} />
           </Button>
         </div>
 
+        {/* Module 2: Employee Records */}
         <div
           className="card"
           style={{
-            padding: 24,
+            padding: '18px 20px',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'space-between',
-            borderLeft: '4px solid #7c3aed',
+            gap: 14,
+            borderLeft: '3px solid #059669',
+            transition: 'all 0.15s ease',
           }}
         >
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
               <div
                 style={{
-                  width: 38,
-                  height: 38,
-                  borderRadius: 'var(--radius-sm)',
-                  background: 'rgba(124, 58, 237, 0.1)',
+                  width: 34,
+                  height: 34,
+                  borderRadius: 8,
+                  backgroundColor: '#f0fdf4',
+                  color: '#059669',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <Users2 size={18} />
+              </div>
+              <h3 style={{ fontSize: '0.98rem', fontWeight: 700, margin: 0, color: '#0f172a' }}>
+                Employees
+              </h3>
+            </div>
+            <p style={{ fontSize: '0.8rem', color: '#64748b', margin: 0, lineHeight: 1.45 }}>
+              Manage employee profiles, designations, joining dates, and departments.
+            </p>
+          </div>
+          <Button
+            variant="secondary"
+            onClick={() => navigate('/employees')}
+            style={{ width: '100%', justifyContent: 'center', fontSize: '0.8125rem', padding: '7px 12px' }}
+          >
+            Employee Directory ({totalEmployees}) <ChevronRight size={13} style={{ marginLeft: 4 }} />
+          </Button>
+        </div>
+
+        {/* Module 3: Document Engine */}
+        <div
+          className="card"
+          style={{
+            padding: '18px 20px',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            gap: 14,
+            borderLeft: '3px solid #7c3aed',
+            transition: 'all 0.15s ease',
+          }}
+        >
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+              <div
+                style={{
+                  width: 34,
+                  height: 34,
+                  borderRadius: 8,
+                  backgroundColor: '#f5f3ff',
                   color: '#7c3aed',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <Layers size={18} />
+              </div>
+              <h3 style={{ fontSize: '0.98rem', fontWeight: 700, margin: 0, color: '#0f172a' }}>
+                Document Hub
+              </h3>
+            </div>
+            <p style={{ fontSize: '0.8rem', color: '#64748b', margin: 0, lineHeight: 1.45 }}>
+              Issue certificates, monthly salary slips, relieving letters, and agreements.
+            </p>
+          </div>
+          <Button
+            variant="secondary"
+            onClick={() => navigate('/documents')}
+            style={{ width: '100%', justifyContent: 'center', fontSize: '0.8125rem', padding: '7px 12px' }}
+          >
+            Documents Generated ({totalDocuments}) <ChevronRight size={13} style={{ marginLeft: 4 }} />
+          </Button>
+        </div>
+
+        {/* Module 4: Offers Pipeline */}
+        <div
+          className="card"
+          style={{
+            padding: '18px 20px',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            gap: 14,
+            borderLeft: '3px solid #ea580c',
+            transition: 'all 0.15s ease',
+          }}
+        >
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+              <div
+                style={{
+                  width: 34,
+                  height: 34,
+                  borderRadius: 8,
+                  backgroundColor: '#fff7ed',
+                  color: '#ea580c',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -457,464 +521,362 @@ export const DashboardPage: React.FC = () => {
               >
                 <FileText size={18} />
               </div>
-              <div>
-                <h3 style={{ fontSize: '1.05rem', fontWeight: 700, margin: 0, color: 'var(--text-main, #0f172a)' }}>
-                  Approved Legal Templates
-                </h3>
-                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                  Standard corporate letter blueprints
-                </span>
-              </div>
+              <h3 style={{ fontSize: '0.98rem', fontWeight: 700, margin: 0, color: '#0f172a' }}>
+                Offers Pipeline
+              </h3>
             </div>
-            <p style={{ fontSize: '0.8125rem', color: 'var(--text-muted)', lineHeight: 1.5, marginBottom: 16 }}>
-              Select an approved corporate template. Dynamic placeholder variables ensure candidate compensation, reporting lines, and probation terms are populated cleanly.
+            <p style={{ fontSize: '0.8rem', color: '#64748b', margin: 0, lineHeight: 1.45 }}>
+              Review verification statuses, email delivery ledgers, and candidate portals.
             </p>
           </div>
           <Button
             variant="secondary"
-            onClick={() => navigate('/templates')}
-            style={{ width: '100%', justifyContent: 'center' }}
+            onClick={() => navigate('/offers')}
+            style={{ width: '100%', justifyContent: 'center', fontSize: '0.8125rem', padding: '7px 12px' }}
           >
-            Manage Templates Studio <ArrowRight size={14} style={{ marginLeft: 6 }} />
-          </Button>
-        </div>
-
-        <div
-          className="card"
-          style={{
-            padding: 24,
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            borderLeft: '4px solid #059669',
-          }}
-        >
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
-              <div
-                style={{
-                  width: 38,
-                  height: 38,
-                  borderRadius: 'var(--radius-sm)',
-                  background: 'rgba(5, 150, 105, 0.1)',
-                  color: '#059669',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                <ShieldCheck size={18} />
-              </div>
-              <div>
-                <h3 style={{ fontSize: '1.05rem', fontWeight: 700, margin: 0, color: 'var(--text-main, #0f172a)' }}>
-                  Compliance & Quality Audit
-                </h3>
-                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                  Arithmetic & statutory verification
-                </span>
-              </div>
-            </div>
-            <p style={{ fontSize: '0.8125rem', color: 'var(--text-muted)', lineHeight: 1.5, marginBottom: 16 }}>
-              Automated 9-point compliance checks verify compensation math, minimum wage statutory limits, and enforce the Non-Assumption Rule before official PDF generation.
-            </p>
-          </div>
-          <Button
-            variant="secondary"
-            onClick={() => navigate('/audit-logs')}
-            style={{ width: '100%', justifyContent: 'center' }}
-          >
-            View Verification Logs <ArrowRight size={14} style={{ marginLeft: 6 }} />
+            View Full Pipeline <ChevronRight size={13} style={{ marginLeft: 4 }} />
           </Button>
         </div>
       </div>
 
-      {/* 4. Active Offers Pipeline Table */}
-      <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
-        <div
-          style={{
-            padding: '20px 24px',
-            borderBottom: '1px solid var(--border-subtle)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            flexWrap: 'wrap',
-            gap: 14,
-          }}
-        >
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <h2 style={{ fontSize: '1.15rem', fontWeight: 800, margin: 0, color: 'var(--text-main, #0f172a)' }}>
-                Active Offers Pipeline
-              </h2>
-              <span
-                style={{
-                  padding: '2px 8px',
-                  borderRadius: 12,
-                  fontSize: '0.75rem',
-                  fontWeight: 700,
-                  background: 'rgba(37, 99, 235, 0.1)',
-                  color: '#2563eb',
-                }}
-              >
-                {filteredOffers.length} Offers
-              </span>
-            </div>
-            <p style={{ fontSize: '0.8125rem', color: 'var(--text-muted)', margin: '4px 0 0' }}>
-              Track lifecycle progression from draft to candidate signing and archival.
-            </p>
-          </div>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-            {/* Status Filter */}
-            <select
-              className="form-select"
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              style={{ fontSize: '0.8125rem', padding: '6px 12px', width: 'auto' }}
-            >
-              <option value="ALL">All Statuses</option>
-              <option value="DRAFT_AI">Draft (AI)</option>
-              <option value="HR_REVIEW">HR Review</option>
-              <option value="APPROVED">Approved</option>
-              <option value="ISSUED">Issued / Sent</option>
-              <option value="ACCEPTED">Accepted</option>
-            </select>
-
-            {/* Search Input */}
-            <div style={{ position: 'relative', width: 240 }}>
-              <Search
-                size={15}
-                style={{
-                  position: 'absolute',
-                  left: 10,
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  color: 'var(--text-dim)',
-                }}
-              />
-              <input
-                type="text"
-                className="form-input"
-                placeholder="Search candidate..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                style={{ paddingLeft: 32, fontSize: '0.8125rem', padding: '6px 12px 6px 32px' }}
-              />
+      {/* 4. Split Operational Workspace (Recent Offers & Quick Generators) */}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'minmax(0, 1.8fr) minmax(300px, 1fr)',
+          gap: 20,
+          alignItems: 'start',
+        }}
+      >
+        {/* Left Column: Recent Offers List */}
+        <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+          <div
+            style={{
+              padding: '18px 22px',
+              borderBottom: '1px solid #e2e8f0',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              flexWrap: 'wrap',
+              gap: 12,
+            }}
+          >
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <h2 style={{ fontSize: '1.05rem', fontWeight: 700, margin: 0, color: '#0f172a' }}>
+                  Recent Offers Pipeline
+                </h2>
+                <span
+                  style={{
+                    fontSize: '0.72rem',
+                    fontWeight: 700,
+                    padding: '2px 8px',
+                    borderRadius: 12,
+                    background: '#eff6ff',
+                    color: '#2563eb',
+                  }}
+                >
+                  {recentOffers.length} Recent
+                </span>
+              </div>
+              <p style={{ fontSize: '0.78rem', color: '#64748b', margin: '2px 0 0' }}>
+                Latest employment offers generated across departments
+              </p>
             </div>
 
             <Button
               variant="secondary"
               onClick={() => navigate('/offers')}
-              style={{ fontSize: '0.8125rem', padding: '6px 14px' }}
+              style={{ fontSize: '0.78125rem', padding: '6px 12px' }}
             >
-              View Full Pipeline <ChevronRight size={14} style={{ marginLeft: 4 }} />
+              View All in Pipeline <ArrowRight size={13} style={{ marginLeft: 4 }} />
             </Button>
           </div>
-        </div>
 
-        {/* Table Content */}
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
-            <thead>
-              <tr style={{ background: '#f8fafc', borderBottom: '1px solid var(--border-subtle)' }}>
-                <th style={{ padding: '12px 20px', fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-dim)', textTransform: 'uppercase' }}>
-                  Candidate Details
-                </th>
-                <th style={{ padding: '12px 18px', fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-dim)', textTransform: 'uppercase' }}>
-                  Position & Band
-                </th>
-                <th style={{ padding: '12px 18px', fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-dim)', textTransform: 'uppercase' }}>
-                  Total Package (CTC)
-                </th>
-                <th style={{ padding: '12px 18px', fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-dim)', textTransform: 'uppercase' }}>
-                  Lifecycle Status
-                </th>
-                <th style={{ padding: '12px 18px', fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-dim)', textTransform: 'uppercase' }}>
-                  AI Review
-                </th>
-                <th style={{ padding: '12px 20px', fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-dim)', textTransform: 'uppercase', textAlign: 'right' }}>
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredOffers.length === 0 ? (
-                <tr>
-                  <td colSpan={6} style={{ padding: '60px 20px', textAlign: 'center' }}>
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
-                      <div
-                        style={{
-                          width: 48,
-                          height: 48,
-                          borderRadius: '50%',
-                          background: '#f1f5f9',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          color: '#94a3b8',
-                        }}
-                      >
-                        <FileText size={24} />
-                      </div>
-                      <div style={{ fontWeight: 600, color: 'var(--text-main)', fontSize: '0.9375rem' }}>
-                        No offers generated yet
-                      </div>
-                      <p style={{ color: 'var(--text-muted)', fontSize: '0.8125rem', maxWidth: 360, margin: 0 }}>
-                        Get started by creating a new offer letter or uploading candidate documents through the verified workflow.
-                      </p>
-                      <Button
-                        variant="primary"
-                        onClick={() => setIsQuickModalOpen(true)}
-                        style={{ marginTop: 8 }}
-                        icon={<Sparkles size={16} />}
-                      >
-                        Create Offer with Company Letterhead
-                      </Button>
-                    </div>
-                  </td>
+          {/* Table / Rows */}
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+              <thead>
+                <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
+                  <th style={{ padding: '10px 18px', fontSize: '0.72rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>
+                    Candidate
+                  </th>
+                  <th style={{ padding: '10px 14px', fontSize: '0.72rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>
+                    Role & Dept
+                  </th>
+                  <th style={{ padding: '10px 14px', fontSize: '0.72rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>
+                    Package
+                  </th>
+                  <th style={{ padding: '10px 14px', fontSize: '0.72rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>
+                    Status
+                  </th>
+                  <th style={{ padding: '10px 18px', fontSize: '0.72rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', textAlign: 'right' }}>
+                    Action
+                  </th>
                 </tr>
-              ) : (
-                filteredOffers.map((o) => (
-                  <tr
-                    key={o.id}
-                    style={{
-                      borderBottom: '1px solid var(--border-subtle)',
-                      transition: 'background 0.15s ease',
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = '#f8fafc';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = 'transparent';
-                    }}
-                  >
-                    <td style={{ padding: '14px 20px' }}>
-                      <div
-                        style={{
-                          fontWeight: 700,
-                          fontSize: '0.875rem',
-                          color: '#0f172a',
-                          cursor: 'pointer',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: 6,
-                          maxWidth: 240,
-                          wordBreak: 'break-word',
-                        }}
-                        onClick={() => setSelectedOfferForDetail(o)}
-                      >
-                        <User size={14} style={{ color: 'var(--primary)', flexShrink: 0 }} />
-                        <span>{o.candidateName}</span>
-                      </div>
-                      <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: 2, wordBreak: 'break-all' }}>
-                        {o.email}
-                      </div>
-                      <div style={{ fontSize: '0.7rem', color: 'var(--text-dim)', fontFamily: 'var(--font-mono)', marginTop: 3 }}>
-                        Ref: {o.referenceNumber}
-                      </div>
-                    </td>
-
-                    <td style={{ padding: '14px 18px', maxWidth: 220 }}>
-                      <div style={{ fontWeight: 600, fontSize: '0.84rem', color: '#0f172a', wordBreak: 'break-word' }}>
-                        {o.position}
-                      </div>
-                      <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: 2 }}>
-                        {o.department} {o.bandGrade ? `• ${o.bandGrade}` : ''}
-                      </div>
-                    </td>
-
-                    <td style={{ padding: '14px 18px' }}>
-                      <div style={{ fontWeight: 700, fontSize: '0.875rem', color: '#0f172a' }}>
-                        ${o.totalCtc.toLocaleString()} {o.currency}
-                      </div>
-                      <div style={{ fontSize: '0.72rem', color: 'var(--text-dim)', marginTop: 2 }}>
-                        Anticipated Join: {o.joiningDate ? new Date(o.joiningDate).toLocaleDateString() : 'TBD'}
-                      </div>
-                    </td>
-
-                    <td style={{ padding: '14px 18px' }}>
-                      <OfferStatusBadge status={o.status as any} />
-                    </td>
-
-                    <td style={{ padding: '14px 18px' }}>
-                      {o.aiReviewStatus === 'VERIFIED_BY_HR' ? (
-                        <HrConfirmedBadge label="HR Verified" />
-                      ) : o.aiReviewStatus === 'OVERRIDDEN' ? (
-                        <HrConfirmedBadge label="HR Overridden" />
-                      ) : o.aiReviewStatus === 'PENDING_AI_REVIEW' ? (
-                        <AiAdvisoryBadge label="AI Draft Review" />
-                      ) : (
-                        <span style={{ fontSize: '0.75rem', color: '#64748b' }}>Standard</span>
-                      )}
-                    </td>
-
-                    <td style={{ padding: '14px 20px', textAlign: 'right' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 6 }}>
-                        <button
-                          type="button"
-                          className="btn btn-secondary"
-                          onClick={() => setSelectedOfferForDetail(o)}
-                          style={{ padding: '6px 10px', fontSize: '0.75rem' }}
-                          title="View offer hub & preview"
+              </thead>
+              <tbody>
+                {recentOffers.length === 0 ? (
+                  <tr>
+                    <td colSpan={5} style={{ padding: '48px 20px', textAlign: 'center' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
+                        <div
+                          style={{
+                            width: 44,
+                            height: 44,
+                            borderRadius: '50%',
+                            background: '#f1f5f9',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            color: '#94a3b8',
+                          }}
                         >
-                          <Eye size={13} style={{ marginRight: 4 }} /> View
-                        </button>
-
-                        <button
-                          type="button"
-                          className="btn btn-secondary"
-                          onClick={() => setSelectedOfferForEmail(o)}
-                          style={{ padding: '6px 10px', fontSize: '0.75rem', color: '#2563eb' }}
-                          title="Send offer to candidate"
+                          <FileText size={22} />
+                        </div>
+                        <div style={{ fontWeight: 600, color: '#0f172a', fontSize: '0.9rem' }}>
+                          No offers created yet
+                        </div>
+                        <p style={{ color: '#64748b', fontSize: '0.78rem', maxWidth: 320, margin: 0 }}>
+                          Get started by generating your first official offer letter.
+                        </p>
+                        <Button
+                          variant="primary"
+                          onClick={() => setIsQuickModalOpen(true)}
+                          icon={<Sparkles size={14} />}
+                          style={{ fontSize: '0.8125rem', marginTop: 4 }}
                         >
-                          <Send size={13} />
-                        </button>
+                          Generate First Offer
+                        </Button>
                       </div>
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
+                ) : (
+                  recentOffers.map((o) => (
+                    <tr
+                      key={o.id}
+                      style={{
+                        borderBottom: '1px solid #f1f5f9',
+                        transition: 'background 0.12s ease',
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = '#f8fafc';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = 'transparent';
+                      }}
+                    >
+                      <td style={{ padding: '12px 18px' }}>
+                        <div
+                          style={{
+                            fontWeight: 700,
+                            fontSize: '0.84rem',
+                            color: '#0f172a',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 6,
+                          }}
+                          onClick={() => setSelectedOfferForDetail(o)}
+                        >
+                          <User size={13} style={{ color: '#2563eb' }} />
+                          <span>{o.candidateName}</span>
+                        </div>
+                        <div style={{ fontSize: '0.72rem', color: '#64748b', marginTop: 2 }}>
+                          {o.email}
+                        </div>
+                      </td>
 
-      {/* 5. Approved Offer Templates Studio Showcase */}
-      <div className="card" style={{ padding: 24 }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 18, flexWrap: 'wrap', gap: 12 }}>
-          <div>
-            <h3 style={{ fontSize: '1.15rem', fontWeight: 800, margin: 0, color: 'var(--text-main, #0f172a)' }}>
-              Corporate Offer Letter Blueprints
-            </h3>
-            <p style={{ fontSize: '0.8125rem', color: 'var(--text-muted)', margin: '4px 0 0' }}>
-              Standard legal templates equipped with dynamic compensation tokens and statutory clauses.
-            </p>
+                      <td style={{ padding: '12px 14px' }}>
+                        <div style={{ fontWeight: 600, fontSize: '0.8125rem', color: '#0f172a' }}>
+                          {o.position}
+                        </div>
+                        <div style={{ fontSize: '0.72rem', color: '#64748b', marginTop: 2 }}>
+                          {o.department}
+                        </div>
+                      </td>
+
+                      <td style={{ padding: '12px 14px' }}>
+                        <div style={{ fontWeight: 700, fontSize: '0.8125rem', color: '#0f172a' }}>
+                          ${o.totalCtc.toLocaleString()} {o.currency}
+                        </div>
+                      </td>
+
+                      <td style={{ padding: '12px 14px' }}>
+                        <OfferStatusBadge status={o.status as any} />
+                      </td>
+
+                      <td style={{ padding: '12px 18px', textAlign: 'right' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 6 }}>
+                          <button
+                            type="button"
+                            className="btn btn-secondary"
+                            onClick={() => setSelectedOfferForDetail(o)}
+                            style={{ padding: '5px 8px', fontSize: '0.72rem' }}
+                            title="Preview offer"
+                          >
+                            <Eye size={12} style={{ marginRight: 3 }} /> View
+                          </button>
+
+                          <button
+                            type="button"
+                            className="btn btn-secondary"
+                            onClick={() => setSelectedOfferForEmail(o)}
+                            style={{ padding: '5px 8px', fontSize: '0.72rem', color: '#2563eb' }}
+                            title="Send offer email"
+                          >
+                            <Send size={12} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
           </div>
-          <Button
-            variant="secondary"
-            onClick={() => navigate('/templates')}
-            style={{ fontSize: '0.8125rem', padding: '6px 12px' }}
-          >
-            View All Templates &rarr;
-          </Button>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 16 }}>
-          {[
-            {
-              id: 'tmpl_full_time',
-              title: 'Standard Full-Time Offer',
-              category: 'FULL_TIME',
-              desc: 'Comprehensive full-time permanent corporate offer letter with salary breakdown and benefits.',
-              variables: 14,
-            },
-            {
-              id: 'tmpl_executive',
-              title: 'Executive Employment Agreement',
-              category: 'EXECUTIVE',
-              desc: 'High-level C-Suite and VP agreements featuring equity vesting, bonus targets, and covenants.',
-              variables: 18,
-            },
-            {
-              id: 'tmpl_internship',
-              title: 'Internship & Trainee Agreement',
-              category: 'INTERNSHIP',
-              desc: 'Fixed-term student internship blueprint detailing mentor allocation, stipend, and duration.',
-              variables: 11,
-            },
-            {
-              id: 'tmpl_consultant',
-              title: 'Independent Contractor Agreement',
-              category: 'CONTRACT',
-              desc: 'Consulting deliverables, invoicing milestones, IP assignment, and liability limits.',
-              variables: 13,
-            },
-          ].map((t) => (
-            <div
-              key={t.id}
-              style={{
-                padding: 18,
-                borderRadius: 'var(--radius-md)',
-                border: '1px solid var(--border-subtle)',
-                background: '#f8fafc',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'space-between',
-                transition: 'all 0.15s ease',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.borderColor = '#93c5fd';
-                e.currentTarget.style.backgroundColor = '#ffffff';
-                e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.05)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.borderColor = 'var(--border-subtle)';
-                e.currentTarget.style.backgroundColor = '#f8fafc';
-                e.currentTarget.style.boxShadow = 'none';
-              }}
-            >
-              <div>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-                  <span
-                    style={{
-                      fontSize: '0.6875rem',
-                      fontWeight: 700,
-                      textTransform: 'uppercase',
-                      padding: '2px 8px',
-                      borderRadius: 4,
-                      background: '#eff6ff',
-                      color: '#2563eb',
-                      border: '1px solid #bfdbfe',
-                    }}
-                  >
-                    {t.category}
-                  </span>
-                  <span style={{ fontSize: '0.72rem', color: 'var(--text-dim)' }}>
-                    {t.variables} Placeholders
-                  </span>
-                </div>
-                <h4 style={{ fontSize: '0.95rem', fontWeight: 700, color: '#0f172a', margin: '0 0 6px' }}>
-                  {t.title}
-                </h4>
-                <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', lineHeight: 1.45, margin: 0 }}>
-                  {t.desc}
-                </p>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => navigate(`/offers?create=true&template=${t.category}`)}
-                style={{
-                  marginTop: 16,
-                  padding: '7px 12px',
-                  borderRadius: 'var(--radius-sm)',
-                  background: '#ffffff',
-                  border: '1px solid var(--border-medium)',
-                  color: '#2563eb',
-                  fontWeight: 600,
-                  fontSize: '0.8125rem',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: 6,
-                  cursor: 'pointer',
-                  transition: 'background 0.12s ease',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = '#eff6ff';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = '#ffffff';
-                }}
-              >
-                Use Template <ChevronRight size={13} />
-              </button>
+        {/* Right Column: Quick Document Generator & System Standing */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+          {/* Quick Document Generator Card */}
+          <div className="card" style={{ padding: '20px' }}>
+            <div style={{ marginBottom: 14 }}>
+              <h3 style={{ fontSize: '0.98rem', fontWeight: 700, margin: 0, color: '#0f172a' }}>
+                Quick Document Generator
+              </h3>
+              <p style={{ fontSize: '0.78rem', color: '#64748b', margin: '2px 0 0' }}>
+                Instant issuance on official corporate letterhead
+              </p>
             </div>
-          ))}
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {[
+                {
+                  label: 'Experience Letter',
+                  desc: 'Tenure & role certification',
+                  icon: <Briefcase size={15} style={{ color: '#ea580c' }} />,
+                  action: () => setIsExperienceModalOpen(true),
+                },
+                {
+                  label: 'Salary Slip / Payslip',
+                  desc: 'Itemized earnings & deductions',
+                  icon: <DollarSign size={15} style={{ color: '#059669' }} />,
+                  action: () => setIsSalarySlipModalOpen(true),
+                },
+                {
+                  label: 'Character Certificate',
+                  desc: 'Conduct & standing clearance',
+                  icon: <Award size={15} style={{ color: '#7c3aed' }} />,
+                  action: () => setIsCharacterModalOpen(true),
+                },
+                {
+                  label: 'Relieving Certificate',
+                  desc: 'Clearance & service release',
+                  icon: <ShieldCheck size={15} style={{ color: '#2563eb' }} />,
+                  action: () => setIsRelievingModalOpen(true),
+                },
+              ].map((item, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={item.action}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    padding: '10px 12px',
+                    borderRadius: 8,
+                    border: '1px solid #e2e8f0',
+                    background: '#f8fafc',
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                    transition: 'all 0.15s ease',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#ffffff';
+                    e.currentTarget.style.borderColor = '#93c5fd';
+                    e.currentTarget.style.boxShadow = '0 2px 6px rgba(0,0,0,0.04)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = '#f8fafc';
+                    e.currentTarget.style.borderColor = '#e2e8f0';
+                    e.currentTarget.style.boxShadow = 'none';
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <div
+                      style={{
+                        width: 28,
+                        height: 28,
+                        borderRadius: 6,
+                        backgroundColor: '#ffffff',
+                        border: '1px solid #e2e8f0',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}
+                    >
+                      {item.icon}
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '0.8125rem', fontWeight: 600, color: '#0f172a' }}>
+                        {item.label}
+                      </div>
+                      <div style={{ fontSize: '0.7rem', color: '#64748b' }}>
+                        {item.desc}
+                      </div>
+                    </div>
+                  </div>
+                  <ChevronRight size={14} style={{ color: '#94a3b8' }} />
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Security & Audit Standing Card */}
+          <div
+            className="card"
+            style={{
+              padding: '18px 20px',
+              backgroundColor: '#ffffff',
+              border: '1px solid #e2e8f0',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+              <ShieldCheck size={16} style={{ color: '#059669' }} />
+              <h4 style={{ fontSize: '0.875rem', fontWeight: 700, margin: 0, color: '#0f172a' }}>
+                System Security & Compliance
+              </h4>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 12 }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.75rem' }}>
+                <span style={{ color: '#64748b' }}>Tamper-Evident SHA-256:</span>
+                <span style={{ fontWeight: 700, color: '#059669' }}>Active &bull; Verified</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.75rem' }}>
+                <span style={{ color: '#64748b' }}>Role-Based Access:</span>
+                <span style={{ fontWeight: 600, color: '#0f172a' }}>{user?.roles?.[0] || 'Admin'} Session</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.75rem' }}>
+                <span style={{ color: '#64748b' }}>Statutory Rules:</span>
+                <span style={{ fontWeight: 600, color: '#0f172a' }}>Non-Assumption Enforced</span>
+              </div>
+            </div>
+
+            <Button
+              variant="secondary"
+              onClick={() => navigate('/audit-logs')}
+              style={{ width: '100%', justifyContent: 'center', fontSize: '0.75rem', padding: '6px 10px' }}
+            >
+              View Compliance Audit Ledger &rarr;
+            </Button>
+          </div>
         </div>
       </div>
 
-      {/* Detail / Preview Modal */}
+      {/* Modals Mounted for Instant Operation */}
       {selectedOfferForDetail && (
         <OfferDetailModal
           offer={{
@@ -940,7 +902,6 @@ export const DashboardPage: React.FC = () => {
         />
       )}
 
-      {/* Send Email Modal */}
       {selectedOfferForEmail && (
         <EmailSendModal
           offerId={selectedOfferForEmail.id}
@@ -948,13 +909,9 @@ export const DashboardPage: React.FC = () => {
           isOpen={true}
           onClose={() => setSelectedOfferForEmail(null)}
           onSentSuccessfully={() => {
-            setOffers((prev) =>
-              prev.map((item) =>
-                item.id === selectedOfferForEmail.id ? { ...item, status: 'ISSUED' } : item
-              )
-            );
+            loadDashboardData();
             setSelectedOfferForEmail(null);
-            success(`Formal offer letter successfully dispatched to ${selectedOfferForEmail.candidateName}.`);
+            success(`Formal offer letter dispatched to ${selectedOfferForEmail.candidateName}.`);
           }}
           onViewHistory={() => {
             const toView = selectedOfferForEmail;
@@ -964,7 +921,6 @@ export const DashboardPage: React.FC = () => {
         />
       )}
 
-      {/* Email History Modal */}
       {selectedOfferForHistory && (
         <EmailHistoryModal
           offerId={selectedOfferForHistory.id}
@@ -975,10 +931,35 @@ export const DashboardPage: React.FC = () => {
         />
       )}
 
-      {/* 2-Step Company Template Offer Generator Modal */}
+      {/* Offer Letter Quick Generator Modal */}
       <QuickTemplateOfferModal
         isOpen={isQuickModalOpen}
         onClose={() => setIsQuickModalOpen(false)}
+        onSuccess={() => loadDashboardData()}
+      />
+
+      {/* Quick Document Generator Modals */}
+      <ExperienceLetterModal
+        isOpen={isExperienceModalOpen}
+        onClose={() => setIsExperienceModalOpen(false)}
+        onSuccess={() => loadDashboardData()}
+      />
+
+      <SalarySlipModal
+        isOpen={isSalarySlipModalOpen}
+        onClose={() => setIsSalarySlipModalOpen(false)}
+        onSuccess={() => loadDashboardData()}
+      />
+
+      <CharacterCertificateModal
+        isOpen={isCharacterModalOpen}
+        onClose={() => setIsCharacterModalOpen(false)}
+        onSuccess={() => loadDashboardData()}
+      />
+
+      <RelievingCertificateModal
+        isOpen={isRelievingModalOpen}
+        onClose={() => setIsRelievingModalOpen(false)}
         onSuccess={() => loadDashboardData()}
       />
     </div>
