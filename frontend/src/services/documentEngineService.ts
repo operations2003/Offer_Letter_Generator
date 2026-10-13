@@ -127,6 +127,20 @@ export class DocumentEngineService {
   }
 
   /**
+   * Delete document by ID
+   */
+  static async deleteDocument(id: string): Promise<void> {
+    try {
+      await fetch(`/api/v1/hr-documents/${id}`, {
+        method: 'DELETE',
+        headers: this.getAuthHeaders(),
+      });
+    } catch (err) {
+      console.warn('Backend delete document skipped or failed:', err);
+    }
+  }
+
+  /**
    * Ingest AI advisory extractions
    */
   static async ingestAiData(

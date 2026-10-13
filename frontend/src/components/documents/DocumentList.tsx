@@ -13,6 +13,7 @@ import {
   ArrowUpDown,
   Calendar,
   Lock,
+  Trash2,
 } from 'lucide-react';
 import {
   HrDocument,
@@ -52,6 +53,49 @@ export const DocumentList: React.FC<DocumentListProps> = ({
   const [selectedStatus, setSelectedStatus] = useState<string>('ALL');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  const handleDeleteDocument = async (e: React.MouseEvent, doc: HrDocument) => {
+    e.stopPropagation();
+    const docName = doc.title || doc.referenceNumber || 'this document';
+    if (!window.confirm(`Are you sure you want to delete "${docName}"? This action cannot be undone.`)) {
+      return;
+    }
+
+    setDeletingId(doc.id);
+    try {
+      // 1. Delete on backend if applicable
+      if (doc.id && !doc.id.startsWith('doc_mrsa_') && !doc.id.startsWith('doc_rlv_')) {
+        await DocumentEngineService.deleteDocument(doc.id);
+      }
+
+      // 2. Remove from local storage tasknera_saved_documents
+      try {
+        const saved: HrDocument[] = JSON.parse(localStorage.getItem('tasknera_saved_documents') || '[]');
+        const updated = saved.filter((d) => d.id !== doc.id && d.referenceNumber !== doc.referenceNumber);
+        localStorage.setItem('tasknera_saved_documents', JSON.stringify(updated));
+      } catch (err) {
+        console.warn('LocalStorage remove failed:', err);
+      }
+
+      // 3. Remove from local storage tasknera_mock_hr_documents
+      try {
+        const mockSaved: HrDocument[] = JSON.parse(localStorage.getItem('tasknera_mock_hr_documents') || '[]');
+        const updatedMock = mockSaved.filter((d) => d.id !== doc.id && d.referenceNumber !== doc.referenceNumber);
+        localStorage.setItem('tasknera_mock_hr_documents', JSON.stringify(updatedMock));
+      } catch (err) {
+        console.warn('LocalStorage mock remove failed:', err);
+      }
+
+      // 4. Update component state immediately
+      setDocuments((prev) => prev.filter((d) => d.id !== doc.id && d.referenceNumber !== doc.referenceNumber));
+      success(`Document "${docName}" deleted successfully.`);
+    } catch (err: any) {
+      error(err?.message || 'Failed to delete document.');
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   useEffect(() => {
     fetchDocuments();
@@ -362,13 +406,47 @@ export const DocumentList: React.FC<DocumentListProps> = ({
                   </td>
 
                   <td style={{ padding: '14px 18px', textAlign: 'right' }}>
-                    <Button
-                      variant="secondary"
-                      onClick={() => onViewDocument(doc)}
-                      style={{ padding: '6px 12px', fontSize: '0.75rem' }}
-                    >
-                      <Eye size={13} /> View / Preview
-                    </Button>
+                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, justifyContent: 'flex-end' }}>
+                      <Button
+                        variant="secondary"
+                        onClick={() => onViewDocument(doc)}
+                        style={{ padding: '6px 12px', fontSize: '0.75rem' }}
+                      >
+                        <Eye size={13} /> View / Preview
+                      </Button>
+                      <button
+                        type="button"
+                        title="Delete Document"
+                        onClick={(e) => handleDeleteDocument(e, doc)}
+                        disabled={deletingId === doc.id}
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: 4,
+                          padding: '6px 10px',
+                          borderRadius: 6,
+                          border: '1px solid #fecaca',
+                          background: '#fef2f2',
+                          color: '#dc2626',
+                          fontSize: '0.75rem',
+                          fontWeight: 600,
+                          cursor: deletingId === doc.id ? 'not-allowed' : 'pointer',
+                          transition: 'all 0.15s ease',
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = '#fee2e2';
+                          e.currentTarget.style.borderColor = '#fca5a5';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = '#fef2f2';
+                          e.currentTarget.style.borderColor = '#fecaca';
+                        }}
+                      >
+                        <Trash2 size={13} />
+                        <span>Delete</span>
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))

@@ -13,6 +13,7 @@ import {
   Building2,
   Calendar,
   Briefcase,
+  Trash2,
 } from 'lucide-react';
 import { DocumentTypeDefinition, HrDocument } from '../../types/document-engine.js';
 import { Button } from '../common/Button.js';
@@ -44,6 +45,44 @@ export const DocumentPreview: React.FC<DocumentPreviewProps> = ({
 }) => {
   const { success, error, info } = useToast();
   const [isDownloading, setIsDownloading] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const handleDeleteCurrentDocument = async () => {
+    const docName = document.title || document.referenceNumber || 'this document';
+    if (!window.confirm(`Are you sure you want to delete "${docName}"? This action cannot be undone.`)) {
+      return;
+    }
+
+    setIsDeleting(true);
+    try {
+      if (document.id && !document.id.startsWith('doc_mrsa_') && !document.id.startsWith('doc_rlv_')) {
+        await DocumentEngineService.deleteDocument(document.id);
+      }
+
+      try {
+        const saved: HrDocument[] = JSON.parse(localStorage.getItem('tasknera_saved_documents') || '[]');
+        const updated = saved.filter((d) => d.id !== document.id && d.referenceNumber !== document.referenceNumber);
+        localStorage.setItem('tasknera_saved_documents', JSON.stringify(updated));
+      } catch (err) {
+        console.warn('LocalStorage remove failed:', err);
+      }
+
+      try {
+        const mockSaved: HrDocument[] = JSON.parse(localStorage.getItem('tasknera_mock_hr_documents') || '[]');
+        const updatedMock = mockSaved.filter((d) => d.id !== document.id && d.referenceNumber !== document.referenceNumber);
+        localStorage.setItem('tasknera_mock_hr_documents', JSON.stringify(updatedMock));
+      } catch (err) {
+        console.warn('LocalStorage mock remove failed:', err);
+      }
+
+      success(`Document "${docName}" deleted successfully.`);
+      onBackToList();
+    } catch (err: any) {
+      error(err?.message || 'Failed to delete document.');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   const terms = (document.hrConfirmedData || {}) as Record<string, any>;
   const latestFile = document.generatedFiles?.[document.generatedFiles.length - 1];
@@ -470,6 +509,37 @@ export const DocumentPreview: React.FC<DocumentPreviewProps> = ({
           <Button variant="primary" onClick={onSendClick} icon={<Send size={15} />}>
             Send to Recipient
           </Button>
+          <button
+            type="button"
+            title="Delete Document"
+            onClick={handleDeleteCurrentDocument}
+            disabled={isDeleting}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6,
+              padding: '8px 14px',
+              borderRadius: 6,
+              border: '1px solid #fecaca',
+              background: '#fef2f2',
+              color: '#dc2626',
+              fontSize: '0.8125rem',
+              fontWeight: 600,
+              cursor: isDeleting ? 'not-allowed' : 'pointer',
+              transition: 'all 0.15s ease',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = '#fee2e2';
+              e.currentTarget.style.borderColor = '#fca5a5';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = '#fef2f2';
+              e.currentTarget.style.borderColor = '#fecaca';
+            }}
+          >
+            <Trash2 size={14} />
+            <span>Delete</span>
+          </button>
         </div>
       </div>
 
