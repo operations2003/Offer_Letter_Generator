@@ -58,7 +58,6 @@ import { BonafideCertificateModal } from '../components/documents/BonafideCertif
 import { PolicyViewerModal, PolicyDefinition } from '../components/policies/PolicyViewerModal.js';
 import { MasterRecruitmentAgreementModal } from '../components/documents/MasterRecruitmentAgreementModal.js';
 import { OFFICIAL_POLICIES } from '../services/policyCatalog.js';
-import { INITIAL_MRSA_DATA } from '../services/mrsaCatalog.js';
 import { offerService } from '../services/offerService.js';
 
 const INITIAL_MOCK_OFFERS: OfferListItem[] = [];
@@ -107,9 +106,7 @@ export const OffersPage: React.FC = () => {
   const [isRelievingModalOpen, setIsRelievingModalOpen] = useState(false);
   const [isBonafideModalOpen, setIsBonafideModalOpen] = useState(false);
   const [isMrsModalOpen, setIsMrsModalOpen] = useState(false);
-  const [mrsaSectionPulse, setMrsaSectionPulse] = useState(false);
-  const [mrsaSearchQuery, setMrsaSearchQuery] = useState('');
-  const [activeDocumentTab, setActiveDocumentTab] = useState<'ALL' | 'TEMPLATES' | 'CERTIFICATES' | 'POLICIES' | 'MRSA'>('ALL');
+  const [activeDocumentTab, setActiveDocumentTab] = useState<'ALL' | 'TEMPLATES' | 'CERTIFICATES' | 'POLICIES'>('ALL');
   const [certificateSectionPulse, setCertificateSectionPulse] = useState(false);
   const [isWizardOpen, setIsWizardOpen] = useState(() => searchParams.get('create') === 'true');
   const [selectedOfferForDetail, setSelectedOfferForDetail] = useState<OfferItem | null>(null);
@@ -584,11 +581,10 @@ export const OffersPage: React.FC = () => {
       >
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
           {[
-            { key: 'ALL', label: 'All Document Categories', count: documentCards.length + certificateCards.length + OFFICIAL_POLICIES.length + 1 },
+            { key: 'ALL', label: 'All Document Categories', count: documentCards.length + certificateCards.length + OFFICIAL_POLICIES.length },
             { key: 'TEMPLATES', label: 'Document Templates', count: documentCards.length },
             { key: 'CERTIFICATES', label: 'Certificates', count: certificateCards.length, icon: <Award size={13} /> },
             { key: 'POLICIES', label: 'Company Policies', count: OFFICIAL_POLICIES.length },
-            { key: 'MRSA', label: 'MRSA Agreement', count: 1, icon: <FileCheck2 size={13} /> },
           ].map((tab) => {
             const isSelected = activeDocumentTab === tab.key;
             return (
@@ -614,13 +610,6 @@ export const OffersPage: React.FC = () => {
                       setPolicySectionPulse(true);
                       setTimeout(() => setPolicySectionPulse(false), 2400);
                     }
-                  } else if (tab.key === 'MRSA') {
-                    const el = document.getElementById('mrsa-agreements-section');
-                    if (el) {
-                      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                      setMrsaSectionPulse(true);
-                      setTimeout(() => setMrsaSectionPulse(false), 2400);
-                    }
                   }
                 }}
                 style={{
@@ -631,22 +620,16 @@ export const OffersPage: React.FC = () => {
                   border: isSelected
                     ? tab.key === 'CERTIFICATES'
                       ? '1px solid #ea580c'
-                      : tab.key === 'MRSA'
-                      ? '1px solid #7c3aed'
                       : '1px solid #2563eb'
                     : '1px solid #e2e8f0',
                   backgroundColor: isSelected
                     ? tab.key === 'CERTIFICATES'
                       ? '#fff7ed'
-                      : tab.key === 'MRSA'
-                      ? '#f5f3ff'
                       : '#eff6ff'
                     : '#ffffff',
                   color: isSelected
                     ? tab.key === 'CERTIFICATES'
                       ? '#c2410c'
-                      : tab.key === 'MRSA'
-                      ? '#6d28d9'
                       : '#1d4ed8'
                     : '#475569',
                   cursor: 'pointer',
@@ -1343,342 +1326,7 @@ export const OffersPage: React.FC = () => {
       </div>
       )}
 
-      {/* ========================================================================= */}
-      {/* 4. MASTER RECRUITMENT SERVICES AGREEMENT (MRSA) SECTION                   */}
-      {/* ========================================================================= */}
-      {(activeDocumentTab === 'ALL' || activeDocumentTab === 'MRSA') && (
-        <div
-          id="mrsa-agreements-section"
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 16,
-            marginTop: 6,
-            paddingTop: 10,
-            scrollMarginTop: '80px',
-            borderRadius: 14,
-            padding: '16px',
-            backgroundColor: mrsaSectionPulse ? 'rgba(124, 58, 237, 0.05)' : 'transparent',
-            boxShadow: mrsaSectionPulse ? '0 0 0 2px rgba(124, 58, 237, 0.4)' : 'none',
-            transition: 'all 0.4s ease',
-          }}
-        >
-          {/* Section Header */}
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              flexWrap: 'wrap',
-              gap: 12,
-            }}
-          >
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#0f172a', margin: 0 }}>
-                  Master Recruitment Services Agreement (MRSA)
-                </h3>
-                <span
-                  style={{
-                    fontSize: '0.72rem',
-                    fontWeight: 700,
-                    backgroundColor: '#f5f3ff',
-                    color: '#7c3aed',
-                    padding: '2px 9px',
-                    borderRadius: 12,
-                    border: '1px solid #ddd6fe',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: 4,
-                  }}
-                >
-                  <FileCheck2 size={12} />
-                  Official 21-Page Legal Template
-                </span>
-                <span
-                  style={{
-                    fontSize: '0.72rem',
-                    fontWeight: 700,
-                    backgroundColor: '#ecfdf5',
-                    color: '#059669',
-                    padding: '2px 8px',
-                    borderRadius: 12,
-                    border: '1px solid #a7f3d0',
-                  }}
-                >
-                  B2B Client Mandate
-                </span>
-              </div>
-              <p style={{ fontSize: '0.8125rem', color: '#64748b', margin: '3px 0 0 0' }}>
-                Complete legal contract between TaskNera (Recruitment Services Provider) and hiring clients (e.g. Bozzo Cabs) covering candidate sourcing, fee protection, replacement SLA, Schedule A commercials & Schedule B data security.
-              </p>
-            </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <Button
-                variant="primary"
-                icon={<Edit3 size={15} />}
-                onClick={() => setIsMrsModalOpen(true)}
-                style={{ fontSize: '0.8125rem', backgroundColor: '#7c3aed', borderColor: '#7c3aed' }}
-              >
-                Open MRSA Editor & PDF Generator
-              </Button>
-            </div>
-          </div>
-
-          {/* Quick Metrics & Highlights Row */}
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
-              gap: 12,
-            }}
-          >
-            {[
-              {
-                title: '25 Operative Clauses',
-                desc: 'Definitions, Scope, Sourcing, Attribution, Fee Protection, Replacement, IP, Indemnity, Liability & Termination',
-                badge: 'Fully Editable',
-                color: '#7c3aed',
-                bg: '#f5f3ff',
-              },
-              {
-                title: 'Schedule A – Master Commercials',
-                desc: 'INR 18,000 Flat / CTC % Rates, 45-day payment, 60-day replacement, 12-month candidate protection period',
-                badge: 'Customizable Rows',
-                color: '#2563eb',
-                bg: '#eff6ff',
-              },
-              {
-                title: 'Schedule B – DPDP Act 2023',
-                desc: 'Digital Personal Data Protection Act compliance, 48-hour breach notification, and privacy controls',
-                badge: 'Statutory Vetted',
-                color: '#059669',
-                bg: '#f0fdf4',
-              },
-              {
-                title: 'Bi-Lateral Execution Block',
-                desc: 'Signatures for Hiring Client & TaskNera (Proprietor: Ms. Sheetal Bedi) with witness endorsements',
-                badge: 'Dual Signatures',
-                color: '#ea580c',
-                bg: '#fff7ed',
-              },
-            ].map((metric, mIdx) => (
-              <div
-                key={mIdx}
-                style={{
-                  backgroundColor: '#ffffff',
-                  borderRadius: 10,
-                  border: '1px solid #e2e8f0',
-                  padding: '14px 16px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: 6,
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#0f172a' }}>{metric.title}</span>
-                  <span
-                    style={{
-                      fontSize: '0.68rem',
-                      fontWeight: 700,
-                      padding: '1px 6px',
-                      borderRadius: 6,
-                      backgroundColor: metric.bg,
-                      color: metric.color,
-                    }}
-                  >
-                    {metric.badge}
-                  </span>
-                </div>
-                <p style={{ fontSize: '0.78rem', color: '#64748b', margin: 0, lineHeight: 1.45 }}>
-                  {metric.desc}
-                </p>
-              </div>
-            ))}
-          </div>
-
-          {/* Interactive Agreement Explorer Box */}
-          <div
-            style={{
-              backgroundColor: '#ffffff',
-              borderRadius: 12,
-              border: '1.5px solid #ddd6fe',
-              padding: '20px',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 16,
-              boxShadow: '0 4px 16px rgba(124, 58, 237, 0.05)',
-            }}
-          >
-            {/* Agreement Summary Header */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12, borderBottom: '1px solid #f1f5f9', paddingBottom: 14 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-                <div
-                  style={{
-                    width: 44,
-                    height: 44,
-                    borderRadius: 10,
-                    backgroundColor: '#f5f3ff',
-                    border: '1px solid #ddd6fe',
-                    color: '#7c3aed',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
-                >
-                  <FileCheck2 size={24} />
-                </div>
-                <div>
-                  <div style={{ fontWeight: 800, fontSize: '1.05rem', color: '#0f172a' }}>
-                    {INITIAL_MRSA_DATA.client.tradeName} & TaskNera Recruitment Mandate
-                  </div>
-                  <div style={{ fontSize: '0.8rem', color: '#64748b' }}>
-                    Ref: {INITIAL_MRSA_DATA.agreementNumber} • Effective Date: {INITIAL_MRSA_DATA.effectiveDate}
-                  </div>
-                </div>
-              </div>
-
-              <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  icon={<Eye size={14} />}
-                  onClick={() => setIsMrsModalOpen(true)}
-                  style={{ fontSize: '0.8125rem' }}
-                >
-                  View Full 21-Page PDF
-                </Button>
-                <Button
-                  variant="primary"
-                  size="sm"
-                  icon={<Edit3 size={14} />}
-                  onClick={() => setIsMrsModalOpen(true)}
-                  style={{ fontSize: '0.8125rem', backgroundColor: '#7c3aed', borderColor: '#7c3aed' }}
-                >
-                  Customize Clauses & Terms
-                </Button>
-              </div>
-            </div>
-
-            {/* Quick Filter / Search in Clauses */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 14 }}>
-              <div style={{ position: 'relative', flex: 1, maxWidth: 450 }}>
-                <Search size={15} style={{ position: 'absolute', left: 10, top: 10, color: '#94a3b8' }} />
-                <input
-                  type="text"
-                  value={mrsaSearchQuery}
-                  onChange={(e) => setMrsaSearchQuery(e.target.value)}
-                  placeholder="Filter key sections (e.g., 'Fees', 'Replacement', 'Candidate Attribution', 'Schedule A')..."
-                  style={{
-                    width: '100%',
-                    padding: '8px 12px 8px 32px',
-                    borderRadius: 8,
-                    border: '1px solid #cbd5e1',
-                    fontSize: '0.8125rem',
-                  }}
-                />
-              </div>
-
-              <div style={{ fontSize: '0.8rem', color: '#64748b' }}>
-                Showing <strong>{INITIAL_MRSA_DATA.sections.length}</strong> Operative Sections
-              </div>
-            </div>
-
-            {/* Clauses Mini Grid */}
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
-                gap: 12,
-              }}
-            >
-              {INITIAL_MRSA_DATA.sections
-                .filter(
-                  (s) =>
-                    !mrsaSearchQuery ||
-                    s.title.toLowerCase().includes(mrsaSearchQuery.toLowerCase()) ||
-                    String(s.number).includes(mrsaSearchQuery) ||
-                    s.clauses.some((c) => c.title.toLowerCase().includes(mrsaSearchQuery.toLowerCase()))
-                )
-                .slice(0, 12)
-                .map((sec) => (
-                  <div
-                    key={sec.id}
-                    onClick={() => setIsMrsModalOpen(true)}
-                    style={{
-                      border: '1px solid #e2e8f0',
-                      borderRadius: 8,
-                      padding: '12px 14px',
-                      backgroundColor: '#f8fafc',
-                      cursor: 'pointer',
-                      transition: 'all 0.15s ease',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      justifyContent: 'space-between',
-                      gap: 8,
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = '#ffffff';
-                      e.currentTarget.style.borderColor = '#7c3aed';
-                      e.currentTarget.style.boxShadow = '0 2px 8px rgba(124, 58, 237, 0.1)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = '#f8fafc';
-                      e.currentTarget.style.borderColor = '#e2e8f0';
-                      e.currentTarget.style.boxShadow = 'none';
-                    }}
-                  >
-                    <div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-                        <span
-                          style={{
-                            fontSize: '0.72rem',
-                            fontWeight: 800,
-                            color: '#7c3aed',
-                            backgroundColor: '#f5f3ff',
-                            padding: '1px 6px',
-                            borderRadius: 4,
-                          }}
-                        >
-                          Sec {sec.number}
-                        </span>
-                        <span style={{ fontSize: '0.875rem', fontWeight: 700, color: '#0f172a' }}>
-                          {sec.title}
-                        </span>
-                      </div>
-                      <p style={{ fontSize: '0.78rem', color: '#64748b', margin: 0, lineHeight: 1.4 }}>
-                        {sec.clauses[0]?.paragraphs[0]?.slice(0, 110)}...
-                      </p>
-                    </div>
-
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.75rem', color: '#7c3aed', fontWeight: 600, borderTop: '1px solid #f1f5f9', paddingTop: 6 }}>
-                      <span>{sec.clauses.length} Clause{sec.clauses.length === 1 ? '' : 's'}</span>
-                      <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                        Edit Clause <ArrowRight size={12} />
-                      </span>
-                    </div>
-                  </div>
-                ))}
-            </div>
-
-            {/* Bottom Footer Note */}
-            <div style={{ backgroundColor: '#f5f3ff', padding: '10px 14px', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8 }}>
-              <div style={{ fontSize: '0.8rem', color: '#5b21b6' }}>
-                <strong>Tip:</strong> You can add custom sections, remove clauses, edit commercial terms in Schedule A, and download the high-fidelity PDF with running headers and page numbers.
-              </div>
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={() => setIsMrsModalOpen(true)}
-                style={{ fontSize: '0.75rem', color: '#7c3aed', borderColor: '#ddd6fe' }}
-              >
-                Launch Agreement Builder
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Offer Detail, Preview, Generation & Version History Hub Modal */}
       {selectedOfferForDetail && (
