@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Sparkles,
@@ -19,12 +19,14 @@ import {
   DollarSign,
   RefreshCw,
   Plus,
+  Search,
+  CheckCircle2,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.js';
 import { Button } from '../components/common/Button.js';
 import { OfferStatusBadge } from '../components/common/Badge.js';
 import { offerService } from '../services/offerService.js';
-import { EmployeeService } from '../services/employeeService.js';
+import { Employee, EmployeeService } from '../services/employeeService.js';
 import { DocumentEngineService } from '../services/documentEngineService.js';
 import { OfferListItem, DashboardStatistics } from '../types/offer.js';
 import { OfferStatus } from '../types/index.js';
@@ -32,6 +34,7 @@ import { OfferDetailModal } from '../components/offers/OfferDetailModal.js';
 import { EmailSendModal } from '../components/offers/EmailSendModal.js';
 import { EmailHistoryModal } from '../components/offers/EmailHistoryModal.js';
 import { QuickTemplateOfferModal } from '../components/offers/QuickTemplateOfferModal.js';
+import { GenerateDocumentModal } from '../components/employees/GenerateDocumentModal.js';
 import { CharacterCertificateModal } from '../components/documents/CharacterCertificateModal.js';
 import { ExperienceLetterModal } from '../components/documents/ExperienceLetterModal.js';
 import { SalarySlipModal } from '../components/documents/SalarySlipModal.js';
@@ -55,13 +58,19 @@ export const DashboardPage: React.FC = () => {
     expired: 0,
   });
 
+  const [employees, setEmployees] = useState<Employee[]>([]);
+  const [employeeSearch, setEmployeeSearch] = useState('');
   const [recentOffers, setRecentOffers] = useState<OfferListItem[]>([]);
   const [totalEmployees, setTotalEmployees] = useState<number>(0);
   const [totalDocuments, setTotalDocuments] = useState<number>(0);
   const [loading, setLoading] = useState(false);
+  const [activeOperationalTab, setActiveOperationalTab] = useState<'EMPLOYEES' | 'OFFERS'>('EMPLOYEES');
 
   // Active Modals
   const [isQuickModalOpen, setIsQuickModalOpen] = useState(false);
+  const [isEmpDocModalOpen, setIsEmpDocModalOpen] = useState(false);
+  const [selectedEmployeeForGenDoc, setSelectedEmployeeForGenDoc] = useState<Employee | null>(null);
+
   const [isCharacterModalOpen, setIsCharacterModalOpen] = useState(false);
   const [isExperienceModalOpen, setIsExperienceModalOpen] = useState(false);
   const [isSalarySlipModalOpen, setIsSalarySlipModalOpen] = useState(false);
@@ -76,7 +85,7 @@ export const DashboardPage: React.FC = () => {
     try {
       const [statsRes, offersRes, empRes, docRes] = await Promise.allSettled([
         offerService.getDashboardStatistics(),
-        offerService.listOffers({ limit: 5 }),
+        offerService.listOffers({ limit: 6 }),
         EmployeeService.listEmployees().catch(() => []),
         DocumentEngineService.listDocuments().catch(() => []),
       ]);
@@ -88,6 +97,7 @@ export const DashboardPage: React.FC = () => {
         setRecentOffers(offersRes.value.items);
       }
       if (empRes.status === 'fulfilled' && Array.isArray(empRes.value)) {
+        setEmployees(empRes.value);
         setTotalEmployees(empRes.value.length);
       }
       if (docRes.status === 'fulfilled' && Array.isArray(docRes.value)) {
@@ -103,6 +113,42 @@ export const DashboardPage: React.FC = () => {
   useEffect(() => {
     loadDashboardData();
   }, []);
+
+  // Compute accurate document count for each employee (backend + local storage)
+  const getEmployeeDocumentCount = (emp: Employee): number => {
+    const backendCount = emp.documentCount || (emp.documents ? emp.documents.length : 0);
+    try {
+      const saved: any[] = JSON.parse(localStorage.getItem('tasknera_saved_documents') || '[]');
+      const localMatches = saved.filter((d) => {
+        const rName = (d.recipientName || '').toLowerCase().trim();
+        const eName = (emp.fullName || '').toLowerCase().trim();
+        const rEmail = (d.recipientEmail || '').toLowerCase().trim();
+        const eEmail = (emp.personalEmail || emp.officialEmail || '').toLowerCase().trim();
+        const rId = (d.recipientExternalId || '').trim();
+        return (
+          (rName && eName && (rName === eName || rName.includes(eName) || eName.includes(rName))) ||
+          (rEmail && eEmail && rEmail === eEmail) ||
+          (rId && (rId === emp.employeeId || rId === emp.id))
+        );
+      }).length;
+      return Math.max(backendCount, localMatches);
+    } catch {
+      return backendCount;
+    }
+  };
+
+  // Filtered employees list based on search
+  const filteredEmployees = useMemo(() => {
+    if (!employeeSearch.trim()) return employees;
+    const q = employeeSearch.toLowerCase().trim();
+    return employees.filter(
+      (e) =>
+        e.fullName?.toLowerCase().includes(q) ||
+        e.employeeId?.toLowerCase().includes(q) ||
+        e.department?.toLowerCase().includes(q) ||
+        e.designation?.toLowerCase().includes(q)
+    );
+  }, [employees, employeeSearch]);
 
   const todayFormatted = new Intl.DateTimeFormat('en-US', {
     weekday: 'long',
@@ -149,7 +195,7 @@ export const DashboardPage: React.FC = () => {
             </span>
           </div>
           <p style={{ fontSize: '0.84rem', color: '#64748b', margin: 0 }}>
-            {todayFormatted} &bull; Manage offers, credentials, and official corporate documentation.
+            {todayFormatted} &bull; Manage employees, document generation records, and candidate offers.
           </p>
         </div>
 
@@ -191,7 +237,7 @@ export const DashboardPage: React.FC = () => {
           gap: 16,
         }}
       >
-        {/* KPI 1: Total Offers */}
+        {/* KPI 1: Total Employees & Document Records */}
         <div
           className="card"
           style={{
@@ -199,11 +245,13 @@ export const DashboardPage: React.FC = () => {
             cursor: 'pointer',
             transition: 'transform 0.15s ease, box-shadow 0.15s ease',
           }}
-          onClick={() => navigate('/offers')}
+          onClick={() => {
+            setActiveOperationalTab('EMPLOYEES');
+          }}
         >
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <span style={{ fontSize: '0.8125rem', fontWeight: 600, color: '#64748b' }}>
-              Total Offers
+              Total Employees
             </span>
             <div
               style={{
@@ -218,18 +266,56 @@ export const DashboardPage: React.FC = () => {
                 border: '1px solid #bfdbfe',
               }}
             >
-              <FileCheck2 size={18} />
+              <Users2 size={18} />
             </div>
           </div>
           <div style={{ fontSize: '1.85rem', fontWeight: 800, color: '#0f172a', marginTop: 8 }}>
-            {stats.total}
+            {totalEmployees}
           </div>
           <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: 4 }}>
-            {stats.generated} ready &bull; {stats.draft} in draft
+            Active company workforce
           </div>
         </div>
 
-        {/* KPI 2: Action Required */}
+        {/* KPI 2: Documents Generated */}
+        <div
+          className="card"
+          style={{
+            padding: '20px 22px',
+            cursor: 'pointer',
+            transition: 'transform 0.15s ease, box-shadow 0.15s ease',
+          }}
+          onClick={() => navigate('/documents')}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <span style={{ fontSize: '0.8125rem', fontWeight: 600, color: '#64748b' }}>
+              Documents Issued
+            </span>
+            <div
+              style={{
+                width: 36,
+                height: 36,
+                borderRadius: 8,
+                background: '#f5f3ff',
+                color: '#7c3aed',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                border: '1px solid #ddd6fe',
+              }}
+            >
+              <Layers size={18} />
+            </div>
+          </div>
+          <div style={{ fontSize: '1.85rem', fontWeight: 800, color: '#0f172a', marginTop: 8 }}>
+            {totalDocuments}
+          </div>
+          <div style={{ fontSize: '0.75rem', color: '#7c3aed', marginTop: 4, fontWeight: 600 }}>
+            Official records across employees
+          </div>
+        </div>
+
+        {/* KPI 3: Action Required */}
         <div
           className="card"
           style={{
@@ -269,44 +355,6 @@ export const DashboardPage: React.FC = () => {
           </div>
         </div>
 
-        {/* KPI 3: Dispatched & Issued */}
-        <div
-          className="card"
-          style={{
-            padding: '20px 22px',
-            cursor: 'pointer',
-            transition: 'transform 0.15s ease, box-shadow 0.15s ease',
-          }}
-          onClick={() => navigate('/offers?status=ISSUED')}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <span style={{ fontSize: '0.8125rem', fontWeight: 600, color: '#64748b' }}>
-              Issued to Candidates
-            </span>
-            <div
-              style={{
-                width: 36,
-                height: 36,
-                borderRadius: 8,
-                background: '#f5f3ff',
-                color: '#7c3aed',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                border: '1px solid #ddd6fe',
-              }}
-            >
-              <Send size={18} />
-            </div>
-          </div>
-          <div style={{ fontSize: '1.85rem', fontWeight: 800, color: '#0f172a', marginTop: 8 }}>
-            {stats.sent}
-          </div>
-          <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: 4 }}>
-            Candidate review portal active
-          </div>
-        </div>
-
         {/* KPI 4: Accepted & Rate */}
         <div
           className="card"
@@ -319,7 +367,7 @@ export const DashboardPage: React.FC = () => {
         >
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <span style={{ fontSize: '0.8125rem', fontWeight: 600, color: '#64748b' }}>
-              Acceptance Rate
+              Offer Acceptance Rate
             </span>
             <div
               style={{
@@ -341,205 +389,12 @@ export const DashboardPage: React.FC = () => {
             {acceptanceRate}%
           </div>
           <div style={{ fontSize: '0.75rem', color: '#059669', marginTop: 4, fontWeight: 600 }}>
-            {stats.accepted} accepted offers
+            {stats.accepted} accepted of {stats.sent} issued
           </div>
         </div>
       </div>
 
-      {/* 3. Core Modules Quick Hub */}
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr)))',
-          gap: 16,
-        }}
-      >
-        {/* Module 1: Offer Letters */}
-        <div
-          className="card"
-          style={{
-            padding: '18px 20px',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            gap: 14,
-            borderLeft: '3px solid #2563eb',
-            transition: 'all 0.15s ease',
-          }}
-        >
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-              <div
-                style={{
-                  width: 34,
-                  height: 34,
-                  borderRadius: 8,
-                  backgroundColor: '#eff6ff',
-                  color: '#2563eb',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                <FileCheck2 size={18} />
-              </div>
-              <h3 style={{ fontSize: '0.98rem', fontWeight: 700, margin: 0, color: '#0f172a' }}>
-                Offer Letters
-              </h3>
-            </div>
-            <p style={{ fontSize: '0.8rem', color: '#64748b', margin: 0, lineHeight: 1.45 }}>
-              Generate verified offer letters on company letterhead with salary breakdown.
-            </p>
-          </div>
-          <Button
-            variant="secondary"
-            onClick={() => setIsQuickModalOpen(true)}
-            style={{ width: '100%', justifyContent: 'center', fontSize: '0.8125rem', padding: '7px 12px' }}
-          >
-            Create Offer Letter <ChevronRight size={13} style={{ marginLeft: 4 }} />
-          </Button>
-        </div>
-
-        {/* Module 2: Employee Records */}
-        <div
-          className="card"
-          style={{
-            padding: '18px 20px',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            gap: 14,
-            borderLeft: '3px solid #059669',
-            transition: 'all 0.15s ease',
-          }}
-        >
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-              <div
-                style={{
-                  width: 34,
-                  height: 34,
-                  borderRadius: 8,
-                  backgroundColor: '#f0fdf4',
-                  color: '#059669',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                <Users2 size={18} />
-              </div>
-              <h3 style={{ fontSize: '0.98rem', fontWeight: 700, margin: 0, color: '#0f172a' }}>
-                Employees
-              </h3>
-            </div>
-            <p style={{ fontSize: '0.8rem', color: '#64748b', margin: 0, lineHeight: 1.45 }}>
-              Manage employee profiles, designations, joining dates, and departments.
-            </p>
-          </div>
-          <Button
-            variant="secondary"
-            onClick={() => navigate('/employees')}
-            style={{ width: '100%', justifyContent: 'center', fontSize: '0.8125rem', padding: '7px 12px' }}
-          >
-            Employee Directory ({totalEmployees}) <ChevronRight size={13} style={{ marginLeft: 4 }} />
-          </Button>
-        </div>
-
-        {/* Module 3: Document Engine */}
-        <div
-          className="card"
-          style={{
-            padding: '18px 20px',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            gap: 14,
-            borderLeft: '3px solid #7c3aed',
-            transition: 'all 0.15s ease',
-          }}
-        >
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-              <div
-                style={{
-                  width: 34,
-                  height: 34,
-                  borderRadius: 8,
-                  backgroundColor: '#f5f3ff',
-                  color: '#7c3aed',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                <Layers size={18} />
-              </div>
-              <h3 style={{ fontSize: '0.98rem', fontWeight: 700, margin: 0, color: '#0f172a' }}>
-                Document Hub
-              </h3>
-            </div>
-            <p style={{ fontSize: '0.8rem', color: '#64748b', margin: 0, lineHeight: 1.45 }}>
-              Issue certificates, monthly salary slips, relieving letters, and agreements.
-            </p>
-          </div>
-          <Button
-            variant="secondary"
-            onClick={() => navigate('/documents')}
-            style={{ width: '100%', justifyContent: 'center', fontSize: '0.8125rem', padding: '7px 12px' }}
-          >
-            Documents Generated ({totalDocuments}) <ChevronRight size={13} style={{ marginLeft: 4 }} />
-          </Button>
-        </div>
-
-        {/* Module 4: Offers Pipeline */}
-        <div
-          className="card"
-          style={{
-            padding: '18px 20px',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            gap: 14,
-            borderLeft: '3px solid #ea580c',
-            transition: 'all 0.15s ease',
-          }}
-        >
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-              <div
-                style={{
-                  width: 34,
-                  height: 34,
-                  borderRadius: 8,
-                  backgroundColor: '#fff7ed',
-                  color: '#ea580c',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                <FileText size={18} />
-              </div>
-              <h3 style={{ fontSize: '0.98rem', fontWeight: 700, margin: 0, color: '#0f172a' }}>
-                Offers Pipeline
-              </h3>
-            </div>
-            <p style={{ fontSize: '0.8rem', color: '#64748b', margin: 0, lineHeight: 1.45 }}>
-              Review verification statuses, email delivery ledgers, and candidate portals.
-            </p>
-          </div>
-          <Button
-            variant="secondary"
-            onClick={() => navigate('/offers')}
-            style={{ width: '100%', justifyContent: 'center', fontSize: '0.8125rem', padding: '7px 12px' }}
-          >
-            View Full Pipeline <ChevronRight size={13} style={{ marginLeft: 4 }} />
-          </Button>
-        </div>
-      </div>
-
-      {/* 4. Split Operational Workspace (Recent Offers & Quick Generators) */}
+      {/* 3. Main Workspace: EMPLOYEES & DOCUMENTS CREATED + Recent Offers */}
       <div
         style={{
           display: 'grid',
@@ -548,8 +403,9 @@ export const DashboardPage: React.FC = () => {
           alignItems: 'start',
         }}
       >
-        {/* Left Column: Recent Offers List */}
+        {/* Left Column: Operational Section with Tabs */}
         <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+          {/* Header & Section Navigation Tabs */}
           <div
             style={{
               padding: '18px 22px',
@@ -561,180 +417,468 @@ export const DashboardPage: React.FC = () => {
               gap: 12,
             }}
           >
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <h2 style={{ fontSize: '1.05rem', fontWeight: 700, margin: 0, color: '#0f172a' }}>
-                  Recent Offers Pipeline
-                </h2>
-                <span
-                  style={{
-                    fontSize: '0.72rem',
-                    fontWeight: 700,
-                    padding: '2px 8px',
-                    borderRadius: 12,
-                    background: '#eff6ff',
-                    color: '#2563eb',
-                  }}
-                >
-                  {recentOffers.length} Recent
-                </span>
-              </div>
-              <p style={{ fontSize: '0.78rem', color: '#64748b', margin: '2px 0 0' }}>
-                Latest employment offers generated across departments
-              </p>
+            {/* Operational Tabs */}
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
+                padding: '4px',
+                backgroundColor: '#f1f5f9',
+                borderRadius: 8,
+              }}
+            >
+              <button
+                type="button"
+                onClick={() => setActiveOperationalTab('EMPLOYEES')}
+                style={{
+                  padding: '6px 14px',
+                  borderRadius: 6,
+                  border: 'none',
+                  fontSize: '0.8125rem',
+                  fontWeight: activeOperationalTab === 'EMPLOYEES' ? 700 : 500,
+                  backgroundColor: activeOperationalTab === 'EMPLOYEES' ? '#ffffff' : 'transparent',
+                  color: activeOperationalTab === 'EMPLOYEES' ? '#2563eb' : '#64748b',
+                  boxShadow: activeOperationalTab === 'EMPLOYEES' ? '0 1px 3px rgba(0,0,0,0.08)' : 'none',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  transition: 'all 0.15s ease',
+                }}
+              >
+                <Users2 size={14} />
+                <span>Employees & Documents ({employees.length})</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setActiveOperationalTab('OFFERS')}
+                style={{
+                  padding: '6px 14px',
+                  borderRadius: 6,
+                  border: 'none',
+                  fontSize: '0.8125rem',
+                  fontWeight: activeOperationalTab === 'OFFERS' ? 700 : 500,
+                  backgroundColor: activeOperationalTab === 'OFFERS' ? '#ffffff' : 'transparent',
+                  color: activeOperationalTab === 'OFFERS' ? '#2563eb' : '#64748b',
+                  boxShadow: activeOperationalTab === 'OFFERS' ? '0 1px 3px rgba(0,0,0,0.08)' : 'none',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  transition: 'all 0.15s ease',
+                }}
+              >
+                <FileText size={14} />
+                <span>Recent Offers ({recentOffers.length})</span>
+              </button>
             </div>
 
-            <Button
-              variant="secondary"
-              onClick={() => navigate('/offers')}
-              style={{ fontSize: '0.78125rem', padding: '6px 12px' }}
-            >
-              View All in Pipeline <ArrowRight size={13} style={{ marginLeft: 4 }} />
-            </Button>
+            {/* Quick Action Link */}
+            {activeOperationalTab === 'EMPLOYEES' ? (
+              <Button
+                variant="secondary"
+                onClick={() => navigate('/employees')}
+                style={{ fontSize: '0.78125rem', padding: '6px 12px' }}
+              >
+                Full Employee Directory <ArrowRight size={13} style={{ marginLeft: 4 }} />
+              </Button>
+            ) : (
+              <Button
+                variant="secondary"
+                onClick={() => navigate('/offers')}
+                style={{ fontSize: '0.78125rem', padding: '6px 12px' }}
+              >
+                Full Offers Pipeline <ArrowRight size={13} style={{ marginLeft: 4 }} />
+              </Button>
+            )}
           </div>
 
-          {/* Table / Rows */}
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
-              <thead>
-                <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
-                  <th style={{ padding: '10px 18px', fontSize: '0.72rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>
-                    Candidate
-                  </th>
-                  <th style={{ padding: '10px 14px', fontSize: '0.72rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>
-                    Role & Dept
-                  </th>
-                  <th style={{ padding: '10px 14px', fontSize: '0.72rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>
-                    Package
-                  </th>
-                  <th style={{ padding: '10px 14px', fontSize: '0.72rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>
-                    Status
-                  </th>
-                  <th style={{ padding: '10px 18px', fontSize: '0.72rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', textAlign: 'right' }}>
-                    Action
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {recentOffers.length === 0 ? (
-                  <tr>
-                    <td colSpan={5} style={{ padding: '48px 20px', textAlign: 'center' }}>
-                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
-                        <div
-                          style={{
-                            width: 44,
-                            height: 44,
-                            borderRadius: '50%',
-                            background: '#f1f5f9',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            color: '#94a3b8',
-                          }}
-                        >
-                          <FileText size={22} />
-                        </div>
-                        <div style={{ fontWeight: 600, color: '#0f172a', fontSize: '0.9rem' }}>
-                          No offers created yet
-                        </div>
-                        <p style={{ color: '#64748b', fontSize: '0.78rem', maxWidth: 320, margin: 0 }}>
-                          Get started by generating your first official offer letter.
-                        </p>
-                        <Button
-                          variant="primary"
-                          onClick={() => setIsQuickModalOpen(true)}
-                          icon={<Sparkles size={14} />}
-                          style={{ fontSize: '0.8125rem', marginTop: 4 }}
-                        >
-                          Generate First Offer
-                        </Button>
-                      </div>
-                    </td>
+          {/* Subheader Search Bar for Employees */}
+          {activeOperationalTab === 'EMPLOYEES' && (
+            <div
+              style={{
+                padding: '12px 22px',
+                borderBottom: '1px solid #f1f5f9',
+                backgroundColor: '#fafafa',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: 12,
+              }}
+            >
+              <div style={{ position: 'relative', flex: 1, maxWidth: 360 }}>
+                <Search
+                  size={14}
+                  style={{
+                    position: 'absolute',
+                    left: 10,
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    color: '#94a3b8',
+                  }}
+                />
+                <input
+                  type="text"
+                  placeholder="Filter by employee name, ID, or department..."
+                  value={employeeSearch}
+                  onChange={(e) => setEmployeeSearch(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '6px 10px 6px 32px',
+                    fontSize: '0.8125rem',
+                    border: '1px solid #cbd5e1',
+                    borderRadius: 6,
+                    backgroundColor: '#ffffff',
+                    outline: 'none',
+                  }}
+                />
+              </div>
+
+              <div style={{ fontSize: '0.78rem', color: '#64748b' }}>
+                Showing <strong>{filteredEmployees.length}</strong> employees with document counts
+              </div>
+            </div>
+          )}
+
+          {/* Tab 1: EMPLOYEES SECTION (Employee Name & Documents Created) */}
+          {activeOperationalTab === 'EMPLOYEES' && (
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+                <thead>
+                  <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
+                    <th style={{ padding: '12px 18px', fontSize: '0.72rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>
+                      Employee Name
+                    </th>
+                    <th style={{ padding: '12px 14px', fontSize: '0.72rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>
+                      Role & Dept
+                    </th>
+                    <th style={{ padding: '12px 14px', fontSize: '0.72rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>
+                      Documents Created
+                    </th>
+                    <th style={{ padding: '12px 18px', fontSize: '0.72rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', textAlign: 'right' }}>
+                      Actions
+                    </th>
                   </tr>
-                ) : (
-                  recentOffers.map((o) => (
-                    <tr
-                      key={o.id}
-                      style={{
-                        borderBottom: '1px solid #f1f5f9',
-                        transition: 'background 0.12s ease',
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = '#f8fafc';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor = 'transparent';
-                      }}
-                    >
-                      <td style={{ padding: '12px 18px' }}>
-                        <div
-                          style={{
-                            fontWeight: 700,
-                            fontSize: '0.84rem',
-                            color: '#0f172a',
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: 6,
-                          }}
-                          onClick={() => setSelectedOfferForDetail(o)}
-                        >
-                          <User size={13} style={{ color: '#2563eb' }} />
-                          <span>{o.candidateName}</span>
-                        </div>
-                        <div style={{ fontSize: '0.72rem', color: '#64748b', marginTop: 2 }}>
-                          {o.email}
-                        </div>
-                      </td>
-
-                      <td style={{ padding: '12px 14px' }}>
-                        <div style={{ fontWeight: 600, fontSize: '0.8125rem', color: '#0f172a' }}>
-                          {o.position}
-                        </div>
-                        <div style={{ fontSize: '0.72rem', color: '#64748b', marginTop: 2 }}>
-                          {o.department}
-                        </div>
-                      </td>
-
-                      <td style={{ padding: '12px 14px' }}>
-                        <div style={{ fontWeight: 700, fontSize: '0.8125rem', color: '#0f172a' }}>
-                          ${o.totalCtc.toLocaleString()} {o.currency}
-                        </div>
-                      </td>
-
-                      <td style={{ padding: '12px 14px' }}>
-                        <OfferStatusBadge status={o.status as any} />
-                      </td>
-
-                      <td style={{ padding: '12px 18px', textAlign: 'right' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 6 }}>
-                          <button
-                            type="button"
-                            className="btn btn-secondary"
-                            onClick={() => setSelectedOfferForDetail(o)}
-                            style={{ padding: '5px 8px', fontSize: '0.72rem' }}
-                            title="Preview offer"
+                </thead>
+                <tbody>
+                  {filteredEmployees.length === 0 ? (
+                    <tr>
+                      <td colSpan={4} style={{ padding: '48px 20px', textAlign: 'center' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
+                          <div
+                            style={{
+                              width: 44,
+                              height: 44,
+                              borderRadius: '50%',
+                              background: '#f1f5f9',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              color: '#94a3b8',
+                            }}
                           >
-                            <Eye size={12} style={{ marginRight: 3 }} /> View
-                          </button>
-
-                          <button
-                            type="button"
-                            className="btn btn-secondary"
-                            onClick={() => setSelectedOfferForEmail(o)}
-                            style={{ padding: '5px 8px', fontSize: '0.72rem', color: '#2563eb' }}
-                            title="Send offer email"
+                            <Users2 size={22} />
+                          </div>
+                          <div style={{ fontWeight: 600, color: '#0f172a', fontSize: '0.9rem' }}>
+                            No employees found
+                          </div>
+                          <p style={{ color: '#64748b', fontSize: '0.78rem', maxWidth: 320, margin: 0 }}>
+                            Add company employees to track and generate official HR documents.
+                          </p>
+                          <Button
+                            variant="primary"
+                            onClick={() => navigate('/employees')}
+                            icon={<Plus size={14} />}
+                            style={{ fontSize: '0.8125rem', marginTop: 4 }}
                           >
-                            <Send size={12} />
-                          </button>
+                            Go to Employees Directory
+                          </Button>
                         </div>
                       </td>
                     </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
+                  ) : (
+                    filteredEmployees.slice(0, 10).map((emp) => {
+                      const docCount = getEmployeeDocumentCount(emp);
+                      return (
+                        <tr
+                          key={emp.id}
+                          style={{
+                            borderBottom: '1px solid #f1f5f9',
+                            transition: 'background 0.12s ease',
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.backgroundColor = '#f8fafc';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.backgroundColor = 'transparent';
+                          }}
+                        >
+                          {/* Name of the Employee */}
+                          <td style={{ padding: '12px 18px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                              <div
+                                style={{
+                                  width: 34,
+                                  height: 34,
+                                  borderRadius: '50%',
+                                  backgroundColor: '#2563eb',
+                                  color: '#ffffff',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  fontWeight: 700,
+                                  fontSize: '0.78rem',
+                                  flexShrink: 0,
+                                }}
+                              >
+                                {(emp.fullName || 'E')
+                                  .split(' ')
+                                  .map((n) => n[0])
+                                  .join('')
+                                  .slice(0, 2)
+                                  .toUpperCase()}
+                              </div>
+                              <div>
+                                <div
+                                  style={{
+                                    fontWeight: 700,
+                                    fontSize: '0.86rem',
+                                    color: '#0f172a',
+                                    cursor: 'pointer',
+                                  }}
+                                  onClick={() => navigate(`/employees/${emp.id}`)}
+                                >
+                                  {emp.fullName}
+                                </div>
+                                <div style={{ fontSize: '0.72rem', color: '#64748b', marginTop: 2 }}>
+                                  ID: <strong style={{ color: '#2563eb' }}>{emp.employeeId}</strong> &bull; {emp.personalEmail || emp.officialEmail}
+                                </div>
+                              </div>
+                            </div>
+                          </td>
+
+                          {/* Role & Department */}
+                          <td style={{ padding: '12px 14px' }}>
+                            <div style={{ fontWeight: 600, fontSize: '0.8125rem', color: '#0f172a' }}>
+                              {emp.designation || 'Staff'}
+                            </div>
+                            <div style={{ fontSize: '0.72rem', color: '#64748b', marginTop: 2 }}>
+                              {emp.department || 'General'}
+                            </div>
+                          </td>
+
+                          {/* How many documents are created against that employee */}
+                          <td style={{ padding: '12px 14px' }}>
+                            <span
+                              style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: 6,
+                                fontSize: '0.75rem',
+                                fontWeight: 700,
+                                padding: '4px 10px',
+                                borderRadius: 16,
+                                backgroundColor: docCount > 0 ? '#ecfdf5' : '#f1f5f9',
+                                color: docCount > 0 ? '#047857' : '#64748b',
+                                border: docCount > 0 ? '1px solid #a7f3d0' : '1px solid #e2e8f0',
+                              }}
+                            >
+                              <Layers size={12} style={{ color: docCount > 0 ? '#059669' : '#94a3b8' }} />
+                              <span>
+                                {docCount} {docCount === 1 ? 'Document Created' : 'Documents Created'}
+                              </span>
+                            </span>
+                          </td>
+
+                          {/* Actions for this employee */}
+                          <td style={{ padding: '12px 18px', textAlign: 'right' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 6 }}>
+                              <button
+                                type="button"
+                                className="btn btn-secondary"
+                                onClick={() => {
+                                  setSelectedEmployeeForGenDoc(emp);
+                                  setIsEmpDocModalOpen(true);
+                                }}
+                                style={{
+                                  padding: '5px 10px',
+                                  fontSize: '0.74rem',
+                                  color: '#2563eb',
+                                  backgroundColor: '#eff6ff',
+                                  borderColor: '#bfdbfe',
+                                  fontWeight: 600,
+                                }}
+                                title="Generate document for this employee"
+                              >
+                                <Plus size={12} style={{ marginRight: 3 }} /> Generate Document
+                              </button>
+
+                              <button
+                                type="button"
+                                className="btn btn-secondary"
+                                onClick={() => navigate(`/employees/${emp.id}`)}
+                                style={{ padding: '5px 8px', fontSize: '0.74rem' }}
+                                title="View employee profile & documents"
+                              >
+                                <Eye size={12} style={{ marginRight: 3 }} /> View
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })
+                  )}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {/* Tab 2: RECENT OFFERS TABLE */}
+          {activeOperationalTab === 'OFFERS' && (
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+                <thead>
+                  <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
+                    <th style={{ padding: '10px 18px', fontSize: '0.72rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>
+                      Candidate
+                    </th>
+                    <th style={{ padding: '10px 14px', fontSize: '0.72rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>
+                      Role & Dept
+                    </th>
+                    <th style={{ padding: '10px 14px', fontSize: '0.72rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>
+                      Package
+                    </th>
+                    <th style={{ padding: '10px 14px', fontSize: '0.72rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>
+                      Status
+                    </th>
+                    <th style={{ padding: '10px 18px', fontSize: '0.72rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', textAlign: 'right' }}>
+                      Action
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {recentOffers.length === 0 ? (
+                    <tr>
+                      <td colSpan={5} style={{ padding: '48px 20px', textAlign: 'center' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
+                          <div
+                            style={{
+                              width: 44,
+                              height: 44,
+                              borderRadius: '50%',
+                              background: '#f1f5f9',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              color: '#94a3b8',
+                            }}
+                          >
+                            <FileText size={22} />
+                          </div>
+                          <div style={{ fontWeight: 600, color: '#0f172a', fontSize: '0.9rem' }}>
+                            No offers created yet
+                          </div>
+                          <p style={{ color: '#64748b', fontSize: '0.78rem', maxWidth: 320, margin: 0 }}>
+                            Get started by generating your first official offer letter.
+                          </p>
+                          <Button
+                            variant="primary"
+                            onClick={() => setIsQuickModalOpen(true)}
+                            icon={<Sparkles size={14} />}
+                            style={{ fontSize: '0.8125rem', marginTop: 4 }}
+                          >
+                            Generate First Offer
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  ) : (
+                    recentOffers.map((o) => (
+                      <tr
+                        key={o.id}
+                        style={{
+                          borderBottom: '1px solid #f1f5f9',
+                          transition: 'background 0.12s ease',
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.backgroundColor = '#f8fafc';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.backgroundColor = 'transparent';
+                        }}
+                      >
+                        <td style={{ padding: '12px 18px' }}>
+                          <div
+                            style={{
+                              fontWeight: 700,
+                              fontSize: '0.84rem',
+                              color: '#0f172a',
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: 6,
+                            }}
+                            onClick={() => setSelectedOfferForDetail(o)}
+                          >
+                            <User size={13} style={{ color: '#2563eb' }} />
+                            <span>{o.candidateName}</span>
+                          </div>
+                          <div style={{ fontSize: '0.72rem', color: '#64748b', marginTop: 2 }}>
+                            {o.email}
+                          </div>
+                        </td>
+
+                        <td style={{ padding: '12px 14px' }}>
+                          <div style={{ fontWeight: 600, fontSize: '0.8125rem', color: '#0f172a' }}>
+                            {o.position}
+                          </div>
+                          <div style={{ fontSize: '0.72rem', color: '#64748b', marginTop: 2 }}>
+                            {o.department}
+                          </div>
+                        </td>
+
+                        <td style={{ padding: '12px 14px' }}>
+                          <div style={{ fontWeight: 700, fontSize: '0.8125rem', color: '#0f172a' }}>
+                            ${o.totalCtc.toLocaleString()} {o.currency}
+                          </div>
+                        </td>
+
+                        <td style={{ padding: '12px 14px' }}>
+                          <OfferStatusBadge status={o.status as any} />
+                        </td>
+
+                        <td style={{ padding: '12px 18px', textAlign: 'right' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 6 }}>
+                            <button
+                              type="button"
+                              className="btn btn-secondary"
+                              onClick={() => setSelectedOfferForDetail(o)}
+                              style={{ padding: '5px 8px', fontSize: '0.72rem' }}
+                              title="Preview offer"
+                            >
+                              <Eye size={12} style={{ marginRight: 3 }} /> View
+                            </button>
+
+                            <button
+                              type="button"
+                              className="btn btn-secondary"
+                              onClick={() => setSelectedOfferForEmail(o)}
+                              style={{ padding: '5px 8px', fontSize: '0.72rem', color: '#2563eb' }}
+                              title="Send offer email"
+                            >
+                              <Send size={12} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
 
         {/* Right Column: Quick Document Generator & System Standing */}
@@ -875,6 +1019,22 @@ export const DashboardPage: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Employee Document Generation Workflow Modal */}
+      {isEmpDocModalOpen && selectedEmployeeForGenDoc && (
+        <GenerateDocumentModal
+          employee={selectedEmployeeForGenDoc}
+          isOpen={isEmpDocModalOpen}
+          onClose={() => {
+            setIsEmpDocModalOpen(false);
+            setSelectedEmployeeForGenDoc(null);
+          }}
+          onDocumentGenerated={() => {
+            loadDashboardData();
+            success(`Document generated successfully for ${selectedEmployeeForGenDoc.fullName}!`);
+          }}
+        />
+      )}
 
       {/* Modals Mounted for Instant Operation */}
       {selectedOfferForDetail && (

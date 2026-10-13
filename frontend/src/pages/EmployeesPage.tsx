@@ -104,6 +104,28 @@ export const EmployeesPage: React.FC = () => {
     );
   };
 
+  const getEmployeeDocumentCount = (emp: Employee): number => {
+    const backendCount = emp.documentCount || (emp.documents ? emp.documents.length : 0);
+    try {
+      const saved: any[] = JSON.parse(localStorage.getItem('tasknera_saved_documents') || '[]');
+      const localMatches = saved.filter((d) => {
+        const rName = (d.recipientName || '').toLowerCase().trim();
+        const eName = (emp.fullName || '').toLowerCase().trim();
+        const rEmail = (d.recipientEmail || '').toLowerCase().trim();
+        const eEmail = (emp.personalEmail || emp.officialEmail || '').toLowerCase().trim();
+        const rId = (d.recipientExternalId || '').trim();
+        return (
+          (rName && eName && (rName === eName || rName.includes(eName) || eName.includes(rName))) ||
+          (rEmail && eEmail && rEmail === eEmail) ||
+          (rId && (rId === emp.employeeId || rId === emp.id))
+        );
+      }).length;
+      return Math.max(backendCount, localMatches);
+    } catch {
+      return backendCount;
+    }
+  };
+
   return (
     <div style={{ maxWidth: 1200, margin: '0 auto', padding: '24px 20px' }}>
       {/* Header & Primary Action */}
@@ -370,7 +392,7 @@ export const EmployeesPage: React.FC = () => {
                 <th style={{ padding: '12px 18px' }}>Role & Department</th>
                 <th style={{ padding: '12px 18px' }}>Joining Date</th>
                 <th style={{ padding: '12px 18px' }}>Status</th>
-                <th style={{ padding: '12px 18px' }}>Documents</th>
+                <th style={{ padding: '12px 18px' }}>Documents Created</th>
                 <th style={{ padding: '12px 18px', textAlign: 'right' }}>Actions</th>
               </tr>
             </thead>
@@ -446,18 +468,30 @@ export const EmployeesPage: React.FC = () => {
 
                   {/* Document Count */}
                   <td style={{ padding: '14px 18px' }}>
-                    <span
-                      style={{
-                        fontSize: '0.75rem',
-                        fontWeight: 600,
-                        padding: '3px 8px',
-                        borderRadius: 12,
-                        backgroundColor: '#f1f5f9',
-                        color: '#475569',
-                      }}
-                    >
-                      {emp.documentCount || 0} Generated
-                    </span>
+                    {(() => {
+                      const count = getEmployeeDocumentCount(emp);
+                      return (
+                        <span
+                          style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: 6,
+                            fontSize: '0.78rem',
+                            fontWeight: 700,
+                            padding: '4px 10px',
+                            borderRadius: 16,
+                            backgroundColor: count > 0 ? '#ecfdf5' : '#f1f5f9',
+                            color: count > 0 ? '#047857' : '#64748b',
+                            border: count > 0 ? '1px solid #a7f3d0' : '1px solid #e2e8f0',
+                          }}
+                        >
+                          <FileCheck size={13} style={{ color: count > 0 ? '#059669' : '#94a3b8' }} />
+                          <span>
+                            {count} {count === 1 ? 'Document Created' : 'Documents Created'}
+                          </span>
+                        </span>
+                      );
+                    })()}
                   </td>
 
                   {/* Action Buttons */}
