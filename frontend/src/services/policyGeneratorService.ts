@@ -2,6 +2,7 @@ import { PolicyDefinition } from '../components/policies/PolicyViewerModal.js';
 import { OFFICIAL_POLICIES } from './policyCatalog.js';
 
 const STORAGE_KEY = 'tasknera_custom_policies';
+const DELETED_STORAGE_KEY = 'tasknera_deleted_policy_codes';
 
 /**
  * Retrieve user-generated custom policies from LocalStorage
@@ -19,6 +20,20 @@ export function getCustomPolicies(): PolicyDefinition[] {
 }
 
 /**
+ * Retrieve deleted policy codes/numbers from LocalStorage
+ */
+export function getDeletedPolicyCodes(): string[] {
+  try {
+    const raw = localStorage.getItem(DELETED_STORAGE_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (err) {
+    return [];
+  }
+}
+
+/**
  * Save or update a custom policy in LocalStorage
  */
 export function saveCustomPolicy(policy: PolicyDefinition): PolicyDefinition[] {
@@ -27,6 +42,11 @@ export function saveCustomPolicy(policy: PolicyDefinition): PolicyDefinition[] {
     const filtered = existing.filter((p) => p.code !== policy.code && p.policyNumber !== policy.policyNumber);
     const updated = [policy, ...filtered];
     localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+
+    // If it was previously marked as deleted, undelete it
+    const deleted = getDeletedPolicyCodes().filter((c) => c !== policy.code && c !== policy.policyNumber);
+    localStorage.setItem(DELETED_STORAGE_KEY, JSON.stringify(deleted));
+
     return updated;
   } catch (err) {
     console.error('Failed to save custom policy:', err);
@@ -35,29 +55,59 @@ export function saveCustomPolicy(policy: PolicyDefinition): PolicyDefinition[] {
 }
 
 /**
- * Delete a custom policy
+ * Delete any policy (custom or default)
  */
-export function deleteCustomPolicy(codeOrNumber: string): PolicyDefinition[] {
+export function deletePolicy(codeOrNumber: string): PolicyDefinition[] {
   try {
+    // 1. If in custom policies, remove it
     const existing = getCustomPolicies();
-    const updated = existing.filter((p) => p.code !== codeOrNumber && p.policyNumber !== codeOrNumber);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-    return updated;
+    const filtered = existing.filter((p) => p.code !== codeOrNumber && p.policyNumber !== codeOrNumber);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
+
+    // 2. Add to deleted tracking list
+    const deleted = getDeletedPolicyCodes();
+    if (!deleted.includes(codeOrNumber)) {
+      deleted.push(codeOrNumber);
+      localStorage.setItem(DELETED_STORAGE_KEY, JSON.stringify(deleted));
+    }
+
+    return getAllPolicies();
   } catch (err) {
-    console.error('Failed to delete custom policy:', err);
-    return getCustomPolicies();
+    console.error('Failed to delete policy:', err);
+    return getAllPolicies();
   }
 }
 
 /**
- * Combine official built-in policies with custom generated policies
+ * Alias for deletePolicy
+ */
+export const deleteCustomPolicy = deletePolicy;
+
+/**
+ * Restore all deleted built-in policies
+ */
+export function restoreAllPolicies(): PolicyDefinition[] {
+  try {
+    localStorage.removeItem(DELETED_STORAGE_KEY);
+    return getAllPolicies();
+  } catch (err) {
+    return getAllPolicies();
+  }
+}
+
+/**
+ * Combine official built-in policies with custom generated policies, filtering out deleted ones
  */
 export function getAllPolicies(): PolicyDefinition[] {
   const custom = getCustomPolicies();
+  const deletedSet = new Set(getDeletedPolicyCodes());
+
   // Filter out any duplicates if custom policy overrides an official code
   const customCodes = new Set(custom.map((p) => p.code));
   const officials = OFFICIAL_POLICIES.filter((p) => !customCodes.has(p.code));
-  return [...custom, ...officials];
+
+  const all = [...custom, ...officials];
+  return all.filter((p) => !deletedSet.has(p.code) && !deletedSet.has(p.policyNumber));
 }
 
 /**

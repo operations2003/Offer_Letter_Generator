@@ -16,6 +16,7 @@ import {
   List,
   Sparkles,
   ArrowUp,
+  Trash2,
 } from 'lucide-react';
 import { useToast } from '../../context/ToastContext.js';
 import { Employee, EmployeeService } from '../../services/employeeService.js';
@@ -46,12 +47,14 @@ interface PolicyViewerModalProps {
   policy: PolicyDefinition | null;
   isOpen: boolean;
   onClose: () => void;
+  onDelete?: (policy: PolicyDefinition) => void;
 }
 
 export const PolicyViewerModal: React.FC<PolicyViewerModalProps> = ({
   policy,
   isOpen,
   onClose,
+  onDelete,
 }) => {
   const { success } = useToast();
   const [viewMode, setViewMode] = useState<'letterhead' | 'accordion'>('letterhead');
@@ -724,6 +727,39 @@ TaskNera (D-57 Dilshad Colony, Delhi, 110095)
               <Printer size={13} />
               Print / Export PDF
             </button>
+
+            {onDelete && (
+              <button
+                type="button"
+                onClick={() => onDelete(policy)}
+                title="Delete this policy"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 5,
+                  padding: '6px 12px',
+                  fontSize: '0.75rem',
+                  fontWeight: 600,
+                  color: '#dc2626',
+                  backgroundColor: '#fef2f2',
+                  border: '1px solid #fecaca',
+                  borderRadius: 6,
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#dc2626';
+                  e.currentTarget.style.color = '#ffffff';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = '#fef2f2';
+                  e.currentTarget.style.color = '#dc2626';
+                }}
+              >
+                <Trash2 size={13} />
+                Delete Policy
+              </button>
+            )}
 
             <button
               onClick={onClose}

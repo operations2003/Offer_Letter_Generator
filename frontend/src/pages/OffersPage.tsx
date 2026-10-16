@@ -36,6 +36,8 @@ import {
   ScrollText,
   BookOpen,
   Award,
+  Trash2,
+  RotateCcw,
 } from 'lucide-react';
 import { Button } from '../components/common/Button.js';
 import { OfferStatusBadge, AiAdvisoryBadge } from '../components/common/Badge.js';
@@ -61,7 +63,9 @@ import { OFFICIAL_POLICIES } from '../services/policyCatalog.js';
 import {
   getAllPolicies,
   generatePolicyFromPrompt,
-  deleteCustomPolicy,
+  deletePolicy,
+  restoreAllPolicies,
+  getDeletedPolicyCodes,
 } from '../services/policyGeneratorService.js';
 import { offerService } from '../services/offerService.js';
 
@@ -153,10 +157,26 @@ export const OffersPage: React.FC = () => {
     }
   };
 
-  const handleDeleteCustomPolicy = (code: string) => {
-    const updated = deleteCustomPolicy(code);
+  const handleDeletePolicy = (policy: PolicyDefinition) => {
+    const confirmed = window.confirm(
+      `Are you sure you want to delete "${policy.name}" (${policy.policyNumber})?\n\nThis policy will be removed from your catalog. You can restore default policies anytime.`
+    );
+    if (!confirmed) return;
+
+    const updated = deletePolicy(policy.code);
     setAllPoliciesList(updated);
-    info('Custom policy removed.');
+    if (selectedPolicyForView?.code === policy.code) {
+      setSelectedPolicyForView(null);
+    }
+    success(`"${policy.name}" was successfully deleted.`);
+  };
+
+  const handleRestorePolicies = () => {
+    const confirmed = window.confirm('Restore all default company policies?');
+    if (!confirmed) return;
+    const updated = restoreAllPolicies();
+    setAllPoliciesList(updated);
+    success('All default company policies have been restored.');
   };
 
   // Update selectedStatus if URL search param changes
@@ -1114,6 +1134,37 @@ export const OffersPage: React.FC = () => {
               >
                 {filteredPolicies.length} Policies Available
               </span>
+              {getDeletedPolicyCodes().length > 0 && (
+                <button
+                  type="button"
+                  onClick={handleRestorePolicies}
+                  title="Restore deleted default policies"
+                  style={{
+                    fontSize: '0.72rem',
+                    fontWeight: 600,
+                    padding: '2px 9px',
+                    borderRadius: 12,
+                    border: '1px solid #cbd5e1',
+                    backgroundColor: '#ffffff',
+                    color: '#475569',
+                    cursor: 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 4,
+                    transition: 'all 0.15s ease',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#f1f5f9';
+                    e.currentTarget.style.borderColor = '#94a3b8';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = '#ffffff';
+                    e.currentTarget.style.borderColor = '#cbd5e1';
+                  }}
+                >
+                  <RotateCcw size={11} /> Restore Default Policies
+                </button>
+              )}
             </div>
             <p style={{ fontSize: '0.8125rem', color: '#64748b', margin: '2px 0 0 0' }}>
               Standard organizational policies, compliance documentation, and employee guidelines.
@@ -1515,30 +1566,38 @@ export const OffersPage: React.FC = () => {
                         <span style={{ width: 5, height: 5, borderRadius: '50%', backgroundColor: '#16a34a' }} />
                         Active
                       </span>
-                      {isCustom && (
-                        <button
-                          type="button"
-                          title="Remove custom policy"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDeleteCustomPolicy(policy.code);
-                          }}
-                          style={{
-                            border: 'none',
-                            background: 'transparent',
-                            color: '#94a3b8',
-                            cursor: 'pointer',
-                            padding: '2px 3px',
-                            borderRadius: 4,
-                            display: 'flex',
-                            alignItems: 'center',
-                          }}
-                          onMouseEnter={(e) => (e.currentTarget.style.color = '#ef4444')}
-                          onMouseLeave={(e) => (e.currentTarget.style.color = '#94a3b8')}
-                        >
-                          <X size={13} />
-                        </button>
-                      )}
+                      <button
+                        type="button"
+                        title={`Delete ${policy.name}`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeletePolicy(policy);
+                        }}
+                        style={{
+                          border: '1px solid #fee2e2',
+                          backgroundColor: '#fff5f5',
+                          color: '#ef4444',
+                          cursor: 'pointer',
+                          padding: '3px 6px',
+                          borderRadius: 6,
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          transition: 'all 0.15s ease',
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.backgroundColor = '#ef4444';
+                          e.currentTarget.style.color = '#ffffff';
+                          e.currentTarget.style.borderColor = '#ef4444';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.backgroundColor = '#fff5f5';
+                          e.currentTarget.style.color = '#ef4444';
+                          e.currentTarget.style.borderColor = '#fee2e2';
+                        }}
+                      >
+                        <Trash2 size={13} />
+                      </button>
                     </div>
                   </div>
 
@@ -1738,6 +1797,7 @@ export const OffersPage: React.FC = () => {
         policy={selectedPolicyForView}
         isOpen={Boolean(selectedPolicyForView)}
         onClose={() => setSelectedPolicyForView(null)}
+        onDelete={handleDeletePolicy}
       />
 
       {/* Official Master Recruitment Services Agreement (MRSA) Modal */}
