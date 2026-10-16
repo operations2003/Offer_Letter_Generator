@@ -534,5 +534,31 @@ export class AiService {
       };
     }
   }
+
+  /**
+   * Generates a complete enterprise HR Policy from natural language prompt
+   */
+  static async generatePolicyFromPrompt(
+    prompt: string,
+    categoryHint?: string
+  ): Promise<any> {
+    try {
+      const completion = await this.executeWithRetry({
+        systemPrompt:
+          'You are a senior corporate HR governance and policy counsel. Given a natural language prompt, generate a complete, formal, highly detailed enterprise HR policy in JSON format. The JSON MUST have: code (uppercase with underscores), name, subtitle, category (one of: ATTENDANCE_LEAVE, WORKPLACE_CONDUCT, WORK_ARRANGEMENTS, IT_DATA_SECURITY, FINANCE_TRAVEL), categoryLabel, policyNumber (format POL-XXX-00X), version ("1.0"), effectiveDate, reviewCycle, applicability, description (2-3 sentences), summary, color (hex color), and sections (array of 4 to 8 sections each with number e.g. "1.0", title, content with exhaustive paragraphs, and mandatory boolean).',
+        userPrompt: `Generate an enterprise HR policy for this prompt:\n"${prompt}"\nCategory preference: ${categoryHint || 'auto-detect'}\nReturn strictly JSON.`,
+        jsonMode: true,
+        temperature: 0.2,
+      });
+
+      const parsed = ResponseParser.parseJson<any>(completion.rawContent);
+      if (parsed && parsed.name && Array.isArray(parsed.sections) && parsed.sections.length > 0) {
+        return parsed;
+      }
+      return null;
+    } catch {
+      return null;
+    }
+  }
 }
 

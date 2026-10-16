@@ -396,5 +396,25 @@ export class AiController {
       next(error);
     }
   }
+
+  /**
+   * Generates prompt-driven HR Policy
+   */
+  static async generatePolicyFromPrompt(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { prompt, category } = req.body;
+      if (!prompt || typeof prompt !== 'string') {
+        throw new BadRequestError('A prompt string is required');
+      }
+
+      const result = await AiService.generatePolicyFromPrompt(prompt, category);
+      res.status(200).json({
+        success: true,
+        data: result,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 

@@ -58,6 +58,11 @@ import { BonafideCertificateModal } from '../components/documents/BonafideCertif
 import { PolicyViewerModal, PolicyDefinition } from '../components/policies/PolicyViewerModal.js';
 import { MasterRecruitmentAgreementModal } from '../components/documents/MasterRecruitmentAgreementModal.js';
 import { OFFICIAL_POLICIES } from '../services/policyCatalog.js';
+import {
+  getAllPolicies,
+  generatePolicyFromPrompt,
+  deleteCustomPolicy,
+} from '../services/policyGeneratorService.js';
 import { offerService } from '../services/offerService.js';
 
 const INITIAL_MOCK_OFFERS: OfferListItem[] = [];
@@ -120,6 +125,39 @@ export const OffersPage: React.FC = () => {
   const [policySearch, setPolicySearch] = useState('');
   const [policyCategoryFilter, setPolicyCategoryFilter] = useState('ALL');
   const [policySectionPulse, setPolicySectionPulse] = useState(false);
+  const [policyPrompt, setPolicyPrompt] = useState('');
+  const [policyPromptCategory, setPolicyPromptCategory] = useState('ALL');
+  const [isGeneratingPolicy, setIsGeneratingPolicy] = useState(false);
+  const [allPoliciesList, setAllPoliciesList] = useState<PolicyDefinition[]>(() => getAllPolicies());
+
+  const handleGeneratePolicy = async (promptOverride?: string) => {
+    const text = (promptOverride || policyPrompt).trim();
+    if (!text) {
+      info('Please enter a description or prompt for the policy.');
+      return;
+    }
+    setIsGeneratingPolicy(true);
+    try {
+      const generated = await generatePolicyFromPrompt(
+        text,
+        policyPromptCategory !== 'ALL' ? policyPromptCategory : undefined
+      );
+      setAllPoliciesList(getAllPolicies());
+      setPolicyPrompt('');
+      setSelectedPolicyForView(generated);
+      success(`Generated "${generated.name}" successfully! Opening policy viewer...`);
+    } catch (err: any) {
+      error(err.message || 'Failed to generate policy.');
+    } finally {
+      setIsGeneratingPolicy(false);
+    }
+  };
+
+  const handleDeleteCustomPolicy = (code: string) => {
+    const updated = deleteCustomPolicy(code);
+    setAllPoliciesList(updated);
+    info('Custom policy removed.');
+  };
 
   // Update selectedStatus if URL search param changes
   useEffect(() => {
@@ -508,7 +546,7 @@ export const OffersPage: React.FC = () => {
 
   // Filtered policies list based on category and search query
   const filteredPolicies = useMemo(() => {
-    return OFFICIAL_POLICIES.filter((policy) => {
+    return allPoliciesList.filter((policy) => {
       const matchesCategory =
         policyCategoryFilter === 'ALL' || policy.category === policyCategoryFilter;
       const q = policySearch.toLowerCase().trim();
@@ -522,7 +560,7 @@ export const OffersPage: React.FC = () => {
         );
       return matchesCategory && matchesSearch;
     });
-  }, [policyCategoryFilter, policySearch]);
+  }, [allPoliciesList, policyCategoryFilter, policySearch]);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
@@ -581,10 +619,10 @@ export const OffersPage: React.FC = () => {
       >
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
           {[
-            { key: 'ALL', label: 'All Document Categories', count: documentCards.length + certificateCards.length + OFFICIAL_POLICIES.length },
+            { key: 'ALL', label: 'All Document Categories', count: documentCards.length + certificateCards.length + allPoliciesList.length },
             { key: 'TEMPLATES', label: 'Document Templates', count: documentCards.length },
             { key: 'CERTIFICATES', label: 'Certificates', count: certificateCards.length, icon: <Award size={13} /> },
-            { key: 'POLICIES', label: 'Company Policies', count: OFFICIAL_POLICIES.length },
+            { key: 'POLICIES', label: 'Company Policies', count: allPoliciesList.length },
           ].map((tab) => {
             const isSelected = activeDocumentTab === tab.key;
             return (
@@ -1113,6 +1151,223 @@ export const OffersPage: React.FC = () => {
           </div>
         </div>
 
+        {/* AI Policy Generator Box (ChatGPT / Gemini Prompt Style) */}
+        <div
+          style={{
+            background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
+            border: '1.5px solid #e2e8f0',
+            borderRadius: 14,
+            padding: '18px 20px',
+            boxShadow: '0 2px 12px rgba(0, 0, 0, 0.04)',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 12,
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <div
+                style={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: 10,
+                  background: 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)',
+                  color: '#ffffff',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  boxShadow: '0 2px 8px rgba(99, 102, 241, 0.3)',
+                }}
+              >
+                <Sparkles size={18} />
+              </div>
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <h4 style={{ fontSize: '0.95rem', fontWeight: 700, color: '#0f172a', margin: 0 }}>
+                    AI Policy Generator
+                  </h4>
+                  <span
+                    style={{
+                      fontSize: '0.6875rem',
+                      fontWeight: 700,
+                      padding: '2px 8px',
+                      borderRadius: 12,
+                      background: '#f3e8ff',
+                      color: '#7e22ce',
+                      border: '1px solid #e9d5ff',
+                    }}
+                  >
+                    Natural Language Prompt
+                  </span>
+                </div>
+                <p style={{ fontSize: '0.8rem', color: '#64748b', margin: '2px 0 0 0' }}>
+                  Enter any requirement like in ChatGPT/Gemini to draft formal clauses, definitions, and compliance rules.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Prompt input container */}
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              backgroundColor: '#ffffff',
+              border: isGeneratingPolicy ? '1.5px solid #8b5cf6' : '1.5px solid #cbd5e1',
+              borderRadius: 10,
+              padding: '10px 12px',
+              boxShadow: '0 1px 3px rgba(0, 0, 0, 0.02)',
+              transition: 'border-color 0.2s ease',
+            }}
+          >
+            <textarea
+              value={policyPrompt}
+              onChange={(e) => setPolicyPrompt(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+                  e.preventDefault();
+                  handleGeneratePolicy();
+                }
+              }}
+              placeholder="e.g. Generate a Moonlighting & Dual Employment Policy requiring prior approval and banning side work with direct competitors..."
+              rows={2}
+              disabled={isGeneratingPolicy}
+              style={{
+                width: '100%',
+                border: 'none',
+                outline: 'none',
+                resize: 'none',
+                fontSize: '0.875rem',
+                color: '#1e293b',
+                fontFamily: 'inherit',
+                lineHeight: 1.45,
+                backgroundColor: 'transparent',
+              }}
+            />
+
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                flexWrap: 'wrap',
+                gap: 8,
+                paddingTop: 8,
+                marginTop: 4,
+                borderTop: '1px solid #f1f5f9',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 600 }}>Category:</span>
+                <select
+                  value={policyPromptCategory}
+                  onChange={(e) => setPolicyPromptCategory(e.target.value)}
+                  disabled={isGeneratingPolicy}
+                  style={{
+                    fontSize: '0.78125rem',
+                    padding: '3px 8px',
+                    borderRadius: 6,
+                    border: '1px solid #cbd5e1',
+                    backgroundColor: '#f8fafc',
+                    color: '#334155',
+                    fontWeight: 500,
+                    cursor: 'pointer',
+                  }}
+                >
+                  <option value="ALL">Auto-Detect</option>
+                  <option value="WORKPLACE_CONDUCT">Workplace Conduct</option>
+                  <option value="IT_DATA_SECURITY">IT & Data Security</option>
+                  <option value="WORK_ARRANGEMENTS">Work Arrangements</option>
+                  <option value="ATTENDANCE_LEAVE">Attendance & Leave</option>
+                  <option value="FINANCE_TRAVEL">Finance & Travel</option>
+                </select>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                {policyPrompt && (
+                  <button
+                    type="button"
+                    onClick={() => setPolicyPrompt('')}
+                    disabled={isGeneratingPolicy}
+                    style={{
+                      background: 'transparent',
+                      border: 'none',
+                      color: '#94a3b8',
+                      fontSize: '0.75rem',
+                      cursor: 'pointer',
+                      padding: '4px 8px',
+                    }}
+                  >
+                    Clear
+                  </button>
+                )}
+                <Button
+                  variant="primary"
+                  onClick={() => handleGeneratePolicy()}
+                  disabled={isGeneratingPolicy || !policyPrompt.trim()}
+                  icon={isGeneratingPolicy ? <RefreshCw size={14} className="spin" /> : <Sparkles size={14} />}
+                  style={{
+                    padding: '6px 14px',
+                    fontSize: '0.8125rem',
+                    fontWeight: 600,
+                    background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+                    borderColor: '#7c3aed',
+                  }}
+                >
+                  {isGeneratingPolicy ? 'Generating Policy...' : 'Generate Policy'}
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          {/* Quick inspiration suggestion pills */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+            <span style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+              <Sparkles size={11} color="#8b5cf6" /> Try prompts:
+            </span>
+            {[
+              'Moonlighting & Secondary Employment Policy',
+              'Generative AI & LLM Usage Policy',
+              'BYOD & Mobile Device Security Policy',
+              'Remote Work & Digital Nomad Policy',
+              'Anti-Harassment & POSH Policy',
+            ].map((sample) => (
+              <button
+                key={sample}
+                type="button"
+                disabled={isGeneratingPolicy}
+                onClick={() => {
+                  setPolicyPrompt(sample);
+                  handleGeneratePolicy(sample);
+                }}
+                style={{
+                  fontSize: '0.72rem',
+                  padding: '2px 9px',
+                  borderRadius: 12,
+                  border: '1px solid #e2e8f0',
+                  backgroundColor: '#ffffff',
+                  color: '#475569',
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease',
+                  fontWeight: 500,
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#f5f3ff';
+                  e.currentTarget.style.borderColor = '#c4b5fd';
+                  e.currentTarget.style.color = '#6d28d9';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = '#ffffff';
+                  e.currentTarget.style.borderColor = '#e2e8f0';
+                  e.currentTarget.style.color = '#475569';
+                }}
+              >
+                + {sample}
+              </button>
+            ))}
+          </div>
+        </div>
+
         {/* Category Filter Pills */}
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
           {[
@@ -1155,6 +1410,7 @@ export const OffersPage: React.FC = () => {
           }}
         >
           {filteredPolicies.map((policy) => {
+            const isCustom = policy.code.startsWith('CUSTOM_POL_');
             return (
               <div
                 key={policy.code}
@@ -1163,8 +1419,8 @@ export const OffersPage: React.FC = () => {
                   backgroundColor: '#ffffff',
                   borderRadius: 12,
                   padding: '20px',
-                  border: '1px solid #e2e8f0',
-                  boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)',
+                  border: isCustom ? `1.5px solid ${policy.color}` : '1px solid #e2e8f0',
+                  boxShadow: isCustom ? `0 4px 14px ${policy.color}15` : '0 1px 3px rgba(0, 0, 0, 0.05)',
                   cursor: 'pointer',
                   display: 'flex',
                   flexDirection: 'column',
@@ -1175,13 +1431,13 @@ export const OffersPage: React.FC = () => {
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.transform = 'translateY(-2px)';
-                  e.currentTarget.style.boxShadow = '0 6px 18px rgba(0, 0, 0, 0.08)';
+                  e.currentTarget.style.boxShadow = `0 6px 18px ${policy.color}25`;
                   e.currentTarget.style.borderColor = policy.color;
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.05)';
-                  e.currentTarget.style.borderColor = '#e2e8f0';
+                  e.currentTarget.style.boxShadow = isCustom ? `0 4px 14px ${policy.color}15` : '0 1px 3px rgba(0, 0, 0, 0.05)';
+                  e.currentTarget.style.borderColor = isCustom ? policy.color : '#e2e8f0';
                 }}
               >
                 <div>
@@ -1210,6 +1466,25 @@ export const OffersPage: React.FC = () => {
                       <ShieldCheck size={22} />
                     </div>
                     <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                      {isCustom && (
+                        <span
+                          style={{
+                            fontSize: '0.6875rem',
+                            fontWeight: 700,
+                            padding: '2px 7px',
+                            borderRadius: 12,
+                            color: '#7c3aed',
+                            backgroundColor: '#f5f3ff',
+                            border: '1px solid #ddd6fe',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: 3,
+                          }}
+                        >
+                          <Sparkles size={10} />
+                          AI
+                        </span>
+                      )}
                       <span
                         style={{
                           fontSize: '0.6875rem',
@@ -1240,6 +1515,30 @@ export const OffersPage: React.FC = () => {
                         <span style={{ width: 5, height: 5, borderRadius: '50%', backgroundColor: '#16a34a' }} />
                         Active
                       </span>
+                      {isCustom && (
+                        <button
+                          type="button"
+                          title="Remove custom policy"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteCustomPolicy(policy.code);
+                          }}
+                          style={{
+                            border: 'none',
+                            background: 'transparent',
+                            color: '#94a3b8',
+                            cursor: 'pointer',
+                            padding: '2px 3px',
+                            borderRadius: 4,
+                            display: 'flex',
+                            alignItems: 'center',
+                          }}
+                          onMouseEnter={(e) => (e.currentTarget.style.color = '#ef4444')}
+                          onMouseLeave={(e) => (e.currentTarget.style.color = '#94a3b8')}
+                        >
+                          <X size={13} />
+                        </button>
+                      )}
                     </div>
                   </div>
 
