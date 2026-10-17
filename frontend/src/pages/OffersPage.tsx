@@ -49,6 +49,7 @@ import { OfferDetailModal } from '../components/offers/OfferDetailModal.js';
 import { EmailSendModal } from '../components/offers/EmailSendModal.js';
 import { EmailHistoryModal } from '../components/offers/EmailHistoryModal.js';
 import { QuickTemplateOfferModal } from '../components/offers/QuickTemplateOfferModal.js';
+import { GenerateLetterFromPdfModal } from '../components/offers/GenerateLetterFromPdfModal.js';
 import { CharacterCertificateModal } from '../components/documents/CharacterCertificateModal.js';
 import { ExperienceLetterModal } from '../components/documents/ExperienceLetterModal.js';
 import { SalarySlipModal } from '../components/documents/SalarySlipModal.js';
@@ -105,6 +106,7 @@ export const OffersPage: React.FC = () => {
   const [totalPages, setTotalPages] = useState<number>(1);
 
   // Modals & Action States
+  const [isGeneratePdfModalOpen, setIsGeneratePdfModalOpen] = useState(false);
   const [isQuickModalOpen, setIsQuickModalOpen] = useState(false);
   const [isCompletionModalOpen, setIsCompletionModalOpen] = useState(false);
   const [isCharacterModalOpen, setIsCharacterModalOpen] = useState(false);
@@ -621,6 +623,20 @@ export const OffersPage: React.FC = () => {
             style={{ padding: '8px 14px', fontSize: '0.8125rem' }}
           >
             Refresh
+          </Button>
+
+          <Button
+            variant="primary"
+            icon={<FileText size={14} />}
+            onClick={() => setIsGeneratePdfModalOpen(true)}
+            style={{
+              padding: '8px 16px',
+              fontSize: '0.8125rem',
+              backgroundColor: '#2563eb',
+              boxShadow: '0 2px 8px rgba(37, 99, 235, 0.25)',
+            }}
+          >
+            Generate New Letter
           </Button>
         </div>
       </div>
@@ -1636,6 +1652,17 @@ export const OffersPage: React.FC = () => {
         onClose={() => setIsQuickModalOpen(false)}
         onSuccess={() => fetchOffers()}
       />
+
+      {/* PDF to Official Letterhead Generator Modal */}
+      {isGeneratePdfModalOpen && (
+        <GenerateLetterFromPdfModal
+          isOpen={isGeneratePdfModalOpen}
+          onClose={() => setIsGeneratePdfModalOpen(false)}
+          onSuccess={() => {
+            fetchOffers();
+          }}
+        />
+      )}
 
       {/* 2-Step TaskNera Character Certificate Generator Modal */}
       <CharacterCertificateModal
