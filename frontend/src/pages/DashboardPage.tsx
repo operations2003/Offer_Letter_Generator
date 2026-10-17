@@ -198,6 +198,15 @@ export const DashboardPage: React.FC = () => {
 
           <Button
             variant="secondary"
+            onClick={() => navigate('/templates')}
+            icon={<Sparkles size={14} />}
+            style={{ fontSize: '0.8125rem', padding: '8px 14px' }}
+          >
+            AI Generator
+          </Button>
+
+          <Button
+            variant="secondary"
             onClick={() => navigate('/documents?create=true')}
             icon={<Plus size={14} />}
             style={{ fontSize: '0.8125rem', padding: '8px 14px' }}

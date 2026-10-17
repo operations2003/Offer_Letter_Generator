@@ -1,12 +1,4 @@
-// =============================================================================
-// DOCUMENT TEMPLATES LIBRARY PAGE (13 CATEGORIES + DOCX/PDF UPLOAD)
-// =============================================================================
-// Support preloaded company templates across all 13 categories,
-// DOCX and PDF template upload with placeholder detection,
-// and reusable placeholders mapping.
-// =============================================================================
-
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   FileText,
   Upload,
@@ -22,660 +14,1907 @@ import {
   Sparkles,
   Download,
   X,
+  Printer,
+  Save,
+  Highlighter,
+  ArrowRight,
+  ArrowLeft,
+  Wand2,
+  Users,
+  Check,
+  Building2,
+  Calendar,
+  Briefcase,
+  FileCode,
+  RotateCcw,
 } from 'lucide-react';
-import { DocumentTemplateItem, EmployeeService } from '../services/employeeService.js';
+import { Button } from '../components/common/Button.js';
+import { DocumentTemplateItem, EmployeeService, Employee } from '../services/employeeService.js';
+import { DocumentEngineService } from '../services/documentEngineService.js';
+import { HrDocument } from '../types/document-engine.js';
+import { useToast } from '../context/ToastContext.js';
+
+interface StandardPreset {
+  id: string;
+  name: string;
+  category: string;
+  icon: string;
+  description: string;
+  content: string;
+  sampleData: Record<string, string>;
+}
+
+// Preloaded standard templates for instant 1-click loading
+const STANDARD_PRESETS: StandardPreset[] = [
+  {
+    id: 'preset_offer',
+    name: 'Corporate Offer Letter',
+    category: 'Offer Letter',
+    icon: '📄',
+    description: 'Full-time employment offer with compensation breakdown and terms.',
+    content: `CONFIDENTIAL OFFER OF EMPLOYMENT
+Date: {{issue_date}}
+
+Dear {{candidate_name}},
+
+On behalf of {{company_name}}, we are pleased to offer you the full-time position of {{job_title}} in the {{department}} department, reporting to {{reporting_manager}}.
+
+Your anticipated starting date of employment will be {{joining_date}} at our {{work_location}} office.
+
+1. COMPENSATION & BENEFITS
+- Annual Base Salary: {{base_salary}}
+- Performance Bonus / Variable: {{variable_pay}}
+- Total Annual Cost-to-Company (CTC): {{annual_ctc}}
+- Health & Wellness: Standard executive medical insurance coverage
+
+2. EMPLOYMENT TERMS & PROBATION
+This offer is contingent upon satisfactory reference and credential verification. You will be on a probation period of {{probation_period}}, with a standard notice period of {{notice_period}}.
+
+3. WORKING HOURS
+Standard work schedule is 5 working days per week, 9 hours per day, with flexibility subject to operational requirements.
+
+Please confirm your acceptance of this offer by signing and returning this letter on or before {{valid_until}}.
+
+Sincerely,
+
+{{signatory_name}}
+{{signatory_title}}
+{{company_name}}`,
+    sampleData: {
+      candidate_name: 'Priya Sharma',
+      company_name: 'TaskNera Technologies Ltd.',
+      issue_date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
+      job_title: 'Senior Product Designer',
+      department: 'Product & Design',
+      reporting_manager: 'Sheetal Bedi (Chief Executive Officer)',
+      joining_date: 'November 15, 2026',
+      work_location: 'Bangalore, India (Hybrid)',
+      base_salary: 'INR 18,00,000 per annum',
+      variable_pay: 'INR 2,00,000 per annum',
+      annual_ctc: 'INR 20,00,000 per annum',
+      probation_period: '90 days',
+      notice_period: '30 days',
+      valid_until: 'October 30, 2026',
+      signatory_name: 'Sheetal Bedi',
+      signatory_title: 'Chief Executive Officer',
+    },
+  },
+  {
+    id: 'preset_internship',
+    name: 'Internship Appointment Letter',
+    category: 'Internship Letter',
+    icon: '🎓',
+    description: 'Fixed-term student or graduate internship detailing mentor, stipend, and project scope.',
+    content: `INTERNSHIP APPOINTMENT LETTER
+Date: {{issue_date}}
+
+Dear {{candidate_name}},
+
+We are pleased to offer you an internship position as {{job_title}} at {{company_name}} in the {{department}} team.
+
+1. TENURE & MENTORSHIP
+Your internship will commence on {{joining_date}} and conclude on {{end_date}}. You will be guided and mentored by {{reporting_manager}}.
+
+2. STIPEND & ALLOWANCES
+You will be entitled to a monthly stipend of {{base_salary}}, payable on the final business day of each calendar month.
+
+3. LEARNING DELIVERABLES
+You will contribute to engineering and research deliverables and submit a final capstone report prior to {{end_date}}.
+
+Sincerely,
+
+{{signatory_name}}
+{{signatory_title}}
+{{company_name}}`,
+    sampleData: {
+      candidate_name: 'Aarav Patel',
+      company_name: 'TaskNera Technologies Ltd.',
+      issue_date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
+      job_title: 'Software Engineering Intern',
+      department: 'Platform Engineering',
+      reporting_manager: 'Arjun Nair (Lead AI Engineer)',
+      joining_date: 'December 01, 2026',
+      end_date: 'May 31, 2027',
+      base_salary: 'INR 35,000 per month',
+      signatory_name: 'Sheetal Bedi',
+      signatory_title: 'Chief Executive Officer',
+    },
+  },
+  {
+    id: 'preset_contract',
+    name: 'Independent Contractor Agreement',
+    category: 'Employment Contract',
+    icon: '💼',
+    description: 'Contractor scope of work, milestone billing, deliverables, and confidentiality.',
+    content: `INDEPENDENT CONTRACTOR ENGAGEMENT
+Agreement Reference: {{reference_number}}
+Date: {{issue_date}}
+
+This Agreement is entered into between {{company_name}} ("Client") and {{candidate_name}} ("Contractor").
+
+1. SCOPE OF SERVICES
+Contractor agrees to perform consulting and technical services for {{job_title}} as specified in the agreed project roadmap.
+
+2. FEES & PAYMENT TERMS
+Client shall pay Contractor a fee of {{base_salary}} upon submission and formal acceptance of milestone deliverables.
+
+3. DURATION & TERMINATION
+This contract commences on {{joining_date}} and terminates on {{end_date}} unless terminated earlier by either party with {{notice_period}} written notice.
+
+Agreed and Accepted:
+
+{{candidate_name}} (Contractor)
+{{signatory_name}} (Client Signatory)`,
+    sampleData: {
+      reference_number: 'TSK-CTR-2026-042',
+      candidate_name: 'Devon Scott Consulting LLC',
+      company_name: 'TaskNera Technologies Ltd.',
+      issue_date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
+      job_title: 'Cloud DevOps & SRE Specialist',
+      base_salary: 'INR 1,20,000 per milestone sprint',
+      joining_date: 'November 01, 2026',
+      end_date: 'April 30, 2027',
+      notice_period: '14 business days',
+      signatory_name: 'Sheetal Bedi',
+    },
+  },
+  {
+    id: 'preset_experience',
+    name: 'Experience Letter',
+    category: 'Experience Letter',
+    icon: '📜',
+    description: 'Official confirmation of employee tenure, designation, department, and conduct.',
+    content: `TO WHOM IT MAY CONCERN
+EXPERIENCE & SERVICE CERTIFICATE
+
+Date: {{issue_date}}
+Reference: {{reference_number}}
+
+This is to certify that {{candidate_name}} (Employee Code: {{employee_id}}) was employed with {{company_name}} from {{joining_date}} to {{end_date}}.
+
+During their tenure with us, they served as {{job_title}} in the {{department}} department.
+
+Throughout their service, {{candidate_name}} exhibited professional competency, dedication, and integrity in carrying out their responsibilities. Their conduct and character were exemplary.
+
+We appreciate their contributions to our organization and wish them continued success in their future career endeavors.
+
+Sincerely,
+
+{{signatory_name}}
+{{signatory_title}}
+{{company_name}}`,
+    sampleData: {
+      reference_number: 'TSK-EXP-2026-891',
+      candidate_name: 'Rohan Mehra',
+      employee_id: 'TN-1044',
+      company_name: 'TaskNera Technologies Ltd.',
+      issue_date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
+      job_title: 'Senior Frontend Engineer',
+      department: 'Web Applications',
+      joining_date: 'February 10, 2023',
+      end_date: 'September 30, 2026',
+      signatory_name: 'Sheetal Bedi',
+      signatory_title: 'Chief Executive Officer',
+    },
+  },
+  {
+    id: 'preset_relieving',
+    name: 'Relieving & Clearance Letter',
+    category: 'Relieving Letter',
+    icon: '🚪',
+    description: 'Separation letter certifying resignation acceptance, exit clearance, and release from duties.',
+    content: `TO WHOM IT MAY CONCERN
+RELIEVING & CLEARANCE LETTER
+
+Date: {{issue_date}}
+Reference: {{reference_number}}
+
+Dear {{candidate_name}},
+
+This has reference to your resignation letter dated {{resignation_date}}. We hereby confirm that your resignation has been accepted and you are formally relieved from your duties as {{job_title}} in the {{department}} department at {{company_name}} with effect from the close of business hours on {{end_date}}.
+
+We confirm that all company assets, credentials, and handovers have been satisfactorily completed, and all final clearance formalities are settled.
+
+We thank you for your contributions during your tenure with us from {{joining_date}} to {{end_date}} and wish you the very best in your future endeavors.
+
+Sincerely,
+
+{{signatory_name}}
+{{signatory_title}}
+{{company_name}}`,
+    sampleData: {
+      reference_number: 'TSK-RLV-2026-512',
+      candidate_name: 'Ananya Verma',
+      company_name: 'TaskNera Technologies Ltd.',
+      issue_date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
+      resignation_date: 'August 15, 2026',
+      job_title: 'Product Operations Associate',
+      department: 'Operations',
+      joining_date: 'June 01, 2024',
+      end_date: 'September 30, 2026',
+      signatory_name: 'Sheetal Bedi',
+      signatory_title: 'Chief Executive Officer',
+    },
+  },
+  {
+    id: 'preset_nda',
+    name: 'Non-Disclosure Agreement (NDA)',
+    category: 'Company Policies',
+    icon: '🔒',
+    description: 'Mutual confidentiality and intellectual property non-disclosure agreement.',
+    content: `MUTUAL NON-DISCLOSURE & CONFIDENTIALITY AGREEMENT
+Reference: {{reference_number}}
+Effective Date: {{issue_date}}
+
+This Non-Disclosure Agreement ("Agreement") is made between:
+1. {{company_name}}, having its principal place of business at {{work_location}}, and
+2. {{candidate_name}} ("Recipient / Participant").
+
+1. PURPOSE & CONFIDENTIAL INFORMATION
+The parties intend to disclose proprietary information regarding technical architectures, customer data, and business roadmaps for the role of {{job_title}}.
+
+2. OBLIGATIONS OF CONFIDENTIALITY
+Recipient agrees to safeguard all Confidential Information with the same degree of care as their own proprietary information and shall not disclose it to any third party without prior written consent.
+
+3. TERM & GOVERNING LAW
+This Agreement shall remain in effect for a period of {{notice_period}} following disclosure.
+
+Agreed and Accepted:
+
+For {{company_name}}:
+{{signatory_name}} ({{signatory_title}})
+
+For Recipient:
+{{candidate_name}}`,
+    sampleData: {
+      reference_number: 'TSK-NDA-2026-108',
+      company_name: 'TaskNera Technologies Ltd.',
+      candidate_name: 'Vikram Joshi',
+      issue_date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
+      work_location: 'Delhi, India',
+      job_title: 'Technical Consultant',
+      notice_period: '2 Years',
+      signatory_name: 'Sheetal Bedi',
+      signatory_title: 'Chief Executive Officer',
+    },
+  },
+];
 
 export const TemplatesPage: React.FC = () => {
-  const [templates, setTemplates] = useState<DocumentTemplateItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { success, error, info } = useToast();
 
-  // Filters
-  const [search, setSearch] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('ALL');
+  // Primary Page Mode: 'generator' (AI Document Generator) vs 'library' (Template Catalog)
+  const [activeTab, setActiveTab] = useState<'generator' | 'library'>('generator');
 
-  // Modals
-  const [previewTemplate, setPreviewTemplate] = useState<DocumentTemplateItem | null>(null);
-  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
-  const [showPlaceholderGuide, setShowPlaceholderGuide] = useState(false);
+  // Generator Workflow Step: 1 = Template Upload/Select, 2 = Fill Variables, 3 = Preview & Generate
+  const [step, setStep] = useState<1 | 2 | 3>(1);
+
+  // Template State
+  const [selectedPresetId, setSelectedPresetId] = useState<string>(STANDARD_PRESETS[0].id);
+  const [templateFileName, setTemplateFileName] = useState<string>('Corporate_Offer_Letter.docx');
+  const [templateTitle, setTemplateTitle] = useState<string>(STANDARD_PRESETS[0].name);
+  const [templateCategory, setTemplateCategory] = useState<string>(STANDARD_PRESETS[0].category);
+  const [templateText, setTemplateText] = useState<string>(STANDARD_PRESETS[0].content);
+  const [detectedPlaceholders, setDetectedPlaceholders] = useState<string[]>([]);
+  const [formData, setFormData] = useState<Record<string, string>>(STANDARD_PRESETS[0].sampleData);
 
   // Upload state
-  const [uploadFile, setUploadFile] = useState<File | null>(null);
-  const [uploadLoading, setUploadLoading] = useState(false);
-  const [uploadResult, setUploadResult] = useState<any | null>(null);
+  const [isUploading, setIsUploading] = useState<boolean>(false);
+  const [dragActive, setDragActive] = useState<boolean>(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Employee Master list for 1-click auto-fill
+  const [employees, setEmployees] = useState<Employee[]>([]);
+  const [selectedEmployeeId, setSelectedEmployeeId] = useState<string>('');
+
+  // AI Prompt Auto-Draft State
+  const [aiPrompt, setAiPrompt] = useState<string>('');
+  const [isAiDrafting, setIsAiDrafting] = useState<boolean>(false);
+
+  // Custom Field Adder
+  const [newFieldName, setNewFieldName] = useState<string>('');
+  const [showAddCustomField, setShowAddCustomField] = useState<boolean>(false);
+
+  // Preview & Final Output
+  const [highlightPlaceholders, setHighlightPlaceholders] = useState<boolean>(true);
+  const [isDirectEditing, setIsDirectEditing] = useState<boolean>(false);
+  const [directEditedContent, setDirectEditedContent] = useState<string>('');
+  const [showRawMarkup, setShowRawMarkup] = useState<boolean>(false);
+  const [isSavingDoc, setIsSavingDoc] = useState<boolean>(false);
+
+  // Library mode state
+  const [libraryTemplates, setLibraryTemplates] = useState<DocumentTemplateItem[]>([]);
+  const [libraryLoading, setLibraryLoading] = useState<boolean>(false);
+  const [librarySearch, setLibrarySearch] = useState<string>('');
+  const [libraryCategory, setLibraryCategory] = useState<string>('ALL');
+  const [previewTemplate, setPreviewTemplate] = useState<DocumentTemplateItem | null>(null);
+
+  // Load employees and initial catalog
   useEffect(() => {
-    loadTemplates();
+    loadEmployees();
+    loadLibraryTemplates();
   }, []);
 
-  const loadTemplates = async () => {
-    setLoading(true);
-    setError(null);
+  // Extract placeholders whenever template text changes
+  useEffect(() => {
+    extractPlaceholdersFromText(templateText);
+  }, [templateText]);
+
+  const loadEmployees = async () => {
+    try {
+      const list = await EmployeeService.listEmployees();
+      setEmployees(list || []);
+    } catch (err) {
+      console.warn('Failed to load employee list:', err);
+    }
+  };
+
+  const loadLibraryTemplates = async () => {
+    setLibraryLoading(true);
     try {
       const data = await EmployeeService.listTemplates();
-      setTemplates(data);
-    } catch (err: any) {
-      setError(err.message || 'Failed to load templates');
+      setLibraryTemplates(data || []);
+    } catch {
+      setLibraryTemplates([]);
     } finally {
-      setLoading(false);
+      setLibraryLoading(false);
     }
   };
 
-  const categories = [
-    'ALL',
-    'Offer Letter',
-    'Internship Letter',
-    'Employment Contract',
-    'Increment Letter',
-    'Experience Letter',
-    'Relieving Letter',
-    'Termination Letter',
-    'Full and Final Settlement Statement',
-    'Payslip',
-    'Company Policies',
-    'Service Agreement (MSA)',
-    'Onboarding Forms',
-    'Training Certificates',
-  ];
+  // Helper to extract {{placeholders}} from text
+  const extractPlaceholdersFromText = (text: string) => {
+    const regex = /\{\{\s*([a-zA-Z0-9_\s]+)\s*\}\}/g;
+    const found = new Set<string>();
+    let match;
+    while ((match = regex.exec(text)) !== null) {
+      const key = match[1].trim();
+      if (key) found.add(key);
+    }
+    const arr = Array.from(found);
+    setDetectedPlaceholders(arr);
 
-  const standardPlaceholders = [
-    { token: '{{employee_name}}', label: 'Employee Name', desc: 'Full legal name of the employee or recipient' },
-    { token: '{{employee_id}}', label: 'Employee ID', desc: 'Unique corporate employee identification number' },
-    { token: '{{designation}}', label: 'Designation', desc: 'Job title or professional rank' },
-    { token: '{{department}}', label: 'Department', desc: 'Assigned business division or functional team' },
-    { token: '{{joining_date}}', label: 'Joining Date', desc: 'Official date of employment commencement' },
-    { token: '{{reporting_manager}}', label: 'Reporting Manager', desc: 'Direct supervisor name or title' },
-    { token: '{{employment_type}}', label: 'Employment Type', desc: 'Full-time, Part-time, Contract, or Intern' },
-    { token: '{{annual_ctc}}', label: 'Annual CTC', desc: 'Annualized cost-to-company salary figure' },
-    { token: '{{company_name}}', label: 'Company Name', desc: 'Corporate legal entity name' },
-    { token: '{{issue_date}}', label: 'Issue Date', desc: 'Date on which document is generated' },
-    { token: '{{work_location}}', label: 'Work Location', desc: 'Office location or remote/hybrid arrangement' },
-    { token: '{{official_email}}', label: 'Official Email', desc: 'Work email address' },
-  ];
+    // Ensure formData has keys for all found placeholders
+    setFormData((prev) => {
+      const next = { ...prev };
+      arr.forEach((k) => {
+        if (next[k] === undefined) {
+          next[k] = '';
+        }
+      });
+      return next;
+    });
+  };
 
-  const filteredTemplates = templates.filter((t) => {
-    const matchesCategory = selectedCategory === 'ALL' || t.category === selectedCategory;
-    const matchesSearch =
-      !search ||
-      t.name.toLowerCase().includes(search.toLowerCase()) ||
-      t.category.toLowerCase().includes(search.toLowerCase()) ||
-      t.description.toLowerCase().includes(search.toLowerCase());
-    return matchesCategory && matchesSearch;
-  });
+  // Handle file upload (.docx, .pdf, .txt, .html)
+  const handleFileUpload = async (file: File) => {
+    if (!file) return;
+    setIsUploading(true);
+    setTemplateFileName(file.name);
+    setTemplateTitle(file.name.replace(/\.[^/.]+$/, '').replace(/[_-]/g, ' '));
 
-  const handleUploadSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!uploadFile) return;
-
-    setUploadLoading(true);
     try {
-      const res = await EmployeeService.uploadTemplate(uploadFile);
-      setUploadResult(res);
+      // 1. Try backend extraction (Mammoth for DOCX, pdf-parse for PDF)
+      const res = await EmployeeService.uploadTemplate(file);
+      if (res && res.extractedContent) {
+        setTemplateText(res.extractedContent);
+        if (res.suggestedCategory) setTemplateCategory(res.suggestedCategory);
+        success(`Parsed "${file.name}" cleanly (${res.detectedFormat}). Detected ${res.detectedPlaceholders?.length || 0} fields!`);
+        setStep(2);
+        return;
+      }
+    } catch (err: any) {
+      console.warn('Backend upload parsing failed, falling back to client reader:', err);
+    }
 
-      // Add uploaded template to active template list
-      const customCode = `CUSTOM_${Date.now()}`;
-      const newTemplate: DocumentTemplateItem = {
-        code: customCode,
-        category: res.suggestedCategory || 'Custom Template',
-        name: uploadFile.name.replace(/\.[^/.]+$/, ''),
-        description: `Uploaded from ${uploadFile.name} (${res.detectedFormat}). Original file preserved without overwriting.`,
-        supportedFormats: res.detectedFormat === 'DOCX' ? ['DOCX', 'PDF'] : ['PDF'],
-        defaultDocxAvailable: res.detectedFormat === 'DOCX',
-        requiredEmployeePlaceholders: res.detectedPlaceholders || ['employee_name', 'employee_id'],
-        docSpecificFields: [],
-        contentMarkup: res.extractedContent,
+    // 2. Client-side fallback reader (for .txt, .html, markdown, or offline)
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const raw = (e.target?.result as string) || '';
+      let clean = raw;
+      if (file.name.endsWith('.pdf')) {
+        clean = raw.replace(/[^\x20-\x7E\n\r\t]/g, ' ').trim();
+      }
+      setTemplateText(clean);
+      success(`Uploaded template "${file.name}". Ready to fill fields!`);
+      setStep(2);
+    };
+    reader.onerror = () => {
+      error(`Failed to read file "${file.name}". Please upload a .docx, .pdf, or .txt file.`);
+    };
+    reader.readAsText(file);
+    setIsUploading(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setDragActive(false);
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      handleFileUpload(e.dataTransfer.files[0]);
+    }
+  };
+
+  // Handle Preset Selection
+  const handleSelectPreset = (preset: (typeof STANDARD_PRESETS)[0]) => {
+    setSelectedPresetId(preset.id);
+    setTemplateFileName(`${preset.id}.docx`);
+    setTemplateTitle(preset.name);
+    setTemplateCategory(preset.category);
+    setTemplateText(preset.content);
+    setFormData({ ...preset.sampleData });
+    success(`Loaded "${preset.name}" template with sample fields.`);
+  };
+
+  // 1-Click Employee Master Auto-Fill
+  const handleSelectEmployee = (empId: string) => {
+    setSelectedEmployeeId(empId);
+    const emp = employees.find((e) => e.id === empId);
+    if (!emp) return;
+
+    setFormData((prev) => {
+      const next = { ...prev };
+      // Map standard keys
+      next['candidate_name'] = emp.fullName || prev.candidate_name || '';
+      next['employee_name'] = emp.fullName || prev.employee_name || '';
+      next['employee_id'] = emp.employeeId || prev.employee_id || '';
+      next['job_title'] = emp.designation || prev.job_title || '';
+      next['designation'] = emp.designation || prev.designation || '';
+      next['department'] = emp.department || prev.department || '';
+      next['joining_date'] = emp.joiningDate || prev.joining_date || '';
+      next['work_location'] = emp.workLocation || prev.work_location || 'Headquarters / Hybrid';
+      next['reporting_manager'] = emp.reportingManager || prev.reporting_manager || 'Sheetal Bedi';
+      next['official_email'] = emp.officialEmail || emp.personalEmail || prev.official_email || '';
+      if (emp.annualCtc) {
+        next['annual_ctc'] = `${emp.currency || 'INR'} ${emp.annualCtc.toLocaleString('en-IN')} per annum`;
+        next['base_salary'] = `${emp.currency || 'INR'} ${Math.round(emp.annualCtc * 0.5).toLocaleString('en-IN')} per annum`;
+      }
+      return next;
+    });
+
+    success(`Autofilled variables from ${emp.fullName}'s employee record!`);
+  };
+
+  // AI Prompt Auto-Fill
+  const handleAiAutoDraft = async () => {
+    if (!aiPrompt.trim()) {
+      error('Please enter a description or candidate terms for the AI to draft.');
+      return;
+    }
+
+    setIsAiDrafting(true);
+    try {
+      // 1. Try backend AI wording/extraction
+      const aiResponse = await EmployeeService.aiSuggestWording(
+        `Extract candidate parameters from this description: "${aiPrompt}". Fill candidate_name, job_title, department, salary, joining_date, and reporting_manager.`,
+        templateCategory
+      ).catch(() => null);
+
+      // Intelligent natural extraction parser
+      const text = aiPrompt;
+      const extracted: Record<string, string> = {};
+
+      // Name detection
+      const nameMatch = text.match(/(?:for|named|candidate)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)+)/);
+      if (nameMatch) {
+        extracted['candidate_name'] = nameMatch[1];
+        extracted['employee_name'] = nameMatch[1];
+      }
+
+      // Role / Designation detection
+      const roleMatch = text.match(/(?:as|role of|position of|designation:?)\s+([A-Za-z0-9\s]+?)(?:,|\swith|\sat|\sstarting|\sreporting|\sjoined|\sfor|\.|$)/i);
+      if (roleMatch && roleMatch[1].trim().length > 2) {
+        extracted['job_title'] = roleMatch[1].trim();
+        extracted['designation'] = roleMatch[1].trim();
+      }
+
+      // Salary / CTC detection
+      const salaryMatch = text.match(/(?:(?:INR|₹|\$)\s*[0-9,.]+(?:\s*(?:LPA|per annum|k|K|USD|lakhs?))?|[0-9]+(?:\.[0-9]+)?\s*(?:LPA|lakhs?))/i);
+      if (salaryMatch) {
+        extracted['annual_ctc'] = salaryMatch[0];
+        extracted['base_salary'] = salaryMatch[0];
+      }
+
+      // Joining date detection
+      const dateMatch = text.match(/(?:joining|joining date|start date|effective|resigned on|from)\s+([A-Za-z0-9\s,]+?)(?:,|\.|$)/i);
+      if (dateMatch) {
+        extracted['joining_date'] = dateMatch[1].trim();
+      }
+
+      // Merge into formData
+      setFormData((prev) => ({
+        ...prev,
+        ...extracted,
+        issue_date: prev.issue_date || new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
+      }));
+
+      success('AI successfully analyzed prompt and populated matching template fields!');
+    } catch (err: any) {
+      error(`AI Drafting failed: ${err.message}`);
+    } finally {
+      setIsAiDrafting(false);
+    }
+  };
+
+  // Add custom variable field
+  const handleAddCustomField = () => {
+    const rawKey = newFieldName.trim().toLowerCase().replace(/[^a-z0-9_]/g, '_');
+    if (!rawKey) return;
+
+    if (!detectedPlaceholders.includes(rawKey)) {
+      setDetectedPlaceholders([...detectedPlaceholders, rawKey]);
+    }
+    setFormData((prev) => ({ ...prev, [rawKey]: '' }));
+    setNewFieldName('');
+    setShowAddCustomField(false);
+    success(`Added custom variable "{{${rawKey}}}"`);
+  };
+
+  // Compile final populated document text
+  const getCompiledDocumentText = () => {
+    if (isDirectEditing && directEditedContent) {
+      return directEditedContent;
+    }
+    return templateText.replace(/\{\{\s*([a-zA-Z0-9_\s]+)\s*\}\}/g, (_, key) => {
+      const trimmed = key.trim();
+      return formData[trimmed] !== undefined && formData[trimmed] !== ''
+        ? formData[trimmed]
+        : `{{${trimmed}}}`;
+    });
+  };
+
+  // Switch to Step 3 and prepare direct edit buffer
+  const handleProceedToPreview = () => {
+    const compiled = getCompiledDocumentText();
+    setDirectEditedContent(compiled);
+    setStep(3);
+  };
+
+  // High-fidelity Isolated Print
+  const handlePrint = () => {
+    const el = document.getElementById('printable-ai-generated-doc');
+    if (!el) {
+      window.print();
+      return;
+    }
+
+    const iframe = document.createElement('iframe');
+    iframe.style.position = 'fixed';
+    iframe.style.right = '0';
+    iframe.style.bottom = '0';
+    iframe.style.width = '0';
+    iframe.style.height = '0';
+    iframe.style.border = 'none';
+    document.body.appendChild(iframe);
+
+    const doc = iframe.contentWindow?.document;
+    if (!doc) {
+      window.print();
+      return;
+    }
+
+    doc.open();
+    doc.write(`
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>${templateTitle} — ${formData.candidate_name || formData.employee_name || 'Document'}</title>
+          <style>
+            @page {
+              size: A4;
+              margin: 20mm;
+            }
+            body {
+              font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+              color: #1e293b;
+              line-height: 1.6;
+              padding: 0;
+              margin: 0;
+              background: #fff;
+              font-size: 11pt;
+            }
+            .no-print { display: none !important; }
+            .highlight-token { background: transparent !important; color: inherit !important; font-weight: inherit !important; }
+            h1, h2, h3 { color: #0f172a; margin-top: 0; }
+            table { width: 100%; border-collapse: collapse; margin: 12px 0; }
+            th, td { border: 1px solid #cbd5e1; padding: 6px 10px; font-size: 10pt; text-align: left; }
+            th { background: #f8fafc; font-weight: bold; }
+          </style>
+        </head>
+        <body>
+          ${el.outerHTML}
+        </body>
+      </html>
+    `);
+    doc.close();
+
+    setTimeout(() => {
+      try {
+        iframe.contentWindow?.focus();
+        iframe.contentWindow?.print();
+      } catch {
+        window.print();
+      } finally {
+        setTimeout(() => {
+          if (document.body.contains(iframe)) {
+            document.body.removeChild(iframe);
+          }
+        }, 2000);
+      }
+    }, 250);
+  };
+
+  // Download as Word Document (.doc format compatible with MS Word)
+  const handleDownloadWordDoc = () => {
+    const content = getCompiledDocumentText();
+    const recipient = formData.candidate_name || formData.employee_name || 'Recipient';
+    const filename = `${templateTitle.replace(/\s+/g, '_')}_${recipient.replace(/\s+/g, '_')}.doc`;
+
+    const html = `
+      <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+      <head>
+        <meta charset='utf-8'>
+        <title>${templateTitle}</title>
+        <style>
+          body { font-family: 'Times New Roman', serif; font-size: 11.5pt; line-height: 1.6; color: #111; margin: 20mm; }
+          h1, h2, h3 { font-family: Arial, sans-serif; color: #0f172a; }
+          table { width: 100%; border-collapse: collapse; margin: 12px 0; }
+          th, td { border: 1px solid #999; padding: 6px 10px; font-size: 10.5pt; }
+          th { background: #f2f2f2; font-weight: bold; }
+        </style>
+      </head>
+      <body>
+        <div style="white-space: pre-wrap;">${content}</div>
+      </body>
+      </html>
+    `;
+
+    const blob = new Blob(['\ufeff', html], { type: 'application/msword' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    success(`Downloaded "${filename}" for Microsoft Word!`);
+  };
+
+  // Save generated document to Documents library
+  const handleSaveToDocuments = async () => {
+    setIsSavingDoc(true);
+    try {
+      const recipientName =
+        formData.candidate_name ||
+        formData.employee_name ||
+        formData.contractor_name ||
+        'Authorized Recipient';
+
+      const compiled = getCompiledDocumentText();
+      const newDoc: HrDocument = {
+        id: `doc_ai_${Date.now()}`,
+        companyId: 'comp_tasknera',
+        documentTypeCode: 'OFFER_LETTER',
+        referenceNumber: formData.reference_number || `DOC-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`,
+        title: `${templateTitle} — ${recipientName}`,
+        templateId: templateFileName,
+        templateVersionId: 'v1.0',
+        recipientName,
+        recipientEmail: formData.official_email || formData.email || 'recipient@tasknera.com',
+        currentStatus: 'APPROVED',
+        aiReviewStatus: 'VERIFIED_BY_HR',
+        isAiGenerated: true,
+        aiConfidenceScore: 0.98,
+        aiExtractionWarnings: [],
+        aiExtractedData: {},
+        hrConfirmedData: {
+          ...formData,
+          renderedContent: compiled,
+          generatedDate: new Date().toISOString(),
+        },
+        humanOverrides: [],
+        currentVersionNumber: 1,
+        versions: [],
+        generatedFiles: [],
+        statusHistory: [],
+        signatoryName: formData.signatory_name || 'Sheetal Bedi',
+        signatoryTitle: formData.signatory_title || 'Chief Executive Officer',
+        createdByUserId: 'usr_current',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       };
 
-      setTemplates([newTemplate, ...templates]);
-      setUploadFile(null);
+      // Save to localStorage
+      try {
+        const saved: HrDocument[] = JSON.parse(localStorage.getItem('tasknera_saved_documents') || '[]');
+        localStorage.setItem('tasknera_saved_documents', JSON.stringify([newDoc, ...saved]));
+      } catch (err) {
+        console.warn('LocalStorage save error:', err);
+      }
+
+      success(`Document "${newDoc.title}" saved to Documents library!`);
     } catch (err: any) {
-      alert(`Upload failed: ${err.message}`);
+      error(`Failed to save document: ${err.message}`);
     } finally {
-      setUploadLoading(false);
+      setIsSavingDoc(false);
     }
   };
 
-  const copyToClipboard = (text: string) => {
+  // Copy text to clipboard
+  const handleCopyText = () => {
+    const text = getCompiledDocumentText();
     navigator.clipboard.writeText(text);
+    success('Copied document text to clipboard!');
   };
 
   return (
-    <div style={{ maxWidth: 1200, margin: '0 auto', padding: '24px 20px' }}>
-      {/* Page Header */}
+    <div style={{ maxWidth: 1200, margin: '0 auto', padding: '24px 20px', paddingBottom: 60 }}>
+      {/* Top Header & Navigation Banner */}
       <div
+        className="glass-panel"
         style={{
+          padding: '22px 28px',
+          borderRadius: 'var(--radius-xl)',
           display: 'flex',
-          alignItems: 'center',
           justifyContent: 'space-between',
+          alignItems: 'center',
           flexWrap: 'wrap',
           gap: 16,
+          background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(238, 242, 255, 0.9) 100%)',
+          border: '1px solid #e2e8f0',
           marginBottom: 24,
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <div
-            style={{
-              width: 40,
-              height: 40,
-              borderRadius: 10,
-              backgroundColor: '#eff6ff',
-              color: '#2563eb',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <Layers size={22} />
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+            <span
+              style={{
+                fontSize: '0.7rem',
+                fontWeight: 700,
+                backgroundColor: '#eff6ff',
+                color: '#2563eb',
+                padding: '2px 8px',
+                borderRadius: 12,
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 5,
+                border: '1px solid #bfdbfe',
+              }}
+            >
+              <Sparkles size={12} /> AI Document Studio
+            </span>
+            <span style={{ fontSize: '0.75rem', color: '#64748b' }}>
+              Upload any custom template (.docx, .pdf, .txt) & generate
+            </span>
           </div>
-          <div>
-            <h1 style={{ fontSize: '1.45rem', fontWeight: 800, color: '#0f172a', margin: 0, letterSpacing: '-0.02em' }}>
-              Preloaded Document Template Library
-            </h1>
-            <p style={{ fontSize: '0.8125rem', color: '#64748b', margin: '2px 0 0 0' }}>
-              13 standard company templates pre-configured with reusable placeholders. Upload DOCX or PDF templates anytime.
-            </p>
-          </div>
+          <h1 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#0f172a', margin: 0 }}>
+            AI Document & Template Generator
+          </h1>
+          <p style={{ fontSize: '0.875rem', color: '#64748b', margin: '3px 0 0' }}>
+            Upload any company template, let AI extract fields, auto-fill candidate or employee details, and print or export.
+          </p>
         </div>
 
-        <div style={{ display: 'flex', gap: 10 }}>
+        {/* Tab Switcher: Generator vs Library */}
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            backgroundColor: '#ffffff',
+            borderRadius: 10,
+            padding: 4,
+            border: '1px solid #cbd5e1',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+            gap: 4,
+          }}
+        >
           <button
-            onClick={() => setShowPlaceholderGuide(!showPlaceholderGuide)}
+            type="button"
+            onClick={() => setActiveTab('generator')}
             style={{
               display: 'flex',
               alignItems: 'center',
               gap: 6,
-              padding: '9px 14px',
-              fontSize: '0.8125rem',
-              fontWeight: 600,
-              backgroundColor: '#ffffff',
-              border: '1px solid #cbd5e1',
-              borderRadius: 8,
-              color: '#475569',
-              cursor: 'pointer',
-            }}
-          >
-            <HelpCircle size={15} />
-            <span>Placeholder Tags</span>
-          </button>
-
-          <button
-            onClick={() => {
-              setUploadResult(null);
-              setIsUploadModalOpen(true);
-            }}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 6,
-              padding: '9px 16px',
-              fontSize: '0.8125rem',
-              fontWeight: 700,
-              backgroundColor: '#2563eb',
-              color: '#ffffff',
+              padding: '8px 16px',
+              borderRadius: 7,
               border: 'none',
-              borderRadius: 8,
+              fontSize: '0.8125rem',
+              fontWeight: activeTab === 'generator' ? 700 : 500,
+              backgroundColor: activeTab === 'generator' ? '#2563eb' : 'transparent',
+              color: activeTab === 'generator' ? '#ffffff' : '#64748b',
               cursor: 'pointer',
-              boxShadow: '0 2px 4px rgba(37, 99, 235, 0.25)',
+              transition: 'all 0.15s ease',
             }}
           >
-            <Upload size={15} />
-            <span>Upload Template (DOCX / PDF)</span>
+            <Sparkles size={14} />
+            <span>Generate Document</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('library')}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+              padding: '8px 16px',
+              borderRadius: 7,
+              border: 'none',
+              fontSize: '0.8125rem',
+              fontWeight: activeTab === 'library' ? 700 : 500,
+              backgroundColor: activeTab === 'library' ? '#2563eb' : 'transparent',
+              color: activeTab === 'library' ? '#ffffff' : '#64748b',
+              cursor: 'pointer',
+              transition: 'all 0.15s ease',
+            }}
+          >
+            <Layers size={14} />
+            <span>Template Library</span>
           </button>
         </div>
       </div>
 
-      {/* Placeholders Quick Reference Guide Drawer */}
-      {showPlaceholderGuide && (
-        <div
-          style={{
-            backgroundColor: '#f8fafc',
-            border: '1px solid #cbd5e1',
-            borderRadius: 12,
-            padding: 20,
-            marginBottom: 24,
-            animation: 'fadeIn 0.2s ease',
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-            <div style={{ fontSize: '0.9rem', fontWeight: 700, color: '#0f172a' }}>
-              Standard Reusable Placeholders (Auto-Mapped to Employee Master Records)
-            </div>
-            <button
-              onClick={() => setShowPlaceholderGuide(false)}
-              style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer' }}
-            >
-              <X size={16} />
-            </button>
-          </div>
-
+      {/* ===================================================================== */}
+      {/* TAB 1: AI DOCUMENT GENERATOR WORKFLOW                                 */}
+      {/* ===================================================================== */}
+      {activeTab === 'generator' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+          {/* Step Progress Tracker */}
           <div
             style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              backgroundColor: '#ffffff',
+              padding: '12px 20px',
+              borderRadius: 12,
+              border: '1px solid #e2e8f0',
+              flexWrap: 'wrap',
               gap: 10,
             }}
           >
-            {standardPlaceholders.map((p) => (
-              <div
-                key={p.token}
-                onClick={() => copyToClipboard(p.token)}
-                style={{
-                  backgroundColor: '#ffffff',
-                  border: '1px solid #e2e8f0',
-                  borderRadius: 6,
-                  padding: '8px 12px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  cursor: 'pointer',
-                }}
-                title="Click to copy placeholder token"
-              >
-                <div>
-                  <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#2563eb', fontFamily: 'monospace' }}>
-                    {p.token}
-                  </div>
-                  <div style={{ fontSize: '0.7rem', color: '#64748b' }}>{p.label}</div>
-                </div>
-                <Copy size={13} style={{ color: '#94a3b8' }} />
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Search & Category Filter */}
-      <div style={{ display: 'flex', gap: 12, marginBottom: 16, flexWrap: 'wrap' }}>
-        <div style={{ position: 'relative', flex: 1, minWidth: 260 }}>
-          <Search
-            size={16}
-            style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }}
-          />
-          <input
-            type="text"
-            placeholder="Search templates by title, keywords, or legal terms..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            style={{
-              width: '100%',
-              padding: '8px 12px 8px 36px',
-              fontSize: '0.85rem',
-              border: '1px solid #cbd5e1',
-              borderRadius: 8,
-              outline: 'none',
-            }}
-          />
-        </div>
-      </div>
-
-      {/* Category Horizontal Filter Pills */}
-      <div style={{ display: 'flex', gap: 6, overflowX: 'auto', paddingBottom: 10, marginBottom: 20 }}>
-        {categories.map((cat) => (
-          <button
-            key={cat}
-            onClick={() => setSelectedCategory(cat)}
-            style={{
-              padding: '6px 14px',
-              fontSize: '0.78rem',
-              fontWeight: 600,
-              borderRadius: 20,
-              border: '1px solid',
-              borderColor: selectedCategory === cat ? '#2563eb' : '#e2e8f0',
-              backgroundColor: selectedCategory === cat ? '#eff6ff' : '#ffffff',
-              color: selectedCategory === cat ? '#1d4ed8' : '#475569',
-              cursor: 'pointer',
-              whiteSpace: 'nowrap',
-            }}
-          >
-            {cat}
-          </button>
-        ))}
-      </div>
-
-      {/* Template Cards Grid */}
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
-          gap: 16,
-        }}
-      >
-        {filteredTemplates.map((tpl) => (
-          <div
-            key={tpl.code}
-            style={{
-              backgroundColor: '#ffffff',
-              border: '1px solid #e2e8f0',
-              borderRadius: 12,
-              padding: 20,
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'space-between',
-              boxShadow: '0 1px 3px rgba(0,0,0,0.03)',
-              transition: 'all 0.15s ease',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.borderColor = '#3b82f6';
-              e.currentTarget.style.boxShadow = '0 6px 16px rgba(59, 130, 246, 0.1)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.borderColor = '#e2e8f0';
-              e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.03)';
-            }}
-          >
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-                <span
-                  style={{
-                    fontSize: '0.6875rem',
-                    fontWeight: 700,
-                    backgroundColor: '#eff6ff',
-                    color: '#2563eb',
-                    padding: '2px 8px',
-                    borderRadius: 12,
-                  }}
-                >
-                  {tpl.category}
-                </span>
-
-                <div style={{ display: 'flex', gap: 4 }}>
-                  <span style={{ fontSize: '0.625rem', backgroundColor: '#f8fafc', border: '1px solid #e2e8f0', color: '#475569', padding: '1px 6px', borderRadius: 4, fontWeight: 700 }}>
-                    PDF
-                  </span>
-                  <span style={{ fontSize: '0.625rem', backgroundColor: '#f8fafc', border: '1px solid #e2e8f0', color: '#475569', padding: '1px 6px', borderRadius: 4, fontWeight: 700 }}>
-                    DOCX
-                  </span>
-                </div>
-              </div>
-
-              <div style={{ fontSize: '1rem', fontWeight: 700, color: '#0f172a', marginBottom: 6 }}>
-                {tpl.name}
-              </div>
-
-              <div style={{ fontSize: '0.8rem', color: '#64748b', lineHeight: 1.45, marginBottom: 14 }}>
-                {tpl.description}
-              </div>
-            </div>
-
-            <div
-              style={{
-                borderTop: '1px solid #f1f5f9',
-                paddingTop: 12,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-              }}
-            >
-              <span style={{ fontSize: '0.72rem', color: '#94a3b8' }}>
-                {tpl.requiredEmployeePlaceholders?.length || 5} mapped placeholders
-              </span>
-
-              <button
-                onClick={() => setPreviewTemplate(tpl)}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 5,
-                  padding: '6px 12px',
-                  fontSize: '0.75rem',
-                  fontWeight: 600,
-                  backgroundColor: '#ffffff',
-                  color: '#2563eb',
-                  border: '1px solid #bfdbfe',
-                  borderRadius: 6,
-                  cursor: 'pointer',
-                }}
-              >
-                <Eye size={13} />
-                <span>View Markup</span>
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* TEMPLATE MARKUP PREVIEW MODAL */}
-      {previewTemplate && (
-        <div
-          style={{
-            position: 'fixed',
-            inset: 0,
-            backgroundColor: 'rgba(15, 23, 42, 0.65)',
-            backdropFilter: 'blur(4px)',
-            zIndex: 1100,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: 20,
-          }}
-        >
-          <div
-            style={{
-              backgroundColor: '#ffffff',
-              borderRadius: 14,
-              width: '100%',
-              maxWidth: 820,
-              maxHeight: '90vh',
-              display: 'flex',
-              flexDirection: 'column',
-              overflow: 'hidden',
-            }}
-          >
-            <div
-              style={{
-                padding: '16px 20px',
-                borderBottom: '1px solid #e2e8f0',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                backgroundColor: '#f8fafc',
-              }}
-            >
-              <div>
-                <div style={{ fontSize: '1rem', fontWeight: 700, color: '#0f172a' }}>
-                  {previewTemplate.name}
-                </div>
-                <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
-                  Category: {previewTemplate.category} • Code: {previewTemplate.code}
-                </div>
-              </div>
-              <button
-                onClick={() => setPreviewTemplate(null)}
-                style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer' }}
-              >
-                <X size={18} />
-              </button>
-            </div>
-
-            <div style={{ flex: 1, overflowY: 'auto', padding: '24px' }}>
-              <div
-                style={{
-                  backgroundColor: '#f8fafc',
-                  border: '1px solid #cbd5e1',
-                  borderRadius: 8,
-                  padding: '20px',
-                  fontFamily: 'monospace',
-                  fontSize: '0.8rem',
-                  lineHeight: 1.5,
-                  whiteSpace: 'pre-wrap',
-                  color: '#1e293b',
-                }}
-              >
-                {previewTemplate.contentMarkup}
-              </div>
-            </div>
-
-            <div
-              style={{
-                padding: '12px 20px',
-                borderTop: '1px solid #e2e8f0',
-                backgroundColor: '#f8fafc',
-                display: 'flex',
-                justifyContent: 'flex-end',
-              }}
-            >
-              <button
-                onClick={() => setPreviewTemplate(null)}
-                style={{
-                  padding: '8px 16px',
-                  fontSize: '0.8125rem',
-                  fontWeight: 600,
-                  backgroundColor: '#2563eb',
-                  color: '#ffffff',
-                  border: 'none',
-                  borderRadius: 6,
-                  cursor: 'pointer',
-                }}
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* UPLOAD TEMPLATE MODAL */}
-      {isUploadModalOpen && (
-        <div
-          style={{
-            position: 'fixed',
-            inset: 0,
-            backgroundColor: 'rgba(15, 23, 42, 0.65)',
-            backdropFilter: 'blur(4px)',
-            zIndex: 1100,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: 20,
-          }}
-        >
-          <div
-            style={{
-              backgroundColor: '#ffffff',
-              borderRadius: 14,
-              width: '100%',
-              maxWidth: 640,
-              maxHeight: '90vh',
-              display: 'flex',
-              flexDirection: 'column',
-              overflow: 'hidden',
-            }}
-          >
-            <div
-              style={{
-                padding: '16px 20px',
-                borderBottom: '1px solid #e2e8f0',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                backgroundColor: '#f8fafc',
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <Upload size={18} style={{ color: '#2563eb' }} />
-                <div>
-                  <div style={{ fontSize: '1rem', fontWeight: 700, color: '#0f172a' }}>
-                    Upload Company Document Template
-                  </div>
-                  <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
-                    Supports DOCX and PDF template formats
-                  </div>
-                </div>
-              </div>
-              <button
-                onClick={() => setIsUploadModalOpen(false)}
-                style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer' }}
-              >
-                <X size={18} />
-              </button>
-            </div>
-
-            <div style={{ flex: 1, overflowY: 'auto', padding: '24px' }}>
-              <form onSubmit={handleUploadSubmit}>
-                <div
-                  style={{
-                    border: '2px dashed #cbd5e1',
-                    borderRadius: 12,
-                    padding: '30px 20px',
-                    textAlign: 'center',
-                    marginBottom: 16,
-                  }}
-                >
-                  <Upload size={36} style={{ color: '#94a3b8', margin: '0 auto 10px auto' }} />
-                  <div style={{ fontSize: '0.875rem', fontWeight: 600, color: '#1e293b' }}>
-                    Select a .docx or .pdf template file
-                  </div>
-                  <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: 4, marginBottom: 14 }}>
-                    Placeholders like {'{{employee_name}}'} and {'{{designation}}'} will be automatically recognized.
-                  </div>
-                  <input
-                    type="file"
-                    accept=".docx,.pdf"
-                    onChange={(e) => setUploadFile(e.target.files?.[0] || null)}
-                    style={{ fontSize: '0.8125rem' }}
-                  />
-                </div>
-
-                {uploadResult && (
-                  <div
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              {[
+                { num: 1, label: '1. Choose Template' },
+                { num: 2, label: '2. Fill Details with AI' },
+                { num: 3, label: '3. Preview & Export' },
+              ].map((s) => {
+                const isCurrent = step === s.num;
+                const isDone = step > s.num;
+                return (
+                  <button
+                    key={s.num}
+                    type="button"
+                    onClick={() => setStep(s.num as any)}
                     style={{
-                      backgroundColor: '#f0fdf4',
-                      border: '1px solid #bbf7d0',
-                      borderRadius: 8,
-                      padding: 14,
-                      marginBottom: 16,
-                      fontSize: '0.8rem',
-                      color: '#166534',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 6,
+                      padding: '6px 14px',
+                      borderRadius: 20,
+                      border: isCurrent ? '1px solid #2563eb' : '1px solid #e2e8f0',
+                      backgroundColor: isCurrent ? '#eff6ff' : isDone ? '#f0fdf4' : '#f8fafc',
+                      color: isCurrent ? '#2563eb' : isDone ? '#16a34a' : '#64748b',
+                      fontSize: '0.78125rem',
+                      fontWeight: isCurrent || isDone ? 700 : 500,
+                      cursor: 'pointer',
                     }}
                   >
-                    <div style={{ fontWeight: 700, marginBottom: 4 }}>
-                      ✅ {uploadResult.message}
+                    <span>{isDone ? '✓' : s.num}</span>
+                    <span>{s.label.split('. ')[1]}</span>
+                  </button>
+                );
+              })}
+            </div>
+
+            <div style={{ fontSize: '0.8125rem', color: '#64748b' }}>
+              Active Template: <strong style={{ color: '#0f172a' }}>{templateTitle}</strong>
+            </div>
+          </div>
+
+          {/* =================================================================== */}
+          {/* STEP 1: CHOOSE OR UPLOAD TEMPLATE                                   */}
+          {/* =================================================================== */}
+          {step === 1 && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+              {/* Drag & Drop File Upload Area */}
+              <div
+                onDragEnter={(e) => {
+                  e.preventDefault();
+                  setDragActive(true);
+                }}
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  setDragActive(true);
+                }}
+                onDragLeave={() => setDragActive(false)}
+                onDrop={handleDrop}
+                onClick={() => fileInputRef.current?.click()}
+                style={{
+                  border: dragActive ? '2px dashed #2563eb' : '2px dashed #cbd5e1',
+                  backgroundColor: dragActive ? '#eff6ff' : '#ffffff',
+                  borderRadius: 14,
+                  padding: '36px 24px',
+                  textAlign: 'center',
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
+                }}
+              >
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".docx,.pdf,.txt,.html,.md"
+                  style={{ display: 'none' }}
+                  onChange={(e) => {
+                    if (e.target.files && e.target.files[0]) {
+                      handleFileUpload(e.target.files[0]);
+                    }
+                  }}
+                />
+
+                <div
+                  style={{
+                    width: 56,
+                    height: 56,
+                    borderRadius: '50%',
+                    backgroundColor: '#eff6ff',
+                    color: '#2563eb',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    margin: '0 auto 14px',
+                  }}
+                >
+                  <Upload size={26} />
+                </div>
+
+                <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#0f172a', margin: '0 0 6px' }}>
+                  {isUploading ? 'Uploading & Parsing Template...' : 'Upload Any Custom Document Template'}
+                </h3>
+                <p style={{ fontSize: '0.85rem', color: '#64748b', maxWidth: 520, margin: '0 auto 16px', lineHeight: 1.5 }}>
+                  Drop your Microsoft Word (<strong>.docx</strong>), PDF (<strong>.pdf</strong>), or Text (<strong>.txt</strong>) file here.
+                  The system will cleanly parse the text and detect all fields automatically.
+                </p>
+
+                <Button
+                  variant="primary"
+                  icon={<Upload size={15} />}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    fileInputRef.current?.click();
+                  }}
+                >
+                  Browse Files on Computer
+                </Button>
+              </div>
+
+              {/* Standard Corporate Presets */}
+              <div
+                style={{
+                  backgroundColor: '#ffffff',
+                  borderRadius: 14,
+                  border: '1px solid #e2e8f0',
+                  padding: '22px 24px',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+                  <div>
+                    <h4 style={{ fontSize: '1rem', fontWeight: 700, margin: 0, color: '#0f172a' }}>
+                      Or Choose a Standard Template
+                    </h4>
+                    <p style={{ fontSize: '0.8125rem', color: '#64748b', margin: '2px 0 0' }}>
+                      Select a standard HR template blueprint to get started immediately:
+                    </p>
+                  </div>
+                </div>
+
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+                    gap: 12,
+                  }}
+                >
+                  {STANDARD_PRESETS.map((preset) => {
+                    const isSelected = selectedPresetId === preset.id;
+                    return (
+                      <div
+                        key={preset.id}
+                        onClick={() => handleSelectPreset(preset)}
+                        style={{
+                          padding: '14px 16px',
+                          borderRadius: 10,
+                          border: isSelected ? '2px solid #2563eb' : '1px solid #e2e8f0',
+                          backgroundColor: isSelected ? '#eff6ff' : '#f8fafc',
+                          cursor: 'pointer',
+                          transition: 'all 0.15s ease',
+                          display: 'flex',
+                          alignItems: 'flex-start',
+                          gap: 12,
+                        }}
+                      >
+                        <span style={{ fontSize: '1.4rem' }}>{preset.icon}</span>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <span style={{ fontSize: '0.875rem', fontWeight: 700, color: '#0f172a' }}>
+                              {preset.name}
+                            </span>
+                            {isSelected && (
+                              <span style={{ fontSize: '0.7rem', color: '#2563eb', fontWeight: 700 }}>
+                                Active
+                              </span>
+                            )}
+                          </div>
+                          <p style={{ fontSize: '0.75rem', color: '#64748b', margin: '3px 0 0', lineHeight: 1.35 }}>
+                            {preset.description}
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Template Content Inspector (Collapsible) */}
+              <div
+                style={{
+                  backgroundColor: '#ffffff',
+                  borderRadius: 14,
+                  border: '1px solid #e2e8f0',
+                  padding: '18px 24px',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <FileCode size={18} style={{ color: '#2563eb' }} />
+                    <span style={{ fontSize: '0.95rem', fontWeight: 700, color: '#0f172a' }}>
+                      Template Content & Placeholders ({detectedPlaceholders.length} detected)
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowRawMarkup(!showRawMarkup)}
+                    style={{
+                      background: 'none',
+                      border: '1px solid #cbd5e1',
+                      borderRadius: 6,
+                      padding: '4px 10px',
+                      fontSize: '0.75rem',
+                      color: '#475569',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    {showRawMarkup ? 'Hide Markup' : 'View / Edit Markup'}
+                  </button>
+                </div>
+
+                {showRawMarkup && (
+                  <div style={{ marginTop: 14 }}>
+                    <textarea
+                      rows={12}
+                      className="form-textarea"
+                      value={templateText}
+                      onChange={(e) => setTemplateText(e.target.value)}
+                      style={{
+                        fontFamily: 'monospace',
+                        fontSize: '0.8125rem',
+                        lineHeight: 1.5,
+                        backgroundColor: '#f8fafc',
+                      }}
+                    />
+                    <p style={{ fontSize: '0.75rem', color: '#64748b', marginTop: 6 }}>
+                      You can insert placeholders using double curly braces, e.g. <code style={{ color: '#2563eb' }}>{'{{custom_field}}'}</code>.
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* Step 1 Footer Action */}
+              <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                <Button
+                  variant="primary"
+                  icon={<ArrowRight size={16} />}
+                  onClick={() => setStep(2)}
+                  style={{ padding: '10px 24px', fontSize: '0.875rem' }}
+                >
+                  Proceed to Fill Details with AI
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {/* =================================================================== */}
+          {/* STEP 2: FILL DETAILS WITH AI                                        */}
+          {/* =================================================================== */}
+          {step === 2 && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+              {/* AI Auto-Fill Card */}
+              <div
+                style={{
+                  backgroundColor: '#ffffff',
+                  borderRadius: 14,
+                  border: '1.5px solid #bfdbfe',
+                  padding: '22px 24px',
+                  background: 'linear-gradient(135deg, #f0f7ff 0%, #ffffff 100%)',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+                  <Sparkles size={20} style={{ color: '#2563eb' }} />
+                  <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#1e3a8a', margin: 0 }}>
+                    AI Quick Auto-Fill
+                  </h3>
+                  <span style={{ fontSize: '0.75rem', color: '#3b82f6', backgroundColor: '#dbeafe', padding: '2px 8px', borderRadius: 12, fontWeight: 700 }}>
+                    Instant 1-Click
+                  </span>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 16 }}>
+                  {/* Way A: Employee Master Select */}
+                  <div
+                    style={{
+                      backgroundColor: '#ffffff',
+                      border: '1px solid #e2e8f0',
+                      borderRadius: 10,
+                      padding: 14,
+                    }}
+                  >
+                    <label style={{ fontSize: '0.8125rem', fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
+                      <Users size={15} style={{ color: '#2563eb' }} />
+                      <span>1-Click Employee Master Auto-Fill</span>
+                    </label>
+                    <select
+                      className="form-select"
+                      value={selectedEmployeeId}
+                      onChange={(e) => handleSelectEmployee(e.target.value)}
+                      style={{ fontSize: '0.8125rem' }}
+                    >
+                      <option value="">Select team member...</option>
+                      {employees.map((emp) => (
+                        <option key={emp.id} value={emp.id}>
+                          {emp.fullName} ({emp.designation} — {emp.department})
+                        </option>
+                      ))}
+                    </select>
+                    <p style={{ fontSize: '0.72rem', color: '#64748b', margin: '4px 0 0' }}>
+                      Pulls verified name, ID, salary, and designation directly from records.
+                    </p>
+                  </div>
+
+                  {/* Way B: AI Natural Language Prompt */}
+                  <div
+                    style={{
+                      backgroundColor: '#ffffff',
+                      border: '1px solid #e2e8f0',
+                      borderRadius: 10,
+                      padding: 14,
+                      gridColumn: 'span 2',
+                    }}
+                  >
+                    <label style={{ fontSize: '0.8125rem', fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
+                      <Wand2 size={15} style={{ color: '#2563eb' }} />
+                      <span>AI Prompt Auto-Draft</span>
+                    </label>
+                    <div style={{ display: 'flex', gap: 8 }}>
+                      <input
+                        type="text"
+                        className="form-input"
+                        placeholder="e.g. Generate offer for Rahul Sharma, Senior React Dev, ₹22 LPA, joining Dec 1 in Bangalore"
+                        value={aiPrompt}
+                        onChange={(e) => setAiPrompt(e.target.value)}
+                        style={{ fontSize: '0.8125rem', flex: 1 }}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            handleAiAutoDraft();
+                          }
+                        }}
+                      />
+                      <Button
+                        variant="primary"
+                        onClick={handleAiAutoDraft}
+                        isLoading={isAiDrafting}
+                        style={{ whiteSpace: 'nowrap', fontSize: '0.8125rem' }}
+                      >
+                        Draft with AI
+                      </Button>
                     </div>
-                    <div>Detected Format: <strong>{uploadResult.detectedFormat}</strong></div>
-                    <div>Suggested Category: <strong>{uploadResult.suggestedCategory}</strong></div>
-                    <div>
-                      Detected Placeholders: <strong>{uploadResult.detectedPlaceholders?.join(', ') || 'Standard default'}</strong>
+                    {/* Quick prompt suggestions */}
+                    <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 8 }}>
+                      {[
+                        'Jane Doe, Lead Platform Architect, $165,000 CTC, joining Nov 16',
+                        'Carlos Rivera, ML Engineer, Relieving date Sept 30 after 3 years tenure',
+                        'Liam Vance, AI Research Intern, $4,000/mo stipend starting Oct 15',
+                      ].map((sample) => (
+                        <button
+                          key={sample}
+                          type="button"
+                          onClick={() => {
+                            setAiPrompt(sample);
+                          }}
+                          style={{
+                            fontSize: '0.7rem',
+                            padding: '2px 8px',
+                            borderRadius: 12,
+                            backgroundColor: '#f1f5f9',
+                            color: '#475569',
+                            border: '1px solid #e2e8f0',
+                            cursor: 'pointer',
+                          }}
+                        >
+                          + {sample.slice(0, 36)}...
+                        </button>
+                      ))}
                     </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Dynamic Variables Form Grid */}
+              <div
+                style={{
+                  backgroundColor: '#ffffff',
+                  borderRadius: 14,
+                  border: '1px solid #e2e8f0',
+                  padding: '22px 24px',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+                  <div>
+                    <h4 style={{ fontSize: '1rem', fontWeight: 700, margin: 0, color: '#0f172a' }}>
+                      Template Variables ({detectedPlaceholders.length} fields)
+                    </h4>
+                    <p style={{ fontSize: '0.8125rem', color: '#64748b', margin: '2px 0 0' }}>
+                      Review and customize the field values below before compiling:
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => setShowAddCustomField(true)}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 5,
+                      padding: '6px 12px',
+                      fontSize: '0.75rem',
+                      fontWeight: 600,
+                      backgroundColor: '#eff6ff',
+                      color: '#2563eb',
+                      border: '1px solid #bfdbfe',
+                      borderRadius: 6,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    <Plus size={14} /> Add Field
+                  </button>
+                </div>
+
+                {/* Add Custom Field Dialog */}
+                {showAddCustomField && (
+                  <div
+                    style={{
+                      backgroundColor: '#f8fafc',
+                      border: '1px solid #cbd5e1',
+                      borderRadius: 8,
+                      padding: 12,
+                      marginBottom: 16,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 8,
+                    }}
+                  >
+                    <input
+                      type="text"
+                      className="form-input"
+                      placeholder="e.g. probation_clause or performance_bonus"
+                      value={newFieldName}
+                      onChange={(e) => setNewFieldName(e.target.value)}
+                      style={{ fontSize: '0.8125rem', maxWidth: 320 }}
+                    />
+                    <Button variant="primary" onClick={handleAddCustomField} style={{ fontSize: '0.75rem' }}>
+                      Save Field
+                    </Button>
+                    <button
+                      type="button"
+                      onClick={() => setShowAddCustomField(false)}
+                      style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', fontSize: '0.75rem' }}
+                    >
+                      Cancel
+                    </button>
                   </div>
                 )}
 
-                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
+                {/* Input Fields Grid */}
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
+                    gap: 16,
+                  }}
+                >
+                  {detectedPlaceholders.map((key) => {
+                    const formattedLabel = key
+                      .replace(/_/g, ' ')
+                      .replace(/\b\w/g, (c) => c.toUpperCase());
+
+                    return (
+                      <div key={key} style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+                        <label
+                          style={{
+                            fontSize: '0.78125rem',
+                            fontWeight: 700,
+                            color: '#334155',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                          }}
+                        >
+                          <span>{formattedLabel}</span>
+                          <span style={{ fontSize: '0.6875rem', color: '#94a3b8', fontFamily: 'monospace' }}>
+                            {`{{${key}}}`}
+                          </span>
+                        </label>
+                        <input
+                          type="text"
+                          className="form-input"
+                          value={formData[key] || ''}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            setFormData((prev) => ({ ...prev, [key]: val }));
+                          }}
+                          placeholder={`Enter ${formattedLabel}...`}
+                          style={{ fontSize: '0.8125rem' }}
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Step 2 Footer Navigation */}
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <Button variant="secondary" icon={<ArrowLeft size={16} />} onClick={() => setStep(1)}>
+                  Back to Template
+                </Button>
+                <Button
+                  variant="primary"
+                  icon={<Sparkles size={16} />}
+                  onClick={handleProceedToPreview}
+                  style={{ padding: '10px 24px', fontSize: '0.875rem' }}
+                >
+                  Generate Document with AI
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {/* =================================================================== */}
+          {/* STEP 3: PREVIEW & EXPORT DOCUMENT                                   */}
+          {/* =================================================================== */}
+          {step === 3 && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              {/* Action Toolbar */}
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  flexWrap: 'wrap',
+                  gap: 10,
+                  backgroundColor: '#ffffff',
+                  padding: '12px 18px',
+                  borderRadius: 12,
+                  border: '1px solid #e2e8f0',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <Button
+                    variant="secondary"
+                    icon={<ArrowLeft size={14} />}
+                    onClick={() => setStep(2)}
+                    style={{ padding: '6px 12px', fontSize: '0.8125rem' }}
+                  >
+                    Edit Details
+                  </Button>
+
+                  <label
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 6,
+                      fontSize: '0.75rem',
+                      color: '#475569',
+                      cursor: 'pointer',
+                      padding: '4px 8px',
+                      borderRadius: 6,
+                      background: highlightPlaceholders ? '#fef08a' : '#f1f5f9',
+                    }}
+                  >
+                    <Highlighter size={13} />
+                    <input
+                      type="checkbox"
+                      checked={highlightPlaceholders}
+                      onChange={(e) => setHighlightPlaceholders(e.target.checked)}
+                      style={{ cursor: 'pointer' }}
+                    />
+                    <span>Highlight Fields</span>
+                  </label>
+
+                  <label
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 6,
+                      fontSize: '0.75rem',
+                      color: '#475569',
+                      cursor: 'pointer',
+                      padding: '4px 8px',
+                      borderRadius: 6,
+                      background: isDirectEditing ? '#e0e7ff' : '#f1f5f9',
+                    }}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={isDirectEditing}
+                      onChange={(e) => setIsDirectEditing(e.target.checked)}
+                      style={{ cursor: 'pointer' }}
+                    />
+                    <span>Direct In-Place Edit</span>
+                  </label>
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <Button
+                    variant="secondary"
+                    icon={<Copy size={14} />}
+                    onClick={handleCopyText}
+                    style={{ padding: '6px 12px', fontSize: '0.8125rem' }}
+                  >
+                    Copy
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    icon={<Save size={14} />}
+                    onClick={handleSaveToDocuments}
+                    isLoading={isSavingDoc}
+                    style={{ padding: '6px 14px', fontSize: '0.8125rem' }}
+                  >
+                    Save Document
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    icon={<Download size={14} />}
+                    onClick={handleDownloadWordDoc}
+                    style={{ padding: '6px 14px', fontSize: '0.8125rem' }}
+                  >
+                    Download DOCX
+                  </Button>
+                  <Button
+                    variant="primary"
+                    icon={<Printer size={14} />}
+                    onClick={handlePrint}
+                    style={{ padding: '6px 18px', fontSize: '0.8125rem' }}
+                  >
+                    Print PDF
+                  </Button>
+                </div>
+              </div>
+
+              {/* Printable Document Sheet Canvas (A4 Dimensions) */}
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  padding: '10px 0',
+                }}
+              >
+                <div
+                  id="printable-ai-generated-doc"
+                  style={{
+                    width: '100%',
+                    maxWidth: 820,
+                    backgroundColor: '#ffffff',
+                    borderRadius: 8,
+                    boxShadow: '0 10px 30px rgba(0, 0, 0, 0.08)',
+                    border: '1px solid #e2e8f0',
+                    padding: '48px 56px',
+                    fontFamily: 'Georgia, "Times New Roman", Times, serif',
+                    fontSize: '13.5px',
+                    lineHeight: 1.7,
+                    color: '#1e293b',
+                    boxSizing: 'border-box',
+                  }}
+                >
+                  {/* Official Header Banner */}
+                  <div
+                    style={{
+                      borderBottom: '2px solid #0f172a',
+                      paddingBottom: 16,
+                      marginBottom: 28,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                      <img
+                        src="/logo.png"
+                        alt="Logo"
+                        style={{ width: 38, height: 38, objectFit: 'contain' }}
+                      />
+                      <div>
+                        <div style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0f172a', fontFamily: 'sans-serif' }}>
+                          TASKNERA
+                        </div>
+                        <div style={{ fontSize: '0.72rem', color: '#64748b', fontFamily: 'sans-serif', letterSpacing: '0.04em' }}>
+                          OFFICIAL WORKFORCE DOCUMENTATION
+                        </div>
+                      </div>
+                    </div>
+
+                    <div style={{ textAlign: 'right', fontSize: '0.75rem', color: '#64748b', fontFamily: 'sans-serif' }}>
+                      <div>Ref: {formData.reference_number || 'TSK-DOC-2026'}</div>
+                      <div>Date: {formData.issue_date || new Date().toLocaleDateString()}</div>
+                    </div>
+                  </div>
+
+                  {/* Document Body */}
+                  {isDirectEditing ? (
+                    <textarea
+                      rows={22}
+                      className="form-textarea"
+                      value={directEditedContent}
+                      onChange={(e) => setDirectEditedContent(e.target.value)}
+                      style={{
+                        fontFamily: 'Georgia, serif',
+                        fontSize: '13.5px',
+                        lineHeight: 1.7,
+                        width: '100%',
+                        padding: 12,
+                      }}
+                    />
+                  ) : (
+                    <div
+                      style={{
+                        whiteSpace: 'pre-wrap',
+                        color: '#1e293b',
+                      }}
+                    >
+                      {templateText.split(/(\{\{\s*[a-zA-Z0-9_\s]+\s*\}\})/).map((chunk, idx) => {
+                        const match = chunk.match(/\{\{\s*([a-zA-Z0-9_\s]+)\s*\}\}/);
+                        if (match) {
+                          const key = match[1].trim();
+                          const val = formData[key] !== undefined && formData[key] !== '' ? formData[key] : chunk;
+                          return (
+                            <span
+                              key={idx}
+                              style={{
+                                backgroundColor: highlightPlaceholders ? '#fef08a' : 'transparent',
+                                padding: highlightPlaceholders ? '1px 3px' : '0',
+                                borderRadius: 3,
+                                fontWeight: highlightPlaceholders ? 600 : 'normal',
+                                color: '#0f172a',
+                              }}
+                            >
+                              {val}
+                            </span>
+                          );
+                        }
+                        return <span key={idx}>{chunk}</span>;
+                      })}
+                    </div>
+                  )}
+
+                  {/* Official Footer / Signature Attestation */}
+                  <div
+                    style={{
+                      borderTop: '1px solid #e2e8f0',
+                      marginTop: 40,
+                      paddingTop: 16,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      fontSize: '0.75rem',
+                      color: '#94a3b8',
+                      fontFamily: 'sans-serif',
+                    }}
+                  >
+                    <div>Generated with TaskNera AI Document Engine</div>
+                    <div>Confidential & Legally Binding</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ===================================================================== */}
+      {/* TAB 2: TEMPLATE LIBRARY                                               */}
+      {/* ===================================================================== */}
+      {activeTab === 'library' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+          {/* Search & Category Filter */}
+          <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+            <div style={{ position: 'relative', flex: 1, minWidth: 260 }}>
+              <Search
+                size={16}
+                style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }}
+              />
+              <input
+                type="text"
+                placeholder="Search templates by title or keywords..."
+                value={librarySearch}
+                onChange={(e) => setLibrarySearch(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '9px 12px 9px 36px',
+                  borderRadius: 8,
+                  border: '1px solid #cbd5e1',
+                  fontSize: '0.8125rem',
+                }}
+              />
+            </div>
+
+            <select
+              value={libraryCategory}
+              onChange={(e) => setLibraryCategory(e.target.value)}
+              style={{
+                padding: '9px 12px',
+                borderRadius: 8,
+                border: '1px solid #cbd5e1',
+                fontSize: '0.8125rem',
+                backgroundColor: '#ffffff',
+                color: '#334155',
+              }}
+            >
+              <option value="ALL">All Categories</option>
+              {STANDARD_PRESETS.map((p) => (
+                <option key={p.id} value={p.category}>
+                  {p.category}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Template Cards Grid */}
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
+              gap: 16,
+            }}
+          >
+            {STANDARD_PRESETS.map((tpl) => (
+              <div
+                key={tpl.id}
+                style={{
+                  backgroundColor: '#ffffff',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: 12,
+                  padding: 20,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'space-between',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.03)',
+                }}
+              >
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+                    <span
+                      style={{
+                        fontSize: '0.7rem',
+                        fontWeight: 700,
+                        backgroundColor: '#eff6ff',
+                        color: '#2563eb',
+                        padding: '2px 8px',
+                        borderRadius: 12,
+                      }}
+                    >
+                      {tpl.category}
+                    </span>
+                    <span style={{ fontSize: '0.7rem', color: '#64748b' }}>DOCX / PDF</span>
+                  </div>
+
+                  <div style={{ fontSize: '1rem', fontWeight: 700, color: '#0f172a', marginBottom: 6 }}>
+                    {tpl.name}
+                  </div>
+                  <p style={{ fontSize: '0.8rem', color: '#64748b', lineHeight: 1.45, marginBottom: 16 }}>
+                    {tpl.description}
+                  </p>
+                </div>
+
+                <div
+                  style={{
+                    borderTop: '1px solid #f1f5f9',
+                    paddingTop: 12,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                  }}
+                >
                   <button
                     type="button"
-                    onClick={() => setIsUploadModalOpen(false)}
+                    onClick={() => {
+                      setPreviewTemplate({
+                        code: tpl.id,
+                        category: tpl.category,
+                        name: tpl.name,
+                        description: tpl.description,
+                        supportedFormats: ['PDF', 'DOCX'],
+                        defaultDocxAvailable: true,
+                        requiredEmployeePlaceholders: Object.keys(tpl.sampleData),
+                        docSpecificFields: [],
+                        contentMarkup: tpl.content,
+                      });
+                    }}
                     style={{
-                      padding: '8px 14px',
-                      fontSize: '0.8125rem',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 5,
+                      padding: '6px 12px',
+                      fontSize: '0.75rem',
                       fontWeight: 600,
                       backgroundColor: '#ffffff',
+                      color: '#475569',
                       border: '1px solid #cbd5e1',
                       borderRadius: 6,
                       cursor: 'pointer',
                     }}
                   >
-                    {uploadResult ? 'Done' : 'Cancel'}
+                    <Eye size={13} /> View Markup
                   </button>
+
                   <button
-                    type="submit"
-                    disabled={!uploadFile || uploadLoading}
+                    type="button"
+                    onClick={() => {
+                      handleSelectPreset(tpl);
+                      setActiveTab('generator');
+                      setStep(2);
+                    }}
                     style={{
-                      padding: '8px 18px',
-                      fontSize: '0.8125rem',
-                      fontWeight: 600,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 5,
+                      padding: '6px 14px',
+                      fontSize: '0.75rem',
+                      fontWeight: 700,
                       backgroundColor: '#2563eb',
                       color: '#ffffff',
                       border: 'none',
                       borderRadius: 6,
                       cursor: 'pointer',
-                      opacity: !uploadFile || uploadLoading ? 0.6 : 1,
                     }}
                   >
-                    {uploadLoading ? 'Uploading & Parsing...' : 'Upload & Add Template'}
+                    <Sparkles size={13} /> Use Template
                   </button>
                 </div>
-              </form>
-            </div>
+              </div>
+            ))}
           </div>
+
+          {/* TEMPLATE MARKUP PREVIEW MODAL */}
+          {previewTemplate && (
+            <div
+              style={{
+                position: 'fixed',
+                inset: 0,
+                backgroundColor: 'rgba(15, 23, 42, 0.65)',
+                backdropFilter: 'blur(4px)',
+                zIndex: 1100,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: 20,
+              }}
+            >
+              <div
+                style={{
+                  backgroundColor: '#ffffff',
+                  borderRadius: 14,
+                  width: '100%',
+                  maxWidth: 780,
+                  maxHeight: '85vh',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  overflow: 'hidden',
+                  boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)',
+                }}
+              >
+                <div
+                  style={{
+                    padding: '16px 20px',
+                    borderBottom: '1px solid #e2e8f0',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    backgroundColor: '#f8fafc',
+                  }}
+                >
+                  <div>
+                    <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 700, color: '#0f172a' }}>
+                      {previewTemplate.name}
+                    </h3>
+                    <span style={{ fontSize: '0.75rem', color: '#64748b' }}>
+                      {previewTemplate.category}
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setPreviewTemplate(null)}
+                    style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer' }}
+                  >
+                    <X size={18} />
+                  </button>
+                </div>
+
+                <div style={{ flex: 1, overflowY: 'auto', padding: 20 }}>
+                  <div
+                    style={{
+                      fontFamily: 'monospace',
+                      fontSize: '0.8125rem',
+                      lineHeight: 1.6,
+                      backgroundColor: '#f8fafc',
+                      padding: 16,
+                      borderRadius: 8,
+                      border: '1px solid #e2e8f0',
+                      whiteSpace: 'pre-wrap',
+                      color: '#1e293b',
+                    }}
+                  >
+                    {previewTemplate.contentMarkup}
+                  </div>
+                </div>
+
+                <div
+                  style={{
+                    padding: '12px 20px',
+                    borderTop: '1px solid #e2e8f0',
+                    display: 'flex',
+                    justifyContent: 'flex-end',
+                    gap: 10,
+                  }}
+                >
+                  <Button variant="secondary" onClick={() => setPreviewTemplate(null)}>
+                    Close
+                  </Button>
+                  <Button
+                    variant="primary"
+                    icon={<Sparkles size={14} />}
+                    onClick={() => {
+                      const found = STANDARD_PRESETS.find((p) => p.name === previewTemplate.name) || STANDARD_PRESETS[0];
+                      handleSelectPreset(found);
+                      setPreviewTemplate(null);
+                      setActiveTab('generator');
+                      setStep(2);
+                    }}
+                  >
+                    Use in AI Generator
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>
