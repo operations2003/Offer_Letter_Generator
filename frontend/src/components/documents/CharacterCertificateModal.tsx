@@ -550,11 +550,11 @@ export const CharacterCertificateModal: React.FC<CharacterCertificateModalProps>
               <ShieldCheck size={22} />
             </div>
             <div>
-              <h3 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 800, color: '#0f172a' }}>
-                Generate Character Certificate
+              <h3 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 700, color: '#0f172a' }}>
+                Character Certificate
               </h3>
               <p style={{ margin: '2px 0 0', fontSize: '0.78rem', color: '#64748b' }}>
-                TaskNera HR Solutions official conduct and character certification document
+                Create and print a conduct and character certificate.
               </p>
             </div>
           </div>

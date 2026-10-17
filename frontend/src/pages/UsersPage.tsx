@@ -94,35 +94,17 @@ export const UsersPage: React.FC = () => {
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <h1
               style={{
-                fontSize: '1.75rem',
-                fontWeight: 800,
+                fontSize: '1.45rem',
+                fontWeight: 700,
                 color: '#0f172a',
-                letterSpacing: '-0.025em',
                 margin: 0,
               }}
             >
-              System Users & Authority
+              Users
             </h1>
-            <span
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 5,
-                fontSize: '0.6875rem',
-                fontWeight: 700,
-                padding: '3px 8px',
-                borderRadius: 9999,
-                background: '#eff6ff',
-                color: '#1d4ed8',
-                border: '1px solid #bfdbfe',
-              }}
-            >
-              <ShieldCheck size={12} />
-              Admin Authority Console
-            </span>
           </div>
-          <p style={{ color: '#64748b', fontSize: '0.875rem', marginTop: 4, marginBottom: 0 }}>
-            Manage user accounts, delegate roles, and grant secure portal access across TaskNera HRMS.
+          <p style={{ color: '#64748b', fontSize: '0.84rem', marginTop: 4, marginBottom: 0 }}>
+            Manage team accounts and permissions.
           </p>
         </div>
 
@@ -131,7 +113,7 @@ export const UsersPage: React.FC = () => {
             type="button"
             variant="ghost"
             onClick={fetchUsers}
-            icon={<RefreshCw size={15} />}
+            icon={<RefreshCw size={14} />}
             disabled={isLoading}
           >
             Refresh
@@ -140,9 +122,9 @@ export const UsersPage: React.FC = () => {
             type="button"
             variant="primary"
             onClick={() => setIsCreateModalOpen(true)}
-            icon={<UserPlus size={16} />}
+            icon={<UserPlus size={15} />}
           >
-            Create New User
+            Add User
           </Button>
         </div>
       </div>
@@ -183,8 +165,8 @@ export const UsersPage: React.FC = () => {
             <Users size={22} />
           </div>
           <div>
-            <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 600 }}>Total Accounts</div>
-            <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#0f172a' }}>{totalUsers}</div>
+            <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 600 }}>Total Users</div>
+            <div style={{ fontSize: '1.4rem', fontWeight: 700, color: '#0f172a' }}>{totalUsers}</div>
           </div>
         </div>
 
@@ -215,8 +197,8 @@ export const UsersPage: React.FC = () => {
             <Shield size={22} />
           </div>
           <div>
-            <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 600 }}>Super Admins</div>
-            <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#0f172a' }}>{adminCount}</div>
+            <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 600 }}>Administrators</div>
+            <div style={{ fontSize: '1.4rem', fontWeight: 700, color: '#0f172a' }}>{adminCount}</div>
           </div>
         </div>
 

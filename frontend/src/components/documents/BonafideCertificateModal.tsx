@@ -455,7 +455,7 @@ export const BonafideCertificateModal: React.FC<BonafideCertificateModalProps> =
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <h3 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 700, color: '#0f172a' }}>
-                  Generate Bonafide Employment Certificate
+                  Bonafide Certificate
                 </h3>
                 <span
                   style={{
@@ -468,11 +468,11 @@ export const BonafideCertificateModal: React.FC<BonafideCertificateModalProps> =
                     border: '1px solid #bfdbfe',
                   }}
                 >
-                  Active Standing Attestation
+                  Certificate
                 </span>
               </div>
               <p style={{ margin: '2px 0 0', fontSize: '0.8rem', color: '#64748b' }}>
-                Step {step} of 2 — {step === 1 ? 'Employee & Purpose Verification Details' : 'Official Certificate Verification & Print'}
+                Step {step} of 2 — {step === 1 ? 'Employee & Purpose Details' : 'Preview & Print'}
               </p>
             </div>
           </div>
@@ -503,7 +503,7 @@ export const BonafideCertificateModal: React.FC<BonafideCertificateModalProps> =
                   cursor: 'pointer',
                 }}
               >
-                1. Configure
+                1. Edit Details
               </button>
               <button
                 type="button"
@@ -520,7 +520,7 @@ export const BonafideCertificateModal: React.FC<BonafideCertificateModalProps> =
                   cursor: 'pointer',
                 }}
               >
-                2. Preview & Print
+                2. Preview Certificate
               </button>
             </div>
 
@@ -881,7 +881,7 @@ export const BonafideCertificateModal: React.FC<BonafideCertificateModalProps> =
                   onClick={() => setStep(2)}
                   style={{ padding: '10px 24px', fontSize: '0.875rem', backgroundColor: '#2563eb', borderColor: '#2563eb' }}
                 >
-                  Proceed to Official Certificate Preview
+                  Preview Bonafide Certificate
                 </Button>
               </div>
             </div>
@@ -944,7 +944,7 @@ export const BonafideCertificateModal: React.FC<BonafideCertificateModalProps> =
                     disabled={isSaving}
                     style={{ padding: '6px 14px', fontSize: '0.8125rem' }}
                   >
-                    {isSaving ? 'Saving...' : 'Save to Generated'}
+                    {isSaving ? 'Saving...' : 'Save Document'}
                   </Button>
                   <Button
                     variant="primary"
@@ -952,7 +952,7 @@ export const BonafideCertificateModal: React.FC<BonafideCertificateModalProps> =
                     onClick={handleDownloadPdf}
                     style={{ padding: '6px 16px', fontSize: '0.8125rem', backgroundColor: '#2563eb', borderColor: '#2563eb' }}
                   >
-                    Download PDF / Print
+                    Print PDF
                   </Button>
                 </div>
               </div>

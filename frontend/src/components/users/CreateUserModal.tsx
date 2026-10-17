@@ -26,43 +26,43 @@ interface CreateUserModalProps {
 const AVAILABLE_ROLES = [
   {
     code: 'HR_MANAGER',
-    name: 'HR Operations Manager',
+    name: 'HR Manager',
     badgeColor: '#1d4ed8',
     badgeBg: '#eff6ff',
     badgeBorder: '#bfdbfe',
-    description: 'Generates HR documents, manages offers, templates, and employee lifecycle.',
+    description: 'Creates offers, employee letters, and manages templates.',
   },
   {
     code: 'RECRUITER',
-    name: 'Talent Acquisition Recruiter',
+    name: 'Recruiter',
     badgeColor: '#7c3aed',
     badgeBg: '#f5f3ff',
     badgeBorder: '#ddd6fe',
-    description: 'Creates draft offers, uploads candidate documents, and views candidate pipeline.',
+    description: 'Drafts offers and manages candidate details.',
   },
   {
     code: 'SUPER_ADMIN',
-    name: 'Super Administrator',
+    name: 'Super Admin',
     badgeColor: '#b45309',
     badgeBg: '#fffbeb',
     badgeBorder: '#fde68a',
-    description: 'Complete unrestricted control over system configuration, roles, and user creation.',
+    description: 'Full access to all settings, roles, and user accounts.',
   },
   {
     code: 'APPROVER',
-    name: 'Executive / Finance Approver',
+    name: 'Approver',
     badgeColor: '#047857',
     badgeBg: '#ecfdf5',
     badgeBorder: '#a7f3d0',
-    description: 'Reviews proposed compensation packages, salary structures, and signs approvals.',
+    description: 'Reviews and approves salary and offer packages.',
   },
   {
     code: 'AUDITOR',
-    name: 'Compliance Auditor',
+    name: 'Auditor',
     badgeColor: '#475569',
     badgeBg: '#f8fafc',
     badgeBorder: '#cbd5e1',
-    description: 'Read-only access to audit trail, generated documents, and compliance records.',
+    description: 'Read-only access to audit logs and generated records.',
   },
 ];
 
@@ -196,11 +196,11 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
               <UserPlus size={22} />
             </div>
             <div>
-              <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#0f172a', margin: 0 }}>
-                Create New System User
+              <h3 style={{ fontSize: '1.15rem', fontWeight: 700, color: '#0f172a', margin: 0 }}>
+                Add New User
               </h3>
               <p style={{ fontSize: '0.8rem', color: '#64748b', margin: '2px 0 0 0' }}>
-                Grant system access and assign role permissions across TaskNera HRMS.
+                Create an account and assign their role.
               </p>
             </div>
           </div>

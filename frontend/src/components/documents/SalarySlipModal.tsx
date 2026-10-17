@@ -676,26 +676,12 @@ export const SalarySlipModal: React.FC<SalarySlipModalProps> = ({
               <DollarSign size={22} />
             </div>
             <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span
-                  style={{
-                    fontSize: '0.6875rem',
-                    fontWeight: 800,
-                    padding: '2px 8px',
-                    borderRadius: 6,
-                    backgroundColor: '#065f46',
-                    color: '#ffffff',
-                  }}
-                >
-                  OFFICIAL PAYSLIP
-                </span>
-                <span style={{ fontSize: '0.75rem', color: '#16a34a', fontWeight: 700 }}>
-                  A4 Single-Page • System Generated
-                </span>
-              </div>
-              <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#0f172a', margin: '2px 0 0 0' }}>
-                TaskNera Monthly Salary Slip Generator
+              <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#0f172a', margin: 0 }}>
+                Salary Slip
               </h3>
+              <p style={{ fontSize: '0.78rem', color: '#64748b', margin: '2px 0 0 0' }}>
+                Create and print a monthly salary slip.
+              </p>
             </div>
           </div>
 
@@ -711,7 +697,7 @@ export const SalarySlipModal: React.FC<SalarySlipModalProps> = ({
                   borderColor: '#059669',
                 }}
               >
-                Preview Official Payslip
+                Preview Salary Slip
               </Button>
             ) : (
               <>
@@ -731,7 +717,7 @@ export const SalarySlipModal: React.FC<SalarySlipModalProps> = ({
                     gap: 6,
                     padding: '6px 12px',
                     fontSize: '0.78125rem',
-                    fontWeight: 600,
+                    fontWeight: 500,
                     borderRadius: 6,
                     border: '1px solid',
                     borderColor: highlightPlaceholders ? '#f59e0b' : '#cbd5e1',
@@ -739,7 +725,7 @@ export const SalarySlipModal: React.FC<SalarySlipModalProps> = ({
                     color: highlightPlaceholders ? '#92400e' : '#475569',
                     cursor: 'pointer',
                   }}
-                  title="Highlight placeholders for quick review"
+                  title="Highlight editable fields"
                 >
                   <Highlighter size={14} />
                   Highlight Fields
@@ -754,7 +740,7 @@ export const SalarySlipModal: React.FC<SalarySlipModalProps> = ({
                     color: '#0f172a',
                   }}
                 >
-                  Print / Export PDF
+                  Print PDF
                 </Button>
 
                 <Button
@@ -767,7 +753,7 @@ export const SalarySlipModal: React.FC<SalarySlipModalProps> = ({
                     borderColor: '#059669',
                   }}
                 >
-                  {isSaving ? 'Saving...' : 'Save & Issue Payslip'}
+                  {isSaving ? 'Saving...' : 'Save Document'}
                 </Button>
               </>
             )}

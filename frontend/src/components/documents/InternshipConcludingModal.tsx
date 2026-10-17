@@ -527,26 +527,12 @@ export const InternshipConcludingModal: React.FC<InternshipConcludingModalProps>
               <GraduationCap size={22} />
             </div>
             <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span
-                  style={{
-                    fontSize: '0.6875rem',
-                    fontWeight: 800,
-                    padding: '2px 8px',
-                    borderRadius: 6,
-                    backgroundColor: '#8f422b',
-                    color: '#ffffff',
-                  }}
-                >
-                  OFFICIAL LETTER
-                </span>
-                <span style={{ fontSize: '0.75rem', color: '#c2410c', fontWeight: 700 }}>
-                  A4 Single-Page • System Generated
-                </span>
-              </div>
-              <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#0f172a', margin: '2px 0 0 0' }}>
-                TaskNera Internship Concluding Letter Generator
+              <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#0f172a', margin: 0 }}>
+                Internship Letter
               </h3>
+              <p style={{ fontSize: '0.78rem', color: '#64748b', margin: '2px 0 0 0' }}>
+                Create and print an internship completion letter.
+              </p>
             </div>
           </div>
 
@@ -558,11 +544,11 @@ export const InternshipConcludingModal: React.FC<InternshipConcludingModalProps>
                 onClick={() => setStep(2)}
                 icon={<ArrowRight size={15} />}
                 style={{
-                  backgroundColor: '#8f422b',
-                  borderColor: '#8f422b',
+                  backgroundColor: '#c2410c',
+                  borderColor: '#c2410c',
                 }}
               >
-                Preview Official Letter
+                Preview Letter
               </Button>
             ) : (
               <>
@@ -583,7 +569,7 @@ export const InternshipConcludingModal: React.FC<InternshipConcludingModalProps>
                     gap: 6,
                     padding: '6px 12px',
                     fontSize: '0.78125rem',
-                    fontWeight: 600,
+                    fontWeight: 500,
                     borderRadius: 6,
                     border: '1px solid',
                     borderColor: highlightPlaceholders ? '#f59e0b' : '#cbd5e1',
@@ -591,7 +577,7 @@ export const InternshipConcludingModal: React.FC<InternshipConcludingModalProps>
                     color: highlightPlaceholders ? '#92400e' : '#475569',
                     cursor: 'pointer',
                   }}
-                  title="Highlight placeholders for quick review"
+                  title="Highlight editable fields"
                 >
                   <Highlighter size={14} />
                   Highlight Fields
@@ -606,7 +592,7 @@ export const InternshipConcludingModal: React.FC<InternshipConcludingModalProps>
                     color: '#0f172a',
                   }}
                 >
-                  Print / Export PDF
+                  Print PDF
                 </Button>
 
                 <Button
@@ -615,11 +601,11 @@ export const InternshipConcludingModal: React.FC<InternshipConcludingModalProps>
                   disabled={isSaving}
                   icon={isSaving ? <RefreshCw size={15} className="spin" /> : <Save size={15} />}
                   style={{
-                    backgroundColor: '#8f422b',
-                    borderColor: '#8f422b',
+                    backgroundColor: '#c2410c',
+                    borderColor: '#c2410c',
                   }}
                 >
-                  {isSaving ? 'Saving...' : 'Save & Issue Letter'}
+                  {isSaving ? 'Saving...' : 'Save Document'}
                 </Button>
               </>
             )}

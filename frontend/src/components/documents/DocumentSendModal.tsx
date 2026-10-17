@@ -22,10 +22,10 @@ export const DocumentSendModal: React.FC<DocumentSendModalProps> = ({
   const { success } = useToast();
   const [recipientEmail, setRecipientEmail] = useState(document.recipientEmail || '');
   const [subject, setSubject] = useState(
-    `Official ${typeDef.name} — ${document.referenceNumber} [TaskNera Enterprise]`
+    `${typeDef.name} — ${document.referenceNumber}`
   );
   const [message, setMessage] = useState(
-    `Dear ${document.recipientName},\n\nPlease find attached your official ${typeDef.name} (${document.referenceNumber}) issued by TaskNera Enterprise Corp.\n\nKindly review and sign where indicated.\n\nSincerely,\nPeople & HR Operations`
+    `Dear ${document.recipientName},\n\nPlease find attached your ${typeDef.name} (${document.referenceNumber}).\n\nKindly review and let us know if you have any questions.\n\nBest regards,\nHR Team`
   );
   const [isSending, setIsSending] = useState(false);
 
@@ -35,7 +35,7 @@ export const DocumentSendModal: React.FC<DocumentSendModalProps> = ({
     setIsSending(true);
     setTimeout(() => {
       setIsSending(false);
-      success(`Dispatched ${typeDef.name} to ${recipientEmail}! Status updated to ISSUED.`);
+      success(`Sent ${typeDef.name} to ${recipientEmail} successfully.`);
       onSent();
       onClose();
     }, 800);
@@ -86,7 +86,7 @@ export const DocumentSendModal: React.FC<DocumentSendModalProps> = ({
             </div>
             <div>
               <h3 style={{ fontSize: '1.05rem', color: 'var(--text-main, #0f172a)', fontWeight: 700 }}>
-                Dispatch {typeDef.name}
+                Send {typeDef.name}
               </h3>
               <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>
                 REF: {document.referenceNumber}
@@ -149,7 +149,7 @@ export const DocumentSendModal: React.FC<DocumentSendModalProps> = ({
             </span>
           </div>
           <span className="hr-badge" style={{ fontSize: '0.65rem', padding: '1px 6px' }}>
-            <Lock size={10} /> Tamper-Evident SHA-256
+            <Lock size={10} /> Verified PDF
           </span>
         </div>
 
@@ -158,7 +158,7 @@ export const DocumentSendModal: React.FC<DocumentSendModalProps> = ({
             Cancel
           </Button>
           <Button variant="primary" onClick={handleSend} disabled={isSending || !recipientEmail}>
-            {isSending ? 'Sending...' : 'Send Official Document'}
+            {isSending ? 'Sending...' : 'Send Document'}
             {!isSending && <Send size={14} />}
           </Button>
         </div>

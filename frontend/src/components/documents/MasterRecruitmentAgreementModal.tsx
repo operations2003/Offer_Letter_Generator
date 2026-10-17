@@ -733,37 +733,24 @@ export const MasterRecruitmentAgreementModal: React.FC<MasterRecruitmentAgreemen
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                 <h2 style={{ fontSize: '1.18rem', fontWeight: 700, margin: 0, color: '#ffffff' }}>
-                  Master Recruitment Services Agreement (MRSA)
+                  Recruitment Agreement (MRSA)
                 </h2>
                 <span
                   style={{
                     fontSize: '0.7rem',
-                    fontWeight: 700,
+                    fontWeight: 600,
                     padding: '2px 8px',
                     borderRadius: 10,
                     backgroundColor: '#1e293b',
-                    color: '#f59e0b',
-                    border: '1px solid #d97706',
+                    color: '#94a3b8',
+                    border: '1px solid #334155',
                   }}
                 >
-                  Official 21-Page Template
-                </span>
-                <span
-                  style={{
-                    fontSize: '0.7rem',
-                    fontWeight: 700,
-                    padding: '2px 8px',
-                    borderRadius: 10,
-                    backgroundColor: '#1e293b',
-                    color: '#38bdf8',
-                    border: '1px solid #0284c7',
-                  }}
-                >
-                  {data.sections.length} Operative Sections
+                  Standard Template
                 </span>
               </div>
               <p style={{ fontSize: '0.8rem', color: '#94a3b8', margin: '2px 0 0 0' }}>
-                B2B recruitment mandate & commercial agreement between {data.serviceProvider.tradeName} and {data.client.tradeName}
+                Agreement between {data.serviceProvider.tradeName} and {data.client.tradeName}
               </p>
             </div>
           </div>
@@ -789,7 +776,7 @@ export const MasterRecruitmentAgreementModal: React.FC<MasterRecruitmentAgreemen
                   padding: '6px 14px',
                   borderRadius: 6,
                   fontSize: '0.8125rem',
-                  fontWeight: step === 1 ? 700 : 500,
+                  fontWeight: step === 1 ? 600 : 500,
                   backgroundColor: step === 1 ? '#2563eb' : 'transparent',
                   color: step === 1 ? '#ffffff' : '#94a3b8',
                   border: 'none',
@@ -798,7 +785,7 @@ export const MasterRecruitmentAgreementModal: React.FC<MasterRecruitmentAgreemen
                 }}
               >
                 <Edit3 size={14} />
-                <span>1. Customize & Edit</span>
+                <span>1. Edit Details</span>
               </button>
               <button
                 type="button"
@@ -810,7 +797,7 @@ export const MasterRecruitmentAgreementModal: React.FC<MasterRecruitmentAgreemen
                   padding: '6px 14px',
                   borderRadius: 6,
                   fontSize: '0.8125rem',
-                  fontWeight: step === 2 ? 700 : 500,
+                  fontWeight: step === 2 ? 600 : 500,
                   backgroundColor: step === 2 ? '#2563eb' : 'transparent',
                   color: step === 2 ? '#ffffff' : '#94a3b8',
                   border: 'none',
@@ -819,7 +806,7 @@ export const MasterRecruitmentAgreementModal: React.FC<MasterRecruitmentAgreemen
                 }}
               >
                 <FileText size={14} />
-                <span>2. Official PDF Preview</span>
+                <span>2. Preview Document</span>
               </button>
             </div>
 

@@ -441,10 +441,10 @@ export const OffersPage: React.FC = () => {
   const documentCards = [
     {
       id: 'mrsa_agreement',
-      title: 'Recruitment Agreement (MRSA)',
-      description: 'Official 21-page Master Recruitment Services Agreement between TaskNera and hiring clients with full clauses & schedules.',
+      title: 'Recruitment Agreement',
+      description: 'Standard agreement for recruitment services with hiring clients and partners.',
       icon: <FileCheck2 size={22} style={{ color: '#7c3aed' }} />,
-      badge: 'Ready to Generate',
+      badge: 'Available',
       badgeColor: '#7c3aed',
       badgeBg: '#f5f3ff',
       badgeBorder: '#ddd6fe',
@@ -454,9 +454,9 @@ export const OffersPage: React.FC = () => {
     {
       id: 'offer_letter',
       title: 'Offer Letter',
-      description: 'Official TaskNera employment offer letter with salary breakdown, clauses & terms.',
+      description: 'Formal employment offer with salary breakdown, start date, and terms.',
       icon: <FileText size={22} style={{ color: '#2563eb' }} />,
-      badge: 'Ready to Generate',
+      badge: 'Available',
       badgeColor: '#16a34a',
       badgeBg: '#f0fdf4',
       badgeBorder: '#bbf7d0',
@@ -466,9 +466,9 @@ export const OffersPage: React.FC = () => {
     {
       id: 'character_certificate',
       title: 'Character Certificate',
-      description: 'Official conduct, background standing, and character verification certificate.',
+      description: 'Certificate verifying candidate conduct and character.',
       icon: <ShieldCheck size={22} style={{ color: '#7c3aed' }} />,
-      badge: 'Ready to Generate',
+      badge: 'Available',
       badgeColor: '#16a34a',
       badgeBg: '#f0fdf4',
       badgeBorder: '#bbf7d0',
@@ -478,21 +478,21 @@ export const OffersPage: React.FC = () => {
     {
       id: 'onboarding_letter',
       title: 'Onboarding Letter',
-      description: 'Formal onboarding confirmation, joining schedule, and welcome documentation.',
+      description: 'Welcome document and joining details for new team members.',
       icon: <UserCheck size={22} style={{ color: '#0284c7' }} />,
       badge: 'Coming Soon',
       badgeColor: '#64748b',
       badgeBg: '#f8fafc',
       badgeBorder: '#e2e8f0',
       active: false,
-      onClick: () => info('Onboarding Letter template is currently in development and will be available soon.'),
+      onClick: () => info('Onboarding Letter template will be available soon.'),
     },
     {
       id: 'experience_letter',
       title: 'Experience Letter',
-      description: 'Formal employment tenure, roles held, and service certification letter.',
+      description: 'Official letter stating employment tenure and role held.',
       icon: <Briefcase size={22} style={{ color: '#ea580c' }} />,
-      badge: 'Ready to Generate',
+      badge: 'Available',
       badgeColor: '#16a34a',
       badgeBg: '#f0fdf4',
       badgeBorder: '#bbf7d0',
@@ -501,10 +501,10 @@ export const OffersPage: React.FC = () => {
     },
     {
       id: 'internship_concluding',
-      title: 'Internship Concluding Letter',
-      description: 'Formal internship conclusion letter, tenure verification, completion formalities, and acknowledgement.',
+      title: 'Internship Letter',
+      description: 'Formal letter confirming completion of an internship program.',
       icon: <GraduationCap size={22} style={{ color: '#c2410c' }} />,
-      badge: 'Ready to Generate',
+      badge: 'Available',
       badgeColor: '#16a34a',
       badgeBg: '#f0fdf4',
       badgeBorder: '#bbf7d0',
@@ -514,9 +514,9 @@ export const OffersPage: React.FC = () => {
     {
       id: 'salary_slip',
       title: 'Salary Slip',
-      description: 'Monthly payslip statement with itemized earnings, deductions, and net pay.',
+      description: 'Monthly pay slip with itemized earnings, deductions, and net pay.',
       icon: <DollarSign size={22} style={{ color: '#059669' }} />,
-      badge: 'Ready to Generate',
+      badge: 'Available',
       badgeColor: '#16a34a',
       badgeBg: '#f0fdf4',
       badgeBorder: '#bbf7d0',
@@ -526,9 +526,9 @@ export const OffersPage: React.FC = () => {
     {
       id: 'company_policies',
       title: 'Company Policies',
-      description: 'Official corporate policies, leave rules, attendance standards, and code of conduct.',
+      description: 'Workplace guidelines, leave policies, and code of conduct.',
       icon: <ScrollText size={22} style={{ color: '#0284c7' }} />,
-      badge: 'Ready to View',
+      badge: 'Available',
       badgeColor: '#16a34a',
       badgeBg: '#f0fdf4',
       badgeBorder: '#bbf7d0',
@@ -549,11 +549,11 @@ export const OffersPage: React.FC = () => {
   const certificateCards = [
     {
       id: 'certificate',
-      title: 'Certificate',
-      subtitle: 'Dynamic: Name, Course Name, Date of Issue',
-      description: 'Official TaskNera certificate with dynamic recipient name, course/source name, and date of issue.',
+      title: 'Completion Certificate',
+      subtitle: 'With name, course, and issue date',
+      description: 'Official certificate for course, internship, or training completion.',
       icon: <Award size={22} style={{ color: '#ea580c' }} />,
-      badge: 'Ready to Generate',
+      badge: 'Available',
       badgeColor: '#c2410c',
       badgeBg: '#fff7ed',
       badgeBorder: '#fed7aa',
@@ -598,23 +598,27 @@ export const OffersPage: React.FC = () => {
       >
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
-            <h2 style={{ fontSize: '1.4rem', fontWeight: 600 }}>Offers Pipeline</h2>
+            <h2 style={{ fontSize: '1.4rem', fontWeight: 700, color: '#0f172a', margin: 0 }}>Offers</h2>
             <span
               style={{
                 fontSize: '0.75rem',
                 padding: '2px 8px',
                 borderRadius: 12,
-                background: 'var(--primary-subtle)',
-                color: 'var(--primary-light)',
+                background: '#eff6ff',
+                color: '#2563eb',
                 fontWeight: 600,
+                border: '1px solid #bfdbfe',
               }}
             >
-              {totalCount} Total Offers
+              {totalCount} Offers
             </span>
           </div>
+          <p style={{ fontSize: '0.84rem', color: '#64748b', margin: '4px 0 0 0' }}>
+            Create and track job offers and HR documents.
+          </p>
         </div>
 
-        <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
           <Button
             variant="secondary"
             icon={<RefreshCw size={14} className={loading ? 'spin' : ''} />}
@@ -622,6 +626,15 @@ export const OffersPage: React.FC = () => {
             style={{ padding: '8px 14px', fontSize: '0.8125rem' }}
           >
             Refresh
+          </Button>
+
+          <Button
+            variant="primary"
+            icon={<Plus size={14} />}
+            onClick={() => setIsQuickModalOpen(true)}
+            style={{ padding: '8px 16px', fontSize: '0.8125rem', backgroundColor: '#2563eb' }}
+          >
+            New Offer
           </Button>
         </div>
       </div>
@@ -634,15 +647,15 @@ export const OffersPage: React.FC = () => {
           justifyContent: 'space-between',
           flexWrap: 'wrap',
           gap: 12,
-          padding: '6px 0',
+          padding: '4px 0',
         }}
       >
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
           {[
-            { key: 'ALL', label: 'All Document Categories', count: documentCards.length + certificateCards.length + allPoliciesList.length },
-            { key: 'TEMPLATES', label: 'Document Templates', count: documentCards.length },
+            { key: 'ALL', label: 'All', count: documentCards.length + certificateCards.length + allPoliciesList.length },
+            { key: 'TEMPLATES', label: 'Templates', count: documentCards.length },
             { key: 'CERTIFICATES', label: 'Certificates', count: certificateCards.length, icon: <Award size={13} /> },
-            { key: 'POLICIES', label: 'Company Policies', count: allPoliciesList.length },
+            { key: 'POLICIES', label: 'Policies', count: allPoliciesList.length },
           ].map((tab) => {
             const isSelected = activeDocumentTab === tab.key;
             return (
@@ -674,22 +687,10 @@ export const OffersPage: React.FC = () => {
                   padding: '6px 14px',
                   borderRadius: 20,
                   fontSize: '0.8125rem',
-                  fontWeight: isSelected ? 700 : 500,
-                  border: isSelected
-                    ? tab.key === 'CERTIFICATES'
-                      ? '1px solid #ea580c'
-                      : '1px solid #2563eb'
-                    : '1px solid #e2e8f0',
-                  backgroundColor: isSelected
-                    ? tab.key === 'CERTIFICATES'
-                      ? '#fff7ed'
-                      : '#eff6ff'
-                    : '#ffffff',
-                  color: isSelected
-                    ? tab.key === 'CERTIFICATES'
-                      ? '#c2410c'
-                      : '#1d4ed8'
-                    : '#475569',
+                  fontWeight: isSelected ? 600 : 500,
+                  border: isSelected ? '1px solid #2563eb' : '1px solid #e2e8f0',
+                  backgroundColor: isSelected ? '#eff6ff' : '#ffffff',
+                  color: isSelected ? '#1d4ed8' : '#475569',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
@@ -703,14 +704,10 @@ export const OffersPage: React.FC = () => {
                 <span
                   style={{
                     fontSize: '0.7rem',
-                    fontWeight: 700,
+                    fontWeight: 600,
                     padding: '1px 6px',
                     borderRadius: 10,
-                    backgroundColor: isSelected
-                      ? tab.key === 'CERTIFICATES'
-                        ? '#ea580c'
-                        : '#2563eb'
-                      : '#f1f5f9',
+                    backgroundColor: isSelected ? '#2563eb' : '#f1f5f9',
                     color: isSelected ? '#ffffff' : '#64748b',
                   }}
                 >
@@ -729,24 +726,24 @@ export const OffersPage: React.FC = () => {
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                 <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#0f172a', margin: 0 }}>
-                  Document Templates
+                  Templates
                 </h3>
                 <span
                   style={{
                     fontSize: '0.72rem',
-                    fontWeight: 700,
+                    fontWeight: 600,
                     padding: '2px 8px',
                     borderRadius: 12,
-                    backgroundColor: '#eff6ff',
-                    color: '#2563eb',
-                    border: '1px solid #bfdbfe',
+                    backgroundColor: '#f8fafc',
+                    color: '#64748b',
+                    border: '1px solid #e2e8f0',
                   }}
                 >
-                  {documentCards.length} Templates Available
+                  {documentCards.length} Available
                 </span>
               </div>
               <p style={{ fontSize: '0.8125rem', color: '#64748b', margin: '2px 0 0 0' }}>
-                Select a template to generate official documentation for employees & candidates.
+                Select a template to generate a document.
               </p>
             </div>
           </div>
@@ -1202,14 +1199,13 @@ export const OffersPage: React.FC = () => {
           </div>
         </div>
 
-        {/* AI Policy Generator Box (ChatGPT / Gemini Prompt Style) */}
+        {/* Policy Generator Box */}
         <div
           style={{
-            background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
-            border: '1.5px solid #e2e8f0',
-            borderRadius: 14,
+            backgroundColor: '#ffffff',
+            border: '1px solid #e2e8f0',
+            borderRadius: 12,
             padding: '18px 20px',
-            boxShadow: '0 2px 12px rgba(0, 0, 0, 0.04)',
             display: 'flex',
             flexDirection: 'column',
             gap: 12,
@@ -1221,38 +1217,23 @@ export const OffersPage: React.FC = () => {
                 style={{
                   width: 36,
                   height: 36,
-                  borderRadius: 10,
-                  background: 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)',
-                  color: '#ffffff',
+                  borderRadius: 8,
+                  backgroundColor: '#eff6ff',
+                  color: '#2563eb',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  boxShadow: '0 2px 8px rgba(99, 102, 241, 0.3)',
+                  border: '1px solid #bfdbfe',
                 }}
               >
                 <Sparkles size={18} />
               </div>
               <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <h4 style={{ fontSize: '0.95rem', fontWeight: 700, color: '#0f172a', margin: 0 }}>
-                    AI Policy Generator
-                  </h4>
-                  <span
-                    style={{
-                      fontSize: '0.6875rem',
-                      fontWeight: 700,
-                      padding: '2px 8px',
-                      borderRadius: 12,
-                      background: '#f3e8ff',
-                      color: '#7e22ce',
-                      border: '1px solid #e9d5ff',
-                    }}
-                  >
-                    Natural Language Prompt
-                  </span>
-                </div>
+                <h4 style={{ fontSize: '0.95rem', fontWeight: 700, color: '#0f172a', margin: 0 }}>
+                  Create Custom Policy
+                </h4>
                 <p style={{ fontSize: '0.8rem', color: '#64748b', margin: '2px 0 0 0' }}>
-                  Enter any requirement like in ChatGPT/Gemini to draft formal clauses, definitions, and compliance rules.
+                  Describe the policy you need in plain words to generate full clauses and guidelines.
                 </p>
               </div>
             </div>

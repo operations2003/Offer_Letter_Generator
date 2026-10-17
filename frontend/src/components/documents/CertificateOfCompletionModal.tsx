@@ -392,7 +392,7 @@ export const CertificateOfCompletionModal: React.FC<CertificateOfCompletionModal
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <h3 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 700, color: '#0f172a' }}>
-                  Certificate
+                  Completion Certificate
                 </h3>
                 <span
                   style={{
@@ -405,11 +405,11 @@ export const CertificateOfCompletionModal: React.FC<CertificateOfCompletionModal
                     border: '1px solid #fed7aa',
                   }}
                 >
-                  Official Credential
+                  Certificate
                 </span>
               </div>
               <p style={{ margin: '2px 0 0', fontSize: '0.8rem', color: '#64748b' }}>
-                {step === 1 ? 'Configure dynamic fields (Name, Course Name, Date of Issue)' : 'Real-time landscape certificate preview & print export'}
+                {step === 1 ? 'Enter certificate details (Name, Course, Date)' : 'Preview and print certificate'}
               </p>
             </div>
           </div>
@@ -444,7 +444,7 @@ export const CertificateOfCompletionModal: React.FC<CertificateOfCompletionModal
                   gap: 6,
                 }}
               >
-                <span>1. Edit Fields</span>
+                <span>1. Edit Details</span>
               </button>
               <button
                 type="button"
@@ -464,7 +464,7 @@ export const CertificateOfCompletionModal: React.FC<CertificateOfCompletionModal
                   gap: 6,
                 }}
               >
-                <span>2. Certificate View</span>
+                <span>2. Preview Certificate</span>
               </button>
             </div>
 
@@ -513,10 +513,10 @@ export const CertificateOfCompletionModal: React.FC<CertificateOfCompletionModal
                   <div>
                     <h4 style={{ margin: 0, fontSize: '1rem', fontWeight: 700, color: '#9a3412', display: 'flex', alignItems: 'center', gap: 8 }}>
                       <Sparkles size={18} color="#ea580c" />
-                      Dynamic Certificate Fields
+                      Certificate Details
                     </h4>
                     <p style={{ margin: '3px 0 0', fontSize: '0.8rem', color: '#7c2d12' }}>
-                      These three dynamic fields update the Certificate of Completion in real time.
+                      Fill in the details below to update the Certificate of Completion in real time.
                     </p>
                   </div>
                   <span
@@ -529,7 +529,7 @@ export const CertificateOfCompletionModal: React.FC<CertificateOfCompletionModal
                       borderRadius: 12,
                     }}
                   >
-                    3 Core Fields
+                    Details
                   </span>
                 </div>
 
@@ -788,7 +788,7 @@ export const CertificateOfCompletionModal: React.FC<CertificateOfCompletionModal
                     borderColor: '#ea580c',
                   }}
                 >
-                  View Live Certificate
+                  Preview Certificate
                 </Button>
               </div>
             </div>
@@ -817,7 +817,7 @@ export const CertificateOfCompletionModal: React.FC<CertificateOfCompletionModal
                     onClick={() => setStep(1)}
                     style={{ padding: '6px 12px', fontSize: '0.8125rem' }}
                   >
-                    Edit Dynamic Fields
+                    Edit Details
                   </Button>
                   <label
                     style={{
@@ -839,7 +839,7 @@ export const CertificateOfCompletionModal: React.FC<CertificateOfCompletionModal
                       onChange={(e) => setHighlightPlaceholders(e.target.checked)}
                       style={{ cursor: 'pointer' }}
                     />
-                    <span>Highlight Dynamic Data</span>
+                    <span>Highlight Fields</span>
                   </label>
                 </div>
 
@@ -851,7 +851,7 @@ export const CertificateOfCompletionModal: React.FC<CertificateOfCompletionModal
                     disabled={isSaving}
                     style={{ padding: '6px 14px', fontSize: '0.8125rem' }}
                   >
-                    {isSaving ? 'Saving...' : 'Save to Generated'}
+                    {isSaving ? 'Saving...' : 'Save Document'}
                   </Button>
                   <Button
                     variant="primary"
@@ -864,7 +864,7 @@ export const CertificateOfCompletionModal: React.FC<CertificateOfCompletionModal
                       borderColor: '#ea580c',
                     }}
                   >
-                    Download Certificate / Print
+                    Print PDF
                   </Button>
                 </div>
               </div>

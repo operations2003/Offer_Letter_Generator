@@ -164,7 +164,7 @@ export const DashboardPage: React.FC = () => {
     <div style={{ display: 'flex', flexDirection: 'column', gap: 24, paddingBottom: 48 }}>
       {/* 1. Header & Welcome Area */}
       <div
-        className="glass-panel"
+        className="card"
         style={{
           padding: '24px 28px',
           display: 'flex',
@@ -172,30 +172,17 @@ export const DashboardPage: React.FC = () => {
           justifyContent: 'space-between',
           flexWrap: 'wrap',
           gap: 16,
-          borderLeft: '4px solid #2563eb',
+          backgroundColor: '#ffffff',
+          borderRadius: 12,
+          border: '1px solid #e2e8f0',
         }}
       >
         <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
-            <h1 style={{ fontSize: '1.45rem', fontWeight: 800, color: '#0f172a', margin: 0 }}>
-              Welcome back, {user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'Administrator' : 'Administrator'}
-            </h1>
-            <span
-              style={{
-                fontSize: '0.72rem',
-                fontWeight: 700,
-                padding: '2px 8px',
-                borderRadius: 12,
-                background: '#eff6ff',
-                color: '#2563eb',
-                border: '1px solid #bfdbfe',
-              }}
-            >
-              Operations Hub
-            </span>
-          </div>
-          <p style={{ fontSize: '0.84rem', color: '#64748b', margin: 0 }}>
-            {todayFormatted} &bull; Manage employees, document generation records, and candidate offers.
+          <h1 style={{ fontSize: '1.4rem', fontWeight: 700, color: '#0f172a', margin: 0 }}>
+            Welcome back, {user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'Admin' : 'Admin'}
+          </h1>
+          <p style={{ fontSize: '0.84rem', color: '#64748b', marginTop: 4, marginBottom: 0 }}>
+            {todayFormatted} &bull; Overview of employees, documents, and offers.
           </p>
         </div>
 
@@ -215,21 +202,21 @@ export const DashboardPage: React.FC = () => {
             icon={<Plus size={14} />}
             style={{ fontSize: '0.8125rem', padding: '8px 14px' }}
           >
-            Issue Document
+            New Document
           </Button>
 
           <Button
             variant="primary"
             onClick={() => setIsQuickModalOpen(true)}
-            icon={<Sparkles size={14} />}
+            icon={<Plus size={14} />}
             style={{ fontSize: '0.8125rem', padding: '8px 18px', backgroundColor: '#2563eb' }}
           >
-            Generate Offer Letter
+            New Offer
           </Button>
         </div>
       </div>
 
-      {/* 2. Executive Key Performance Indicators */}
+      {/* 2. Key Metrics Overview */}
       <div
         style={{
           display: 'grid',
@@ -237,13 +224,16 @@ export const DashboardPage: React.FC = () => {
           gap: 16,
         }}
       >
-        {/* KPI 1: Total Employees & Document Records */}
+        {/* KPI 1: Total Employees */}
         <div
           className="card"
           style={{
             padding: '20px 22px',
             cursor: 'pointer',
-            transition: 'transform 0.15s ease, box-shadow 0.15s ease',
+            transition: 'all 0.15s ease',
+            backgroundColor: '#ffffff',
+            borderRadius: 12,
+            border: '1px solid #e2e8f0',
           }}
           onClick={() => {
             setActiveOperationalTab('EMPLOYEES');
@@ -269,11 +259,11 @@ export const DashboardPage: React.FC = () => {
               <Users2 size={18} />
             </div>
           </div>
-          <div style={{ fontSize: '1.85rem', fontWeight: 800, color: '#0f172a', marginTop: 8 }}>
+          <div style={{ fontSize: '1.75rem', fontWeight: 700, color: '#0f172a', marginTop: 8 }}>
             {totalEmployees}
           </div>
           <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: 4 }}>
-            Active company workforce
+            Active team members
           </div>
         </div>
 
@@ -283,35 +273,38 @@ export const DashboardPage: React.FC = () => {
           style={{
             padding: '20px 22px',
             cursor: 'pointer',
-            transition: 'transform 0.15s ease, box-shadow 0.15s ease',
+            transition: 'all 0.15s ease',
+            backgroundColor: '#ffffff',
+            borderRadius: 12,
+            border: '1px solid #e2e8f0',
           }}
           onClick={() => navigate('/documents')}
         >
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <span style={{ fontSize: '0.8125rem', fontWeight: 600, color: '#64748b' }}>
-              Documents Issued
+              Documents Created
             </span>
             <div
               style={{
                 width: 36,
                 height: 36,
                 borderRadius: 8,
-                background: '#f5f3ff',
-                color: '#7c3aed',
+                background: '#f8fafc',
+                color: '#475569',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                border: '1px solid #ddd6fe',
+                border: '1px solid #cbd5e1',
               }}
             >
               <Layers size={18} />
             </div>
           </div>
-          <div style={{ fontSize: '1.85rem', fontWeight: 800, color: '#0f172a', marginTop: 8 }}>
+          <div style={{ fontSize: '1.75rem', fontWeight: 700, color: '#0f172a', marginTop: 8 }}>
             {totalDocuments}
           </div>
-          <div style={{ fontSize: '0.75rem', color: '#7c3aed', marginTop: 4, fontWeight: 600 }}>
-            Official records across employees
+          <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: 4 }}>
+            Issued letters and records
           </div>
         </div>
 
@@ -321,13 +314,16 @@ export const DashboardPage: React.FC = () => {
           style={{
             padding: '20px 22px',
             cursor: 'pointer',
-            transition: 'transform 0.15s ease, box-shadow 0.15s ease',
+            transition: 'all 0.15s ease',
+            backgroundColor: '#ffffff',
+            borderRadius: 12,
+            border: '1px solid #e2e8f0',
           }}
           onClick={() => navigate('/offers?status=HR_REVIEW')}
         >
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <span style={{ fontSize: '0.8125rem', fontWeight: 600, color: '#64748b' }}>
-              Pending HR Review
+              Pending Review
             </span>
             <div
               style={{
@@ -345,10 +341,10 @@ export const DashboardPage: React.FC = () => {
               <Clock size={18} />
             </div>
           </div>
-          <div style={{ fontSize: '1.85rem', fontWeight: 800, color: '#0f172a', marginTop: 8 }}>
+          <div style={{ fontSize: '1.75rem', fontWeight: 700, color: '#0f172a', marginTop: 8 }}>
             {stats.awaitingReview + stats.draft}
           </div>
-          <div style={{ fontSize: '0.75rem', color: '#d97706', marginTop: 4, fontWeight: 600 }}>
+          <div style={{ fontSize: '0.75rem', color: '#b45309', marginTop: 4 }}>
             {stats.awaitingReview > 0
               ? `${stats.awaitingReview} awaiting sign-off`
               : 'All reviews up to date'}
@@ -361,13 +357,16 @@ export const DashboardPage: React.FC = () => {
           style={{
             padding: '20px 22px',
             cursor: 'pointer',
-            transition: 'transform 0.15s ease, box-shadow 0.15s ease',
+            transition: 'all 0.15s ease',
+            backgroundColor: '#ffffff',
+            borderRadius: 12,
+            border: '1px solid #e2e8f0',
           }}
           onClick={() => navigate('/offers?status=ACCEPTED')}
         >
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <span style={{ fontSize: '0.8125rem', fontWeight: 600, color: '#64748b' }}>
-              Offer Acceptance Rate
+              Offer Acceptance
             </span>
             <div
               style={{
@@ -375,7 +374,7 @@ export const DashboardPage: React.FC = () => {
                 height: 36,
                 borderRadius: 8,
                 background: '#f0fdf4',
-                color: '#059669',
+                color: '#16a34a',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -385,11 +384,11 @@ export const DashboardPage: React.FC = () => {
               <TrendingUp size={18} />
             </div>
           </div>
-          <div style={{ fontSize: '1.85rem', fontWeight: 800, color: '#059669', marginTop: 8 }}>
+          <div style={{ fontSize: '1.75rem', fontWeight: 700, color: '#15803d', marginTop: 8 }}>
             {acceptanceRate}%
           </div>
-          <div style={{ fontSize: '0.75rem', color: '#059669', marginTop: 4, fontWeight: 600 }}>
-            {stats.accepted} accepted of {stats.sent} issued
+          <div style={{ fontSize: '0.75rem', color: '#16a34a', marginTop: 4 }}>
+            {stats.accepted} accepted of {stats.sent} sent
           </div>
         </div>
       </div>
@@ -436,7 +435,7 @@ export const DashboardPage: React.FC = () => {
                   borderRadius: 6,
                   border: 'none',
                   fontSize: '0.8125rem',
-                  fontWeight: activeOperationalTab === 'EMPLOYEES' ? 700 : 500,
+                  fontWeight: activeOperationalTab === 'EMPLOYEES' ? 600 : 500,
                   backgroundColor: activeOperationalTab === 'EMPLOYEES' ? '#ffffff' : 'transparent',
                   color: activeOperationalTab === 'EMPLOYEES' ? '#2563eb' : '#64748b',
                   boxShadow: activeOperationalTab === 'EMPLOYEES' ? '0 1px 3px rgba(0,0,0,0.08)' : 'none',
@@ -448,7 +447,7 @@ export const DashboardPage: React.FC = () => {
                 }}
               >
                 <Users2 size={14} />
-                <span>Employees & Documents ({employees.length})</span>
+                <span>Employees ({employees.length})</span>
               </button>
 
               <button
@@ -459,7 +458,7 @@ export const DashboardPage: React.FC = () => {
                   borderRadius: 6,
                   border: 'none',
                   fontSize: '0.8125rem',
-                  fontWeight: activeOperationalTab === 'OFFERS' ? 700 : 500,
+                  fontWeight: activeOperationalTab === 'OFFERS' ? 600 : 500,
                   backgroundColor: activeOperationalTab === 'OFFERS' ? '#ffffff' : 'transparent',
                   color: activeOperationalTab === 'OFFERS' ? '#2563eb' : '#64748b',
                   boxShadow: activeOperationalTab === 'OFFERS' ? '0 1px 3px rgba(0,0,0,0.08)' : 'none',
@@ -482,7 +481,7 @@ export const DashboardPage: React.FC = () => {
                 onClick={() => navigate('/employees')}
                 style={{ fontSize: '0.78125rem', padding: '6px 12px' }}
               >
-                Full Employee Directory <ArrowRight size={13} style={{ marginLeft: 4 }} />
+                View All Employees <ArrowRight size={13} style={{ marginLeft: 4 }} />
               </Button>
             ) : (
               <Button
@@ -490,7 +489,7 @@ export const DashboardPage: React.FC = () => {
                 onClick={() => navigate('/offers')}
                 style={{ fontSize: '0.78125rem', padding: '6px 12px' }}
               >
-                Full Offers Pipeline <ArrowRight size={13} style={{ marginLeft: 4 }} />
+                View All Offers <ArrowRight size={13} style={{ marginLeft: 4 }} />
               </Button>
             )}
           </div>
@@ -884,13 +883,13 @@ export const DashboardPage: React.FC = () => {
         {/* Right Column: Quick Document Generator & System Standing */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
           {/* Quick Document Generator Card */}
-          <div className="card" style={{ padding: '20px' }}>
+          <div className="card" style={{ padding: '20px', backgroundColor: '#ffffff', borderRadius: 12, border: '1px solid #e2e8f0' }}>
             <div style={{ marginBottom: 14 }}>
               <h3 style={{ fontSize: '0.98rem', fontWeight: 700, margin: 0, color: '#0f172a' }}>
-                Quick Document Generator
+                Create Document
               </h3>
               <p style={{ fontSize: '0.78rem', color: '#64748b', margin: '2px 0 0' }}>
-                Instant issuance on official corporate letterhead
+                Choose a document type to create
               </p>
             </div>
 
@@ -898,25 +897,25 @@ export const DashboardPage: React.FC = () => {
               {[
                 {
                   label: 'Experience Letter',
-                  desc: 'Tenure & role certification',
+                  desc: 'Service and role confirmation',
                   icon: <Briefcase size={15} style={{ color: '#ea580c' }} />,
                   action: () => setIsExperienceModalOpen(true),
                 },
                 {
-                  label: 'Salary Slip / Payslip',
-                  desc: 'Itemized earnings & deductions',
+                  label: 'Salary Slip',
+                  desc: 'Monthly earnings and deductions',
                   icon: <DollarSign size={15} style={{ color: '#059669' }} />,
                   action: () => setIsSalarySlipModalOpen(true),
                 },
                 {
                   label: 'Character Certificate',
-                  desc: 'Conduct & standing clearance',
+                  desc: 'Conduct and character certificate',
                   icon: <Award size={15} style={{ color: '#7c3aed' }} />,
                   action: () => setIsCharacterModalOpen(true),
                 },
                 {
-                  label: 'Relieving Certificate',
-                  desc: 'Clearance & service release',
+                  label: 'Relieving Letter',
+                  desc: 'Work completion and clearance',
                   icon: <ShieldCheck size={15} style={{ color: '#2563eb' }} />,
                   action: () => setIsRelievingModalOpen(true),
                 },
@@ -978,43 +977,44 @@ export const DashboardPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Security & Audit Standing Card */}
+          {/* System Status Card */}
           <div
             className="card"
             style={{
               padding: '18px 20px',
               backgroundColor: '#ffffff',
+              borderRadius: 12,
               border: '1px solid #e2e8f0',
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
               <ShieldCheck size={16} style={{ color: '#059669' }} />
               <h4 style={{ fontSize: '0.875rem', fontWeight: 700, margin: 0, color: '#0f172a' }}>
-                System Security & Compliance
+                System Status
               </h4>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 12 }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.75rem' }}>
-                <span style={{ color: '#64748b' }}>Tamper-Evident SHA-256:</span>
-                <span style={{ fontWeight: 700, color: '#059669' }}>Active &bull; Verified</span>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 14 }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.78rem' }}>
+                <span style={{ color: '#64748b' }}>Status:</span>
+                <span style={{ fontWeight: 600, color: '#059669' }}>All systems operational</span>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.75rem' }}>
-                <span style={{ color: '#64748b' }}>Role-Based Access:</span>
-                <span style={{ fontWeight: 600, color: '#0f172a' }}>{user?.roles?.[0] || 'Admin'} Session</span>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.78rem' }}>
+                <span style={{ color: '#64748b' }}>Your Role:</span>
+                <span style={{ fontWeight: 600, color: '#0f172a' }}>{user?.roles?.[0] || 'Admin'}</span>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.75rem' }}>
-                <span style={{ color: '#64748b' }}>Statutory Rules:</span>
-                <span style={{ fontWeight: 600, color: '#0f172a' }}>Non-Assumption Enforced</span>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.78rem' }}>
+                <span style={{ color: '#64748b' }}>Audit Log:</span>
+                <span style={{ fontWeight: 600, color: '#0f172a' }}>Active & Recording</span>
               </div>
             </div>
 
             <Button
               variant="secondary"
               onClick={() => navigate('/audit-logs')}
-              style={{ width: '100%', justifyContent: 'center', fontSize: '0.75rem', padding: '6px 10px' }}
+              style={{ width: '100%', justifyContent: 'center', fontSize: '0.78rem', padding: '7px 10px' }}
             >
-              View Compliance Audit Ledger &rarr;
+              View Audit Log <ArrowRight size={13} style={{ marginLeft: 4 }} />
             </Button>
           </div>
         </div>

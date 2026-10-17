@@ -749,7 +749,7 @@ TaskNera (D-57 Dilshad Colony, Delhi, 110095)
                 }}
               >
                 <Layout size={13} />
-                Template View
+                Document View
               </button>
               <button
                 onClick={() => setViewMode('accordion')}
@@ -759,7 +759,7 @@ TaskNera (D-57 Dilshad Colony, Delhi, 110095)
                   gap: 5,
                   padding: '5px 11px',
                   fontSize: '0.75rem',
-                  fontWeight: 700,
+                  fontWeight: 600,
                   borderRadius: 6,
                   border: 'none',
                   backgroundColor: viewMode === 'accordion' ? '#ffffff' : 'transparent',
@@ -769,7 +769,7 @@ TaskNera (D-57 Dilshad Colony, Delhi, 110095)
                 }}
               >
                 <List size={13} />
-                Clause View
+                List View
               </button>
             </div>
 
@@ -786,7 +786,7 @@ TaskNera (D-57 Dilshad Colony, Delhi, 110095)
                   style={{
                     padding: '5px 10px',
                     fontSize: '0.75rem',
-                    fontWeight: 600,
+                    fontWeight: 500,
                     borderRadius: 6,
                     border: '1px solid #cbd5e1',
                     backgroundColor: '#ffffff',
@@ -803,31 +803,29 @@ TaskNera (D-57 Dilshad Colony, Delhi, 110095)
               </div>
             )}
 
-            {/* AI Edit Policy Toolbar Button */}
+            {/* Edit Policy Toolbar Button */}
             <button
               type="button"
               onClick={() => handleOpenEditor()}
-              title="Edit policy clauses using AI prompts or direct text editing"
+              title="Edit policy clauses"
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: 6,
-                padding: '6px 14px',
+                padding: '6px 13px',
                 fontSize: '0.75rem',
-                fontWeight: 700,
-                color: '#ffffff',
-                background: isEditorOpen
-                  ? 'linear-gradient(135deg, #4338ca 0%, #6d28d9 100%)'
-                  : 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
-                border: 'none',
+                fontWeight: 600,
+                color: isEditorOpen ? '#ffffff' : '#2563eb',
+                backgroundColor: isEditorOpen ? '#2563eb' : '#eff6ff',
+                border: '1px solid',
+                borderColor: isEditorOpen ? '#2563eb' : '#bfdbfe',
                 borderRadius: 6,
                 cursor: 'pointer',
-                boxShadow: '0 2px 8px rgba(99, 102, 241, 0.3)',
                 transition: 'all 0.15s ease',
               }}
             >
-              <Sparkles size={13} />
-              {isEditorOpen ? 'Hide Editor' : 'AI Edit Policy'}
+              <Edit3 size={13} />
+              {isEditorOpen ? 'Close Editor' : 'Edit Policy'}
             </button>
 
             <button
@@ -848,7 +846,7 @@ TaskNera (D-57 Dilshad Colony, Delhi, 110095)
               }}
             >
               {copied ? <Check size={13} /> : <Copy size={13} />}
-              {copied ? 'Copied' : 'Copy Text'}
+              {copied ? 'Copied' : 'Copy'}
             </button>
 
             <button
@@ -859,7 +857,7 @@ TaskNera (D-57 Dilshad Colony, Delhi, 110095)
                 gap: 6,
                 padding: '6px 14px',
                 fontSize: '0.75rem',
-                fontWeight: 700,
+                fontWeight: 600,
                 color: '#ffffff',
                 backgroundColor: '#2563eb',
                 border: 'none',
@@ -868,7 +866,7 @@ TaskNera (D-57 Dilshad Colony, Delhi, 110095)
               }}
             >
               <Printer size={13} />
-              Print / Export PDF
+              Print PDF
             </button>
 
             {onDelete && (

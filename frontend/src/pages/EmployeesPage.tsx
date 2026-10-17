@@ -156,11 +156,11 @@ export const EmployeesPage: React.FC = () => {
               <Users size={22} />
             </div>
             <div>
-              <h1 style={{ fontSize: '1.45rem', fontWeight: 800, color: '#0f172a', margin: 0, letterSpacing: '-0.02em' }}>
-                Employee Directory
+              <h1 style={{ fontSize: '1.45rem', fontWeight: 700, color: '#0f172a', margin: 0 }}>
+                Employees
               </h1>
               <p style={{ fontSize: '0.8125rem', color: '#64748b', margin: '2px 0 0 0' }}>
-                Select an employee to view documents, download PDFs, or generate letters in 1-click.
+                View employee profiles and generate letters.
               </p>
             </div>
           </div>
@@ -176,19 +176,19 @@ export const EmployeesPage: React.FC = () => {
               display: 'flex',
               alignItems: 'center',
               gap: 8,
-              padding: '10px 18px',
-              fontSize: '0.85rem',
-              fontWeight: 700,
+              padding: '9px 16px',
+              fontSize: '0.8125rem',
+              fontWeight: 600,
               backgroundColor: '#ffffff',
               color: '#2563eb',
-              border: '2px solid #2563eb',
+              border: '1px solid #cbd5e1',
               borderRadius: 8,
               cursor: 'pointer',
-              boxShadow: '0 2px 4px rgba(37, 99, 235, 0.1)',
+              transition: 'all 0.15s ease',
             }}
           >
-            <FileText size={16} />
-            <span>Document Generation</span>
+            <FileText size={15} />
+            <span>New Document</span>
           </button>
 
           <button
@@ -197,18 +197,18 @@ export const EmployeesPage: React.FC = () => {
               display: 'flex',
               alignItems: 'center',
               gap: 8,
-              padding: '10px 18px',
-              fontSize: '0.85rem',
-              fontWeight: 700,
+              padding: '9px 16px',
+              fontSize: '0.8125rem',
+              fontWeight: 600,
               backgroundColor: '#2563eb',
               color: '#ffffff',
               border: 'none',
               borderRadius: 8,
               cursor: 'pointer',
-              boxShadow: '0 2px 4px rgba(37, 99, 235, 0.25)',
+              boxShadow: '0 1px 3px rgba(37, 99, 235, 0.2)',
             }}
           >
-            <UserPlus size={16} />
+            <UserPlus size={15} />
             <span>Add Employee</span>
           </button>
         </div>
@@ -224,23 +224,23 @@ export const EmployeesPage: React.FC = () => {
         }}
       >
         <div style={{ backgroundColor: '#ffffff', border: '1px solid #e2e8f0', borderRadius: 10, padding: 16 }}>
-          <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#64748b' }}>Total Workforce</div>
-          <div style={{ fontSize: '1.6rem', fontWeight: 800, color: '#0f172a', marginTop: 4 }}>{totalCount}</div>
+          <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#64748b' }}>Total Employees</div>
+          <div style={{ fontSize: '1.6rem', fontWeight: 700, color: '#0f172a', marginTop: 4 }}>{totalCount}</div>
         </div>
 
         <div style={{ backgroundColor: '#ffffff', border: '1px solid #e2e8f0', borderRadius: 10, padding: 16 }}>
-          <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#16a34a' }}>Active Employees</div>
-          <div style={{ fontSize: '1.6rem', fontWeight: 800, color: '#15803d', marginTop: 4 }}>{activeCount}</div>
+          <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#16a34a' }}>Active</div>
+          <div style={{ fontSize: '1.6rem', fontWeight: 700, color: '#15803d', marginTop: 4 }}>{activeCount}</div>
         </div>
 
         <div style={{ backgroundColor: '#ffffff', border: '1px solid #e2e8f0', borderRadius: 10, padding: 16 }}>
-          <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#2563eb' }}>In Onboarding</div>
-          <div style={{ fontSize: '1.6rem', fontWeight: 800, color: '#1d4ed8', marginTop: 4 }}>{onboardingCount}</div>
+          <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#2563eb' }}>Onboarding</div>
+          <div style={{ fontSize: '1.6rem', fontWeight: 700, color: '#1d4ed8', marginTop: 4 }}>{onboardingCount}</div>
         </div>
 
         <div style={{ backgroundColor: '#ffffff', border: '1px solid #e2e8f0', borderRadius: 10, padding: 16 }}>
-          <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#b45309' }}>Probation Status</div>
-          <div style={{ fontSize: '1.6rem', fontWeight: 800, color: '#b45309', marginTop: 4 }}>{probationCount}</div>
+          <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#b45309' }}>On Probation</div>
+          <div style={{ fontSize: '1.6rem', fontWeight: 700, color: '#b45309', marginTop: 4 }}>{probationCount}</div>
         </div>
       </div>
 
@@ -267,7 +267,7 @@ export const EmployeesPage: React.FC = () => {
             />
             <input
               type="text"
-              placeholder="Search by name, employee ID, designation, or email..."
+              placeholder="Search by name, ID, or department..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               style={{

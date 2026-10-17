@@ -478,25 +478,25 @@ export const ExperienceLetterModal: React.FC<ExperienceLetterModalProps> = ({
             </div>
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <h3 style={{ fontSize: '1.15rem', fontWeight: 800, margin: 0, color: '#0f172a' }}>
-                  Official Experience Letter Generator
+                <h3 style={{ fontSize: '1.15rem', fontWeight: 700, margin: 0, color: '#0f172a' }}>
+                  Experience Letter
                 </h3>
                 <span
                   style={{
                     backgroundColor: '#fff7ed',
                     color: '#ea580c',
                     fontSize: '0.72rem',
-                    fontWeight: 700,
+                    fontWeight: 600,
                     padding: '2px 8px',
                     borderRadius: 12,
                     border: '1px solid #fed7aa',
                   }}
                 >
-                  Step {step} of 2: {step === 1 ? 'Select Employee & Configure Terms' : 'Official Letterhead Preview'}
+                  Step {step} of 2: {step === 1 ? 'Details' : 'Preview'}
                 </span>
               </div>
               <p style={{ margin: '2px 0 0', fontSize: '0.8rem', color: '#64748b' }}>
-                Generates verified statutory service certification on pristine TaskNera corporate letterhead.
+                Create and print an official experience letter.
               </p>
             </div>
           </div>

@@ -207,17 +207,17 @@ export const DocumentList: React.FC<DocumentListProps> = ({
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
             <span className="ai-badge" style={{ fontSize: '0.7rem' }}>
-              <Sparkles size={12} /> Unified HR Document Engine
+              <FileText size={12} /> HR Documents
             </span>
             <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>
-              9 Core Document Types Supported
+              Standard templates & letters
             </span>
           </div>
           <h1 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-main, #0f172a)' }}>
-            HR Document Management
+            Documents
           </h1>
           <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>
-            Author, verify, quality-check, and generate tamper-evident documents with AI assistance and strict HR oversight.
+            Create, manage, and print official letters and agreements.
           </p>
         </div>
 
@@ -230,7 +230,7 @@ export const DocumentList: React.FC<DocumentListProps> = ({
             boxShadow: '0 4px 18px var(--primary-glow)',
           }}
         >
-          <Plus size={18} /> Create New Document
+          <Plus size={18} /> New Document
         </Button>
       </div>
 
@@ -257,7 +257,7 @@ export const DocumentList: React.FC<DocumentListProps> = ({
               onChange={(e) => setSelectedType(e.target.value)}
               style={{ padding: '6px 12px', fontSize: '0.8125rem', width: 'auto' }}
             >
-              <option value="ALL">All Document Types (9)</option>
+              <option value="ALL">All Types</option>
               {Object.entries(DOCUMENT_TYPE_LABELS).map(([k, label]) => (
                 <option key={k} value={k}>
                   {label}
@@ -276,7 +276,7 @@ export const DocumentList: React.FC<DocumentListProps> = ({
               style={{ padding: '6px 12px', fontSize: '0.8125rem', width: 'auto' }}
             >
               <option value="ALL">All Statuses</option>
-              <option value="DRAFT_AI">Draft (AI)</option>
+              <option value="DRAFT_AI">Draft</option>
               <option value="HR_REVIEW">HR Review</option>
               <option value="PENDING_APPROVAL">Pending Approval</option>
               <option value="APPROVED">Approved</option>
@@ -315,19 +315,19 @@ export const DocumentList: React.FC<DocumentListProps> = ({
           <thead>
             <tr style={{ background: 'var(--bg-secondary)', borderBottom: '1px solid var(--border-subtle)' }}>
               <th style={{ padding: '14px 18px', fontSize: '0.75rem', textTransform: 'uppercase', color: 'var(--text-dim)' }}>
-                Document Details
+                Document
               </th>
               <th style={{ padding: '14px 18px', fontSize: '0.75rem', textTransform: 'uppercase', color: 'var(--text-dim)' }}>
                 Recipient
               </th>
               <th style={{ padding: '14px 18px', fontSize: '0.75rem', textTransform: 'uppercase', color: 'var(--text-dim)' }}>
-                Lifecycle Status
+                Status
               </th>
               <th style={{ padding: '14px 18px', fontSize: '0.75rem', textTransform: 'uppercase', color: 'var(--text-dim)' }}>
-                AI Review Status
+                Review
               </th>
               <th style={{ padding: '14px 18px', fontSize: '0.75rem', textTransform: 'uppercase', color: 'var(--text-dim)' }}>
-                Effective Date
+                Date
               </th>
               <th style={{ padding: '14px 18px', fontSize: '0.75rem', textTransform: 'uppercase', color: 'var(--text-dim)', textAlign: 'right' }}>
                 Actions

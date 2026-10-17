@@ -427,10 +427,10 @@ export const DocumentCreationWizard: React.FC<DocumentCreationWizardProps> = ({
           </div>
           <div>
             <h2 style={{ fontSize: '1.25rem', fontWeight: 800, margin: 0, color: 'var(--text-main, #0f172a)' }}>
-              Document Engine: Upload Template & Generate
+              Create Document
             </h2>
             <p style={{ fontSize: '0.8125rem', color: 'var(--text-muted)', margin: 0 }}>
-              Upload any document template, fill candidate placeholders, and compile the official legal PDF.
+              Upload a template or select an existing one, fill in details, and generate the document.
             </p>
           </div>
         </div>
@@ -438,9 +438,9 @@ export const DocumentCreationWizard: React.FC<DocumentCreationWizardProps> = ({
         {/* 3 Simple Stages */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           {[
-            { id: 'UPLOAD_TEMPLATE', step: 1, label: 'Upload Template' },
-            { id: 'FILL_DETAILS', step: 2, label: 'Fill & Review Details' },
-            { id: 'GENERATED_OUTPUT', step: 3, label: 'Generate & Issue' },
+            { id: 'UPLOAD_TEMPLATE', step: 1, label: 'Choose Template' },
+            { id: 'FILL_DETAILS', step: 2, label: 'Fill Details' },
+            { id: 'GENERATED_OUTPUT', step: 3, label: 'Preview & Print' },
           ].map((s) => {
             const isCurrent = currentStage === s.id;
             const isDone =
@@ -554,10 +554,10 @@ export const DocumentCreationWizard: React.FC<DocumentCreationWizardProps> = ({
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
               <div>
                 <h4 style={{ fontSize: '1rem', fontWeight: 700, margin: 0, color: '#0f172a' }}>
-                  Or Choose from Ready-to-Use Enterprise Templates
+                  Or Choose a Standard Template
                 </h4>
                 <p style={{ fontSize: '0.8125rem', color: '#64748b', margin: '2px 0 0' }}>
-                  Click any standard template blueprint to load it immediately:
+                  Select any template below to load it:
                 </p>
               </div>
             </div>

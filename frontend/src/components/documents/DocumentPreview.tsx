@@ -611,7 +611,7 @@ export const DocumentPreview: React.FC<DocumentPreviewProps> = ({
           onClick={onBackToList}
           style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.875rem' }}
         >
-          <ArrowLeft size={16} /> Back to Document Registry
+          <ArrowLeft size={16} /> Back to Documents
         </button>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -624,10 +624,10 @@ export const DocumentPreview: React.FC<DocumentPreviewProps> = ({
             isLoading={isDownloading}
             icon={<Download size={15} />}
           >
-            Download Official PDF
+            Download PDF
           </Button>
           <Button variant="primary" onClick={onSendClick} icon={<Send size={15} />}>
-            Send to Recipient
+            Send Document
           </Button>
           <button
             type="button"

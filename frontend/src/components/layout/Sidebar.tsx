@@ -33,19 +33,19 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
     },
     {
       to: '/offers',
-      label: 'Offers Pipeline',
+      label: 'Offers',
       icon: <FileCheck2 size={18} />,
       roles: ['SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER', 'APPROVER'],
     },
     {
       to: '/documents',
-      label: 'Documents Generated',
+      label: 'Documents',
       icon: <Layers size={18} />,
       roles: ['SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER', 'APPROVER'],
     },
     {
       to: '/users',
-      label: 'System Users',
+      label: 'Users',
       icon: <UserPlus size={18} />,
       roles: ['SUPER_ADMIN', 'HR_MANAGER'],
     },
@@ -84,7 +84,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
             <span style={{ color: '#f56637' }}>Nera</span>
           </div>
           <div style={{ fontSize: '0.625rem', color: '#2563eb', fontWeight: 700, letterSpacing: '0.06em', marginTop: 2 }}>
-            OFFER GENERATOR
+            HR SUITE
           </div>
         </div>
       </div>

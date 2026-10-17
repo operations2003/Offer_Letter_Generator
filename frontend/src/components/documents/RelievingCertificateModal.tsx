@@ -468,7 +468,7 @@ export const RelievingCertificateModal: React.FC<RelievingCertificateModalProps>
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <h3 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 700, color: '#0f172a' }}>
-                  Generate Relieving & Clearance Certificate
+                  Relieving Letter
                 </h3>
                 <span
                   style={{
@@ -481,11 +481,11 @@ export const RelievingCertificateModal: React.FC<RelievingCertificateModalProps>
                     border: '1px solid #a7f3d0',
                   }}
                 >
-                  Official Exit Credential
+                  Certificate
                 </span>
               </div>
               <p style={{ margin: '2px 0 0', fontSize: '0.8rem', color: '#64748b' }}>
-                Step {step} of 2 — {step === 1 ? 'Employee & Separation Clearance Details' : 'Official Certificate Verification & Print'}
+                Step {step} of 2 — {step === 1 ? 'Employee & Separation Details' : 'Preview & Print'}
               </p>
             </div>
           </div>
@@ -516,7 +516,7 @@ export const RelievingCertificateModal: React.FC<RelievingCertificateModalProps>
                   cursor: 'pointer',
                 }}
               >
-                1. Configure
+                1. Edit Details
               </button>
               <button
                 type="button"
@@ -533,7 +533,7 @@ export const RelievingCertificateModal: React.FC<RelievingCertificateModalProps>
                   cursor: 'pointer',
                 }}
               >
-                2. Preview & Print
+                2. Preview Letter
               </button>
             </div>
 
@@ -860,7 +860,7 @@ export const RelievingCertificateModal: React.FC<RelievingCertificateModalProps>
                   onClick={() => setStep(2)}
                   style={{ padding: '10px 24px', fontSize: '0.875rem', backgroundColor: '#059669', borderColor: '#059669' }}
                 >
-                  Proceed to Official Certificate Preview
+                  Preview Relieving Letter
                 </Button>
               </div>
             </div>
@@ -923,7 +923,7 @@ export const RelievingCertificateModal: React.FC<RelievingCertificateModalProps>
                     disabled={isSaving}
                     style={{ padding: '6px 14px', fontSize: '0.8125rem' }}
                   >
-                    {isSaving ? 'Saving...' : 'Save to Generated'}
+                    {isSaving ? 'Saving...' : 'Save Document'}
                   </Button>
                   <Button
                     variant="primary"
@@ -931,7 +931,7 @@ export const RelievingCertificateModal: React.FC<RelievingCertificateModalProps>
                     onClick={handleDownloadPdf}
                     style={{ padding: '6px 16px', fontSize: '0.8125rem', backgroundColor: '#059669', borderColor: '#059669' }}
                   >
-                    Download PDF / Print
+                    Print PDF
                   </Button>
                 </div>
               </div>
