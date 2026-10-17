@@ -4,7 +4,6 @@ import {
   FileText,
   Search,
   Filter,
-  Plus,
   Sparkles,
   Download,
   Eye,
@@ -622,15 +621,6 @@ export const OffersPage: React.FC = () => {
             style={{ padding: '8px 14px', fontSize: '0.8125rem' }}
           >
             Refresh
-          </Button>
-
-          <Button
-            variant="primary"
-            icon={<Plus size={14} />}
-            onClick={() => setIsQuickModalOpen(true)}
-            style={{ padding: '8px 16px', fontSize: '0.8125rem', backgroundColor: '#2563eb' }}
-          >
-            New Offer
           </Button>
         </div>
       </div>
