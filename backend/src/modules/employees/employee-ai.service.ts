@@ -51,26 +51,54 @@ export class EmployeeAiService {
     }
 
     try {
-      const prompt = `You are an HR Legal & Compliance Assistant. 
+      const prompt = `You are an HR Executive Documentation Architect for TaskNera.
 Document Category: "${documentType}".
-Task: Improve the clarity, professional tone, and conciseness of the following HR text while strictly preserving its original legal meaning and factual information. 
-CRITICAL RULE: Do NOT invent or alter any employee names, dates, compensation numbers, or policy terms.
+Task: Format, polish, and structure the following HR text so it matches official enterprise templates with maximum clarity, prestige, and executive polish.
 
-Draft Text:
+MANDATORY STRUCTURAL & STYLING RULES:
+1. DOCUMENT TITLE: Include an uppercase bold primary title at the top (e.g., "**CONFIDENTIAL OFFER OF EMPLOYMENT**", "**EXPERIENCE & RELIEVING CERTIFICATE**").
+2. BOLD NUMBERED CLAUSES: Structure the content into clear, uppercase bold numbered sections:
+   **1. POSITION & RESPONSIBILITIES**
+   **2. COMPENSATION & EMOLUMENTS**
+   **3. WORKING HOURS & LOCATION**
+   **4. PROBATION & NOTICE PERIOD**
+   **5. CONFIDENTIALITY & GOVERNING LAW**
+3. BULLETED POINTS: Format all sub-clauses, compensation breakdowns, benefits, and rules into clean bullet points with bold prefixes:
+   • **Fixed Base Salary**: {{base_salary}}
+   • **Performance Bonus / Variable**: {{variable_pay}}
+   • **Total Annual Cost-to-Company (CTC)**: {{annual_ctc}}
+   • **Working Hours**: Standard 5-day business week
+4. BOLD KEY TERMS: All names, job titles, CTC amounts, joining dates, notice periods, and company names must be wrapped in bold:
+   e.g. **{{candidate_name}}**, **{{job_title}}**, **{{annual_ctc}}**, **{{joining_date}}**, **{{company_name}}**.
+5. CORPORATE SIGNATURE BLOCK: Conclude with a standard executive signature and candidate acceptance block:
+   Sincerely,
+
+   For **{{company_name}}**
+   ___________________________
+   **{{signatory_name}}**
+   {{signatory_title}}
+
+   **ACCEPTANCE & ACKNOWLEDGEMENT**
+   I have read, understood, and accept the terms described in this document.
+   Candidate Signature: ___________________________
+   Name: **{{candidate_name}}**
+   Date: ___________________________
+
+Draft Text to Format:
 "${textToRefine}"
 
-Provide only the improved, polished text directly without conversational commentary.`;
+Return ONLY the formatted document text directly without conversational prefix or markdown code wrappers.`;
 
       const aiResponse = await AiService.executePrompt(prompt, {
         temperature: 0.2,
-        maxTokens: 500,
+        maxTokens: 1200,
       });
 
       return {
         success: true,
         provider: config.ai.provider,
         task: 'suggest_wording',
-        result: aiResponse.trim().replace(/^"|"$/g, ''),
+        result: aiResponse.trim().replace(/^```(?:markdown)?|```$/gi, '').trim(),
         isAiAvailable: true,
       };
     } catch (err: any) {

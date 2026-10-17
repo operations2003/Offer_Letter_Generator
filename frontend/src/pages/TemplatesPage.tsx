@@ -137,35 +137,56 @@ const STANDARD_PRESETS: StandardPreset[] = [
     category: 'Offer Letter',
     icon: '📄',
     description: 'Full-time employment offer with compensation breakdown and terms.',
-    content: `CONFIDENTIAL OFFER OF EMPLOYMENT
-Date: {{issue_date}}
+    content: `**CONFIDENTIAL OFFER OF EMPLOYMENT**
 
-Dear {{candidate_name}},
+**Date**: {{issue_date}}
+**Reference**: {{reference_number}}
 
-On behalf of {{company_name}}, we are pleased to offer you the full-time position of {{job_title}} in the {{department}} department, reporting to {{reporting_manager}}.
+Dear **{{candidate_name}}**,
 
-Your anticipated starting date of employment will be {{joining_date}} at our {{work_location}} office.
+On behalf of **{{company_name}}**, we are pleased to offer you the full-time position of **{{job_title}}** in the **{{department}}** department, reporting directly to **{{reporting_manager}}**.
 
-1. COMPENSATION & BENEFITS
-- Annual Base Salary: {{base_salary}}
-- Performance Bonus / Variable: {{variable_pay}}
-- Total Annual Cost-to-Company (CTC): {{annual_ctc}}
-- Health & Wellness: Standard executive medical insurance coverage
+Your anticipated starting date of employment will be **{{joining_date}}** at our **{{work_location}}** facility.
 
-2. EMPLOYMENT TERMS & PROBATION
-This offer is contingent upon satisfactory reference and credential verification. You will be on a probation period of {{probation_period}}, with a standard notice period of {{notice_period}}.
+**1. POSITION & SCOPE OF ENGAGEMENT**
+• **Designation**: **{{job_title}}**
+• **Department / Division**: **{{department}}**
+• **Reporting Line**: **{{reporting_manager}}**
+• **Work Location**: **{{work_location}}**
+• **Commencement Date**: **{{joining_date}}**
 
-3. WORKING HOURS
-Standard work schedule is 5 working days per week, 9 hours per day, with flexibility subject to operational requirements.
+**2. COMPENSATION & EMOLUMENTS**
+Your comprehensive annual compensation package is established as follows:
+• **Fixed Annual Base Salary**: {{base_salary}}
+• **Performance Bonus / Variable Pay**: {{variable_pay}}
+• **Total Annual Cost-to-Company (CTC)**: **{{annual_ctc}}**
+• **Health & Wellness Benefits**: Executive medical insurance and family health coverage
 
-Please confirm your acceptance of this offer by signing and returning this letter on or before {{valid_until}}.
+**3. TERMS OF PROBATION & NOTICE PERIOD**
+• **Probationary Assessment**: You will be on a probation period of **{{probation_period}}** from your commencement date.
+• **Separation & Notice Period**: Written notice of **{{notice_period}}** is required by either party upon separation.
+• **Working Hours**: Standard 5-day business week, 9 hours daily, with project-aligned flexibility.
+
+**4. CONFIDENTIALITY & GOVERNING POLICIES**
+You agree to maintain strict confidentiality regarding all proprietary information, client documentation, trade secrets, and software assets of **{{company_name}}**.
+
+Please confirm your acceptance of this offer by signing and returning this letter on or before **{{valid_until}}**.
 
 Sincerely,
 
-{{signatory_name}}
+For **{{company_name}}**
+___________________________
+**{{signatory_name}}**
 {{signatory_title}}
-{{company_name}}`,
+
+**ACCEPTANCE & ACKNOWLEDGEMENT**
+I have read, understood, and accept this employment offer under the terms described above.
+
+Signature: ___________________________
+Candidate Name: **{{candidate_name}}**
+Date: ___________________________`,
     sampleData: {
+      reference_number: 'TSK-OFF-2026-081',
       candidate_name: 'Priya Sharma',
       company_name: 'TaskNera Technologies Ltd.',
       issue_date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
@@ -190,28 +211,45 @@ Sincerely,
     category: 'Internship Letter',
     icon: '🎓',
     description: 'Fixed-term student or graduate internship detailing mentor, stipend, and project scope.',
-    content: `INTERNSHIP APPOINTMENT LETTER
-Date: {{issue_date}}
+    content: `**INTERNSHIP APPOINTMENT LETTER**
 
-Dear {{candidate_name}},
+**Date**: {{issue_date}}
+**Reference**: {{reference_number}}
 
-We are pleased to offer you an internship position as {{job_title}} at {{company_name}} in the {{department}} team.
+Dear **{{candidate_name}}**,
 
-1. TENURE & MENTORSHIP
-Your internship will commence on {{joining_date}} and conclude on {{end_date}}. You will be guided and mentored by {{reporting_manager}}.
+On behalf of **{{company_name}}**, we are delighted to offer you an appointment as **{{job_title}}** within our **{{department}}** team.
 
-2. STIPEND & ALLOWANCES
-You will be entitled to a monthly stipend of {{base_salary}}, payable on the final business day of each calendar month.
+**1. TENURE & MENTORSHIP**
+• **Commencement Date**: **{{joining_date}}**
+• **Tenure Conclusion**: **{{end_date}}**
+• **Designated Mentor**: **{{reporting_manager}}**
+• **Work Location**: **{{work_location}}**
 
-3. LEARNING DELIVERABLES
-You will contribute to engineering and research deliverables and submit a final capstone report prior to {{end_date}}.
+**2. STIPEND & ALLOWANCES**
+• **Monthly Academic Stipend**: **{{base_salary}}**
+• **Disbursement Schedule**: Payable on the final business day of each calendar month.
+• **Learning Budget**: Full access to TaskNera engineering resources, cloud sandboxes, and research repositories.
+
+**3. LEARNING DELIVERABLES & EVALUATION**
+• **Project Scope**: Active participation in software architecture deliverables and sprint reviews.
+• **Capstone Review**: Submission of capstone project analysis prior to **{{end_date}}**.
 
 Sincerely,
 
-{{signatory_name}}
+For **{{company_name}}**
+___________________________
+**{{signatory_name}}**
 {{signatory_title}}
-{{company_name}}`,
+
+**INTERN ACCEPTANCE & ACKNOWLEDGEMENT**
+I accept the internship appointment under the terms outlined herein.
+
+Signature: ___________________________
+Candidate Name: **{{candidate_name}}**
+Date: ___________________________`,
     sampleData: {
+      reference_number: 'TSK-INT-2026-019',
       candidate_name: 'Aarav Patel',
       company_name: 'TaskNera Technologies Ltd.',
       issue_date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
@@ -220,6 +258,7 @@ Sincerely,
       reporting_manager: 'Arjun Nair (Lead AI Engineer)',
       joining_date: 'December 01, 2026',
       end_date: 'May 31, 2027',
+      work_location: 'Bangalore, India',
       base_salary: 'INR 35,000 per month',
       signatory_name: 'Sheetal Bedi',
       signatory_title: 'Chief Executive Officer',
@@ -231,25 +270,39 @@ Sincerely,
     category: 'Employment Contract',
     icon: '💼',
     description: 'Contractor scope of work, milestone billing, deliverables, and confidentiality.',
-    content: `INDEPENDENT CONTRACTOR ENGAGEMENT
-Agreement Reference: {{reference_number}}
-Date: {{issue_date}}
+    content: `**INDEPENDENT CONTRACTOR ENGAGEMENT AGREEMENT**
 
-This Agreement is entered into between {{company_name}} ("Client") and {{candidate_name}} ("Contractor").
+**Agreement Reference**: {{reference_number}}
+**Effective Date**: {{issue_date}}
 
-1. SCOPE OF SERVICES
-Contractor agrees to perform consulting and technical services for {{job_title}} as specified in the agreed project roadmap.
+This Agreement is entered into between **{{company_name}}** ("Client") and **{{candidate_name}}** ("Contractor").
 
-2. FEES & PAYMENT TERMS
-Client shall pay Contractor a fee of {{base_salary}} upon submission and formal acceptance of milestone deliverables.
+**1. SCOPE OF SERVICES & DELIVERABLES**
+• **Role / Specialization**: **{{job_title}}**
+• **Core Objectives**: Execution of specialized technical architecture, roadmap features, and sprint tasks.
+• **Standard of Performance**: Services will be conducted with professional excellence adhering to industry standards.
 
-3. DURATION & TERMINATION
-This contract commences on {{joining_date}} and terminates on {{end_date}} unless terminated earlier by either party with {{notice_period}} written notice.
+**2. PROFESSIONAL FEES & PAYMENT TERMS**
+• **Milestone Fee**: **{{base_salary}}**
+• **Invoicing Schedule**: Payable within 15 business days of deliverable milestone verification.
+• **Expenses**: Pre-approved travel and infrastructure expenses reimbursed at actual cost.
+
+**3. ENGAGEMENT TENURE & TERMINATION**
+• **Commencement Date**: **{{joining_date}}**
+• **Scheduled Completion**: **{{end_date}}**
+• **Notice Period for Termination**: **{{notice_period}}** written notice by either party.
 
 Agreed and Accepted:
 
-{{candidate_name}} (Contractor)
-{{signatory_name}} (Client Signatory)`,
+For **{{company_name}}** (Client)
+___________________________
+**{{signatory_name}}**
+{{signatory_title}}
+
+For **{{candidate_name}}** (Contractor)
+___________________________
+Authorized Signature
+Date: ___________________________`,
     sampleData: {
       reference_number: 'TSK-CTR-2026-042',
       candidate_name: 'Devon Scott Consulting LLC',
@@ -261,6 +314,7 @@ Agreed and Accepted:
       end_date: 'April 30, 2027',
       notice_period: '14 business days',
       signatory_name: 'Sheetal Bedi',
+      signatory_title: 'Chief Executive Officer',
     },
   },
   {
@@ -269,25 +323,33 @@ Agreed and Accepted:
     category: 'Experience Letter',
     icon: '📜',
     description: 'Official confirmation of employee tenure, designation, department, and conduct.',
-    content: `TO WHOM IT MAY CONCERN
-EXPERIENCE & SERVICE CERTIFICATE
+    content: `**TO WHOM IT MAY CONCERN**
+**EXPERIENCE & SERVICE CERTIFICATE**
 
-Date: {{issue_date}}
-Reference: {{reference_number}}
+**Date of Issue**: {{issue_date}}
+**Certificate Reference**: {{reference_number}}
 
-This is to certify that {{candidate_name}} (Employee Code: {{employee_id}}) was employed with {{company_name}} from {{joining_date}} to {{end_date}}.
+This is to formally certify that **{{candidate_name}}** (Employee Code: **{{employee_id}}**) was employed with **{{company_name}}** from **{{joining_date}}** to **{{end_date}}**.
 
-During their tenure with us, they served as {{job_title}} in the {{department}} department.
+**1. TENURE & DESIGNATION DETAILS**
+• **Final Designation**: **{{job_title}}**
+• **Department / Practice**: **{{department}}**
+• **Tenure of Service**: From **{{joining_date}}** to **{{end_date}}**
+• **Reporting Line**: **{{reporting_manager}}**
 
-Throughout their service, {{candidate_name}} exhibited professional competency, dedication, and integrity in carrying out their responsibilities. Their conduct and character were exemplary.
+**2. PROFESSIONAL CONDUCT & PERFORMANCE**
+• **Technical Competency**: Demonstrated exceptional professional capability and dedication across all assigned mandates.
+• **Integrity & Conduct**: Maintained the highest ethical standards, dedication, and professional integrity.
+• **Clearance Status**: All official handovers, intellectual property assignments, and accounts have been fully settled.
 
-We appreciate their contributions to our organization and wish them continued success in their future career endeavors.
+We appreciate **{{candidate_name}}**'s contributions to our organization and wish them continued success in all future professional endeavors.
 
 Sincerely,
 
-{{signatory_name}}
-{{signatory_title}}
-{{company_name}}`,
+For **{{company_name}}**
+___________________________
+**{{signatory_name}}**
+{{signatory_title}}`,
     sampleData: {
       reference_number: 'TSK-EXP-2026-891',
       candidate_name: 'Rohan Mehra',
@@ -298,6 +360,7 @@ Sincerely,
       department: 'Web Applications',
       joining_date: 'February 10, 2023',
       end_date: 'September 30, 2026',
+      reporting_manager: 'Sheetal Bedi',
       signatory_name: 'Sheetal Bedi',
       signatory_title: 'Chief Executive Officer',
     },
@@ -308,25 +371,35 @@ Sincerely,
     category: 'Relieving Letter',
     icon: '🚪',
     description: 'Separation letter certifying resignation acceptance, exit clearance, and release from duties.',
-    content: `TO WHOM IT MAY CONCERN
-RELIEVING & CLEARANCE LETTER
+    content: `**TO WHOM IT MAY CONCERN**
+**RELIEVING & CLEARANCE LETTER**
 
-Date: {{issue_date}}
-Reference: {{reference_number}}
+**Date of Issue**: {{issue_date}}
+**Reference Number**: {{reference_number}}
 
-Dear {{candidate_name}},
+Dear **{{candidate_name}}**,
 
-This has reference to your resignation letter dated {{resignation_date}}. We hereby confirm that your resignation has been accepted and you are formally relieved from your duties as {{job_title}} in the {{department}} department at {{company_name}} with effect from the close of business hours on {{end_date}}.
+This has reference to your formal resignation letter dated **{{resignation_date}}**. We hereby confirm that your resignation has been accepted by the management of **{{company_name}}**.
 
-We confirm that all company assets, credentials, and handovers have been satisfactorily completed, and all final clearance formalities are settled.
+**1. RELIEVING & TENURE CONFIRMATION**
+• **Designation Relieved From**: **{{job_title}}**
+• **Department**: **{{department}}**
+• **Effective Relieving Date**: Close of business hours on **{{end_date}}**
+• **Total Employment Period**: From **{{joining_date}}** to **{{end_date}}**
 
-We thank you for your contributions during your tenure with us from {{joining_date}} to {{end_date}} and wish you the very best in your future endeavors.
+**2. CLEARANCE & SETTLEMENT CONFIRMATION**
+• **Asset Handover**: Complete return and clearance of all company equipment, credentials, and software devices.
+• **Project Transition**: Satisfactory handover of ongoing deliverables and client documentation.
+• **Financial Settlement**: Full and final settlement disbursed in accordance with company payroll policy.
+
+We thank you for your dedicated service and wish you the very best in your subsequent career journey.
 
 Sincerely,
 
-{{signatory_name}}
-{{signatory_title}}
-{{company_name}}`,
+For **{{company_name}}**
+___________________________
+**{{signatory_name}}**
+{{signatory_title}}`,
     sampleData: {
       reference_number: 'TSK-RLV-2026-512',
       candidate_name: 'Ananya Verma',
@@ -347,30 +420,39 @@ Sincerely,
     category: 'Company Policies',
     icon: '🔒',
     description: 'Mutual confidentiality and intellectual property non-disclosure agreement.',
-    content: `MUTUAL NON-DISCLOSURE & CONFIDENTIALITY AGREEMENT
-Reference: {{reference_number}}
-Effective Date: {{issue_date}}
+    content: `**MUTUAL NON-DISCLOSURE & CONFIDENTIALITY AGREEMENT**
 
-This Non-Disclosure Agreement ("Agreement") is made between:
-1. {{company_name}}, having its principal place of business at {{work_location}}, and
-2. {{candidate_name}} ("Recipient / Participant").
+**Agreement Reference**: {{reference_number}}
+**Effective Date**: {{issue_date}}
 
-1. PURPOSE & CONFIDENTIAL INFORMATION
-The parties intend to disclose proprietary information regarding technical architectures, customer data, and business roadmaps for the role of {{job_title}}.
+This Agreement is entered into between:
+1. **{{company_name}}**, having its principal office at **{{work_location}}**, and
+2. **{{candidate_name}}** ("Recipient / Participant").
 
-2. OBLIGATIONS OF CONFIDENTIALITY
-Recipient agrees to safeguard all Confidential Information with the same degree of care as their own proprietary information and shall not disclose it to any third party without prior written consent.
+**1. PURPOSE & PROPRIETARY INFORMATION**
+• **Purpose**: Evaluation and performance of duties associated with the position of **{{job_title}}**.
+• **Scope of Information**: Technical architectures, algorithmic codebases, business roadmaps, financial data, and customer identities.
 
-3. TERM & GOVERNING LAW
-This Agreement shall remain in effect for a period of {{notice_period}} following disclosure.
+**2. OBLIGATIONS OF CONFIDENTIALITY**
+• **Duty of Care**: Recipient shall protect confidential information with the same degree of care used for their own sensitive assets, but no less than reasonable care.
+• **Non-Disclosure**: Information shall not be published, disseminated, or transferred to third parties without prior written consent.
+• **Return of Materials**: All materials and backups shall be returned or destroyed immediately upon written request.
 
-Agreed and Accepted:
+**3. DURATION & GOVERNING JURISDICTION**
+• **Duration of Covenant**: The confidentiality obligations remain in force for a period of {{notice_period}} following disclosure.
+• **Governing Law**: Subject to the laws and jurisdiction applicable at **{{work_location}}**.
 
-For {{company_name}}:
-{{signatory_name}} ({{signatory_title}})
+In Witness Whereof, the parties have executed this Agreement as of the Effective Date:
 
-For Recipient:
-{{candidate_name}}`,
+For **{{company_name}}**
+___________________________
+**{{signatory_name}}**
+{{signatory_title}}
+
+For **{{candidate_name}}**
+___________________________
+Signature
+Date: ___________________________`,
     sampleData: {
       reference_number: 'TSK-NDA-2026-108',
       company_name: 'TaskNera Technologies Ltd.',
@@ -384,6 +466,420 @@ For Recipient:
     },
   },
 ];
+
+/**
+ * Formats any raw document text into the official enterprise template structure:
+ * - UPPERCASE BOLD primary document title
+ * - Date & Reference headers
+ * - Salutation with bold candidate and company names
+ * - Bold uppercase numbered clauses: **1. POSITION & SCOPE OF ENGAGEMENT**, **2. COMPENSATION & EMOLUMENTS**, etc.
+ * - Structured bullet points with bold prefixes: • **Fixed Base Salary**: {{base_salary}}
+ * - Bold key tokens: **{{candidate_name}}**, **{{job_title}}**, **{{annual_ctc}}**, etc.
+ * - Dual-column corporate signature and candidate acceptance block
+ */
+export function formatTextToExecutiveTemplate(
+  rawText: string,
+  title?: string,
+  category?: string
+): string {
+  if (!rawText || !rawText.trim()) return rawText;
+
+  let text = rawText.trim();
+
+  // 1. Ensure primary document title
+  const cleanTitle = (title || category || 'OFFER OF EMPLOYMENT')
+    .replace(/\.[^/.]+$/, '')
+    .replace(/[_-]/g, ' ')
+    .toUpperCase();
+
+  const titleHeader = `**CONFIDENTIAL ${
+    cleanTitle.includes('LETTER') || cleanTitle.includes('AGREEMENT') || cleanTitle.includes('CERTIFICATE') || cleanTitle.includes('OFFER')
+      ? cleanTitle
+      : cleanTitle + ' LETTER'
+  }**`;
+
+  if (!text.startsWith('**') && !text.toUpperCase().startsWith(cleanTitle)) {
+    text = `${titleHeader}\n\n**Date**: {{issue_date}}\n**Reference**: {{reference_number}}\n\n${text}`;
+  }
+
+  // 2. Wrap standard placeholders in bold if not already wrapped
+  const standardTokensToBold = [
+    'candidate_name',
+    'employee_name',
+    'company_name',
+    'job_title',
+    'designation',
+    'department',
+    'reporting_manager',
+    'annual_ctc',
+    'base_salary',
+    'joining_date',
+    'work_location',
+    'probation_period',
+    'notice_period',
+    'end_date',
+    'valid_until',
+    'signatory_name',
+  ];
+
+  standardTokensToBold.forEach((tok) => {
+    // Avoid double bolding like ****{{token}}****
+    const tokenRegex = new RegExp(`(?<!\\*\\*)\\{\\{\\s*${tok}\\s*\\}\\}(?!\\*\\*)`, 'gi');
+    text = text.replace(tokenRegex, `**{{${tok}}}**`);
+  });
+
+  // 3. Transform section headings into uppercase bold numbered clauses
+  text = text.replace(
+    /^(?:#+\s*|\*\*)?(\d+)[.)]\s*([^\n\r]+?)(?:\*\*)?$/gm,
+    (_, num, clauseName) => {
+      const cleanClause = clauseName.trim().toUpperCase().replace(/^\*+|\*+$/g, '');
+      return `\n**${num}. ${cleanClause}**`;
+    }
+  );
+
+  // 4. Transform plain unnumbered prominent section titles into numbered bold clauses
+  const knownSectionNames = [
+    'POSITION & RESPONSIBILITIES',
+    'POSITION & SCOPE OF ENGAGEMENT',
+    'COMPENSATION & BENEFITS',
+    'COMPENSATION & EMOLUMENTS',
+    'TERMS OF EMPLOYMENT',
+    'WORKING HOURS & LOCATION',
+    'PROBATION & NOTICE PERIOD',
+    'CONFIDENTIALITY & GOVERNING POLICIES',
+    'GOVERNING LAW & JURISDICTION',
+    'TENURE & MENTORSHIP',
+    'STIPEND & ALLOWANCES',
+    'LEARNING DELIVERABLES',
+    'SCOPE OF SERVICES',
+    'FEES & PAYMENT TERMS',
+    'EXPERIENCE & SERVICE DETAILS',
+    'RELIEVING & SETTLEMENT',
+  ];
+
+  knownSectionNames.forEach((name) => {
+    const rx = new RegExp(`^(?!\\*\\*\\d+\\.)\\s*(?:#+\\s*)?(?:${name})(?::)?\\s*$`, 'gim');
+    text = text.replace(rx, `\n**${name}**`);
+  });
+
+  // 5. Transform list dashes/asterisks into standardized executive bullet points with bold prefixes
+  text = text.replace(
+    /^\s*(?:[-*]|\d+\))\s+([A-Za-z0-9\s/&_-]+?):\s*(.+)$/gm,
+    (_, label, val) => {
+      const cleanLabel = label.trim().replace(/^\*+|\*+$/g, '');
+      return `• **${cleanLabel}**: ${val.trim()}`;
+    }
+  );
+
+  // Any remaining generic list dashes "- " -> "• "
+  text = text.replace(/^\s*[-*]\s+(.+)$/gm, '• $1');
+
+  // 6. Ensure formal corporate signature and candidate acceptance block
+  const hasSignatureBlock =
+    text.includes('Sincerely') ||
+    text.includes('Authorized Signatory') ||
+    text.includes('ACCEPTANCE') ||
+    text.includes('In Witness Whereof');
+
+  if (!hasSignatureBlock) {
+    text += `\n\nSincerely,\n\nFor **{{company_name}}**\n___________________________\n**{{signatory_name}}**\n{{signatory_title}}\n\n**ACCEPTANCE & ACKNOWLEDGEMENT**\nI have read, understood, and accept this offer under the terms described above.\n\nSignature: ___________________________\nCandidate Name: **{{candidate_name}}**\nDate: ___________________________`;
+  }
+
+  return text.trim();
+}
+
+/**
+ * Render inline markdown (**bold**, *italic*, and {{placeholders}})
+ */
+function renderInlineFormatting(
+  text: string,
+  formData: Record<string, string>,
+  highlight: boolean
+): React.ReactNode[] {
+  // First interpolate tokens: {{key}}
+  const tokenRegex = /(\{\{\s*[a-zA-Z0-9_\s]+\s*\}\})/g;
+  const segments = text.split(tokenRegex);
+
+  return segments.map((seg, sIdx) => {
+    const tokenMatch = seg.match(/^\{\{\s*([a-zA-Z0-9_\s]+)\s*\}\}$/);
+    if (tokenMatch) {
+      const rawKey = tokenMatch[1].trim();
+      const cleanKey = rawKey.toLowerCase().replace(/[^a-z0-9_]/g, '_');
+      const val =
+        formData[cleanKey] !== undefined && formData[cleanKey] !== ''
+          ? formData[cleanKey]
+          : formData[rawKey] !== undefined && formData[rawKey] !== ''
+          ? formData[rawKey]
+          : `{{${rawKey}}}`;
+
+      return (
+        <span
+          key={`token-${sIdx}`}
+          style={{
+            backgroundColor: highlight ? '#fef08a' : 'transparent',
+            padding: highlight ? '1px 5px' : '0',
+            borderRadius: 3,
+            fontWeight: 700,
+            color: '#0f172a',
+            transition: 'background-color 0.2s ease',
+          }}
+        >
+          {val}
+        </span>
+      );
+    }
+
+    // Parse markdown **bold** and *italic*
+    const mdParts = seg.split(/(\*\*.*?\*\*|\*.*?\*)/g);
+    return (
+      <React.Fragment key={`seg-${sIdx}`}>
+        {mdParts.map((part, pIdx) => {
+          if (part.startsWith('**') && part.endsWith('**') && part.length >= 4) {
+            return (
+              <strong key={`b-${pIdx}`} style={{ fontWeight: 700, color: '#0f172a' }}>
+                {part.slice(2, -2)}
+              </strong>
+            );
+          }
+          if (part.startsWith('*') && part.endsWith('*') && part.length >= 3) {
+            return <em key={`i-${pIdx}`}>{part.slice(1, -1)}</em>;
+          }
+          return <span key={`t-${pIdx}`}>{part}</span>;
+        })}
+      </React.Fragment>
+    );
+  });
+}
+
+/**
+ * Executive Corporate Document Renderer
+ * Renders bold uppercase numbered clauses, crisp bullet points, and dual signature columns
+ */
+const ExecutiveDocumentRenderer: React.FC<{
+  content: string;
+  formData: Record<string, string>;
+  highlightPlaceholders: boolean;
+}> = ({ content, formData, highlightPlaceholders }) => {
+  const lines = content.split('\n');
+
+  let inSignatureSection = false;
+  const renderedElements: React.ReactNode[] = [];
+
+  for (let i = 0; i < lines.length; i++) {
+    const rawLine = lines[i];
+    const trimmed = rawLine.trim();
+
+    if (!trimmed) {
+      renderedElements.push(<div key={`spacer-${i}`} style={{ height: 10 }} />);
+      continue;
+    }
+
+    // 1. Primary Title Header
+    const isPrimaryTitle =
+      (trimmed.startsWith('**') && trimmed.endsWith('**') && (trimmed.includes('OFFER') || trimmed.includes('AGREEMENT') || trimmed.includes('APPOINTMENT') || trimmed.includes('CERTIFICATE') || trimmed.includes('CONFIDENTIAL') || trimmed.includes('LETTER'))) ||
+      (i === 0 && trimmed.toUpperCase() === trimmed && trimmed.length < 80);
+
+    if (isPrimaryTitle) {
+      const cleanTitle = trimmed.replace(/^\*+|\*+$/g, '');
+      renderedElements.push(
+        <div
+          key={`title-${i}`}
+          style={{
+            fontSize: '1.25rem',
+            fontWeight: 800,
+            letterSpacing: '0.04em',
+            color: '#0f172a',
+            textAlign: 'center',
+            marginTop: 8,
+            marginBottom: 20,
+            paddingBottom: 8,
+            borderBottom: '2px solid #0f172a',
+            textTransform: 'uppercase',
+            fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+          }}
+        >
+          {cleanTitle}
+        </div>
+      );
+      continue;
+    }
+
+    // 2. Numbered Section Clauses (e.g. **1. POSITION & SCOPE**, 1. COMPENSATION & BENEFITS)
+    const numberedClauseMatch = trimmed.match(/^(?:\*\*)?(\d+\.\s+[A-Z0-9\s&/()_-]+)(?:\*\*)?$/);
+    if (numberedClauseMatch) {
+      const headingText = numberedClauseMatch[1].trim();
+      renderedElements.push(
+        <div
+          key={`clause-${i}`}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+            marginTop: 22,
+            marginBottom: 8,
+            paddingBottom: 4,
+            borderBottom: '1.5px solid #e2e8f0',
+          }}
+        >
+          <span
+            style={{
+              fontSize: '0.92rem',
+              fontWeight: 800,
+              color: '#0f172a',
+              letterSpacing: '0.03em',
+              textTransform: 'uppercase',
+              fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+            }}
+          >
+            {headingText}
+          </span>
+        </div>
+      );
+      continue;
+    }
+
+    // 3. Bullet Point (e.g. • **Base Salary**: ..., - Designation: ...)
+    const bulletMatch = trimmed.match(/^(?:•|\*|-|\[bullet\])\s+(.*)$/);
+    if (bulletMatch) {
+      const bulletContent = bulletMatch[1];
+      renderedElements.push(
+        <div
+          key={`bullet-${i}`}
+          style={{
+            display: 'flex',
+            alignItems: 'flex-start',
+            gap: 10,
+            margin: '5px 0',
+            paddingLeft: 10,
+            lineHeight: 1.6,
+          }}
+        >
+          <span
+            style={{
+              color: '#2563eb',
+              fontWeight: 800,
+              fontSize: '1.05rem',
+              lineHeight: 1.3,
+              userSelect: 'none',
+            }}
+          >
+            •
+          </span>
+          <div style={{ flex: 1, color: '#1e293b' }}>
+            {renderInlineFormatting(bulletContent, formData, highlightPlaceholders)}
+          </div>
+        </div>
+      );
+      continue;
+    }
+
+    // 4. Corporate Signatures & Acceptance
+    if (
+      trimmed === 'Sincerely,' ||
+      trimmed.startsWith('For **{{company_name}}') ||
+      trimmed.startsWith('For {{company_name}}') ||
+      trimmed.includes('ACCEPTANCE & ACKNOWLEDGEMENT') ||
+      trimmed.includes('In Witness Whereof')
+    ) {
+      inSignatureSection = true;
+      break;
+    }
+
+    // 5. Normal Paragraph
+    renderedElements.push(
+      <p
+        key={`p-${i}`}
+        style={{
+          margin: '8px 0',
+          lineHeight: 1.7,
+          color: '#334155',
+        }}
+      >
+        {renderInlineFormatting(rawLine, formData, highlightPlaceholders)}
+      </p>
+    );
+  }
+
+  // Render Dual Corporate Signature Block if present
+  if (inSignatureSection) {
+    const compName = formData.company_name || 'TaskNera Technologies Ltd.';
+    const sigName = formData.signatory_name || 'Sheetal Bedi';
+    const sigTitle = formData.signatory_title || 'Chief Executive Officer';
+    const candName = formData.candidate_name || formData.employee_name || 'Authorized Recipient';
+    const issueDate = formData.issue_date || new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+
+    renderedElements.push(
+      <div
+        key="executive-signatures"
+        style={{
+          marginTop: 36,
+          paddingTop: 20,
+          borderTop: '1.5px solid #cbd5e1',
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr',
+          gap: 32,
+          fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+        }}
+      >
+        {/* Left Column: Employer Signatory */}
+        <div
+          style={{
+            backgroundColor: '#f8fafc',
+            border: '1px solid #e2e8f0',
+            borderRadius: 8,
+            padding: '16px 18px',
+          }}
+        >
+          <div style={{ fontSize: '0.72rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: 6 }}>
+            Issued On Behalf Of
+          </div>
+          <div style={{ fontSize: '0.92rem', fontWeight: 800, color: '#0f172a', marginBottom: 14 }}>
+            {compName}
+          </div>
+          <div style={{ height: 38, borderBottom: '1.5px dashed #94a3b8', marginBottom: 8 }} />
+          <div style={{ fontSize: '0.875rem', fontWeight: 700, color: '#0f172a' }}>
+            {sigName}
+          </div>
+          <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
+            {sigTitle}
+          </div>
+          <div style={{ fontSize: '0.72rem', color: '#94a3b8', marginTop: 4 }}>
+            Date: {issueDate}
+          </div>
+        </div>
+
+        {/* Right Column: Candidate Acceptance */}
+        <div
+          style={{
+            backgroundColor: '#f8fafc',
+            border: '1px solid #e2e8f0',
+            borderRadius: 8,
+            padding: '16px 18px',
+          }}
+        >
+          <div style={{ fontSize: '0.72rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: 6 }}>
+            Acceptance & Endorsement
+          </div>
+          <div style={{ fontSize: '0.8rem', color: '#475569', marginBottom: 14, lineHeight: 1.35 }}>
+            I hereby accept and agree to all terms and covenants specified herein.
+          </div>
+          <div style={{ height: 38, borderBottom: '1.5px dashed #94a3b8', marginBottom: 8 }} />
+          <div style={{ fontSize: '0.875rem', fontWeight: 700, color: '#0f172a' }}>
+            {candName}
+          </div>
+          <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
+            Candidate / Recipient
+          </div>
+          <div style={{ fontSize: '0.72rem', color: '#94a3b8', marginTop: 4 }}>
+            Signature & Date
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return <div>{renderedElements}</div>;
+};
 
 export const TemplatesPage: React.FC = () => {
   const { success, error, info } = useToast();
@@ -416,6 +912,7 @@ export const TemplatesPage: React.FC = () => {
   const [aiPrompt, setAiPrompt] = useState<string>('');
   const [isAiDrafting, setIsAiDrafting] = useState<boolean>(false);
   const [isDetectingPlaceholders, setIsDetectingPlaceholders] = useState<boolean>(false);
+  const [isAiFormatting, setIsAiFormatting] = useState<boolean>(false);
 
   // Custom Field Adder
   const [newFieldName, setNewFieldName] = useState<string>('');
@@ -811,6 +1308,35 @@ export const TemplatesPage: React.FC = () => {
     return res;
   };
 
+  // Action: AI Format to Official Template Style (bold uppercase numbered clauses, bullets, and signatures)
+  const handleAiFormatToOfficialStyle = async () => {
+    setIsAiFormatting(true);
+    try {
+      let formatted = '';
+      try {
+        const res = await EmployeeService.suggestWording(templateText, templateCategory);
+        if (res && res.result && res.result.trim().length > 20) {
+          formatted = res.result.trim();
+        }
+      } catch (backendErr) {
+        console.warn('Backend AI wording service unavailable, using executive rule formatter:', backendErr);
+      }
+
+      // If backend AI was unavailable or empty, use client executive formatter
+      if (!formatted) {
+        formatted = formatTextToExecutiveTemplate(templateText, templateTitle, templateCategory);
+      }
+
+      setTemplateText(formatted);
+      extractPlaceholdersFromText(formatted);
+      success('Template formatted to official company style with bold headings and structured bullet points!');
+    } catch (err: any) {
+      error(`Formatting failed: ${err.message}`);
+    } finally {
+      setIsAiFormatting(false);
+    }
+  };
+
   // Switch to Step 3 and prepare direct edit buffer
   const handleProceedToPreview = () => {
     const compiled = getCompiledDocumentText();
@@ -894,9 +1420,51 @@ export const TemplatesPage: React.FC = () => {
 
   // Download as Word Document (.doc format compatible with MS Word)
   const handleDownloadWordDoc = () => {
-    const content = getCompiledDocumentText();
+    const rawContent = getCompiledDocumentText();
     const recipient = formData.candidate_name || formData.employee_name || 'Recipient';
     const filename = `${templateTitle.replace(/\s+/g, '_')}_${recipient.replace(/\s+/g, '_')}.doc`;
+
+    // Convert markdown content to rich semantic HTML for Microsoft Word
+    const lines = rawContent.split('\n');
+    const htmlLines: string[] = [];
+
+    lines.forEach((line) => {
+      const trimmed = line.trim();
+      if (!trimmed) {
+        htmlLines.push('<p style="margin:4px 0;">&nbsp;</p>');
+        return;
+      }
+
+      // 1. Title Header
+      if (
+        (trimmed.startsWith('**') && trimmed.endsWith('**') && (trimmed.includes('OFFER') || trimmed.includes('AGREEMENT') || trimmed.includes('CERTIFICATE') || trimmed.includes('LETTER'))) ||
+        (trimmed.toUpperCase() === trimmed && trimmed.length < 80 && (trimmed.includes('OFFER') || trimmed.includes('AGREEMENT') || trimmed.includes('CERTIFICATE') || trimmed.includes('LETTER')))
+      ) {
+        htmlLines.push(`<h2 style="color:#0f172a; text-align:center; font-family:Arial,sans-serif; text-transform:uppercase; border-bottom:2px solid #0f172a; padding-bottom:6px; margin:20px 0 16px;">${trimmed.replace(/\*\*/g, '')}</h2>`);
+        return;
+      }
+
+      // 2. Numbered Section Clause
+      const numMatch = trimmed.match(/^(?:\*\*)?(\d+\.\s+[A-Z0-9\s&/()_-]+)(?:\*\*)?$/);
+      if (numMatch) {
+        htmlLines.push(`<h3 style="color:#0f172a; font-family:Arial,sans-serif; text-transform:uppercase; border-bottom:1px solid #cbd5e1; padding-bottom:4px; margin-top:20px; margin-bottom:8px;">${numMatch[1]}</h3>`);
+        return;
+      }
+
+      // 3. Bullet Point
+      const bMatch = trimmed.match(/^(?:•|\*|-|\[bullet\])\s+(.*)$/);
+      if (bMatch) {
+        const itemHtml = bMatch[1].replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        htmlLines.push(`<div style="margin:4px 0 4px 18px; font-family:'Times New Roman',serif;"><span style="color:#2563eb; font-weight:bold;">•</span>&nbsp;&nbsp;${itemHtml}</div>`);
+        return;
+      }
+
+      // 4. Regular Paragraph
+      const pHtml = line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+      htmlLines.push(`<p style="margin:6px 0; line-height:1.6; font-family:'Times New Roman',serif;">${pHtml}</p>`);
+    });
+
+    const bodyHtml = htmlLines.join('\n');
 
     const html = `
       <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
@@ -904,15 +1472,19 @@ export const TemplatesPage: React.FC = () => {
         <meta charset='utf-8'>
         <title>${templateTitle}</title>
         <style>
-          body { font-family: 'Times New Roman', serif; font-size: 11.5pt; line-height: 1.6; color: #111; margin: 20mm; }
+          body { font-family: 'Times New Roman', serif; font-size: 11.5pt; line-height: 1.6; color: #1e293b; margin: 20mm; }
           h1, h2, h3 { font-family: Arial, sans-serif; color: #0f172a; }
-          table { width: 100%; border-collapse: collapse; margin: 12px 0; }
-          th, td { border: 1px solid #999; padding: 6px 10px; font-size: 10.5pt; }
-          th { background: #f2f2f2; font-weight: bold; }
+          strong { font-weight: bold; color: #0f172a; }
+          table { width: 100%; border-collapse: collapse; margin-top: 30px; }
+          td { vertical-align: top; padding: 10px; font-size: 10.5pt; }
         </style>
       </head>
       <body>
-        <div style="white-space: pre-wrap;">${content}</div>
+        <div style="border-bottom: 2px solid #0f172a; padding-bottom: 12px; margin-bottom: 24px;">
+          <h1 style="margin:0; font-size:18pt; color:#0f172a;">TASKNERA</h1>
+          <div style="font-size:9pt; color:#64748b;">OFFICIAL WORKFORCE DOCUMENTATION</div>
+        </div>
+        ${bodyHtml}
       </body>
       </html>
     `;
@@ -926,7 +1498,7 @@ export const TemplatesPage: React.FC = () => {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    success(`Downloaded "${filename}" for Microsoft Word!`);
+    success(`Downloaded "${filename}" formatted for Microsoft Word!`);
   };
 
   // Save generated document to Documents library
@@ -1313,28 +1885,51 @@ export const TemplatesPage: React.FC = () => {
                   padding: '18px 24px',
                 }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                     <FileCode size={18} style={{ color: '#2563eb' }} />
                     <span style={{ fontSize: '0.95rem', fontWeight: 700, color: '#0f172a' }}>
                       Template Content & Placeholders ({detectedPlaceholders.length} detected)
                     </span>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => setShowRawMarkup(!showRawMarkup)}
-                    style={{
-                      background: 'none',
-                      border: '1px solid #cbd5e1',
-                      borderRadius: 6,
-                      padding: '4px 10px',
-                      fontSize: '0.75rem',
-                      color: '#475569',
-                      cursor: 'pointer',
-                    }}
-                  >
-                    {showRawMarkup ? 'Hide Markup' : 'View / Edit Markup'}
-                  </button>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <button
+                      type="button"
+                      onClick={handleAiFormatToOfficialStyle}
+                      disabled={isAiFormatting}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 6,
+                        background: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
+                        border: '1.5px solid #93c5fd',
+                        borderRadius: 6,
+                        padding: '5px 12px',
+                        fontSize: '0.75rem',
+                        fontWeight: 700,
+                        color: '#1d4ed8',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      <Sparkles size={13} style={{ color: '#2563eb' }} />
+                      {isAiFormatting ? 'Formatting with AI...' : '✨ AI Format to Official Template Style'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setShowRawMarkup(!showRawMarkup)}
+                      style={{
+                        background: 'none',
+                        border: '1px solid #cbd5e1',
+                        borderRadius: 6,
+                        padding: '5px 10px',
+                        fontSize: '0.75rem',
+                        color: '#475569',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      {showRawMarkup ? 'Hide Markup' : 'View / Edit Markup'}
+                    </button>
+                  </div>
                 </div>
 
                 {showRawMarkup && (
@@ -1559,6 +2154,15 @@ export const TemplatesPage: React.FC = () => {
                   </div>
 
                   <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+                    <Button
+                      variant="secondary"
+                      icon={<Sparkles size={14} style={{ color: '#2563eb' }} />}
+                      onClick={handleAiFormatToOfficialStyle}
+                      isLoading={isAiFormatting}
+                      style={{ padding: '6px 12px', fontSize: '0.75rem', borderColor: '#bfdbfe', backgroundColor: '#eff6ff', color: '#1d4ed8', fontWeight: 700 }}
+                    >
+                      ✨ AI Format to Official Style
+                    </Button>
                     <Button
                       variant="secondary"
                       icon={<Sparkles size={14} style={{ color: '#7c3aed' }} />}
@@ -1942,35 +2546,11 @@ export const TemplatesPage: React.FC = () => {
                       }}
                     />
                   ) : (
-                    <div
-                      style={{
-                        whiteSpace: 'pre-wrap',
-                        color: '#1e293b',
-                      }}
-                    >
-                      {templateText.split(/(\{\{\s*[a-zA-Z0-9_\s]+\s*\}\})/).map((chunk, idx) => {
-                        const match = chunk.match(/\{\{\s*([a-zA-Z0-9_\s]+)\s*\}\}/);
-                        if (match) {
-                          const key = match[1].trim();
-                          const val = formData[key] !== undefined && formData[key] !== '' ? formData[key] : chunk;
-                          return (
-                            <span
-                              key={idx}
-                              style={{
-                                backgroundColor: highlightPlaceholders ? '#fef08a' : 'transparent',
-                                padding: highlightPlaceholders ? '1px 3px' : '0',
-                                borderRadius: 3,
-                                fontWeight: highlightPlaceholders ? 600 : 'normal',
-                                color: '#0f172a',
-                              }}
-                            >
-                              {val}
-                            </span>
-                          );
-                        }
-                        return <span key={idx}>{chunk}</span>;
-                      })}
-                    </div>
+                    <ExecutiveDocumentRenderer
+                      content={directEditedContent || templateText}
+                      formData={formData}
+                      highlightPlaceholders={highlightPlaceholders}
+                    />
                   )}
 
                   {/* Official Footer / Signature Attestation */}

@@ -659,4 +659,32 @@ export class EmployeeService {
     const json = await res.json();
     return json.data;
   }
+
+  // ---------------------------------------------------------------------------
+  // 6. AI Assistant: Format & Suggest Wording
+  // ---------------------------------------------------------------------------
+
+  static async suggestWording(
+    text: string,
+    documentType?: string
+  ): Promise<{
+    success: boolean;
+    result: string;
+    isAiAvailable: boolean;
+    provider?: string;
+    warnings?: string[];
+  }> {
+    const res = await fetch('/api/v1/employees/ai/suggest-wording', {
+      method: 'POST',
+      headers: this.getHeaders(),
+      body: JSON.stringify({ text, documentType: documentType || 'Offer Letter' }),
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.message || 'AI wording service returned an error');
+    }
+
+    return res.json();
+  }
 }
