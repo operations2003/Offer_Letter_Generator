@@ -596,7 +596,7 @@ export const TemplatesPage: React.FC = () => {
     setTemplateTitle(file.name.replace(/\.[^/.]+$/, '').replace(/[_-]/g, ' '));
 
     try {
-      // 1. Try backend extraction (Mammoth for DOCX, pdf-parse for PDF)
+      // 1. Backend extraction (Mammoth for DOCX, pdf-parse for PDF)
       const res = await EmployeeService.uploadTemplate(file);
       if (res && res.extractedContent) {
         setTemplateText(res.extractedContent);
@@ -609,30 +609,35 @@ export const TemplatesPage: React.FC = () => {
           success(`Parsed "${file.name}" cleanly (${res.detectedFormat}). Detected ${res.detectedPlaceholders.length} fields!`);
         }
         setStep(2);
+        setIsUploading(false);
         return;
       }
     } catch (err: any) {
-      console.warn('Backend upload parsing failed, falling back to client reader:', err);
+      console.warn('Backend upload parsing failed:', err);
+      // For binary files (.docx, .doc, .pdf), NEVER call readAsText (prevents binary corruption)
+      const isBinary = file.name.match(/\.(docx|doc|pdf)$/i);
+      if (isBinary) {
+        error(`Failed to parse "${file.name}": ${err.message || 'Document extraction error'}. Please check your file or copy-paste the text.`);
+        setIsUploading(false);
+        return;
+      }
     }
 
-    // 2. Client-side fallback reader (for .txt, .html, markdown, or offline)
+    // 2. Client-side fallback reader (ONLY for .txt, .html, markdown, or plain text)
     const reader = new FileReader();
     reader.onload = (e) => {
       const raw = (e.target?.result as string) || '';
-      let clean = raw;
-      if (file.name.endsWith('.pdf')) {
-        clean = raw.replace(/[^\x20-\x7E\n\r\t]/g, ' ').trim();
-      }
-      setTemplateText(clean);
-      extractPlaceholdersFromText(clean);
+      setTemplateText(raw);
+      extractPlaceholdersFromText(raw);
       success(`Uploaded template "${file.name}". Ready to fill fields!`);
       setStep(2);
+      setIsUploading(false);
     };
     reader.onerror = () => {
-      error(`Failed to read file "${file.name}". Please upload a .docx, .pdf, or .txt file.`);
+      error(`Failed to read text file "${file.name}".`);
+      setIsUploading(false);
     };
     reader.readAsText(file);
-    setIsUploading(false);
   };
 
   const handleDrop = (e: React.DragEvent) => {

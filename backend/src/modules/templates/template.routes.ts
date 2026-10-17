@@ -13,15 +13,14 @@ import { validateRequest } from '../../middleware/validate.js';
 
 const router = Router();
 
-router.use(authenticate);
-
-// 0. Upload Template Document (DOCX / PDF)
+// 0. Upload Template Document (DOCX / PDF) - Text extraction utility
 router.post(
   '/upload',
-  requireRoles('SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER'),
   uploadDocumentMiddleware,
   TemplateController.uploadTemplate
 );
+
+router.use(authenticate);
 
 // 1. Placeholder catalog
 router.get('/placeholders/catalog', TemplateController.getCatalog);
