@@ -130,7 +130,6 @@ export const OffersPage: React.FC = () => {
   const [policyCategoryFilter, setPolicyCategoryFilter] = useState('ALL');
   const [policySectionPulse, setPolicySectionPulse] = useState(false);
   const [policyPrompt, setPolicyPrompt] = useState('');
-  const [policyPromptCategory, setPolicyPromptCategory] = useState('ALL');
   const [isGeneratingPolicy, setIsGeneratingPolicy] = useState(false);
   const [allPoliciesList, setAllPoliciesList] = useState<PolicyDefinition[]>(() => getAllPolicies());
 
@@ -142,10 +141,7 @@ export const OffersPage: React.FC = () => {
     }
     setIsGeneratingPolicy(true);
     try {
-      const generated = await generatePolicyFromPrompt(
-        text,
-        policyPromptCategory !== 'ALL' ? policyPromptCategory : undefined
-      );
+      const generated = await generatePolicyFromPrompt(text);
       setAllPoliciesList(getAllPolicies());
       setPolicyPrompt('');
       setSelectedPolicyForView(generated);
@@ -1281,7 +1277,7 @@ export const OffersPage: React.FC = () => {
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'space-between',
+                justifyContent: 'flex-end',
                 flexWrap: 'wrap',
                 gap: 8,
                 paddingTop: 8,
@@ -1289,32 +1285,6 @@ export const OffersPage: React.FC = () => {
                 borderTop: '1px solid #f1f5f9',
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 600 }}>Category:</span>
-                <select
-                  value={policyPromptCategory}
-                  onChange={(e) => setPolicyPromptCategory(e.target.value)}
-                  disabled={isGeneratingPolicy}
-                  style={{
-                    fontSize: '0.78125rem',
-                    padding: '3px 8px',
-                    borderRadius: 6,
-                    border: '1px solid #cbd5e1',
-                    backgroundColor: '#f8fafc',
-                    color: '#334155',
-                    fontWeight: 500,
-                    cursor: 'pointer',
-                  }}
-                >
-                  <option value="ALL">Auto-Detect</option>
-                  <option value="WORKPLACE_CONDUCT">Workplace Conduct</option>
-                  <option value="IT_DATA_SECURITY">IT & Data Security</option>
-                  <option value="WORK_ARRANGEMENTS">Work Arrangements</option>
-                  <option value="ATTENDANCE_LEAVE">Attendance & Leave</option>
-                  <option value="FINANCE_TRAVEL">Finance & Travel</option>
-                </select>
-              </div>
-
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 {policyPrompt && (
                   <button
