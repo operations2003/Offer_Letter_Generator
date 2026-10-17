@@ -416,5 +416,33 @@ export class AiController {
       next(error);
     }
   }
+
+  /**
+   * Modifies an existing HR policy section using natural language prompt
+   */
+  static async editPolicySection(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { policyName, sectionNumber, sectionTitle, currentContent, editPrompt } = req.body;
+      if (!editPrompt || typeof editPrompt !== 'string') {
+        throw new BadRequestError('An editPrompt string is required');
+      }
+
+      const result = await AiService.editPolicySection({
+        policyName,
+        sectionNumber,
+        sectionTitle,
+        currentContent,
+        editPrompt,
+      });
+
+      res.status(200).json({
+        success: true,
+        data: result,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 }
+
 

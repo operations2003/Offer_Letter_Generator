@@ -17,9 +17,20 @@ import {
   Sparkles,
   ArrowUp,
   Trash2,
+  Edit3,
+  Save,
+  RefreshCw,
+  AlertCircle,
+  CheckCircle2,
+  Plus,
 } from 'lucide-react';
 import { useToast } from '../../context/ToastContext.js';
 import { Employee, EmployeeService } from '../../services/employeeService.js';
+import {
+  editPolicySectionWithPrompt,
+  updatePolicySectionManual,
+  addNewPolicySection,
+} from '../../services/policyGeneratorService.js';
 
 export interface PolicyDefinition {
   code: string;
@@ -48,18 +59,38 @@ interface PolicyViewerModalProps {
   isOpen: boolean;
   onClose: () => void;
   onDelete?: (policy: PolicyDefinition) => void;
+  onPolicyUpdate?: (policy: PolicyDefinition) => void;
 }
 
 export const PolicyViewerModal: React.FC<PolicyViewerModalProps> = ({
-  policy,
+  policy: initialPolicy,
   isOpen,
   onClose,
   onDelete,
+  onPolicyUpdate,
 }) => {
-  const { success } = useToast();
+  const { success, error } = useToast();
+  const [policy, setPolicy] = useState<PolicyDefinition | null>(initialPolicy);
+
+  // Sync internal policy state when initialPolicy changes from parent
+  useEffect(() => {
+    setPolicy(initialPolicy);
+  }, [initialPolicy]);
+
   const [viewMode, setViewMode] = useState<'letterhead' | 'accordion'>('letterhead');
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
   const [copied, setCopied] = useState(false);
+
+  // AI & Manual Policy Section Editor State
+  const [isEditorOpen, setIsEditorOpen] = useState(false);
+  const [selectedSectionNum, setSelectedSectionNum] = useState<string>('1.0');
+  const [editPrompt, setEditPrompt] = useState('');
+  const [isApplyingEdit, setIsApplyingEdit] = useState(false);
+  const [editorTab, setEditorTab] = useState<'prompt' | 'manual'>('prompt');
+  const [manualTitle, setManualTitle] = useState('');
+  const [manualContent, setManualContent] = useState('');
+  const [editSuccessMsg, setEditSuccessMsg] = useState<string | null>(null);
+  const [showCurrentSectionPreview, setShowCurrentSectionPreview] = useState(false);
 
   // Scroll Handling State & Refs
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -185,6 +216,91 @@ export const PolicyViewerModal: React.FC<PolicyViewerModalProps> = ({
       ...prev,
       [num]: prev[num] === undefined ? false : !prev[num],
     }));
+  };
+
+  const handleOpenEditor = (secNum?: string) => {
+    const numToSelect = secNum || (policy?.sections[0]?.number ?? '1.0');
+    setSelectedSectionNum(numToSelect);
+    setIsEditorOpen(true);
+    setEditSuccessMsg(null);
+
+    const target = policy?.sections.find((s) => s.number === numToSelect);
+    if (target) {
+      setManualTitle(target.title);
+      setManualContent(target.content);
+    } else {
+      setManualTitle('');
+      setManualContent('');
+    }
+  };
+
+  const handleSectionSelectChange = (num: string) => {
+    setSelectedSectionNum(num);
+    setEditSuccessMsg(null);
+    if (num === 'NEW') {
+      setManualTitle('Additional Policy Clause');
+      setManualContent('');
+    } else {
+      const target = policy?.sections.find((s) => s.number === num);
+      if (target) {
+        setManualTitle(target.title);
+        setManualContent(target.content);
+      }
+    }
+  };
+
+  const handleApplyPromptEdit = async (customPrompt?: string) => {
+    const promptToUse = (customPrompt || editPrompt).trim();
+    if (!promptToUse) {
+      error('Please enter instructions for the section edit.');
+      return;
+    }
+    if (!policy) return;
+
+    setIsApplyingEdit(true);
+    setEditSuccessMsg(null);
+    try {
+      const result = await editPolicySectionWithPrompt(policy, selectedSectionNum, promptToUse);
+      setPolicy(result.updatedPolicy);
+      onPolicyUpdate?.(result.updatedPolicy);
+      setEditPrompt('');
+      setEditSuccessMsg(result.changesSummary);
+      success(`Updated section § ${result.updatedSection.number} (${result.updatedSection.title})!`);
+
+      // Update manual text fields to match
+      setManualTitle(result.updatedSection.title);
+      setManualContent(result.updatedSection.content);
+
+      // Scroll to that section
+      setTimeout(() => {
+        scrollToSection(result.updatedSection.number);
+      }, 250);
+    } catch (err: any) {
+      error(err.message || 'Failed to edit section with prompt.');
+    } finally {
+      setIsApplyingEdit(false);
+    }
+  };
+
+  const handleApplyManualEdit = () => {
+    if (!policy) return;
+    if (selectedSectionNum === 'NEW') {
+      if (!manualTitle.trim()) {
+        error('Please enter a section title.');
+        return;
+      }
+      const updated = addNewPolicySection(policy, manualTitle, manualContent);
+      setPolicy(updated);
+      onPolicyUpdate?.(updated);
+      success('Added new policy section.');
+      setIsEditorOpen(false);
+    } else {
+      const updated = updatePolicySectionManual(policy, selectedSectionNum, manualTitle, manualContent);
+      setPolicy(updated);
+      onPolicyUpdate?.(updated);
+      success(`Updated § ${selectedSectionNum} manually.`);
+      setIsEditorOpen(false);
+    }
   };
 
   const employeeName = selectedEmployee?.fullName || '__________________________';
@@ -687,6 +803,33 @@ TaskNera (D-57 Dilshad Colony, Delhi, 110095)
               </div>
             )}
 
+            {/* AI Edit Policy Toolbar Button */}
+            <button
+              type="button"
+              onClick={() => handleOpenEditor()}
+              title="Edit policy clauses using AI prompts or direct text editing"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 6,
+                padding: '6px 14px',
+                fontSize: '0.75rem',
+                fontWeight: 700,
+                color: '#ffffff',
+                background: isEditorOpen
+                  ? 'linear-gradient(135deg, #4338ca 0%, #6d28d9 100%)'
+                  : 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+                border: 'none',
+                borderRadius: 6,
+                cursor: 'pointer',
+                boxShadow: '0 2px 8px rgba(99, 102, 241, 0.3)',
+                transition: 'all 0.15s ease',
+              }}
+            >
+              <Sparkles size={13} />
+              {isEditorOpen ? 'Hide Editor' : 'AI Edit Policy'}
+            </button>
+
             <button
               onClick={handleCopy}
               style={{
@@ -776,6 +919,472 @@ TaskNera (D-57 Dilshad Colony, Delhi, 110095)
             </button>
           </div>
         </div>
+
+        {/* ========================================================================= */}
+        {/* AI POLICY SECTION EDITOR PANEL                                            */}
+        {/* ========================================================================= */}
+        {isEditorOpen && (
+          <div
+            style={{
+              backgroundColor: '#fbfbfe',
+              borderBottom: '2px solid #8b5cf6',
+              padding: '16px 20px',
+              boxShadow: '0 4px 18px rgba(124, 58, 237, 0.1)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 12,
+              animation: 'fadeIn 0.2s ease-out',
+            }}
+          >
+            {/* Editor Header */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <div
+                  style={{
+                    width: 32,
+                    height: 32,
+                    borderRadius: 8,
+                    background: 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)',
+                    color: '#ffffff',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    boxShadow: '0 2px 6px rgba(99, 102, 241, 0.3)',
+                  }}
+                >
+                  <Sparkles size={16} />
+                </div>
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <h4 style={{ fontSize: '0.92rem', fontWeight: 800, color: '#0f172a', margin: 0 }}>
+                      AI Policy Section Editor
+                    </h4>
+                    <span
+                      style={{
+                        fontSize: '0.6875rem',
+                        fontWeight: 700,
+                        padding: '2px 8px',
+                        borderRadius: 10,
+                        backgroundColor: '#ede9fe',
+                        color: '#6d28d9',
+                      }}
+                    >
+                      Natural Language Refinement
+                    </span>
+                  </div>
+                  <p style={{ fontSize: '0.78125rem', color: '#64748b', margin: '2px 0 0 0' }}>
+                    Select any section and enter a prompt to rewrite, add clauses, adjust notice periods, or increase compliance penalties.
+                  </p>
+                </div>
+              </div>
+
+              {/* Mode Tabs (AI Prompt vs Manual Edit) */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    backgroundColor: '#e2e8f0',
+                    padding: 3,
+                    borderRadius: 8,
+                  }}
+                >
+                  <button
+                    type="button"
+                    onClick={() => setEditorTab('prompt')}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 5,
+                      padding: '4px 10px',
+                      fontSize: '0.75rem',
+                      fontWeight: 700,
+                      borderRadius: 6,
+                      border: 'none',
+                      backgroundColor: editorTab === 'prompt' ? '#ffffff' : 'transparent',
+                      color: editorTab === 'prompt' ? '#7c3aed' : '#64748b',
+                      boxShadow: editorTab === 'prompt' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    <Sparkles size={12} />
+                    Prompt Edit
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setEditorTab('manual')}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 5,
+                      padding: '4px 10px',
+                      fontSize: '0.75rem',
+                      fontWeight: 700,
+                      borderRadius: 6,
+                      border: 'none',
+                      backgroundColor: editorTab === 'manual' ? '#ffffff' : 'transparent',
+                      color: editorTab === 'manual' ? '#0f172a' : '#64748b',
+                      boxShadow: editorTab === 'manual' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    <Edit3 size={12} />
+                    Manual Edit
+                  </button>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setIsEditorOpen(false)}
+                  style={{
+                    padding: 5,
+                    borderRadius: 6,
+                    border: 'none',
+                    backgroundColor: '#f1f5f9',
+                    color: '#64748b',
+                    cursor: 'pointer',
+                  }}
+                  title="Close Editor"
+                >
+                  <X size={15} />
+                </button>
+              </div>
+            </div>
+
+            {/* Section Selector Row */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+              <span style={{ fontSize: '0.78125rem', fontWeight: 700, color: '#334155' }}>
+                Section to Edit:
+              </span>
+              <select
+                value={selectedSectionNum}
+                onChange={(e) => handleSectionSelectChange(e.target.value)}
+                disabled={isApplyingEdit}
+                style={{
+                  padding: '5px 12px',
+                  fontSize: '0.8125rem',
+                  fontWeight: 600,
+                  borderRadius: 6,
+                  border: '1.5px solid #c4b5fd',
+                  backgroundColor: '#ffffff',
+                  color: '#1e293b',
+                  minWidth: '260px',
+                  cursor: 'pointer',
+                }}
+              >
+                {policy.sections.map((s) => (
+                  <option key={s.number} value={s.number}>
+                    § {s.number} — {s.title}
+                  </option>
+                ))}
+                <option value="NEW">+ Add New Section / Provision</option>
+              </select>
+
+              {/* Toggle to peek at current section text */}
+              {selectedSectionNum !== 'NEW' && (
+                <button
+                  type="button"
+                  onClick={() => setShowCurrentSectionPreview(!showCurrentSectionPreview)}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: '#6366f1',
+                    fontSize: '0.75rem',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 4,
+                  }}
+                >
+                  <FileText size={12} />
+                  {showCurrentSectionPreview ? 'Hide Current Section Text' : 'View Current Section Text'}
+                </button>
+              )}
+            </div>
+
+            {/* Current Section Preview Collapse */}
+            {showCurrentSectionPreview && selectedSectionNum !== 'NEW' && (
+              <div
+                style={{
+                  backgroundColor: '#f8fafc',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: 8,
+                  padding: '10px 14px',
+                  fontSize: '0.78125rem',
+                  color: '#475569',
+                  maxHeight: '120px',
+                  overflowY: 'auto',
+                  lineHeight: 1.5,
+                  whiteSpace: 'pre-line',
+                }}
+              >
+                <div style={{ fontWeight: 700, color: '#0f172a', marginBottom: 4 }}>
+                  Current Section Text (§ {selectedSectionNum} {policy.sections.find((s) => s.number === selectedSectionNum)?.title}):
+                </div>
+                {policy.sections.find((s) => s.number === selectedSectionNum)?.content}
+              </div>
+            )}
+
+            {/* TAB 1: AI PROMPT EDIT */}
+            {editorTab === 'prompt' ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    backgroundColor: '#ffffff',
+                    border: '1.5px solid #a855f7',
+                    borderRadius: 8,
+                    padding: '8px 12px',
+                    boxShadow: '0 2px 8px rgba(168, 85, 247, 0.08)',
+                  }}
+                >
+                  <textarea
+                    value={editPrompt}
+                    onChange={(e) => setEditPrompt(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+                        e.preventDefault();
+                        handleApplyPromptEdit();
+                      }
+                    }}
+                    placeholder={`e.g. For § ${selectedSectionNum}, increase the notice period to 60 days, forbid working with competing logistics firms for 12 months, and add liquidated damages penalty of ₹5,00,000 for breach...`}
+                    rows={2}
+                    disabled={isApplyingEdit}
+                    style={{
+                      width: '100%',
+                      border: 'none',
+                      outline: 'none',
+                      resize: 'none',
+                      fontSize: '0.84rem',
+                      color: '#0f172a',
+                      fontFamily: 'inherit',
+                      lineHeight: 1.45,
+                      backgroundColor: 'transparent',
+                    }}
+                  />
+
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      flexWrap: 'wrap',
+                      gap: 8,
+                      paddingTop: 8,
+                      borderTop: '1px solid #f1f5f9',
+                    }}
+                  >
+                    <span style={{ fontSize: '0.72rem', color: '#94a3b8' }}>
+                      Press <strong>Ctrl + Enter</strong> to apply
+                    </span>
+
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      {editPrompt && (
+                        <button
+                          type="button"
+                          onClick={() => setEditPrompt('')}
+                          disabled={isApplyingEdit}
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            color: '#94a3b8',
+                            fontSize: '0.75rem',
+                            cursor: 'pointer',
+                            padding: '4px 8px',
+                          }}
+                        >
+                          Clear
+                        </button>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => handleApplyPromptEdit()}
+                        disabled={isApplyingEdit || !editPrompt.trim()}
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: 6,
+                          padding: '6px 16px',
+                          fontSize: '0.8125rem',
+                          fontWeight: 700,
+                          color: '#ffffff',
+                          background: isApplyingEdit
+                            ? '#94a3b8'
+                            : 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+                          border: 'none',
+                          borderRadius: 6,
+                          cursor: isApplyingEdit || !editPrompt.trim() ? 'not-allowed' : 'pointer',
+                          boxShadow: '0 2px 6px rgba(99, 102, 241, 0.3)',
+                          transition: 'all 0.15s ease',
+                        }}
+                      >
+                        {isApplyingEdit ? (
+                          <>
+                            <RefreshCw size={13} className="spin" />
+                            Applying Prompt Changes...
+                          </>
+                        ) : (
+                          <>
+                            <Sparkles size={13} />
+                            Apply Changes to Section
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Quick prompt suggestion chips */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                  <span style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                    <Sparkles size={10} color="#8b5cf6" /> Quick Prompts:
+                  </span>
+                  {[
+                    'Stricter penalties: require 60-day notice and ₹5,00,000 liquidated damages',
+                    'Add 12-month non-compete and non-solicitation of clients',
+                    'Generative AI prohibition: strictly forbid uploading company source code or PII to LLMs',
+                    'Remote work mandate: require VPN, secure dual-factor devices and manager written approval',
+                    'Clarify escalation process and zero-tolerance disciplinary consequences',
+                  ].map((preset) => (
+                    <button
+                      key={preset}
+                      type="button"
+                      disabled={isApplyingEdit}
+                      onClick={() => {
+                        setEditPrompt(preset);
+                        handleApplyPromptEdit(preset);
+                      }}
+                      style={{
+                        fontSize: '0.7rem',
+                        padding: '2px 9px',
+                        borderRadius: 12,
+                        border: '1px solid #e2e8f0',
+                        backgroundColor: '#ffffff',
+                        color: '#475569',
+                        cursor: 'pointer',
+                        transition: 'all 0.15s ease',
+                        fontWeight: 500,
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = '#f5f3ff';
+                        e.currentTarget.style.borderColor = '#c4b5fd';
+                        e.currentTarget.style.color = '#6d28d9';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = '#ffffff';
+                        e.currentTarget.style.borderColor = '#e2e8f0';
+                        e.currentTarget.style.color = '#475569';
+                      }}
+                    >
+                      + {preset}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              /* TAB 2: MANUAL TEXT EDIT */
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                <div>
+                  <label style={{ fontSize: '0.75rem', fontWeight: 700, color: '#334155', display: 'block', marginBottom: 4 }}>
+                    Section Title:
+                  </label>
+                  <input
+                    type="text"
+                    value={manualTitle}
+                    onChange={(e) => setManualTitle(e.target.value)}
+                    placeholder="e.g. Dual Employment, Moonlighting & Restrictive Covenants"
+                    style={{
+                      width: '100%',
+                      padding: '6px 10px',
+                      fontSize: '0.8125rem',
+                      border: '1px solid #cbd5e1',
+                      borderRadius: 6,
+                    }}
+                  />
+                </div>
+                <div>
+                  <label style={{ fontSize: '0.75rem', fontWeight: 700, color: '#334155', display: 'block', marginBottom: 4 }}>
+                    Section Content:
+                  </label>
+                  <textarea
+                    value={manualContent}
+                    onChange={(e) => setManualContent(e.target.value)}
+                    placeholder="Enter or paste formal clauses, bullet points, or operational standards..."
+                    rows={4}
+                    style={{
+                      width: '100%',
+                      padding: '8px 10px',
+                      fontSize: '0.8125rem',
+                      border: '1px solid #cbd5e1',
+                      borderRadius: 6,
+                      fontFamily: 'inherit',
+                      lineHeight: 1.45,
+                    }}
+                  />
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+                  <button
+                    type="button"
+                    onClick={() => setIsEditorOpen(false)}
+                    style={{
+                      padding: '5px 12px',
+                      fontSize: '0.75rem',
+                      border: '1px solid #cbd5e1',
+                      backgroundColor: '#ffffff',
+                      borderRadius: 6,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleApplyManualEdit}
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 5,
+                      padding: '5px 14px',
+                      fontSize: '0.75rem',
+                      fontWeight: 700,
+                      color: '#ffffff',
+                      backgroundColor: '#2563eb',
+                      border: 'none',
+                      borderRadius: 6,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    <Save size={12} />
+                    Save Section Text
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Success message banner */}
+            {editSuccessMsg && (
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  padding: '8px 12px',
+                  borderRadius: 6,
+                  backgroundColor: '#f0fdf4',
+                  border: '1px solid #bbf7d0',
+                  color: '#15803d',
+                  fontSize: '0.78125rem',
+                }}
+              >
+                <CheckCircle2 size={14} />
+                <span>
+                  <strong>Success:</strong> {editSuccessMsg} (Version updated to <strong>v{policy.version}</strong>). Changes reflected in the policy below!
+                </span>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Reading Progress Indicator */}
         <div
@@ -1081,20 +1690,65 @@ TaskNera (D-57 Dilshad Colony, Delhi, 110095)
                         transition: 'all 0.3s ease',
                       }}
                     >
-                      <h3
+                      <div
                         style={{
-                          fontSize: '15px',
-                          fontWeight: 800,
-                          color: '#0f172a',
-                          margin: '0 0 10px 0',
                           display: 'flex',
                           alignItems: 'center',
+                          justifyContent: 'space-between',
+                          marginBottom: 10,
+                          flexWrap: 'wrap',
                           gap: 8,
                         }}
                       >
-                        <span style={{ color: '#2563eb' }}>{s.number}</span>
-                        {s.title}
-                      </h3>
+                        <h3
+                          style={{
+                            fontSize: '15px',
+                            fontWeight: 800,
+                            color: '#0f172a',
+                            margin: 0,
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 8,
+                          }}
+                        >
+                          <span style={{ color: '#2563eb' }}>{s.number}</span>
+                          {s.title}
+                        </h3>
+
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleOpenEditor(s.number);
+                          }}
+                          title={`Edit § ${s.number} using AI prompt`}
+                          style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: 5,
+                            fontSize: '0.72rem',
+                            fontWeight: 700,
+                            padding: '3px 10px',
+                            borderRadius: 6,
+                            border: '1px solid #ddd6fe',
+                            backgroundColor: '#f5f3ff',
+                            color: '#7c3aed',
+                            cursor: 'pointer',
+                            transition: 'all 0.15s ease',
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.backgroundColor = '#7c3aed';
+                            e.currentTarget.style.color = '#ffffff';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.backgroundColor = '#f5f3ff';
+                            e.currentTarget.style.color = '#7c3aed';
+                          }}
+                        >
+                          <Sparkles size={11} />
+                          Edit with Prompt
+                        </button>
+                      </div>
 
                       <div style={{ fontSize: '12.5px', color: '#334155', lineHeight: 1.65 }}>
                         {/* Custom Renderers for Callouts and Content */}
@@ -1439,8 +2093,34 @@ TaskNera (D-57 Dilshad Colony, Delhi, 110095)
                           {section.title}
                         </span>
                       </div>
-                      <div style={{ color: '#64748b' }}>
-                        {isCollapsed ? <ChevronDown size={16} /> : <ChevronUp size={16} />}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleOpenEditor(section.number);
+                          }}
+                          title={`Edit § ${section.number} with AI prompt`}
+                          style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: 4,
+                            fontSize: '0.7rem',
+                            fontWeight: 700,
+                            padding: '2px 8px',
+                            borderRadius: 6,
+                            border: '1px solid #ddd6fe',
+                            backgroundColor: '#ffffff',
+                            color: '#7c3aed',
+                            cursor: 'pointer',
+                          }}
+                        >
+                          <Sparkles size={10} />
+                          Edit
+                        </button>
+                        <div style={{ color: '#64748b' }}>
+                          {isCollapsed ? <ChevronDown size={16} /> : <ChevronUp size={16} />}
+                        </div>
                       </div>
                     </div>
 

@@ -20,6 +20,9 @@ router.post('/mrsa/generate-sections', AiController.generateMrsaSections);
 // HR Policy prompt-driven generation
 router.post('/policy/generate', AiController.generatePolicyFromPrompt);
 
+// HR Policy prompt-driven section editing
+router.post('/policy/edit-section', AiController.editPolicySection);
+
 router.use(authenticate);
 
 const extractSchema = z.object({

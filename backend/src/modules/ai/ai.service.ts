@@ -560,5 +560,57 @@ export class AiService {
       return null;
     }
   }
+
+  /**
+   * Modifies an existing HR policy section based on a natural language instruction prompt
+   */
+  static async editPolicySection(params: {
+    policyName?: string;
+    sectionNumber?: string;
+    sectionTitle?: string;
+    currentContent?: string;
+    editPrompt: string;
+  }): Promise<{
+    sectionNumber: string;
+    sectionTitle: string;
+    updatedContent: string;
+    changesSummary: string;
+  }> {
+    try {
+      const completion = await this.executeWithRetry({
+        systemPrompt:
+          'You are a senior corporate HR governance counsel and policy drafter. The user provides an existing policy section and an instruction prompt for how to modify, rewrite, expand, or specialize it. You must return a strictly valid JSON object with fields: "sectionNumber" (string), "sectionTitle" (string), "updatedContent" (string containing the complete, revised, formal section text with exhaustive clauses and bullet points), and "changesSummary" (string, 1-2 sentence description of what was changed). Ensure high legal precision, enterprise compliance standards, and clarity.',
+        userPrompt: `Policy Name: "${params.policyName || 'Company Policy'}"
+Section: ${params.sectionNumber || '1.0'} - ${params.sectionTitle || 'Policy Clause'}
+Current Content:
+"""
+${params.currentContent || ''}
+"""
+
+User Edit Instruction:
+"""
+${params.editPrompt}
+"""
+
+Modify the section according to the user's instructions and return strictly JSON.`,
+        jsonMode: true,
+        temperature: 0.2,
+      });
+
+      const parsed = ResponseParser.parseJson<any>(completion.rawContent);
+      if (parsed && (parsed.updatedContent || parsed.content)) {
+        return {
+          sectionNumber: parsed.sectionNumber || params.sectionNumber || '1.0',
+          sectionTitle: parsed.sectionTitle || params.sectionTitle || 'Policy Clause',
+          updatedContent: parsed.updatedContent || parsed.content || params.currentContent || '',
+          changesSummary: parsed.changesSummary || 'Updated section based on prompt instructions.',
+        };
+      }
+      throw new Error('Could not parse valid updated section from AI response');
+    } catch (err: any) {
+      console.warn('AI section edit error:', err?.message);
+      throw err;
+    }
+  }
 }
 

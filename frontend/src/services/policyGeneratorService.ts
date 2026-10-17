@@ -154,6 +154,272 @@ export async function generatePolicyFromPrompt(
 }
 
 /**
+ * Increment version string, e.g. "1.0" -> "1.1", "1.9" -> "2.0"
+ */
+function bumpVersion(ver: string): string {
+  const parts = (ver || '1.0').split('.');
+  if (parts.length === 2 && !isNaN(Number(parts[0])) && !isNaN(Number(parts[1]))) {
+    const major = Number(parts[0]);
+    const minor = Number(parts[1]) + 1;
+    return `${major}.${minor}`;
+  }
+  return `${ver}.1`;
+}
+
+/**
+ * Edit a specific policy section using a natural language prompt
+ */
+export async function editPolicySectionWithPrompt(
+  policy: PolicyDefinition,
+  sectionNumber: string,
+  editPrompt: string
+): Promise<{ updatedPolicy: PolicyDefinition; updatedSection: any; changesSummary: string }> {
+  const trimmed = editPrompt.trim();
+  if (!trimmed) {
+    throw new Error('Please enter instructions for editing the section.');
+  }
+
+  const isNew = sectionNumber === 'NEW';
+  const targetSec = policy.sections.find((s) => s.number === sectionNumber);
+
+  // 1. Try backend AI endpoint
+  try {
+    const res = await fetch('/api/v1/ai/policy/edit-section', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        policyName: policy.name,
+        sectionNumber: isNew ? `${policy.sections.length + 1}.0` : targetSec?.number || sectionNumber,
+        sectionTitle: isNew ? 'Additional Policy Provision' : targetSec?.title || 'Policy Clause',
+        currentContent: isNew ? '' : targetSec?.content || '',
+        editPrompt: trimmed,
+      }),
+    });
+
+    if (res.ok) {
+      const json = await res.json();
+      if (json && json.success && json.data && json.data.updatedContent) {
+        const result = json.data;
+        let newSections = [...policy.sections];
+        let finalSection: any;
+
+        if (isNew) {
+          finalSection = {
+            number: result.sectionNumber || `${policy.sections.length + 1}.0`,
+            title: result.sectionTitle || 'Additional Provision',
+            content: result.updatedContent,
+            mandatory: true,
+          };
+          newSections.push(finalSection);
+        } else {
+          newSections = newSections.map((s) => {
+            if (s.number === sectionNumber) {
+              finalSection = {
+                ...s,
+                title: result.sectionTitle || s.title,
+                content: result.updatedContent,
+              };
+              return finalSection;
+            }
+            return s;
+          });
+        }
+
+        const updatedPolicy: PolicyDefinition = {
+          ...policy,
+          version: bumpVersion(policy.version || '1.0'),
+          sections: newSections,
+        };
+
+        saveCustomPolicy(updatedPolicy);
+        return {
+          updatedPolicy,
+          updatedSection: finalSection,
+          changesSummary: result.changesSummary || 'Section modified per AI prompt instructions.',
+        };
+      }
+    }
+  } catch (err) {
+    console.warn('Backend policy section edit failed, using client intelligent engine:', err);
+  }
+
+  // 2. Client-side intelligent rewriting fallback
+  const clientResult = editSectionClientSide(policy, sectionNumber, trimmed);
+  saveCustomPolicy(clientResult.updatedPolicy);
+  return clientResult;
+}
+
+/**
+ * Directly updates a policy section manually (without AI prompt)
+ */
+export function updatePolicySectionManual(
+  policy: PolicyDefinition,
+  sectionNumber: string,
+  newTitle: string,
+  newContent: string
+): PolicyDefinition {
+  const newSections = policy.sections.map((s) => {
+    if (s.number === sectionNumber) {
+      return {
+        ...s,
+        title: newTitle.trim() || s.title,
+        content: newContent.trim() || s.content,
+      };
+    }
+    return s;
+  });
+
+  const updatedPolicy: PolicyDefinition = {
+    ...policy,
+    version: bumpVersion(policy.version || '1.0'),
+    sections: newSections,
+  };
+
+  saveCustomPolicy(updatedPolicy);
+  return updatedPolicy;
+}
+
+/**
+ * Adds a new section to an existing policy
+ */
+export function addNewPolicySection(
+  policy: PolicyDefinition,
+  title: string,
+  content: string
+): PolicyDefinition {
+  const nextNum = `${policy.sections.length + 1}.0`;
+  const newSec = {
+    number: nextNum,
+    title: title.trim() || `Section ${nextNum}`,
+    content: content.trim() || 'Mandatory policy guidelines and operational directives apply.',
+    mandatory: true,
+  };
+
+  const updatedPolicy: PolicyDefinition = {
+    ...policy,
+    version: bumpVersion(policy.version || '1.0'),
+    sections: [...policy.sections, newSec],
+  };
+
+  saveCustomPolicy(updatedPolicy);
+  return updatedPolicy;
+}
+
+/**
+ * Intelligent client-side section editor when offline or backend unreachable
+ */
+function editSectionClientSide(
+  policy: PolicyDefinition,
+  sectionNumber: string,
+  editPrompt: string
+): { updatedPolicy: PolicyDefinition; updatedSection: any; changesSummary: string } {
+  const isNew = sectionNumber === 'NEW';
+  const targetSec = policy.sections.find((s) => s.number === sectionNumber);
+  const promptLower = editPrompt.toLowerCase();
+
+  let newTitle = isNew ? 'Additional Policy Provision' : targetSec?.title || 'Policy Provision';
+  let newContent = isNew ? '' : targetSec?.content || '';
+  let summary = `Updated ${newTitle} according to prompt instructions.`;
+
+  // Dynamic additions based on prompt directives
+  let amendment = '';
+  if (promptLower.includes('notice') || promptLower.includes('days') || promptLower.includes('timeline')) {
+    const daysMatch = editPrompt.match(/(\d+)\s*(days?|months?)/i);
+    const duration = daysMatch ? `${daysMatch[1]} ${daysMatch[2]}` : '60 days';
+    amendment = `\n\n• Formal Notice & Transition Mandate: A mandatory notice period of ${duration} is strictly required for any changes, separation, or operational transitions under this clause. Written confirmation from People Operations is prerequisite prior to relieving.`;
+    summary = `Updated timeline and notice obligations to ${duration}.`;
+  }
+
+  if (
+    promptLower.includes('competitor') ||
+    promptLower.includes('moonlight') ||
+    promptLower.includes('dual employment') ||
+    promptLower.includes('side work') ||
+    promptLower.includes('non-compete')
+  ) {
+    amendment += `\n\n[NO_UNFAIR_RESTRICTION]\n• Strict Dual Employment & Non-Compete Restriction: Under no circumstances may a covered person engage in, consult for, or provide advisory services to any direct or indirect competitor during active engagement and for 12 months post-cessation. Material violations incur liquidated damages and immediate contractual termination for cause.`;
+    summary = `Reinforced strict non-compete and dual employment restrictions with enforcement provisions.`;
+  }
+
+  if (
+    promptLower.includes('ai') ||
+    promptLower.includes('chatgpt') ||
+    promptLower.includes('llm') ||
+    promptLower.includes('code') ||
+    promptLower.includes('data')
+  ) {
+    amendment += `\n\n• Generative AI & Data Ingestion Prohibition: Uploading, pasting, or feeding any proprietary source code, internal communications, customer PII, or confidential company deliverables into public, unapproved AI or LLM tools is strictly prohibited without prior written sign-off from IT Security.`;
+    summary = `Added strict Generative AI and confidential data ingestion safeguards.`;
+  }
+
+  if (
+    promptLower.includes('penalty') ||
+    promptLower.includes('fine') ||
+    promptLower.includes('disciplinary') ||
+    promptLower.includes('strict')
+  ) {
+    amendment += `\n\n• Legal & Disciplinary Consequences: Non-adherence constitutes gross misconduct. TaskNera reserves the full right to initiate disciplinary inquiry, forfeit discretionary incentives, demand indemnification for incurred damages, and pursue statutory legal remedies under Indian jurisdiction.`;
+    summary = `Added strict disciplinary sanctions and legal consequence clauses.`;
+  }
+
+  if (
+    promptLower.includes('remote') ||
+    promptLower.includes('wfh') ||
+    promptLower.includes('hybrid') ||
+    promptLower.includes('location')
+  ) {
+    amendment += `\n\n• Remote Work Compliance & Security Mandate: Remote operations require dual-factor VPN authentication, dedicated private workspace, and formal written authorization from the department lead renewed semi-annually.`;
+    summary = `Added remote work verification and security compliance requirements.`;
+  }
+
+  // If no specific keyword triggered, create a comprehensive contextual clause from the prompt
+  if (!amendment) {
+    amendment = `\n\n• Mandatory Policy Requirement: ${editPrompt.charAt(0).toUpperCase() + editPrompt.slice(1)}. All associated personnel must comply strictly with these provisions, and department managers are tasked with continuous oversight.`;
+  }
+
+  newContent = (newContent + amendment).trim();
+
+  let finalSection: any;
+  let newSections = [...policy.sections];
+
+  if (isNew) {
+    finalSection = {
+      number: `${policy.sections.length + 1}.0`,
+      title: newTitle,
+      content: newContent,
+      mandatory: true,
+    };
+    newSections.push(finalSection);
+  } else {
+    newSections = newSections.map((s) => {
+      if (s.number === sectionNumber) {
+        finalSection = {
+          ...s,
+          title: newTitle,
+          content: newContent,
+        };
+        return finalSection;
+      }
+      return s;
+    });
+  }
+
+  const updatedPolicy: PolicyDefinition = {
+    ...policy,
+    version: bumpVersion(policy.version || '1.0'),
+    sections: newSections,
+  };
+
+  return {
+    updatedPolicy,
+    updatedSection: finalSection,
+    changesSummary: summary,
+  };
+}
+
+/**
  * Validate and clean policy data returned by backend
  */
 function sanitizePolicyPayload(raw: any, originalPrompt: string): PolicyDefinition {

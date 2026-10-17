@@ -1798,6 +1798,10 @@ export const OffersPage: React.FC = () => {
         isOpen={Boolean(selectedPolicyForView)}
         onClose={() => setSelectedPolicyForView(null)}
         onDelete={handleDeletePolicy}
+        onPolicyUpdate={(updated) => {
+          setAllPoliciesList(getAllPolicies());
+          setSelectedPolicyForView(updated);
+        }}
       />
 
       {/* Official Master Recruitment Services Agreement (MRSA) Modal */}
