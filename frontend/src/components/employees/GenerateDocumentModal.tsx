@@ -47,6 +47,10 @@ import {
   FileCheck,
   Clock,
   Paperclip,
+  GraduationCap,
+  Award,
+  FileCode,
+  Layers,
 } from 'lucide-react';
 import {
   Employee,
@@ -247,6 +251,15 @@ export const GenerateDocumentModal: React.FC<GenerateDocumentModalProps> = ({
       currency: currency,
       probation_period: '90 days',
       notice_period: '30 days',
+      base_salary: basicFormatted,
+      variable_pay: `${currencySymbol}${(Math.round(numCtc * 0.1)).toLocaleString(currency === 'USD' ? 'en-US' : 'en-IN')}`,
+      end_date: new Date(Date.now() + 180 * 24 * 60 * 60 * 1000).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
+      resignation_date: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
+      valid_until: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
+      offer_valid_until: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
+      course_name: 'Advanced Full-Stack Engineering & Cloud Architecture',
+      training_title: 'Corporate Engineering Readiness',
+      completion_date: today,
     };
 
     // If template has specific docFields with defaults, merge them
@@ -288,8 +301,12 @@ export const GenerateDocumentModal: React.FC<GenerateDocumentModalProps> = ({
       setDocTitle(`${template.name} - ${selectedEmployee.fullName}`);
     }
 
-    // Proceed to Step 2: Select Employee
-    setStep(2);
+    // If employee is already selected (e.g. from row action), advance to mapping step, else select employee
+    if (initialEmployee && selectedEmployee) {
+      setStep(3);
+    } else {
+      setStep(2);
+    }
   };
 
   // Upload custom template file handler
@@ -482,45 +499,181 @@ export const GenerateDocumentModal: React.FC<GenerateDocumentModalProps> = ({
 
   if (!isOpen) return null;
 
-  // Filter templates
-  const primaryTemplates = [
+  // Comprehensive Templates Library (All Templates from Templates Page & Library)
+  const ALL_TEMPLATES = [
     {
       code: 'OFFER_LETTER',
-      label: 'Predefined Offer Letter',
+      label: 'Corporate Offer Letter',
+      categoryGroup: 'OFFER',
       category: 'Offer Letter',
-      desc: 'Standard employment offer with role, compensation, and joining terms.',
+      desc: 'Standard employment offer with role, structured CTC compensation, benefits, and joining terms.',
       badge: 'Offer Letter',
       badgeColor: '#2563eb',
       icon: <FileText size={22} color="#2563eb" />,
     },
     {
-      code: 'INCREMENT_LETTER',
-      label: 'Predefined Increment Letter',
-      category: 'Increment Letter',
-      desc: 'Annual merit appraisal, revised CTC compensation, and effective date.',
-      badge: 'Increment',
-      badgeColor: '#16a34a',
-      icon: <DollarSign size={22} color="#16a34a" />,
-    },
-    {
       code: 'APPOINTMENT_LETTER',
-      label: 'Predefined Appointment Letter',
+      label: 'Formal Appointment Letter',
+      categoryGroup: 'OFFER',
       category: 'Appointment Letter',
-      desc: 'Formal letter of appointment confirming role, duties, and covenants.',
+      desc: 'Official letter of appointment confirming role, operational duties, covenants, and service conditions.',
       badge: 'Appointment',
       badgeColor: '#7c3aed',
       icon: <FileCheck size={22} color="#7c3aed" />,
     },
     {
+      code: 'ONBOARDING_FORM',
+      label: 'Employee Onboarding & Joining Form',
+      categoryGroup: 'OFFER',
+      category: 'Onboarding',
+      desc: 'New employee onboarding profile, document verification checklist, and emergency contact details.',
+      badge: 'Onboarding',
+      badgeColor: '#0d9488',
+      icon: <User size={22} color="#0d9488" />,
+    },
+    {
+      code: 'INCREMENT_LETTER',
+      label: 'Increment & Appraisal Letter',
+      categoryGroup: 'COMPENSATION',
+      category: 'Increment Letter',
+      desc: 'Annual merit appraisal, revised compensation band, salary breakdown, and effective date.',
+      badge: 'Increment',
+      badgeColor: '#16a34a',
+      icon: <DollarSign size={22} color="#16a34a" />,
+    },
+    {
+      code: 'PAYSLIP',
+      label: 'Monthly Salary Payslip',
+      categoryGroup: 'COMPENSATION',
+      category: 'Payslip',
+      desc: 'Itemized monthly earnings statement, basic salary, HRA, allowances, deductions, and net payable.',
+      badge: 'Payslip',
+      badgeColor: '#059669',
+      icon: <FileText size={22} color="#059669" />,
+    },
+    {
+      code: 'FNF_SETTLEMENT',
+      label: 'Full & Final (F&F) Settlement',
+      categoryGroup: 'COMPENSATION',
+      category: 'FNF Settlement',
+      desc: 'Final compensation breakdown, encashment of leave, gratuity calculation, and clearance certification.',
+      badge: 'Settlement',
+      badgeColor: '#4f46e5',
+      icon: <Building size={22} color="#4f46e5" />,
+    },
+    {
+      code: 'EXPERIENCE_LETTER',
+      label: 'Experience & Service Certificate',
+      categoryGroup: 'EXPERIENCE',
+      category: 'Experience Letter',
+      desc: 'Official certificate stating employee tenure, designation, department, and exemplary conduct.',
+      badge: 'Experience',
+      badgeColor: '#ea580c',
+      icon: <Briefcase size={22} color="#ea580c" />,
+    },
+    {
+      code: 'RELIEVING_LETTER',
+      label: 'Relieving & Clearance Letter',
+      categoryGroup: 'EXPERIENCE',
+      category: 'Relieving Letter',
+      desc: 'Separation letter confirming acceptance of resignation, full handover, and release of duties.',
+      badge: 'Relieving',
+      badgeColor: '#d97706',
+      icon: <FileCheck size={22} color="#d97706" />,
+    },
+    {
+      code: 'TERMINATION_LETTER',
+      label: 'Formal Separation / Termination Letter',
+      categoryGroup: 'EXPERIENCE',
+      category: 'Termination Letter',
+      desc: 'Official notice of employment separation with final settlement instructions and confidentiality notice.',
+      badge: 'Notice',
+      badgeColor: '#dc2626',
+      icon: <AlertCircle size={22} color="#dc2626" />,
+    },
+    {
+      code: 'INTERNSHIP_LETTER',
+      label: 'Internship Appointment Letter',
+      categoryGroup: 'CONTRACTS',
+      category: 'Internship Letter',
+      desc: 'Fixed-term student/graduate internship detailing mentor, stipend, project deliverables, and scope.',
+      badge: 'Internship',
+      badgeColor: '#c2410c',
+      icon: <GraduationCap size={22} color="#c2410c" />,
+    },
+    {
+      code: 'EMPLOYMENT_CONTRACT',
+      label: 'Independent Contractor Agreement',
+      categoryGroup: 'CONTRACTS',
+      category: 'Employment Contract',
+      desc: 'Consultant / contractor scope of work, milestone deliverables, billing fees, and non-disclosure.',
+      badge: 'Contract',
+      badgeColor: '#0284c7',
+      icon: <Briefcase size={22} color="#0284c7" />,
+    },
+    {
+      code: 'MSA',
+      label: 'Master Services Agreement (MSA)',
+      categoryGroup: 'CONTRACTS',
+      category: 'Agreements',
+      desc: 'Comprehensive enterprise services framework governing project roadmaps, SLAs, and liability terms.',
+      badge: 'Agreement',
+      badgeColor: '#6366f1',
+      icon: <FileCode size={22} color="#6366f1" />,
+    },
+    {
+      code: 'POLICY',
+      label: 'Non-Disclosure Agreement (NDA) & Policies',
+      categoryGroup: 'POLICIES',
+      category: 'Company Policies',
+      desc: 'Corporate confidentiality, intellectual property safeguards, code of business conduct, and NDA covenants.',
+      badge: 'NDA / Policy',
+      badgeColor: '#0891b2',
+      icon: <ShieldCheck size={22} color="#0891b2" />,
+    },
+    {
+      code: 'CERTIFICATE',
+      label: 'Training & Completion Certificate',
+      categoryGroup: 'POLICIES',
+      category: 'Certificates',
+      desc: 'Official certificate verifying course/training completion, project work, and issuance credentials.',
+      badge: 'Certificate',
+      badgeColor: '#8b5cf6',
+      icon: <Award size={22} color="#8b5cf6" />,
+    },
+    {
       code: 'CUSTOM_TEMPLATE',
       label: 'Upload Custom Template',
+      categoryGroup: 'CUSTOM',
       category: 'Custom Template',
-      desc: 'Upload a custom .docx / .txt file or write custom text with {{placeholders}}.',
+      desc: 'Upload a custom Microsoft Word (.docx) or Text template with dynamic {{placeholders}}.',
       badge: 'Upload / Custom',
       badgeColor: '#ea580c',
       icon: <Upload size={22} color="#ea580c" />,
     },
   ];
+
+  const CATEGORY_TABS = [
+    { key: 'ALL', label: 'All Templates' },
+    { key: 'OFFER', label: 'Offer & Joining' },
+    { key: 'COMPENSATION', label: 'Appraisal & Pay' },
+    { key: 'EXPERIENCE', label: 'Experience & Exit' },
+    { key: 'CONTRACTS', label: 'Internship & Contracts' },
+    { key: 'POLICIES', label: 'Policies & Certificates' },
+    { key: 'CUSTOM', label: 'Custom Upload' },
+  ];
+
+  const filteredTemplates = ALL_TEMPLATES.filter((tpl) => {
+    const matchesCategory =
+      selectedCategoryFilter === 'ALL' || tpl.categoryGroup === selectedCategoryFilter;
+    const q = templateSearch.toLowerCase().trim();
+    const matchesSearch =
+      !q ||
+      tpl.label.toLowerCase().includes(q) ||
+      tpl.category.toLowerCase().includes(q) ||
+      tpl.desc.toLowerCase().includes(q);
+    return matchesCategory && matchesSearch;
+  });
 
   const filteredEmployees = employees.filter((e) => {
     const q = employeeSearch.toLowerCase().trim();
@@ -695,26 +848,126 @@ export const GenerateDocumentModal: React.FC<GenerateDocumentModalProps> = ({
           {/* ========================================================================= */}
           {step === 1 && (
             <div>
-              <p style={{ fontSize: '0.875rem', color: '#475569', marginBottom: 16, marginTop: 0 }}>
-                Choose one of the 4 document templates shown in your flow, or upload a custom template:
-              </p>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12, marginBottom: 16 }}>
+                <div>
+                  <p style={{ fontSize: '0.875rem', color: '#475569', margin: 0 }}>
+                    Choose one of the standard corporate templates below or upload a custom template:
+                  </p>
+                </div>
 
-              {/* 4 Prominent Diagram Template Cards */}
+                {/* Instant Template Search Bar */}
+                <div style={{ position: 'relative', width: 280 }}>
+                  <Search size={14} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
+                  <input
+                    type="text"
+                    placeholder="Search templates by title or category..."
+                    value={templateSearch}
+                    onChange={(e) => setTemplateSearch(e.target.value)}
+                    style={{
+                      width: '100%',
+                      padding: '7px 28px 7px 32px',
+                      fontSize: '0.8125rem',
+                      border: '1px solid #cbd5e1',
+                      borderRadius: 8,
+                      outline: 'none',
+                    }}
+                  />
+                  {templateSearch && (
+                    <button
+                      type="button"
+                      onClick={() => setTemplateSearch('')}
+                      style={{
+                        position: 'absolute',
+                        right: 8,
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        background: 'transparent',
+                        border: 'none',
+                        color: '#94a3b8',
+                        cursor: 'pointer',
+                        padding: 2,
+                      }}
+                    >
+                      <X size={13} />
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Category Filter Pills */}
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  overflowX: 'auto',
+                  paddingBottom: 8,
+                  marginBottom: 16,
+                }}
+              >
+                {CATEGORY_TABS.map((tab) => {
+                  const isActive = selectedCategoryFilter === tab.key;
+                  const count =
+                    tab.key === 'ALL'
+                      ? ALL_TEMPLATES.length
+                      : ALL_TEMPLATES.filter((t) => t.categoryGroup === tab.key).length;
+
+                  return (
+                    <button
+                      key={tab.key}
+                      type="button"
+                      onClick={() => setSelectedCategoryFilter(tab.key)}
+                      style={{
+                        padding: '6px 14px',
+                        fontSize: '0.78125rem',
+                        fontWeight: isActive ? 700 : 500,
+                        borderRadius: 20,
+                        border: isActive ? '1px solid #2563eb' : '1px solid #e2e8f0',
+                        backgroundColor: isActive ? '#eff6ff' : '#ffffff',
+                        color: isActive ? '#1d4ed8' : '#64748b',
+                        cursor: 'pointer',
+                        whiteSpace: 'nowrap',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 6,
+                        transition: 'all 0.15s ease',
+                      }}
+                    >
+                      <span>{tab.label}</span>
+                      <span
+                        style={{
+                          fontSize: '0.6875rem',
+                          padding: '1px 6px',
+                          borderRadius: 10,
+                          backgroundColor: isActive ? '#bfdbfe' : '#f1f5f9',
+                          color: isActive ? '#1e40af' : '#64748b',
+                          fontWeight: 700,
+                        }}
+                      >
+                        {count}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Prominent Template Cards Grid */}
               <div
                 style={{
                   display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
                   gap: 14,
                   marginBottom: 20,
                 }}
               >
-                {primaryTemplates.map((pt) => {
+                {filteredTemplates.map((pt) => {
                   const isSelected = selectedTemplate?.code === pt.code;
                   return (
                     <div
                       key={pt.code}
                       onClick={() => {
-                        const fullTpl = templates.find((t) => t.code === pt.code) || {
+                        const backendTpl = templates.find((t) => t.code === pt.code);
+                        const fullTpl = backendTpl || {
                           code: pt.code,
                           category: pt.category,
                           name: pt.label,
@@ -734,43 +987,88 @@ export const GenerateDocumentModal: React.FC<GenerateDocumentModalProps> = ({
                         backgroundColor: isSelected ? '#eff6ff' : '#ffffff',
                         cursor: 'pointer',
                         transition: 'all 0.15s ease',
-                        boxShadow: isSelected ? '0 4px 12px rgba(37, 99, 235, 0.15)' : 'none',
+                        boxShadow: isSelected
+                          ? '0 6px 18px rgba(37, 99, 235, 0.18)'
+                          : '0 1px 3px rgba(0, 0, 0, 0.04)',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'space-between',
                       }}
                     >
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                        <div
-                          style={{
-                            padding: 8,
-                            borderRadius: 8,
-                            backgroundColor: '#f8fafc',
-                            border: '1px solid #e2e8f0',
-                          }}
-                        >
-                          {pt.icon}
+                      <div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                          <div
+                            style={{
+                              padding: 8,
+                              borderRadius: 8,
+                              backgroundColor: '#f8fafc',
+                              border: '1px solid #e2e8f0',
+                            }}
+                          >
+                            {pt.icon}
+                          </div>
+                          <span
+                            style={{
+                              fontSize: '0.6875rem',
+                              fontWeight: 700,
+                              color: pt.badgeColor,
+                              backgroundColor: `${pt.badgeColor}15`,
+                              padding: '3px 8px',
+                              borderRadius: 12,
+                            }}
+                          >
+                            {pt.badge}
+                          </span>
                         </div>
-                        <span
-                          style={{
-                            fontSize: '0.6875rem',
-                            fontWeight: 700,
-                            color: pt.badgeColor,
-                            backgroundColor: `${pt.badgeColor}15`,
-                            padding: '3px 8px',
-                            borderRadius: 12,
-                          }}
-                        >
-                          {pt.badge}
-                        </span>
+                        <h4 style={{ fontSize: '0.9375rem', fontWeight: 700, color: '#0f172a', margin: '12px 0 4px 0' }}>
+                          {pt.label}
+                        </h4>
+                        <p style={{ fontSize: '0.78125rem', color: '#64748b', margin: 0, lineHeight: 1.4 }}>
+                          {pt.desc}
+                        </p>
                       </div>
-                      <h4 style={{ fontSize: '0.95rem', fontWeight: 700, color: '#0f172a', margin: '12px 0 4px 0' }}>
-                        {pt.label}
-                      </h4>
-                      <p style={{ fontSize: '0.78125rem', color: '#64748b', margin: 0, lineHeight: 1.4 }}>
-                        {pt.desc}
-                      </p>
+
+                      <div
+                        style={{
+                          marginTop: 14,
+                          paddingTop: 10,
+                          borderTop: '1px solid #f1f5f9',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          fontSize: '0.75rem',
+                          fontWeight: 600,
+                          color: isSelected ? '#2563eb' : '#94a3b8',
+                        }}
+                      >
+                        <span>{isSelected ? '✓ Selected Blueprint' : 'Click to Select'}</span>
+                        <ArrowRight size={13} />
+                      </div>
                     </div>
                   );
                 })}
               </div>
+
+              {filteredTemplates.length === 0 && (
+                <div
+                  style={{
+                    padding: '36px 20px',
+                    textAlign: 'center',
+                    backgroundColor: '#f8fafc',
+                    borderRadius: 12,
+                    border: '1px dashed #cbd5e1',
+                    marginBottom: 20,
+                  }}
+                >
+                  <Search size={24} style={{ color: '#94a3b8', marginBottom: 8 }} />
+                  <p style={{ fontSize: '0.875rem', fontWeight: 600, color: '#475569', margin: '0 0 4px' }}>
+                    No templates match "{templateSearch}"
+                  </p>
+                  <p style={{ fontSize: '0.78125rem', color: '#94a3b8', margin: 0 }}>
+                    Try adjusting your search terms or category filter.
+                  </p>
+                </div>
+              )}
 
               {/* Upload Custom Template Zone if selected */}
               {selectedTemplate?.code === 'CUSTOM_TEMPLATE' && (
@@ -1417,53 +1715,57 @@ export const GenerateDocumentModal: React.FC<GenerateDocumentModalProps> = ({
                     </tbody>
                   </table>
 
-                  <h4 style={{ fontSize: '0.875rem', fontWeight: 800, color: '#0f172a', margin: '0 0 8px 0' }}>
-                    2. Compensation &amp; Annual Financial Schedule
-                  </h4>
-                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8125rem', marginBottom: 20 }}>
-                    <thead>
-                      <tr style={{ backgroundColor: '#0f172a', color: '#ffffff' }}>
-                        <th style={{ padding: '8px 12px', textAlign: 'left', fontWeight: 700 }}>Compensation Component</th>
-                        <th style={{ padding: '8px 12px', textAlign: 'right', fontWeight: 700 }}>Annual Allocation</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr style={{ borderBottom: '1px solid #e2e8f0', backgroundColor: '#ffffff' }}>
-                        <td style={{ padding: '8px 12px', color: '#334155' }}>
-                          Basic Salary ({mappedPlaceholders['basic_percent'] || `${selectedEmployee.basicPercent || 40}%`})
-                        </td>
-                        <td style={{ padding: '8px 12px', textAlign: 'right', color: '#0f172a', fontWeight: 600 }}>
-                          {mappedPlaceholders['basic_salary'] || '₹2,40,000'}
-                        </td>
-                      </tr>
-                      <tr style={{ borderBottom: '1px solid #e2e8f0', backgroundColor: '#f8fafc' }}>
-                        <td style={{ padding: '8px 12px', color: '#334155' }}>
-                          House Rent Allowance (HRA) ({mappedPlaceholders['hra_percent'] || `${selectedEmployee.hraPercent || 20}%`})
-                        </td>
-                        <td style={{ padding: '8px 12px', textAlign: 'right', color: '#0f172a', fontWeight: 600 }}>
-                          {mappedPlaceholders['hra'] || '₹1,20,000'}
-                        </td>
-                      </tr>
-                      <tr style={{ borderBottom: '1px solid #e2e8f0', backgroundColor: '#ffffff' }}>
-                        <td style={{ padding: '8px 12px', color: '#334155' }}>Special &amp; Flexible Benefit Allowances</td>
-                        <td style={{ padding: '8px 12px', textAlign: 'right', color: '#0f172a', fontWeight: 600 }}>
-                          {mappedPlaceholders['special_allowance'] || '₹2,40,000'}
-                        </td>
-                      </tr>
-                      <tr style={{ borderBottom: '1px solid #e2e8f0', backgroundColor: '#f8fafc' }}>
-                        <td style={{ padding: '8px 12px', color: '#334155' }}>Performance Incentive Eligibility</td>
-                        <td style={{ padding: '8px 12px', textAlign: 'right', color: '#0f172a' }}>
-                          {selectedEmployee.incentiveApplicable ? 'Applicable (Milestone Based)' : 'N/A'}
-                        </td>
-                      </tr>
-                      <tr style={{ backgroundColor: '#eff6ff', borderTop: '2px solid #2563eb' }}>
-                        <td style={{ padding: '10px 12px', fontWeight: 800, color: '#1e3a8a' }}>Total Cost to Company (Annual CTC)</td>
-                        <td style={{ padding: '10px 12px', textAlign: 'right', fontWeight: 800, color: '#1e3a8a', fontSize: '0.9375rem' }}>
-                          {mappedPlaceholders['annual_ctc'] || mappedPlaceholders['total_ctc'] || (selectedEmployee.annualCtc ? `₹${Number(selectedEmployee.annualCtc).toLocaleString('en-IN')}` : '₹6,00,000')}
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
+                  {['OFFER_LETTER', 'APPOINTMENT_LETTER', 'INCREMENT_LETTER'].includes(selectedTemplate.code) && (
+                    <>
+                      <h4 style={{ fontSize: '0.875rem', fontWeight: 800, color: '#0f172a', margin: '0 0 8px 0' }}>
+                        2. Compensation &amp; Annual Financial Schedule
+                      </h4>
+                      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8125rem', marginBottom: 20 }}>
+                        <thead>
+                          <tr style={{ backgroundColor: '#0f172a', color: '#ffffff' }}>
+                            <th style={{ padding: '8px 12px', textAlign: 'left', fontWeight: 700 }}>Compensation Component</th>
+                            <th style={{ padding: '8px 12px', textAlign: 'right', fontWeight: 700 }}>Annual Allocation</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr style={{ borderBottom: '1px solid #e2e8f0', backgroundColor: '#ffffff' }}>
+                            <td style={{ padding: '8px 12px', color: '#334155' }}>
+                              Basic Salary ({mappedPlaceholders['basic_percent'] || `${selectedEmployee.basicPercent || 40}%`})
+                            </td>
+                            <td style={{ padding: '8px 12px', textAlign: 'right', color: '#0f172a', fontWeight: 600 }}>
+                              {mappedPlaceholders['basic_salary'] || '₹2,40,000'}
+                            </td>
+                          </tr>
+                          <tr style={{ borderBottom: '1px solid #e2e8f0', backgroundColor: '#f8fafc' }}>
+                            <td style={{ padding: '8px 12px', color: '#334155' }}>
+                              House Rent Allowance (HRA) ({mappedPlaceholders['hra_percent'] || `${selectedEmployee.hraPercent || 20}%`})
+                            </td>
+                            <td style={{ padding: '8px 12px', textAlign: 'right', color: '#0f172a', fontWeight: 600 }}>
+                              {mappedPlaceholders['hra'] || '₹1,20,000'}
+                            </td>
+                          </tr>
+                          <tr style={{ borderBottom: '1px solid #e2e8f0', backgroundColor: '#ffffff' }}>
+                            <td style={{ padding: '8px 12px', color: '#334155' }}>Special &amp; Flexible Benefit Allowances</td>
+                            <td style={{ padding: '8px 12px', textAlign: 'right', color: '#0f172a', fontWeight: 600 }}>
+                              {mappedPlaceholders['special_allowance'] || '₹2,40,000'}
+                            </td>
+                          </tr>
+                          <tr style={{ borderBottom: '1px solid #e2e8f0', backgroundColor: '#f8fafc' }}>
+                            <td style={{ padding: '8px 12px', color: '#334155' }}>Performance Incentive Eligibility</td>
+                            <td style={{ padding: '8px 12px', textAlign: 'right', color: '#0f172a' }}>
+                              {selectedEmployee.incentiveApplicable ? 'Applicable (Milestone Based)' : 'N/A'}
+                            </td>
+                          </tr>
+                          <tr style={{ backgroundColor: '#eff6ff', borderTop: '2px solid #2563eb' }}>
+                            <td style={{ padding: '10px 12px', fontWeight: 800, color: '#1e3a8a' }}>Total Cost to Company (Annual CTC)</td>
+                            <td style={{ padding: '10px 12px', textAlign: 'right', fontWeight: 800, color: '#1e3a8a', fontSize: '0.9375rem' }}>
+                              {mappedPlaceholders['annual_ctc'] || mappedPlaceholders['total_ctc'] || (selectedEmployee.annualCtc ? `₹${Number(selectedEmployee.annualCtc).toLocaleString('en-IN')}` : '₹6,00,000')}
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </>
+                  )}
                 </div>
 
                 {/* 3. Dual Signatures Section */}

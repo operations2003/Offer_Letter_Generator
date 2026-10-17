@@ -681,7 +681,7 @@ export class EmployeeDocumentService {
     }
 
     const template = PRELOADED_HR_TEMPLATES[templateCode];
-    if (!template) {
+    if (!template && !customTemplateMarkup) {
       throw new ValidationError(`Unknown template code: ${templateCode}`);
     }
 
@@ -691,17 +691,17 @@ export class EmployeeDocumentService {
       ...(customParameters || {}),
     };
 
-    const markupToUse = customTemplateMarkup || template.contentMarkup;
+    const markupToUse = customTemplateMarkup || template?.contentMarkup || '';
     const renderedContent = this.interpolateMarkup(markupToUse, mergedValues);
 
     return {
       templateCode,
-      templateName: template.name,
-      category: template.category,
+      templateName: template?.name || templateCode.replace(/^preset_/, '').replace(/_/g, ' ').toUpperCase(),
+      category: template?.category || 'HR Document',
       autoFilledFields: autoPlaceholders,
-      docSpecificFields: template.docSpecificFields,
+      docSpecificFields: template?.docSpecificFields || [],
       renderedContent,
-      supportedFormats: template.supportedFormats,
+      supportedFormats: template?.supportedFormats || ['PDF', 'DOCX'],
     };
   }
 
