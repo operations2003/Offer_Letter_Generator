@@ -455,6 +455,13 @@ export const QuickTemplateOfferModal: React.FC<QuickTemplateOfferModalProps> = (
 
   // Workflow steps: 1 = Structure & Clauses, 2 = Dynamic Member Details, 3 = Multi-Page Official Preview
   const [step, setStep] = useState<1 | 2 | 3>(1);
+  const modalBodyRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (modalBodyRef.current) {
+      modalBodyRef.current.scrollTop = 0;
+    }
+  }, [step]);
 
   // Active letter type
   const [letterType, setLetterType] = useState<LetterTypeKey>('employment_offer');
@@ -1236,7 +1243,7 @@ export const QuickTemplateOfferModal: React.FC<QuickTemplateOfferModalProps> = (
         </div>
 
         {/* Scrollable Body */}
-        <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', padding: '24px 32px', background: '#f8fafc' }}>
+        <div ref={modalBodyRef} style={{ flex: 1, minHeight: 0, overflowY: 'auto', padding: '24px 32px', background: '#f8fafc' }}>
           {/* STEP 1: STRUCTURE & SECTIONS CONFIGURATION */}
           {step === 1 && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import {
   X,
   FileText,
@@ -183,6 +184,13 @@ export const GenerateLetterFromPdfModal: React.FC<GenerateLetterFromPdfModalProp
   const [isSendingEmail, setIsSendingEmail] = useState(false);
   const [savedDocument, setSavedDocument] = useState<any | null>(null);
   const [emailSentSuccess, setEmailSentSuccess] = useState(false);
+  const modalBodyRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (modalBodyRef.current) {
+      modalBodyRef.current.scrollTop = 0;
+    }
+  }, [step]);
 
   useEffect(() => {
     if (isOpen) {
@@ -519,38 +527,45 @@ export const GenerateLetterFromPdfModal: React.FC<GenerateLetterFromPdfModalProp
     );
   });
 
-  return (
+  if (!isOpen) return null;
+
+  return createPortal(
     <div
       style={{
         position: 'fixed',
         inset: 0,
         backgroundColor: 'rgba(15, 23, 42, 0.75)',
-        backdropFilter: 'blur(6px)',
-        zIndex: 9999,
+        backdropFilter: 'blur(4px)',
+        zIndex: 99999,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         padding: 16,
+        boxSizing: 'border-box',
+      }}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
       }}
     >
       <div
         style={{
           backgroundColor: '#ffffff',
-          borderRadius: 16,
+          borderRadius: 14,
           width: '100%',
-          maxWidth: step === 4 ? 1020 : 880,
-          maxHeight: '94vh',
+          maxWidth: step === 4 ? 1040 : 840,
+          maxHeight: 'min(92vh, 760px)',
           display: 'flex',
           flexDirection: 'column',
-          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.3)',
+          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.35)',
           overflow: 'hidden',
-          animation: 'fadeIn 0.2s ease-out',
+          animation: 'fadeIn 0.15s ease-out',
         }}
+        onClick={(e) => e.stopPropagation()}
       >
         {/* Modal Header */}
         <div
           style={{
-            padding: '16px 24px',
+            padding: '12px 20px',
             borderBottom: '1px solid #e2e8f0',
             display: 'flex',
             alignItems: 'center',
@@ -562,23 +577,23 @@ export const GenerateLetterFromPdfModal: React.FC<GenerateLetterFromPdfModalProp
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <span
                 style={{
-                  fontSize: '0.75rem',
+                  fontSize: '0.7rem',
                   fontWeight: 700,
                   backgroundColor: '#dbeafe',
                   color: '#1d4ed8',
-                  padding: '3px 10px',
+                  padding: '2px 8px',
                   borderRadius: 20,
                   textTransform: 'uppercase',
                   letterSpacing: '0.04em',
                 }}
               >
-                PDF to Official Letterhead Workflow
+                PDF to Official Letterhead
               </span>
-              <span style={{ fontSize: '0.8125rem', color: '#64748b' }}>
+              <span style={{ fontSize: '0.78125rem', color: '#64748b' }}>
                 Step {step} of 4
               </span>
             </div>
-            <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0f172a', margin: '4px 0 0 0' }}>
+            <h2 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0f172a', margin: '3px 0 0 0' }}>
               {step === 1 && '1. Select Letter Category & Title'}
               {step === 2 && '2. Upload Reference PDF Document'}
               {step === 3 && '3. Select Employee from Employee Directory'}
@@ -589,8 +604,8 @@ export const GenerateLetterFromPdfModal: React.FC<GenerateLetterFromPdfModalProp
           <button
             onClick={onClose}
             style={{
-              padding: 8,
-              borderRadius: 8,
+              padding: 6,
+              borderRadius: 6,
               border: 'none',
               backgroundColor: '#f1f5f9',
               cursor: 'pointer',
@@ -607,7 +622,7 @@ export const GenerateLetterFromPdfModal: React.FC<GenerateLetterFromPdfModalProp
             display: 'flex',
             borderBottom: '1px solid #e2e8f0',
             backgroundColor: '#ffffff',
-            padding: '10px 24px',
+            padding: '8px 20px',
             gap: 12,
             overflowX: 'auto',
           }}
@@ -624,20 +639,20 @@ export const GenerateLetterFromPdfModal: React.FC<GenerateLetterFromPdfModalProp
                 display: 'flex',
                 alignItems: 'center',
                 gap: 6,
-                fontSize: '0.8125rem',
+                fontSize: '0.78125rem',
                 fontWeight: step === s.num ? 700 : 500,
                 color: step === s.num ? '#2563eb' : step > s.num ? '#16a34a' : '#94a3b8',
               }}
             >
               <span
                 style={{
-                  width: 22,
-                  height: 22,
+                  width: 20,
+                  height: 20,
                   borderRadius: '50%',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: '0.75rem',
+                  fontSize: '0.72rem',
                   fontWeight: 700,
                   backgroundColor:
                     step === s.num ? '#2563eb' : step > s.num ? '#dcfce7' : '#f1f5f9',
@@ -653,13 +668,13 @@ export const GenerateLetterFromPdfModal: React.FC<GenerateLetterFromPdfModalProp
         </div>
 
         {/* Modal Body */}
-        <div style={{ padding: '20px 24px', overflowY: 'auto', flex: 1 }}>
+        <div ref={modalBodyRef} style={{ padding: '16px 20px', overflowY: 'auto', flex: 1 }}>
           {/* ========================================================================= */}
           {/* STEP 1: SELECT CATEGORY & TITLE                                           */}
           {/* ========================================================================= */}
           {step === 1 && (
             <div>
-              <p style={{ fontSize: '0.875rem', color: '#475569', marginBottom: 18, marginTop: 0 }}>
+              <p style={{ fontSize: '0.8125rem', color: '#475569', marginBottom: 12, marginTop: 0 }}>
                 Choose the category for this letter. The text and clauses will be extracted from your PDF file in the next step:
               </p>
 
@@ -667,9 +682,9 @@ export const GenerateLetterFromPdfModal: React.FC<GenerateLetterFromPdfModalProp
               <div
                 style={{
                   display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
-                  gap: 12,
-                  marginBottom: 24,
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+                  gap: 10,
+                  marginBottom: 14,
                 }}
               >
                 {LETTER_CATEGORIES.map((cat) => {
@@ -682,22 +697,25 @@ export const GenerateLetterFromPdfModal: React.FC<GenerateLetterFromPdfModalProp
                         setDocTitle(cat.defaultTitle);
                       }}
                       style={{
-                        padding: 16,
-                        borderRadius: 12,
+                        padding: '10px 14px',
+                        borderRadius: 10,
                         border: isSelected ? '2px solid #2563eb' : '1px solid #e2e8f0',
                         backgroundColor: isSelected ? '#eff6ff' : '#ffffff',
                         cursor: 'pointer',
                         transition: 'all 0.15s ease',
-                        boxShadow: isSelected ? '0 4px 14px rgba(37, 99, 235, 0.15)' : 'none',
+                        boxShadow: isSelected ? '0 2px 10px rgba(37, 99, 235, 0.12)' : 'none',
                       }}
                     >
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <div
                           style={{
-                            padding: 8,
-                            borderRadius: 8,
+                            padding: 6,
+                            borderRadius: 6,
                             backgroundColor: '#f8fafc',
                             border: '1px solid #e2e8f0',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
                           }}
                         >
                           {cat.icon}
@@ -708,17 +726,17 @@ export const GenerateLetterFromPdfModal: React.FC<GenerateLetterFromPdfModalProp
                             fontWeight: 700,
                             color: cat.color,
                             backgroundColor: `${cat.color}15`,
-                            padding: '3px 8px',
-                            borderRadius: 12,
+                            padding: '2px 8px',
+                            borderRadius: 10,
                           }}
                         >
                           {cat.badge}
                         </span>
                       </div>
-                      <h4 style={{ fontSize: '0.9375rem', fontWeight: 700, color: '#0f172a', margin: '12px 0 4px 0' }}>
+                      <h4 style={{ fontSize: '0.875rem', fontWeight: 700, color: '#0f172a', margin: '8px 0 2px 0' }}>
                         {cat.name}
                       </h4>
-                      <p style={{ fontSize: '0.78125rem', color: '#64748b', margin: 0, lineHeight: 1.4 }}>
+                      <p style={{ fontSize: '0.75rem', color: '#64748b', margin: 0, lineHeight: 1.35 }}>
                         {cat.description}
                       </p>
                     </div>
@@ -731,11 +749,11 @@ export const GenerateLetterFromPdfModal: React.FC<GenerateLetterFromPdfModalProp
                 style={{
                   backgroundColor: '#f8fafc',
                   border: '1px solid #e2e8f0',
-                  borderRadius: 12,
-                  padding: 16,
+                  borderRadius: 10,
+                  padding: '12px 14px',
                 }}
               >
-                <label style={{ fontSize: '0.8125rem', fontWeight: 700, color: '#334155', display: 'block', marginBottom: 6 }}>
+                <label style={{ fontSize: '0.78125rem', fontWeight: 700, color: '#334155', display: 'block', marginBottom: 4 }}>
                   Letter Title / Subject Preamble:
                 </label>
                 <input
@@ -745,13 +763,14 @@ export const GenerateLetterFromPdfModal: React.FC<GenerateLetterFromPdfModalProp
                   placeholder="e.g. Offer of Employment, Letter of Appointment..."
                   style={{
                     width: '100%',
-                    padding: '9px 12px',
-                    fontSize: '0.875rem',
+                    padding: '8px 12px',
+                    fontSize: '0.84rem',
                     border: '1px solid #cbd5e1',
-                    borderRadius: 8,
+                    borderRadius: 6,
                     backgroundColor: '#ffffff',
                     fontWeight: 600,
                     color: '#0f172a',
+                    boxSizing: 'border-box',
                   }}
                 />
               </div>
@@ -1427,6 +1446,7 @@ export const GenerateLetterFromPdfModal: React.FC<GenerateLetterFromPdfModalProp
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };

@@ -1342,6 +1342,7 @@ export const TemplatesPage: React.FC = () => {
     const compiled = getCompiledDocumentText();
     setDirectEditedContent(compiled);
     setStep(3);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   // High-fidelity Isolated Print
