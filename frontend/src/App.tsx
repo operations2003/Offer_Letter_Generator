@@ -39,6 +39,7 @@ export const App: React.FC = () => {
         <Route path="offers/create" element={<Navigate to="/offers?create=true" replace />} />
         <Route path="pdf-to-letter" element={<PdfToStructuredLetterPage />} />
         <Route path="templates" element={<TemplatesPage />} />
+        <Route path="ai-generator" element={<TemplatesPage />} />
         <Route path="ai-studio" element={<AiStudioPage />} />
         <Route
           path="audit-logs"
