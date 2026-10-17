@@ -27,7 +27,7 @@ export const AppLayout: React.FC = () => {
 
       <div className="main-content">
         <Header onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
-        <main className="page-container animate-fade-in">
+        <main className="page-container">
           <Outlet />
         </main>
       </div>
