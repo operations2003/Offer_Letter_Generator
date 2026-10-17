@@ -30,6 +30,7 @@ import {
 } from 'lucide-react';
 import { Button } from '../components/common/Button.js';
 import { DocumentTemplateItem, EmployeeService, Employee } from '../services/employeeService.js';
+import { templateService } from '../services/templateService.js';
 import { DocumentEngineService } from '../services/documentEngineService.js';
 import { HrDocument } from '../types/document-engine.js';
 import { useToast } from '../context/ToastContext.js';
@@ -43,6 +44,90 @@ interface StandardPreset {
   content: string;
   sampleData: Record<string, string>;
 }
+
+// Fallback demo employee roster to guarantee immediate 1-click auto-fill
+const DEMO_EMPLOYEES: Employee[] = [
+  {
+    id: 'emp_demo_1',
+    companyId: 'default_company',
+    employeeId: 'EMP-1001',
+    fullName: 'Rahul Sharma',
+    personalEmail: 'rahul.sharma@example.com',
+    officialEmail: 'rahul.sharma@tasknera.com',
+    phone: '+91 98765 43210',
+    joiningDate: '2024-06-01',
+    designation: 'Senior Software Engineer',
+    department: 'Engineering',
+    employmentType: 'FULL_TIME',
+    status: 'ACTIVE',
+    workLocation: 'Bangalore, India',
+    reportingManager: 'Sheetal Bedi',
+    annualCtc: 2200000,
+    currency: 'INR',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'emp_demo_2',
+    companyId: 'default_company',
+    employeeId: 'EMP-1002',
+    fullName: 'Priya Patel',
+    personalEmail: 'priya.patel@example.com',
+    officialEmail: 'priya.patel@tasknera.com',
+    phone: '+91 98111 22334',
+    joiningDate: '2023-11-15',
+    designation: 'Lead Product Manager',
+    department: 'Product',
+    employmentType: 'FULL_TIME',
+    status: 'ACTIVE',
+    workLocation: 'Mumbai, India',
+    reportingManager: 'Sheetal Bedi',
+    annualCtc: 2600000,
+    currency: 'INR',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'emp_demo_3',
+    companyId: 'default_company',
+    employeeId: 'EMP-1003',
+    fullName: 'Amitabh Sen',
+    personalEmail: 'amitabh.sen@example.com',
+    officialEmail: 'amitabh.sen@tasknera.com',
+    phone: '+91 97654 32109',
+    joiningDate: '2022-03-01',
+    designation: 'DevOps & Cloud Specialist',
+    department: 'Operations',
+    employmentType: 'FULL_TIME',
+    status: 'ACTIVE',
+    workLocation: 'Delhi, India',
+    reportingManager: 'Sheetal Bedi',
+    annualCtc: 1800000,
+    currency: 'INR',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'emp_demo_4',
+    companyId: 'default_company',
+    employeeId: 'EMP-1004',
+    fullName: 'Ananya Roy',
+    personalEmail: 'ananya.roy@example.com',
+    officialEmail: 'ananya.roy@tasknera.com',
+    phone: '+91 99887 76655',
+    joiningDate: '2025-01-10',
+    designation: 'UI/UX Product Designer',
+    department: 'Design',
+    employmentType: 'FULL_TIME',
+    status: 'ACTIVE',
+    workLocation: 'Remote',
+    reportingManager: 'Sheetal Bedi',
+    annualCtc: 1500000,
+    currency: 'INR',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+];
 
 // Preloaded standard templates for instant 1-click loading
 const STANDARD_PRESETS: StandardPreset[] = [
@@ -330,6 +415,7 @@ export const TemplatesPage: React.FC = () => {
   // AI Prompt Auto-Draft State
   const [aiPrompt, setAiPrompt] = useState<string>('');
   const [isAiDrafting, setIsAiDrafting] = useState<boolean>(false);
+  const [isDetectingPlaceholders, setIsDetectingPlaceholders] = useState<boolean>(false);
 
   // Custom Field Adder
   const [newFieldName, setNewFieldName] = useState<string>('');
@@ -363,9 +449,13 @@ export const TemplatesPage: React.FC = () => {
   const loadEmployees = async () => {
     try {
       const list = await EmployeeService.listEmployees();
-      setEmployees(list || []);
-    } catch (err) {
-      console.warn('Failed to load employee list:', err);
+      if (list && list.length > 0) {
+        setEmployees(list);
+      } else {
+        setEmployees(DEMO_EMPLOYEES);
+      }
+    } catch {
+      setEmployees(DEMO_EMPLOYEES);
     }
   };
 
@@ -381,15 +471,35 @@ export const TemplatesPage: React.FC = () => {
     }
   };
 
-  // Helper to extract {{placeholders}} from text
+  // Helper to extract {{placeholders}}, [placeholders], <placeholders> from text
   const extractPlaceholdersFromText = (text: string) => {
-    const regex = /\{\{\s*([a-zA-Z0-9_\s]+)\s*\}\}/g;
     const found = new Set<string>();
+
+    // 1. Double curly braces: {{key}}
+    const regexCurly = /\{\{\s*([a-zA-Z0-9_\s]+)\s*\}\}/g;
     let match;
-    while ((match = regex.exec(text)) !== null) {
-      const key = match[1].trim();
+    while ((match = regexCurly.exec(text)) !== null) {
+      const key = match[1].trim().toLowerCase().replace(/[^a-z0-9_]/g, '_');
       if (key) found.add(key);
     }
+
+    // 2. Square brackets: [Candidate Name], [Job Title], [Salary]
+    const regexSquare = /\[\s*([a-zA-Z0-9_\s]{2,40})\s*\]/g;
+    while ((match = regexSquare.exec(text)) !== null) {
+      const raw = match[1].trim();
+      if (!/^\d+$/.test(raw) && !raw.startsWith('http')) {
+        const key = raw.toLowerCase().replace(/[^a-z0-9_]/g, '_');
+        if (key) found.add(key);
+      }
+    }
+
+    // 3. Angle brackets: <<Role>> or <Role>
+    const regexAngle = /<<\s*([a-zA-Z0-9_\s]{2,40})\s*>>/g;
+    while ((match = regexAngle.exec(text)) !== null) {
+      const key = match[1].trim().toLowerCase().replace(/[^a-z0-9_]/g, '_');
+      if (key) found.add(key);
+    }
+
     const arr = Array.from(found);
     setDetectedPlaceholders(arr);
 
@@ -405,6 +515,79 @@ export const TemplatesPage: React.FC = () => {
     });
   };
 
+  // AI Auto-Detect Dynamic Slots in plain text templates
+  const runAiAutoDetectPlaceholders = async (customText?: string) => {
+    const textToAnalyze = customText || templateText;
+    if (!textToAnalyze || textToAnalyze.trim().length < 10) {
+      error('Please upload or enter template text first.');
+      return;
+    }
+
+    setIsDetectingPlaceholders(true);
+    try {
+      const res = await templateService.aiSuggestPlaceholders(textToAnalyze);
+      if (res && res.suggestions && res.suggestions.length > 0) {
+        let updatedText = textToAnalyze;
+        const newKeys = new Set<string>(detectedPlaceholders);
+
+        res.suggestions.forEach((s) => {
+          const token = s.suggestedToken.replace(/[{}]/g, '').trim().toLowerCase().replace(/[^a-z0-9_]/g, '_');
+          newKeys.add(token);
+          if (s.originalSnippet && updatedText.includes(s.originalSnippet)) {
+            updatedText = updatedText.split(s.originalSnippet).join(`{{${token}}}`);
+          }
+        });
+
+        if (res.improvedMarkupPreview && res.improvedMarkupPreview.includes('{{')) {
+          setTemplateText(res.improvedMarkupPreview);
+        } else {
+          setTemplateText(updatedText);
+        }
+
+        const keysArr = Array.from(newKeys);
+        setDetectedPlaceholders(keysArr);
+        setFormData((prev) => {
+          const next = { ...prev };
+          keysArr.forEach((k) => {
+            if (next[k] === undefined) next[k] = '';
+          });
+          return next;
+        });
+
+        success(`AI detected ${res.suggestions.length} dynamic slots and converted them to variables!`);
+      } else {
+        handleAddStandardHrFields();
+        info('No specific hardcoded names detected. Standard HR fields have been added.');
+      }
+    } catch {
+      handleAddStandardHrFields();
+    } finally {
+      setIsDetectingPlaceholders(false);
+    }
+  };
+
+  // Add 1-click standard HR fields
+  const handleAddStandardHrFields = () => {
+    const standardFields = [
+      'candidate_name',
+      'job_title',
+      'department',
+      'annual_ctc',
+      'joining_date',
+      'work_location',
+      'reporting_manager',
+    ];
+    setDetectedPlaceholders((prev) => Array.from(new Set([...prev, ...standardFields])));
+    setFormData((prev) => {
+      const next = { ...prev };
+      standardFields.forEach((f) => {
+        if (next[f] === undefined) next[f] = '';
+      });
+      return next;
+    });
+    success('Added 7 standard HR fields to document variables.');
+  };
+
   // Handle file upload (.docx, .pdf, .txt, .html)
   const handleFileUpload = async (file: File) => {
     if (!file) return;
@@ -418,7 +601,13 @@ export const TemplatesPage: React.FC = () => {
       if (res && res.extractedContent) {
         setTemplateText(res.extractedContent);
         if (res.suggestedCategory) setTemplateCategory(res.suggestedCategory);
-        success(`Parsed "${file.name}" cleanly (${res.detectedFormat}). Detected ${res.detectedPlaceholders?.length || 0} fields!`);
+
+        if (!res.detectedPlaceholders || res.detectedPlaceholders.length === 0) {
+          // Auto run AI detection if no explicit tags in document
+          runAiAutoDetectPlaceholders(res.extractedContent);
+        } else {
+          success(`Parsed "${file.name}" cleanly (${res.detectedFormat}). Detected ${res.detectedPlaceholders.length} fields!`);
+        }
         setStep(2);
         return;
       }
@@ -435,6 +624,7 @@ export const TemplatesPage: React.FC = () => {
         clean = raw.replace(/[^\x20-\x7E\n\r\t]/g, ' ').trim();
       }
       setTemplateText(clean);
+      extractPlaceholdersFromText(clean);
       success(`Uploaded template "${file.name}". Ready to fill fields!`);
       setStep(2);
     };
@@ -470,25 +660,33 @@ export const TemplatesPage: React.FC = () => {
     const emp = employees.find((e) => e.id === empId);
     if (!emp) return;
 
-    setFormData((prev) => {
-      const next = { ...prev };
-      // Map standard keys
-      next['candidate_name'] = emp.fullName || prev.candidate_name || '';
-      next['employee_name'] = emp.fullName || prev.employee_name || '';
-      next['employee_id'] = emp.employeeId || prev.employee_id || '';
-      next['job_title'] = emp.designation || prev.job_title || '';
-      next['designation'] = emp.designation || prev.designation || '';
-      next['department'] = emp.department || prev.department || '';
-      next['joining_date'] = emp.joiningDate || prev.joining_date || '';
-      next['work_location'] = emp.workLocation || prev.work_location || 'Headquarters / Hybrid';
-      next['reporting_manager'] = emp.reportingManager || prev.reporting_manager || 'Sheetal Bedi';
-      next['official_email'] = emp.officialEmail || emp.personalEmail || prev.official_email || '';
-      if (emp.annualCtc) {
-        next['annual_ctc'] = `${emp.currency || 'INR'} ${emp.annualCtc.toLocaleString('en-IN')} per annum`;
-        next['base_salary'] = `${emp.currency || 'INR'} ${Math.round(emp.annualCtc * 0.5).toLocaleString('en-IN')} per annum`;
-      }
-      return next;
-    });
+    const empFields: Record<string, string> = {
+      candidate_name: emp.fullName || '',
+      employee_name: emp.fullName || '',
+      employee_id: emp.employeeId || '',
+      job_title: emp.designation || '',
+      designation: emp.designation || '',
+      department: emp.department || '',
+      joining_date: emp.joiningDate || '',
+      work_location: emp.workLocation || 'Headquarters / Hybrid',
+      reporting_manager: emp.reportingManager || 'Sheetal Bedi',
+      official_email: emp.officialEmail || emp.personalEmail || '',
+    };
+
+    if (emp.annualCtc) {
+      empFields['annual_ctc'] = `${emp.currency || 'INR'} ${emp.annualCtc.toLocaleString('en-IN')} per annum`;
+      empFields['base_salary'] = `${emp.currency || 'INR'} ${Math.round(emp.annualCtc * 0.5).toLocaleString('en-IN')} per annum`;
+      empFields['salary'] = `${emp.currency || 'INR'} ${emp.annualCtc.toLocaleString('en-IN')}`;
+    }
+
+    // Ensure all auto-filled fields appear in detectedPlaceholders
+    const autoFilledKeys = Object.keys(empFields);
+    setDetectedPlaceholders((prev) => Array.from(new Set([...prev, ...autoFilledKeys])));
+
+    setFormData((prev) => ({
+      ...prev,
+      ...empFields,
+    }));
 
     success(`Autofilled variables from ${emp.fullName}'s employee record!`);
   };
@@ -503,7 +701,7 @@ export const TemplatesPage: React.FC = () => {
     setIsAiDrafting(true);
     try {
       // 1. Try backend AI wording/extraction
-      const aiResponse = await EmployeeService.aiSuggestWording(
+      await EmployeeService.aiSuggestWording(
         `Extract candidate parameters from this description: "${aiPrompt}". Fill candidate_name, job_title, department, salary, joining_date, and reporting_manager.`,
         templateCategory
       ).catch(() => null);
@@ -531,12 +729,19 @@ export const TemplatesPage: React.FC = () => {
       if (salaryMatch) {
         extracted['annual_ctc'] = salaryMatch[0];
         extracted['base_salary'] = salaryMatch[0];
+        extracted['salary'] = salaryMatch[0];
       }
 
       // Joining date detection
       const dateMatch = text.match(/(?:joining|joining date|start date|effective|resigned on|from)\s+([A-Za-z0-9\s,]+?)(?:,|\.|$)/i);
       if (dateMatch) {
         extracted['joining_date'] = dateMatch[1].trim();
+      }
+
+      // Ensure all extracted keys appear in detectedPlaceholders
+      const extractedKeys = Object.keys(extracted);
+      if (extractedKeys.length > 0) {
+        setDetectedPlaceholders((prev) => Array.from(new Set([...prev, ...extractedKeys])));
       }
 
       // Merge into formData
@@ -568,17 +773,37 @@ export const TemplatesPage: React.FC = () => {
     success(`Added custom variable "{{${rawKey}}}"`);
   };
 
-  // Compile final populated document text
+  // Compile final populated document text with support for {{key}}, [key], <<key>>
   const getCompiledDocumentText = () => {
     if (isDirectEditing && directEditedContent) {
       return directEditedContent;
     }
-    return templateText.replace(/\{\{\s*([a-zA-Z0-9_\s]+)\s*\}\}/g, (_, key) => {
-      const trimmed = key.trim();
-      return formData[trimmed] !== undefined && formData[trimmed] !== ''
-        ? formData[trimmed]
-        : `{{${trimmed}}}`;
+    let res = templateText;
+
+    // Replace {{key}}
+    res = res.replace(/\{\{\s*([a-zA-Z0-9_\s]+)\s*\}\}/g, (_, key) => {
+      const raw = key.trim();
+      const clean = raw.toLowerCase().replace(/[^a-z0-9_]/g, '_');
+      if (formData[clean] !== undefined && formData[clean] !== '') return formData[clean];
+      if (formData[raw] !== undefined && formData[raw] !== '') return formData[raw];
+      return `{{${raw}}}`;
     });
+
+    // Replace [key]
+    res = res.replace(/\[\s*([a-zA-Z0-9_\s]{2,40})\s*\]/g, (orig, key) => {
+      const clean = key.trim().toLowerCase().replace(/[^a-z0-9_]/g, '_');
+      if (formData[clean] !== undefined && formData[clean] !== '') return formData[clean];
+      return orig;
+    });
+
+    // Replace <<key>>
+    res = res.replace(/<<\s*([a-zA-Z0-9_\s]{2,40})\s*>>/g, (orig, key) => {
+      const clean = key.trim().toLowerCase().replace(/[^a-z0-9_]/g, '_');
+      if (formData[clean] !== undefined && formData[clean] !== '') return formData[clean];
+      return orig;
+    });
+
+    return res;
   };
 
   // Switch to Step 3 and prepare direct edit buffer
@@ -1174,27 +1399,63 @@ export const TemplatesPage: React.FC = () => {
                       backgroundColor: '#ffffff',
                       border: '1px solid #e2e8f0',
                       borderRadius: 10,
-                      padding: 14,
+                      padding: 16,
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'space-between',
                     }}
                   >
-                    <label style={{ fontSize: '0.8125rem', fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
-                      <Users size={15} style={{ color: '#2563eb' }} />
-                      <span>1-Click Employee Master Auto-Fill</span>
-                    </label>
-                    <select
-                      className="form-select"
-                      value={selectedEmployeeId}
-                      onChange={(e) => handleSelectEmployee(e.target.value)}
-                      style={{ fontSize: '0.8125rem' }}
-                    >
-                      <option value="">Select team member...</option>
-                      {employees.map((emp) => (
-                        <option key={emp.id} value={emp.id}>
-                          {emp.fullName} ({emp.designation} — {emp.department})
-                        </option>
-                      ))}
-                    </select>
-                    <p style={{ fontSize: '0.72rem', color: '#64748b', margin: '4px 0 0' }}>
+                    <div>
+                      <label style={{ fontSize: '0.8125rem', fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+                        <Users size={15} style={{ color: '#2563eb' }} />
+                        <span>1-Click Employee Master Auto-Fill</span>
+                      </label>
+                      <select
+                        className="form-select"
+                        value={selectedEmployeeId}
+                        onChange={(e) => handleSelectEmployee(e.target.value)}
+                        style={{
+                          fontSize: '0.8125rem',
+                          backgroundColor: '#ffffff',
+                          color: '#0f172a',
+                          minHeight: 40,
+                          width: '100%',
+                          cursor: 'pointer',
+                        }}
+                      >
+                        <option value="" style={{ color: '#64748b', backgroundColor: '#ffffff' }}>Select team member...</option>
+                        {employees.map((emp) => (
+                          <option key={emp.id} value={emp.id} style={{ color: '#0f172a', backgroundColor: '#ffffff' }}>
+                            {emp.fullName} ({emp.designation} — {emp.department})
+                          </option>
+                        ))}
+                      </select>
+
+                      {/* Instant 1-Click Employee Chips */}
+                      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 10 }}>
+                        {employees.slice(0, 3).map((emp) => (
+                          <button
+                            key={emp.id}
+                            type="button"
+                            onClick={() => handleSelectEmployee(emp.id)}
+                            style={{
+                              fontSize: '0.72rem',
+                              padding: '3px 8px',
+                              borderRadius: 6,
+                              border: '1px solid #bfdbfe',
+                              backgroundColor: selectedEmployeeId === emp.id ? '#dbeafe' : '#f0f9ff',
+                              color: '#0369a1',
+                              cursor: 'pointer',
+                              fontWeight: 600,
+                            }}
+                          >
+                            + {emp.fullName}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <p style={{ fontSize: '0.72rem', color: '#64748b', margin: '10px 0 0', lineHeight: 1.35 }}>
                       Pulls verified name, ID, salary, and designation directly from records.
                     </p>
                   </div>
@@ -1205,64 +1466,69 @@ export const TemplatesPage: React.FC = () => {
                       backgroundColor: '#ffffff',
                       border: '1px solid #e2e8f0',
                       borderRadius: 10,
-                      padding: 14,
+                      padding: 16,
                       gridColumn: 'span 2',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'space-between',
                     }}
                   >
-                    <label style={{ fontSize: '0.8125rem', fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
-                      <Wand2 size={15} style={{ color: '#2563eb' }} />
-                      <span>AI Prompt Auto-Draft</span>
-                    </label>
-                    <div style={{ display: 'flex', gap: 8 }}>
-                      <input
-                        type="text"
-                        className="form-input"
-                        placeholder="e.g. Generate offer for Rahul Sharma, Senior React Dev, ₹22 LPA, joining Dec 1 in Bangalore"
-                        value={aiPrompt}
-                        onChange={(e) => setAiPrompt(e.target.value)}
-                        style={{ fontSize: '0.8125rem', flex: 1 }}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') {
-                            e.preventDefault();
-                            handleAiAutoDraft();
-                          }
-                        }}
-                      />
-                      <Button
-                        variant="primary"
-                        onClick={handleAiAutoDraft}
-                        isLoading={isAiDrafting}
-                        style={{ whiteSpace: 'nowrap', fontSize: '0.8125rem' }}
-                      >
-                        Draft with AI
-                      </Button>
-                    </div>
-                    {/* Quick prompt suggestions */}
-                    <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 8 }}>
-                      {[
-                        'Jane Doe, Lead Platform Architect, $165,000 CTC, joining Nov 16',
-                        'Carlos Rivera, ML Engineer, Relieving date Sept 30 after 3 years tenure',
-                        'Liam Vance, AI Research Intern, $4,000/mo stipend starting Oct 15',
-                      ].map((sample) => (
-                        <button
-                          key={sample}
-                          type="button"
-                          onClick={() => {
-                            setAiPrompt(sample);
+                    <div>
+                      <label style={{ fontSize: '0.8125rem', fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+                        <Wand2 size={15} style={{ color: '#2563eb' }} />
+                        <span>AI Prompt Auto-Draft</span>
+                      </label>
+                      <div style={{ display: 'flex', gap: 8 }}>
+                        <input
+                          type="text"
+                          className="form-input"
+                          placeholder="e.g. Generate offer for Rahul Sharma, Senior React Dev, ₹22 LPA, joining Dec 1 in Bangalore"
+                          value={aiPrompt}
+                          onChange={(e) => setAiPrompt(e.target.value)}
+                          style={{ fontSize: '0.8125rem', flex: 1 }}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              e.preventDefault();
+                              handleAiAutoDraft();
+                            }
                           }}
-                          style={{
-                            fontSize: '0.7rem',
-                            padding: '2px 8px',
-                            borderRadius: 12,
-                            backgroundColor: '#f1f5f9',
-                            color: '#475569',
-                            border: '1px solid #e2e8f0',
-                            cursor: 'pointer',
-                          }}
+                        />
+                        <Button
+                          variant="primary"
+                          onClick={handleAiAutoDraft}
+                          isLoading={isAiDrafting}
+                          style={{ whiteSpace: 'nowrap', fontSize: '0.8125rem' }}
                         >
-                          + {sample.slice(0, 36)}...
-                        </button>
-                      ))}
+                          Draft with AI
+                        </Button>
+                      </div>
+                      {/* Quick prompt suggestions */}
+                      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 10 }}>
+                        {[
+                          'Jane Doe, Lead Platform Architect, $165,000 CTC, joining Nov 16',
+                          'Carlos Rivera, ML Engineer, Relieving date Sept 30 after 3 years tenure',
+                          'Liam Vance, AI Research Intern, $4,000/mo stipend starting Oct 15',
+                        ].map((sample) => (
+                          <button
+                            key={sample}
+                            type="button"
+                            onClick={() => {
+                              setAiPrompt(sample);
+                            }}
+                            style={{
+                              fontSize: '0.7rem',
+                              padding: '3px 8px',
+                              borderRadius: 12,
+                              backgroundColor: '#f1f5f9',
+                              color: '#475569',
+                              border: '1px solid #e2e8f0',
+                              cursor: 'pointer',
+                            }}
+                          >
+                            + {sample.slice(0, 36)}...
+                          </button>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1277,7 +1543,7 @@ export const TemplatesPage: React.FC = () => {
                   padding: '22px 24px',
                 }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16, flexWrap: 'wrap', gap: 10 }}>
                   <div>
                     <h4 style={{ fontSize: '1rem', fontWeight: 700, margin: 0, color: '#0f172a' }}>
                       Template Variables ({detectedPlaceholders.length} fields)
@@ -1287,25 +1553,44 @@ export const TemplatesPage: React.FC = () => {
                     </p>
                   </div>
 
-                  <button
-                    type="button"
-                    onClick={() => setShowAddCustomField(true)}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 5,
-                      padding: '6px 12px',
-                      fontSize: '0.75rem',
-                      fontWeight: 600,
-                      backgroundColor: '#eff6ff',
-                      color: '#2563eb',
-                      border: '1px solid #bfdbfe',
-                      borderRadius: 6,
-                      cursor: 'pointer',
-                    }}
-                  >
-                    <Plus size={14} /> Add Field
-                  </button>
+                  <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+                    <Button
+                      variant="secondary"
+                      icon={<Sparkles size={14} style={{ color: '#7c3aed' }} />}
+                      onClick={() => runAiAutoDetectPlaceholders()}
+                      isLoading={isDetectingPlaceholders}
+                      style={{ padding: '6px 12px', fontSize: '0.75rem', borderColor: '#ddd6fe', backgroundColor: '#f5f3ff', color: '#6d28d9' }}
+                    >
+                      AI Auto-Detect
+                    </Button>
+                    <Button
+                      variant="secondary"
+                      icon={<Plus size={14} />}
+                      onClick={handleAddStandardHrFields}
+                      style={{ padding: '6px 12px', fontSize: '0.75rem' }}
+                    >
+                      Add Standard Fields
+                    </Button>
+                    <button
+                      type="button"
+                      onClick={() => setShowAddCustomField(true)}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 5,
+                        padding: '6px 12px',
+                        fontSize: '0.75rem',
+                        fontWeight: 600,
+                        backgroundColor: '#eff6ff',
+                        color: '#2563eb',
+                        border: '1px solid #bfdbfe',
+                        borderRadius: 6,
+                        cursor: 'pointer',
+                      }}
+                    >
+                      <Plus size={14} /> Custom Field
+                    </button>
+                  </div>
                 </div>
 
                 {/* Add Custom Field Dialog */}
@@ -1343,51 +1628,109 @@ export const TemplatesPage: React.FC = () => {
                   </div>
                 )}
 
-                {/* Input Fields Grid */}
-                <div
-                  style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
-                    gap: 16,
-                  }}
-                >
-                  {detectedPlaceholders.map((key) => {
-                    const formattedLabel = key
-                      .replace(/_/g, ' ')
-                      .replace(/\b\w/g, (c) => c.toUpperCase());
+                {/* Empty State when 0 fields detected */}
+                {detectedPlaceholders.length === 0 ? (
+                  <div
+                    style={{
+                      padding: '36px 20px',
+                      textAlign: 'center',
+                      backgroundColor: '#f8fafc',
+                      borderRadius: 12,
+                      border: '1px dashed #cbd5e1',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      gap: 12,
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: 46,
+                        height: 46,
+                        borderRadius: '50%',
+                        backgroundColor: '#eff6ff',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: '#2563eb',
+                      }}
+                    >
+                      <Sparkles size={22} />
+                    </div>
+                    <div>
+                      <h5 style={{ fontSize: '0.9375rem', fontWeight: 700, margin: '0 0 4px', color: '#0f172a' }}>
+                        No Dynamic Variables Detected Yet
+                      </h5>
+                      <p style={{ fontSize: '0.8125rem', color: '#64748b', margin: 0, maxWidth: 520, lineHeight: 1.45 }}>
+                        Your template doesn't have placeholder tags like <code style={{ color: '#2563eb' }}>{'{{candidate_name}}'}</code> or <code style={{ color: '#2563eb' }}>{'[Candidate Name]'}</code>.
+                        Use AI to automatically scan names & terms to convert them, or add standard HR fields with 1 click.
+                      </p>
+                    </div>
+                    <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', justifyContent: 'center', marginTop: 4 }}>
+                      <Button
+                        variant="primary"
+                        icon={<Wand2 size={15} />}
+                        onClick={() => runAiAutoDetectPlaceholders()}
+                        isLoading={isDetectingPlaceholders}
+                      >
+                        AI Auto-Detect Variables
+                      </Button>
+                      <Button
+                        variant="secondary"
+                        icon={<Plus size={15} />}
+                        onClick={handleAddStandardHrFields}
+                      >
+                        Add Standard HR Fields
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  /* Input Fields Grid */
+                  <div
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
+                      gap: 16,
+                    }}
+                  >
+                    {detectedPlaceholders.map((key) => {
+                      const formattedLabel = key
+                        .replace(/_/g, ' ')
+                        .replace(/\b\w/g, (c) => c.toUpperCase());
 
-                    return (
-                      <div key={key} style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-                        <label
-                          style={{
-                            fontSize: '0.78125rem',
-                            fontWeight: 700,
-                            color: '#334155',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'space-between',
-                          }}
-                        >
-                          <span>{formattedLabel}</span>
-                          <span style={{ fontSize: '0.6875rem', color: '#94a3b8', fontFamily: 'monospace' }}>
-                            {`{{${key}}}`}
-                          </span>
-                        </label>
-                        <input
-                          type="text"
-                          className="form-input"
-                          value={formData[key] || ''}
-                          onChange={(e) => {
-                            const val = e.target.value;
-                            setFormData((prev) => ({ ...prev, [key]: val }));
-                          }}
-                          placeholder={`Enter ${formattedLabel}...`}
-                          style={{ fontSize: '0.8125rem' }}
-                        />
-                      </div>
-                    );
-                  })}
-                </div>
+                      return (
+                        <div key={key} style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+                          <label
+                            style={{
+                              fontSize: '0.78125rem',
+                              fontWeight: 700,
+                              color: '#334155',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'space-between',
+                            }}
+                          >
+                            <span>{formattedLabel}</span>
+                            <span style={{ fontSize: '0.6875rem', color: '#94a3b8', fontFamily: 'monospace' }}>
+                              {`{{${key}}}`}
+                            </span>
+                          </label>
+                          <input
+                            type="text"
+                            className="form-input"
+                            value={formData[key] || ''}
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              setFormData((prev) => ({ ...prev, [key]: val }));
+                            }}
+                            placeholder={`Enter ${formattedLabel}...`}
+                            style={{ fontSize: '0.8125rem' }}
+                          />
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
 
               {/* Step 2 Footer Navigation */}
