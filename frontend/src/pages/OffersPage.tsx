@@ -1321,53 +1321,6 @@ export const OffersPage: React.FC = () => {
               </div>
             </div>
           </div>
-
-          {/* Quick inspiration suggestion pills */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
-            <span style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-              <Sparkles size={11} color="#8b5cf6" /> Try prompts:
-            </span>
-            {[
-              'Moonlighting & Secondary Employment Policy',
-              'Generative AI & LLM Usage Policy',
-              'BYOD & Mobile Device Security Policy',
-              'Remote Work & Digital Nomad Policy',
-              'Anti-Harassment & POSH Policy',
-            ].map((sample) => (
-              <button
-                key={sample}
-                type="button"
-                disabled={isGeneratingPolicy}
-                onClick={() => {
-                  setPolicyPrompt(sample);
-                  handleGeneratePolicy(sample);
-                }}
-                style={{
-                  fontSize: '0.72rem',
-                  padding: '2px 9px',
-                  borderRadius: 12,
-                  border: '1px solid #e2e8f0',
-                  backgroundColor: '#ffffff',
-                  color: '#475569',
-                  cursor: 'pointer',
-                  transition: 'all 0.15s ease',
-                  fontWeight: 500,
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = '#f5f3ff';
-                  e.currentTarget.style.borderColor = '#c4b5fd';
-                  e.currentTarget.style.color = '#6d28d9';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = '#ffffff';
-                  e.currentTarget.style.borderColor = '#e2e8f0';
-                  e.currentTarget.style.color = '#475569';
-                }}
-              >
-                + {sample}
-              </button>
-            ))}
-          </div>
         </div>
 
         {/* Category Filter Pills */}
