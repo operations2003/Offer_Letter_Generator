@@ -254,21 +254,43 @@ export class PdfToStructuredLetterService {
   }
 
   /**
-   * Extracts numbered sections: e.g. "1. Appointment...", "2. Position..."
+   * Extracts numbered sections & titled clauses: e.g. "1. Handover...", "Confidentiality and Company Property"
    */
   private static extractNumberedSections(text: string): Array<{ number: number; title: string; content: string }> {
     const sections: Array<{ number: number; title: string; content: string }> = [];
     const lines = text.split('\n').map((l) => l.trim()).filter(Boolean);
 
     let currentSec: { number: number; title: string; content: string } | null = null;
+    let secCounter = 0;
 
     for (const line of lines) {
-      const match = line.match(/^(\d+)[\.\)]\s+(.*)/i);
-      if (match) {
+      const matchNum = line.match(/^(\d+)[\.\)]\s+(.*)/i);
+      const isNamedHeader =
+        !matchNum &&
+        line.length < 70 &&
+        !line.endsWith('.') &&
+        !line.endsWith(';') &&
+        !line.endsWith(':') &&
+        !/^(Dear|Subject|Phone|Email|ADD|To|Date|Reference|For TaskNera|TaskNera)/i.test(line) &&
+        (
+          line === line.toUpperCase() ||
+          /^(Confidentiality|Company Property|Terms|Notice Period|Handover|Clearance|Settlement|Disciplinary|Governing Law|Jurisdiction|Severability|Non-Compete|Non-Disclosure|Intellectual Property|Code of Conduct|Duties and Responsibilities|Working Hours|Leave Policy|Probation|Termination|General Provisions)/i.test(line)
+        );
+
+      if (matchNum) {
         if (currentSec) sections.push(currentSec);
+        secCounter = parseInt(matchNum[1], 10);
         currentSec = {
-          number: parseInt(match[1], 10),
-          title: match[2].trim(),
+          number: secCounter,
+          title: matchNum[2].trim(),
+          content: '',
+        };
+      } else if (isNamedHeader) {
+        if (currentSec) sections.push(currentSec);
+        secCounter++;
+        currentSec = {
+          number: secCounter,
+          title: line.trim(),
           content: '',
         };
       } else if (currentSec) {
@@ -468,15 +490,22 @@ export class PdfToStructuredLetterService {
     let headerHtml = '';
     if (pageNum === 1) {
       headerHtml = `
-      <div style="position:relative; margin-bottom:20px;">
-        <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-          <div style="width:280px; height:18px; background:#fae1c3; border-radius:0 0 14px 0;"></div>
-          <div style="width:220px; height:8px; background:#9c7a82;"></div>
+      <div style="position:relative; margin-bottom:16px;">
+        <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+          <div style="width:280px; height:16px; background:#fae1c3; border-radius:0 0 14px 0;"></div>
+          <div style="width:220px; height:7px; background:#9c7a82;"></div>
         </div>
-        <div style="display:flex; justify-content:space-between; align-items:center; padding:0 8px 12px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:0 8px 8px;">
           <div style="display:flex; align-items:center; gap:12px;">
             <img src="/logo.png" alt="TaskNera" style="width:44px; height:44px; object-fit:contain;" />
-            <span style="fontSize:24px; font-weight:800; color:#0f172a; letter-spacing:0.02em;">TASKNERA</span>
+            <div style="display:flex; flex-direction:column; justify-content:center;">
+              <div style="font-size:24px; font-weight:800; letter-spacing:-0.02em; line-height:1.1; font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+                <span style="color:#252c38;">Task</span><span style="color:#f56637;">Nera</span>
+              </div>
+              <div style="font-size:10px; font-weight:600; color:#475569; letter-spacing:0.02em; margin-top:2px; font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+                People. Processes. Performance.
+              </div>
+            </div>
           </div>
           <div style="border-left:2px solid #0f172a; padding-left:14px; font-size:11px; line-height:1.5; color:#1e293b;">
             <div><strong>Phone:</strong> +91 7065278229</div>
@@ -484,16 +513,25 @@ export class PdfToStructuredLetterService {
             <div><strong>ADD:</strong> D-57 Dilshad Colony, Delhi, 110095</div>
           </div>
         </div>
-        <div style="height:3px; background:#1e293b; width:100%;"></div>
+        <div style="height:2.5px; background:#1e293b; width:100%;"></div>
       </div>
       `;
     } else {
       headerHtml = `
       <div style="display:flex; justify-content:space-between; align-items:center; padding-bottom:12px; margin-bottom:20px; border-bottom:1px solid #e2d3ca;">
-        <img src="/logo.png" alt="TaskNera" style="width:36px; height:36px; object-fit:contain;" />
+        <div style="display:flex; align-items:center; gap:10px;">
+          <img src="/logo.png" alt="TaskNera" style="width:36px; height:36px; object-fit:contain;" />
+          <div style="display:flex; flex-direction:column;">
+            <div style="font-size:18px; font-weight:800; letter-spacing:-0.01em; line-height:1.1; font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+              <span style="color:#252c38;">Task</span><span style="color:#f56637;">Nera</span>
+            </div>
+            <div style="font-size:9px; font-weight:600; color:#475569; font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+              People. Processes. Performance.
+            </div>
+          </div>
+        </div>
         <div style="text-align:right;">
-          <div style="font-size:18px; font-weight:800; color:#a35d39; font-family:'Georgia',serif;">TaskNera</div>
-          <div style="font-size:11px; color:#64748b;">D-57 F1 Dilshad Colony, Shahdara, Delhi &ndash; 110095</div>
+          <div style="font-size:11px; color:#64748b; line-height:1.45;">D-57 F1 Dilshad Colony, Shahdara, Delhi &ndash; 110095</div>
           <div style="font-size:11px; color:#64748b;">Email: careers@tasknera.com</div>
         </div>
       </div>
@@ -512,15 +550,15 @@ export class PdfToStructuredLetterService {
           bodyHtml += '</ul>\n';
           inBulletList = false;
         }
-        bodyHtml += '<div style="margin:10px 0 20px; font-size:13px; line-height:1.8; color:#1e293b;">\n';
+        bodyHtml += '<div style="margin:10px 0 16px; font-size:12.8px; line-height:1.6; color:#1e293b;">\n';
         for (const ml of block.lines) {
           if (ml.includes(':')) {
             const [lbl, ...rest] = ml.split(':');
             const val = rest.join(':').trim();
-            const isEmp = lbl.trim().toLowerCase() === 'employee name';
-            bodyHtml += `  <div style="${isEmp ? 'margin-top:10px;' : ''}"><strong>${lbl.trim()}:</strong> ${this.highlightTags(val)}</div>\n`;
+            const isEmp = lbl.trim().toLowerCase() === 'employee name' || lbl.trim().toLowerCase() === 'candidate name';
+            bodyHtml += `  <div style="${isEmp ? 'margin-top:8px;' : 'margin:2px 0;'}"><strong>${lbl.trim()}:</strong> ${this.highlightTags(val)}</div>\n`;
           } else {
-            bodyHtml += `  <div>${this.highlightTags(ml)}</div>\n`;
+            bodyHtml += `  <div style="margin:2px 0;">${this.highlightTags(ml)}</div>\n`;
           }
         }
         bodyHtml += '</div>\n';
@@ -538,28 +576,53 @@ export class PdfToStructuredLetterService {
 
       const line = block.line || '';
 
-      if (/^(Offer of Employment|Appointment Letter|Internship Offer|Employment Agreement)/i.test(line)) {
+      if (/^(Offer of Employment|Appointment Letter|Internship Offer|Employment Agreement|Resignation Letter|Relieving Letter|Experience Letter|Increment Letter|Confirmation Letter|Appraisal Letter|Contract Agreement|Non-Disclosure Agreement)/i.test(line)) {
         if (inBulletList) {
           bodyHtml += '</ul>\n';
           inBulletList = false;
         }
-        bodyHtml += `<h2 style="text-align:center; font-size:22px; font-weight:700; color:#a35d39; margin:24px 0 20px; font-family:'Georgia',serif;">${line}</h2>\n`;
-      } else if (/^(Annexure\s+[IVX]+)/i.test(line)) {
+        bodyHtml += `<h2 style="text-align:center; font-size:21px; font-weight:700; color:#a35d39; margin:16px 0 14px; font-family:'Georgia',serif; letter-spacing:0.02em; text-transform:uppercase;">${line}</h2>\n`;
+      } else if (/^(Annexure\s+[IVX\d]+|Annexure\s+[\–\-])/i.test(line)) {
         if (inBulletList) {
           bodyHtml += '</ul>\n';
           inBulletList = false;
         }
-        bodyHtml += `<h3 style="text-align:center; font-size:18px; font-weight:700; color:#a35d39; margin:16px 0 20px; font-family:'Georgia',serif;">${line}</h3>\n`;
-      } else if (/^\d+[\.\)]\s+/.test(line) || /^(?:Section|Clause)\s+\d+/i.test(line)) {
+        bodyHtml += `<h3 style="text-align:center; font-size:16px; font-weight:700; color:#a35d39; margin:20px 0 12px; font-family:'Georgia',serif;">${line}</h3>\n`;
+      } else if (/^Dear\s+/i.test(line)) {
         if (inBulletList) {
           bodyHtml += '</ul>\n';
           inBulletList = false;
         }
-        bodyHtml += `<h3 style="font-size:14px; font-weight:700; color:#a35d39; border-bottom:1px solid #e2d3ca; padding-bottom:4px; margin:18px 0 8px; font-family:'Georgia',serif;">${line}</h3>\n`;
+        bodyHtml += `<p style="margin-bottom:8px; font-size:12.8px; color:#1e293b;">${this.highlightTags(line)}</p>\n`;
+      } else if (/^Subject\s*:/i.test(line)) {
+        if (inBulletList) {
+          bodyHtml += '</ul>\n';
+          inBulletList = false;
+        }
+        bodyHtml += `<p style="margin-bottom:12px; font-weight:700; font-size:13px; color:#0f172a;">${this.highlightTags(line)}</p>\n`;
+      } else if (
+        /^(\d{1,2}[\.\)]|(?:Section|Clause)\s+\d+)[\s\t]+(.+)/i.test(line) ||
+        (
+          line.length < 70 &&
+          !line.endsWith('.') &&
+          !line.endsWith(';') &&
+          !line.endsWith(':') &&
+          !/^(Dear|Subject|Phone|Email|ADD|To|Date|Reference|For TaskNera)/i.test(line) &&
+          (
+            line === line.toUpperCase() ||
+            /^(Confidentiality|Company Property|Terms|Notice Period|Handover|Clearance|Settlement|Disciplinary|Governing Law|Jurisdiction|Severability|Non-Compete|Non-Disclosure|Intellectual Property|Code of Conduct|Duties and Responsibilities|Working Hours|Leave Policy|Probation|Termination|General Provisions)/i.test(line)
+          )
+        )
+      ) {
+        if (inBulletList) {
+          bodyHtml += '</ul>\n';
+          inBulletList = false;
+        }
+        bodyHtml += `<h3 style="font-size:13.5px; font-weight:700; color:#a35d39; border-bottom:1px solid #e2d3ca; padding-bottom:3px; margin:16px 0 6px; font-family:'Georgia',serif;">${line}</h3>\n`;
       } else if (line.startsWith('•') || line.startsWith('- ') || line.startsWith('* ')) {
         const bulletItem = line.replace(/^[•\-\*]\s*/, '').trim();
         if (!inBulletList) {
-          bodyHtml += '<ul style="font-size:12.5px; color:#475569; line-height:1.65; padding-left:22px; margin:6px 0 10px;">\n';
+          bodyHtml += '<ul style="font-size:12.8px; color:#334155; line-height:1.65; padding-left:22px; margin:6px 0 10px;">\n';
           inBulletList = true;
         }
         bodyHtml += `<li style="margin-bottom:4px;">${this.highlightTags(bulletItem)}</li>\n`;
@@ -568,31 +631,19 @@ export class PdfToStructuredLetterService {
           bodyHtml += '</ul>\n';
           inBulletList = false;
         }
-        bodyHtml += `<div style="margin-top:24px; margin-bottom:16px;"><p style="font-weight:700; color:#a35d39; font-size:14px; margin:0 0 12px; font-family:'Georgia',serif;">${line}</p><div style="width:280px; border-bottom:1px solid #334155; margin-bottom:8px;"></div></div>\n`;
-      } else if (line.startsWith('Subject:')) {
-        if (inBulletList) {
-          bodyHtml += '</ul>\n';
-          inBulletList = false;
-        }
-        bodyHtml += `<p style="margin-bottom:14px; font-weight:700; font-size:13.5px; color:#0f172a;">${line}</p>\n`;
-      } else if (line.startsWith('Dear ')) {
-        if (inBulletList) {
-          bodyHtml += '</ul>\n';
-          inBulletList = false;
-        }
-        bodyHtml += `<p style="margin-bottom:12px; font-size:13.5px; color:#1e293b;">${this.highlightTags(line)}</p>\n`;
+        bodyHtml += `<p style="font-weight:700; color:#0f172a; margin-top:16px; margin-bottom:4px; font-size:13px;">${line}</p>\n`;
       } else if (line.startsWith('Mandatory Joining Documents') || line.startsWith('Joining Formalities')) {
         if (inBulletList) {
           bodyHtml += '</ul>\n';
           inBulletList = false;
         }
-        bodyHtml += `<h4 style="font-size:14px; font-weight:700; color:#a35d39; margin:22px 0 10px; font-family:'Georgia',serif;">${line}</h4>\n`;
+        bodyHtml += `<h4 style="font-size:13.5px; font-weight:700; color:#a35d39; border-bottom:1px solid #e2d3ca; padding-bottom:3px; margin:16px 0 6px; font-family:'Georgia',serif;">${line}</h4>\n`;
       } else {
         if (inBulletList) {
           bodyHtml += '</ul>\n';
           inBulletList = false;
         }
-        bodyHtml += `<p style="font-size:13px; line-height:1.65; color:#334155; margin-bottom:8px; text-align:justify;">${this.highlightTags(line)}</p>\n`;
+        bodyHtml += `<p style="font-size:12.8px; line-height:1.65; color:#334155; margin-bottom:8px; text-align:justify;">${this.highlightTags(line)}</p>\n`;
       }
     }
 
@@ -602,20 +653,20 @@ export class PdfToStructuredLetterService {
 
     // Page Footer
     const footerHtml = `
-    <div class="tasknera-page-footer" style="margin-top:36px; border-top:1px solid #e2e8f0; padding-top:10px; text-align:center; font-size:11px; color:#94a3b8;">
-      TaskNera | Page ${pageNum} of ${totalPages}
+    <div class="tasknera-page-footer" style="margin-top:auto; border-top:1px solid #e2e8f0; padding-top:10px; display:flex; justify-content:space-between; align-items:center; font-size:11px; color:#94a3b8;">
+      <span style="font-weight:600; color:#0f172a;">TaskNera</span>
+      <span>TaskNera | Page ${pageNum} of ${totalPages}</span>
     </div>
     `;
 
     return `
-    <div class="document-page-sheet" data-page="${pageNum}">
+    <div class="document-page-sheet" data-page="${pageNum}" style="display:flex; flex-direction:column; min-height:1120px; background:#ffffff; box-shadow:0 4px 20px -2px rgba(0,0,0,0.08); border:1px solid #cbd5e1; border-radius:6px; padding:44px 50px; margin-bottom:28px; position:relative; box-sizing:border-box; font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; color:#1e293b; line-height:1.6;">
       ${headerHtml}
-      <div class="document-page-body">
+      <div class="document-page-body" style="flex:1;">
         ${bodyHtml}
       </div>
       ${footerHtml}
     </div>
     `.trim();
   }
-
 }

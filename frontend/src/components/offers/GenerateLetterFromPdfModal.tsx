@@ -402,22 +402,56 @@ export const GenerateLetterFromPdfModal: React.FC<GenerateLetterFromPdfModalProp
     }
 
     if (extractedData?.sections && extractedData.sections.length > 0) {
-      return extractedData.sections
-        .map((s) => {
-          const title = s.title ? `<strong>${s.number ? `${s.number}. ` : ''}${s.title}</strong><br/>` : '';
-          const body = s.content ? s.content.replace(/\n/g, '<br/>') : '';
-          return `<div style="margin-bottom: 16px;">${title}${body}</div>`;
-        })
-        .join('');
+      const formattedSections = extractedData.sections.map((s) => {
+        const headerHtml = s.title
+          ? `<h3 style="font-size:13.5px; font-weight:700; color:#a35d39; border-bottom:1px solid #e2d3ca; padding-bottom:3px; margin:16px 0 6px; font-family:'Georgia',serif;">${s.number ? `${s.number}. ` : ''}${s.title}</h3>`
+          : '';
+
+        if (!s.content) return headerHtml;
+
+        const lines = s.content.split('\n').map((l) => l.trim()).filter(Boolean);
+        let bodyHtml = '';
+        let inList = false;
+
+        for (const line of lines) {
+          if (line.startsWith('•') || line.startsWith('- ') || line.startsWith('* ')) {
+            const bulletText = line.replace(/^[•\-\*]\s*/, '').trim();
+            if (!inList) {
+              bodyHtml += '<ul style="margin:6px 0 10px 22px; padding:0; list-style-type:disc; font-size:12.8px; color:#334155; line-height:1.65;">';
+              inList = true;
+            }
+            bodyHtml += `<li style="margin-bottom:4px;">${bulletText}</li>`;
+          } else if (/^(\d{1,2}[\.\)]|(?:Section|Clause)\s+\d+)[\s\t]+(.+)/i.test(line)) {
+            if (inList) {
+              bodyHtml += '</ul>';
+              inList = false;
+            }
+            bodyHtml += `<h4 style="font-size:13px; font-weight:700; color:#0f172a; margin:12px 0 4px;">${line}</h4>`;
+          } else {
+            if (inList) {
+              bodyHtml += '</ul>';
+              inList = false;
+            }
+            bodyHtml += `<p style="font-size:12.8px; line-height:1.65; color:#334155; text-align:justify; margin-bottom:8px;">${line}</p>`;
+          }
+        }
+        if (inList) bodyHtml += '</ul>';
+
+        return `<div style="margin-bottom:14px;">${headerHtml}${bodyHtml}</div>`;
+      });
+
+      return interpolatePlaceholders(formattedSections.join('\n'));
     }
 
     if (extractedData?.pages && extractedData.pages.length > 0) {
-      return extractedData.pages
-        .map((p) => p.htmlMarkup || `<p>${p.rawText.replace(/\n/g, '<br/>')}</p>`)
-        .join('<div style="height: 24px; border-bottom: 1px dashed #cbd5e1; margin: 20px 0;"></div>');
+      return interpolatePlaceholders(
+        extractedData.pages
+          .map((p) => p.htmlMarkup || `<p style="font-size:12.8px; line-height:1.65; color:#334155; margin-bottom:8px;">${p.rawText.replace(/\n/g, '<br/>')}</p>`)
+          .join('')
+      );
     }
 
-    return `<p>On behalf of <strong>TaskNera</strong>, we are pleased to issue this formal <strong>${docTitle}</strong> for <strong>${selectedEmployee?.fullName || 'the employee'}</strong>.</p>`;
+    return `<p style="font-size:12.8px; line-height:1.65; color:#334155; margin-bottom:8px;">On behalf of <strong>TaskNera</strong>, we are pleased to issue this formal <strong>${docTitle}</strong> for <strong>${selectedEmployee?.fullName || 'the employee'}</strong>.</p>`;
   };
 
   // STEP 4 Action: Save Document to System Records
@@ -455,22 +489,16 @@ export const GenerateLetterFromPdfModal: React.FC<GenerateLetterFromPdfModalProp
 
   // STEP 4 Action: Download Official PDF
   const handleDownloadPdf = async () => {
-    if (savedDocument?.id) {
-      try {
-        await EmployeeService.downloadDocumentFile(
-          savedDocument.id,
-          'PDF',
-          `${docTitle}_${selectedEmployee?.fullName || 'Document'}.pdf`
-        );
-        success('PDF download started successfully!');
-        return;
-      } catch {
-        // Fallback to print
-      }
-    }
+    const prevTitle = document.title;
+    const candidateName = selectedEmployee?.fullName || 'Document';
+    document.title = `TaskNera_${docTitle.replace(/\s+/g, '_')}_${candidateName.replace(/\s+/g, '_')}`;
 
-    // Direct browser print-to-pdf fallback
-    window.print();
+    setTimeout(() => {
+      window.print();
+      setTimeout(() => {
+        document.title = prevTitle;
+      }, 1000);
+    }, 150);
   };
 
   // STEP 4 Action: Send by Email
@@ -1133,168 +1161,219 @@ export const GenerateLetterFromPdfModal: React.FC<GenerateLetterFromPdfModalProp
                 </div>
               </div>
 
-              {/* Official TaskNera Letterhead Visual Paper */}
+              {/* Official TaskNera Letterhead Visual Paper Sheets Viewport */}
               <div
-                id="printable-offer-document"
-                className="printable-letterhead-paper"
                 style={{
-                  border: '1px solid #cbd5e1',
-                  borderRadius: 12,
-                  backgroundColor: '#ffffff',
-                  boxShadow: '0 4px 14px rgba(0, 0, 0, 0.08)',
-                  padding: '32px 40px',
-                  maxHeight: 560,
+                  maxHeight: 620,
                   overflowY: 'auto',
-                  fontFamily: "'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif",
+                  padding: '24px 28px',
+                  backgroundColor: '#f1f5f9',
+                  borderRadius: 12,
+                  border: '1px solid #e2e8f0',
                 }}
               >
-                {/* 1. Official Top Letterhead Banner */}
-                <div style={{ position: 'relative', marginBottom: 20 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
-                    <div style={{ width: 280, height: 18, backgroundColor: '#fae1c3', borderRadius: '0 0 14px 0' }} />
-                    <div style={{ width: 220, height: 8, backgroundColor: '#9c7a82' }} />
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 8px 12px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                      <img src="/logo.png" alt="TaskNera" style={{ width: 44, height: 44, objectFit: 'contain' }} />
-                      <div>
-                        <div style={{ fontSize: '24px', fontWeight: 800, letterSpacing: '-0.01em', lineHeight: 1.1 }}>
-                          <span style={{ color: '#252c38' }}>Task</span>
-                          <span style={{ color: '#f56637' }}>Nera</span>
-                        </div>
-                        <div style={{ fontSize: '10px', fontWeight: 500, color: '#334155', letterSpacing: '0.01em', marginTop: 2 }}>
-                          People. Processes. Performance.
-                        </div>
-                      </div>
-                    </div>
-                    <div style={{ borderLeft: '2px solid #0f172a', paddingLeft: 14, fontSize: '11px', lineHeight: 1.5, color: '#1e293b' }}>
-                      <div><strong>Phone:</strong> +91 7065278229</div>
-                      <div><strong>Email:</strong> careers@tasknera.com</div>
-                      <div><strong>ADD:</strong> D-57 Dilshad Colony, Delhi, 110095</div>
-                    </div>
-                  </div>
-                  <div style={{ height: 3, backgroundColor: '#1e293b', width: '100%' }} />
-                </div>
-
-                {/* 2. Reference & Date Bar */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16, fontSize: '0.8125rem', color: '#334155' }}>
-                  <div>
-                    <div><strong>Reference:</strong> {dynamicValues['reference_number'] || `TN/${selectedCategory.code}/${new Date().getFullYear()}/${selectedEmployee.employeeId}`}</div>
-                    <div><strong>Date:</strong> {dynamicValues['issue_date'] || dynamicValues['date'] || new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</div>
-                  </div>
-                  <div style={{ textAlign: 'right' }}>
-                    <span style={{ backgroundColor: '#f1f5f9', border: '1px solid #cbd5e1', padding: '3px 8px', borderRadius: 6, fontWeight: 700, fontSize: '0.75rem', color: '#1e3a8a' }}>
-                      CONFIDENTIAL &amp; PERSONAL
-                    </span>
-                  </div>
-                </div>
-
-                {/* 3. Recipient Details Box */}
-                <div style={{ marginBottom: 16, fontSize: '0.8125rem', lineHeight: 1.5, color: '#1e293b' }}>
-                  <div><strong>To,</strong></div>
-                  <div style={{ fontSize: '0.9375rem', fontWeight: 800, color: '#0f172a' }}>{selectedEmployee.fullName}</div>
-                  <div><strong>Employee ID:</strong> {selectedEmployee.employeeId}</div>
-                  <div><strong>Address:</strong> {dynamicValues['candidate_address'] || selectedEmployee.workLocation || 'D-57 Dilshad Colony, Delhi, 110095'}</div>
-                  <div><strong>Email:</strong> {selectedEmployee.officialEmail || selectedEmployee.personalEmail}</div>
-                  <div><strong>Phone:</strong> {selectedEmployee.phone || '+91 7065278229'}</div>
-                </div>
-
-                {/* 4. Subject Header Line */}
-                <div style={{ backgroundColor: '#f8fafc', borderLeft: '4px solid #1e3a8a', padding: '10px 14px', marginBottom: 18, borderRadius: '0 6px 6px 0' }}>
-                  <div style={{ fontSize: '0.875rem', fontWeight: 800, color: '#1e3a8a' }}>
-                    SUBJECT: {docTitle.toUpperCase()} — {selectedEmployee.designation.toUpperCase()} ({selectedEmployee.department.toUpperCase()})
-                  </div>
-                </div>
-
-                {/* 5. Main Extracted Letter Content (Clauses, Body, & Tables) */}
                 <div
-                  contentEditable={isDirectEditMode}
-                  suppressContentEditableWarning={true}
-                  onBlur={(e) => {
-                    if (isDirectEditMode) {
-                      setEditedBodyHtml(e.currentTarget.innerHTML);
-                    }
-                  }}
-                  style={{
-                    fontSize: '0.84rem',
-                    lineHeight: 1.7,
-                    color: '#1e293b',
-                    marginBottom: 20,
-                    outline: isDirectEditMode ? '2px dashed #3b82f6' : 'none',
-                    padding: isDirectEditMode ? '8px' : '0',
-                    borderRadius: 6,
-                  }}
-                  dangerouslySetInnerHTML={{ __html: getCompiledLetterBody() }}
-                />
+                  id="printable-offer-document"
+                  className="printable-letterhead-paper"
+                  style={{ width: '100%', maxWidth: 794, margin: '0 auto' }}
+                >
+                  <div
+                    className="document-page-sheet"
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      minHeight: '1120px',
+                      backgroundColor: '#ffffff',
+                      boxShadow: '0 4px 20px -2px rgba(0, 0, 0, 0.08)',
+                      border: '1px solid #cbd5e1',
+                      borderRadius: 6,
+                      padding: '44px 50px',
+                      marginBottom: 28,
+                      position: 'relative',
+                      boxSizing: 'border-box',
+                      fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+                      color: '#1e293b',
+                      lineHeight: 1.6,
+                    }}
+                  >
+                    {/* 1. Official Top Letterhead Banner */}
+                    <div style={{ position: 'relative', marginBottom: 16 }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+                        <div style={{ width: 280, height: 16, background: '#fae1c3', borderRadius: '0 0 14px 0' }} />
+                        <div style={{ width: 220, height: 7, background: '#9c7a82' }} />
+                      </div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 8px 8px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                          <img src="/logo.png" alt="TaskNera" style={{ width: 44, height: 44, objectFit: 'contain' }} />
+                          <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                            <div
+                              style={{
+                                fontSize: '24px',
+                                fontWeight: 800,
+                                letterSpacing: '-0.02em',
+                                lineHeight: 1.1,
+                                fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+                              }}
+                            >
+                              <span style={{ color: '#252c38' }}>Task</span>
+                              <span style={{ color: '#f56637' }}>Nera</span>
+                            </div>
+                            <div
+                              style={{
+                                fontSize: '10px',
+                                fontWeight: 600,
+                                color: '#475569',
+                                letterSpacing: '0.02em',
+                                marginTop: 2,
+                                fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+                              }}
+                            >
+                              People. Processes. Performance.
+                            </div>
+                          </div>
+                        </div>
+                        <div style={{ borderLeft: '2px solid #0f172a', paddingLeft: 14, fontSize: '11px', lineHeight: 1.5, color: '#1e293b' }}>
+                          <div><strong>Phone:</strong> +91 7065278229</div>
+                          <div><strong>Email:</strong> careers@tasknera.com</div>
+                          <div><strong>ADD:</strong> D-57 Dilshad Colony, Delhi, 110095</div>
+                        </div>
+                      </div>
+                      <div style={{ height: 2.5, background: '#1e293b', width: '100%' }} />
+                    </div>
 
-                {/* 6. Structured Position Table (for employment letters) */}
-                {['OFFER_LETTER', 'APPOINTMENT_LETTER', 'INCREMENT_LETTER'].includes(selectedCategory.code) && (
-                  <div style={{ marginBottom: 20 }}>
-                    <h4 style={{ fontSize: '0.875rem', fontWeight: 800, color: '#0f172a', margin: '0 0 8px 0' }}>
-                      Position &amp; Compensation Specifications
-                    </h4>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8125rem', marginBottom: 16 }}>
-                      <tbody>
-                        <tr style={{ backgroundColor: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
-                          <td style={{ padding: '8px 12px', fontWeight: 700, color: '#475569', width: '35%' }}>Job Title / Designation</td>
-                          <td style={{ padding: '8px 12px', color: '#0f172a', fontWeight: 600 }}>{selectedEmployee.designation}</td>
-                        </tr>
-                        <tr style={{ borderBottom: '1px solid #e2e8f0' }}>
-                          <td style={{ padding: '8px 12px', fontWeight: 700, color: '#475569' }}>Department</td>
-                          <td style={{ padding: '8px 12px', color: '#0f172a' }}>{selectedEmployee.department}</td>
-                        </tr>
-                        <tr style={{ backgroundColor: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
-                          <td style={{ padding: '8px 12px', fontWeight: 700, color: '#475569' }}>Annual CTC Compensation</td>
-                          <td style={{ padding: '8px 12px', color: '#1d4ed8', fontWeight: 800 }}>
-                            {dynamicValues['annual_ctc'] || `₹${Number(selectedEmployee.annualCtc || 0).toLocaleString('en-IN')}`}
-                          </td>
-                        </tr>
-                        <tr style={{ borderBottom: '1px solid #e2e8f0' }}>
-                          <td style={{ padding: '8px 12px', fontWeight: 700, color: '#475569' }}>Date of Joining / Commencement</td>
-                          <td style={{ padding: '8px 12px', color: '#0f172a', fontWeight: 600 }}>
-                            {selectedEmployee.joiningDate ? new Date(selectedEmployee.joiningDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : 'As mutually agreed'}
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                )}
+                    {/* 2. Top Metadata */}
+                    <div style={{ fontSize: '12.8px', lineHeight: 1.6, marginBottom: 14, color: '#1e293b' }}>
+                      <p style={{ margin: '2px 0' }}>
+                        <strong>Reference:</strong> {dynamicValues['reference_number'] || `TN/${selectedCategory.code}/${new Date().getFullYear()}/${selectedEmployee.employeeId}`}
+                      </p>
+                      <p style={{ margin: '2px 0' }}>
+                        <strong>Date:</strong> {dynamicValues['issue_date'] || dynamicValues['date'] || new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                      </p>
+                      <p style={{ margin: '8px 0 2px' }}>
+                        <strong>Employee Name:</strong> {selectedEmployee.fullName}
+                      </p>
+                      <p style={{ margin: '2px 0' }}>
+                        <strong>Designation:</strong> {selectedEmployee.designation}
+                      </p>
+                      {selectedEmployee.department && (
+                        <p style={{ margin: '2px 0' }}>
+                          <strong>Department:</strong> {selectedEmployee.department}
+                        </p>
+                      )}
+                      <p style={{ margin: '2px 0' }}>
+                        <strong>Address:</strong> {dynamicValues['candidate_address'] || selectedEmployee.workLocation || 'D-57 Dilshad Colony, Delhi, 110095'}
+                      </p>
+                      <p style={{ margin: '2px 0' }}>
+                        <strong>Email:</strong> {selectedEmployee.officialEmail || selectedEmployee.personalEmail}
+                      </p>
+                      {selectedEmployee.phone && (
+                        <p style={{ margin: '2px 0' }}>
+                          <strong>Phone:</strong> {selectedEmployee.phone}
+                        </p>
+                      )}
+                    </div>
 
-                {/* 7. Dual Corporate Sign-Off Block */}
-                <div style={{ marginTop: 28, paddingTop: 16, borderTop: '1px solid #e2e8f0' }}>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
-                    {/* Employer Signature */}
-                    <div style={{ border: '1px solid #cbd5e1', borderRadius: 8, padding: 14, backgroundColor: '#f8fafc' }}>
-                      <div style={{ fontSize: '0.8125rem', fontWeight: 800, color: '#0f172a' }}>For TaskNera</div>
-                      <div style={{ fontSize: '0.71875rem', fontStyle: 'italic', color: '#64748b', marginTop: 2 }}>
-                        Authorized Corporate Signatory
-                      </div>
-                      <div style={{ height: 38, display: 'flex', alignItems: 'center' }}>
-                        <span style={{ fontFamily: "'Brush Script MT', cursive, sans-serif", fontSize: '1.4rem', color: '#1e3a8a' }}>
-                          Sheetal Bedi
-                        </span>
-                      </div>
-                      <div style={{ fontSize: '0.875rem', fontWeight: 800, color: '#0f172a' }}>
-                        Sheetal Bedi
-                      </div>
-                      <div style={{ fontSize: '0.75rem', color: '#475569' }}>
-                        CEO &amp; FOUNDER
+                    {/* 3. Centered Brown Document Title in Georgia Serif */}
+                    <h2
+                      style={{
+                        textAlign: 'center',
+                        fontSize: '21px',
+                        fontWeight: 700,
+                        color: '#a35d39',
+                        margin: '14px 0 12px',
+                        fontFamily: "'Georgia', serif",
+                        letterSpacing: '0.02em',
+                        textTransform: 'uppercase',
+                      }}
+                    >
+                      {docTitle}
+                    </h2>
+
+                    {/* 4. Salutation & Subject */}
+                    <p style={{ marginBottom: 8, fontSize: '12.8px', color: '#1e293b' }}>
+                      Dear {selectedEmployee.fullName},
+                    </p>
+
+                    <p style={{ marginBottom: 14, fontWeight: 700, fontSize: '13px', color: '#0f172a' }}>
+                      Subject: {docTitle} — {selectedEmployee.designation}
+                    </p>
+
+                    {/* 5. Main Extracted Letter Content (Clauses, Body, & Tables) */}
+                    <div
+                      contentEditable={isDirectEditMode}
+                      suppressContentEditableWarning={true}
+                      onBlur={(e) => {
+                        if (isDirectEditMode) {
+                          setEditedBodyHtml(e.currentTarget.innerHTML);
+                        }
+                      }}
+                      style={{
+                        fontSize: '12.8px',
+                        lineHeight: 1.65,
+                        color: '#334155',
+                        marginBottom: 20,
+                        outline: isDirectEditMode ? '2px dashed #a35d39' : 'none',
+                        padding: isDirectEditMode ? '8px' : '0',
+                        borderRadius: 6,
+                      }}
+                      dangerouslySetInnerHTML={{ __html: getCompiledLetterBody() }}
+                    />
+
+                    {/* 6. Dual Corporate Sign-Off Block */}
+                    <div style={{ marginTop: 'auto', paddingTop: 16, borderTop: '1px solid #e2d3ca', marginBottom: 14 }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+                        {/* Employer Signature */}
+                        <div style={{ border: '1px solid #cbd5e1', borderRadius: 8, padding: 14, backgroundColor: '#f8fafc' }}>
+                          <div style={{ fontSize: '13px', fontWeight: 700, color: '#0f172a' }}>For TaskNera</div>
+                          <div style={{ fontSize: '11px', fontStyle: 'italic', color: '#64748b', marginTop: 2 }}>
+                            Authorized Corporate Signatory
+                          </div>
+                          <div style={{ height: 38, display: 'flex', alignItems: 'center' }}>
+                            <span style={{ fontFamily: "'Brush Script MT', cursive, sans-serif", fontSize: '22px', color: '#1e3a8a' }}>
+                              Sheetal Bedi
+                            </span>
+                          </div>
+                          <div style={{ fontSize: '13.5px', fontWeight: 800, color: '#0f172a' }}>
+                            Sheetal Bedi
+                          </div>
+                          <div style={{ fontSize: '11px', color: '#475569' }}>
+                            CEO &amp; FOUNDER
+                          </div>
+                        </div>
+
+                        {/* Candidate Acceptance Receipt */}
+                        <div style={{ border: '1px solid #cbd5e1', borderRadius: 8, padding: 14, backgroundColor: '#ffffff' }}>
+                          <div style={{ fontSize: '13px', fontWeight: 700, color: '#0f172a' }}>Employee Acceptance Receipt</div>
+                          <div style={{ fontSize: '11px', color: '#64748b', marginTop: 2 }}>
+                            I acknowledge and accept the terms of this document.
+                          </div>
+                          <div style={{ height: 32, borderBottom: '1px dashed #94a3b8', margin: '8px 0 6px 0' }} />
+                          <div style={{ fontSize: '13.5px', fontWeight: 700, color: '#0f172a' }}>
+                            {selectedEmployee.fullName}
+                          </div>
+                          <div style={{ fontSize: '11px', color: '#475569' }}>
+                            Date of Signature: __________________
+                          </div>
+                        </div>
                       </div>
                     </div>
 
-                    {/* Candidate Acceptance Receipt */}
-                    <div style={{ border: '1px solid #cbd5e1', borderRadius: 8, padding: 14, backgroundColor: '#ffffff' }}>
-                      <div style={{ fontSize: '0.8125rem', fontWeight: 800, color: '#0f172a' }}>Employee Acceptance Receipt</div>
-                      <div style={{ fontSize: '0.71875rem', color: '#64748b', marginTop: 2 }}>
-                        I acknowledge and accept the terms of this document.
-                      </div>
-                      <div style={{ height: 34, borderBottom: '1px dashed #94a3b8', margin: '8px 0 6px 0' }} />
-                      <div style={{ fontSize: '0.875rem', fontWeight: 700, color: '#0f172a' }}>
-                        {selectedEmployee.fullName}
-                      </div>
-                      <div style={{ fontSize: '0.75rem', color: '#475569' }}>
-                        Date of Signature: __________________
-                      </div>
+                    {/* 7. Official TaskNera Page Footer */}
+                    <div
+                      className="tasknera-page-footer"
+                      style={{
+                        marginTop: 'auto',
+                        borderTop: '1px solid #e2e8f0',
+                        paddingTop: 10,
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        fontSize: '11px',
+                        color: '#94a3b8',
+                      }}
+                    >
+                      <span style={{ fontWeight: 600, color: '#0f172a' }}>TaskNera</span>
+                      <span>TaskNera | Page 1 of 1</span>
                     </div>
                   </div>
                 </div>

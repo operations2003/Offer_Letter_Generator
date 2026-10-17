@@ -359,15 +359,22 @@ def convert_segments_to_tasknera_html(segments, page_number, total_pages):
     """
     if page_number == 1:
         header_html = """
-        <div style="position:relative; margin-bottom:20px;">
-          <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-            <div style="width:280px; height:18px; background:#fae1c3; border-radius:0 0 14px 0;"></div>
-            <div style="width:220px; height:8px; background:#9c7a82;"></div>
+        <div style="position:relative; margin-bottom:16px;">
+          <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+            <div style="width:280px; height:16px; background:#fae1c3; border-radius:0 0 14px 0;"></div>
+            <div style="width:220px; height:7px; background:#9c7a82;"></div>
           </div>
-          <div style="display:flex; justify-content:space-between; align-items:center; padding:0 8px 12px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; padding:0 8px 8px;">
             <div style="display:flex; align-items:center; gap:12px;">
               <img src="/logo.png" alt="TaskNera" style="width:44px; height:44px; object-fit:contain;" />
-              <span style="font-size:24px; font-weight:800; color:#0f172a; letter-spacing:0.02em;">TASKNERA</span>
+              <div style="display:flex; flex-direction:column; justify-content:center;">
+                <div style="font-size:24px; font-weight:800; letter-spacing:-0.02em; line-height:1.1; font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+                  <span style="color:#252c38;">Task</span><span style="color:#f56637;">Nera</span>
+                </div>
+                <div style="font-size:10px; font-weight:600; color:#475569; letter-spacing:0.02em; margin-top:2px; font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+                  People. Processes. Performance.
+                </div>
+              </div>
             </div>
             <div style="border-left:2px solid #0f172a; padding-left:14px; font-size:11px; line-height:1.5; color:#1e293b;">
               <div><strong>Phone:</strong> +91 7065278229</div>
@@ -375,16 +382,25 @@ def convert_segments_to_tasknera_html(segments, page_number, total_pages):
               <div><strong>ADD:</strong> D-57 Dilshad Colony, Delhi, 110095</div>
             </div>
           </div>
-          <div style="height:3px; background:#1e293b; width:100%;"></div>
+          <div style="height:2.5px; background:#1e293b; width:100%;"></div>
         </div>
         """
     else:
         header_html = """
         <div style="display:flex; justify-content:space-between; align-items:center; padding-bottom:12px; margin-bottom:20px; border-bottom:1px solid #e2d3ca;">
-          <img src="/logo.png" alt="TaskNera" style="width:36px; height:36px; object-fit:contain;" />
+          <div style="display:flex; align-items:center; gap:10px;">
+            <img src="/logo.png" alt="TaskNera" style="width:36px; height:36px; object-fit:contain;" />
+            <div style="display:flex; flex-direction:column;">
+              <div style="font-size:18px; font-weight:800; letter-spacing:-0.01em; line-height:1.1; font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+                <span style="color:#252c38;">Task</span><span style="color:#f56637;">Nera</span>
+              </div>
+              <div style="font-size:9px; font-weight:600; color:#475569; font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+                People. Processes. Performance.
+              </div>
+            </div>
+          </div>
           <div style="text-align:right;">
-            <div style="font-size:18px; font-weight:800; color:#a35d39; font-family:'Georgia',serif;">TaskNera</div>
-            <div style="font-size:11px; color:#64748b;">D-57 F1 Dilshad Colony, Shahdara, Delhi &ndash; 110095</div>
+            <div style="font-size:11px; color:#64748b; line-height:1.45;">D-57 F1 Dilshad Colony, Shahdara, Delhi &ndash; 110095</div>
             <div style="font-size:11px; color:#64748b;">Email: careers@tasknera.com</div>
           </div>
         </div>
@@ -394,7 +410,7 @@ def convert_segments_to_tasknera_html(segments, page_number, total_pages):
     in_bullet_list = False
 
     for seg in segments:
-        if seg["type"] == "table":
+        if seg.get("type") == "table":
             if in_bullet_list:
                 body_content += "</ul>\n"
                 in_bullet_list = False
@@ -411,18 +427,18 @@ def convert_segments_to_tasknera_html(segments, page_number, total_pages):
                 if in_bullet_list:
                     body_content += "</ul>\n"
                     in_bullet_list = False
-                body_content += '<div style="margin:10px 0 20px; font-size:13px; line-height:1.8; color:#1e293b;">\n'
+                body_content += '<div style="margin:10px 0 16px; font-size:12.8px; line-height:1.6; color:#1e293b;">\n'
                 for ml in block["lines"]:
                     if ":" in ml:
                         parts = ml.split(":", 1)
                         lbl = parts[0].strip()
                         val = parts[1].strip()
-                        if lbl.lower() in ["employee name"]:
-                            body_content += f'  <div style="margin-top:10px;"><strong>{lbl}:</strong> {highlight_tags(val)}</div>\n'
+                        if lbl.lower() in ["employee name", "candidate name"]:
+                            body_content += f'  <div style="margin-top:8px;"><strong>{lbl}:</strong> {highlight_tags(val)}</div>\n'
                         else:
-                            body_content += f'  <div><strong>{lbl}:</strong> {highlight_tags(val)}</div>\n'
+                            body_content += f'  <div style="margin:2px 0;"><strong>{lbl}:</strong> {highlight_tags(val)}</div>\n'
                     else:
-                        body_content += f'  <div>{highlight_tags(ml)}</div>\n'
+                        body_content += f'  <div style="margin:2px 0;">{highlight_tags(ml)}</div>\n'
                 body_content += '</div>\n'
                 continue
 
@@ -436,28 +452,28 @@ def convert_segments_to_tasknera_html(segments, page_number, total_pages):
 
             line = block["line"]
 
-            # Main document title (Centered Georgia)
-            if re.match(r'^(Offer of Employment|Appointment Letter|Internship Offer|Employment Agreement)', line, re.I):
+            # Main document title (Centered Georgia Brown)
+            if re.match(r'^(Offer of Employment|Appointment Letter|Internship Offer|Employment Agreement|Resignation Letter|Relieving Letter|Experience Letter|Increment Letter|Confirmation Letter|Appraisal Letter|Contract Agreement|Non-Disclosure Agreement)', line, re.I):
                 if in_bullet_list:
                     body_content += "</ul>\n"
                     in_bullet_list = False
-                body_content += f'<h1 style="font-size:20px; font-weight:800; color:#a35d39; text-align:center; text-transform:uppercase; margin:22px 0 16px; font-family:\'Georgia\',serif; letter-spacing:0.02em;">{highlight_tags(line)}</h1>\n'
+                body_content += f'<h2 style="font-size:21px; font-weight:700; color:#a35d39; text-align:center; text-transform:uppercase; margin:16px 0 14px; font-family:\'Georgia\',serif; letter-spacing:0.02em;">{highlight_tags(line)}</h2>\n'
                 continue
 
             # Salutation
-            if line.startswith("Dear ") and "," in line:
+            if re.match(r'^Dear\s+', line, re.I):
                 if in_bullet_list:
                     body_content += "</ul>\n"
                     in_bullet_list = False
-                body_content += f'<p style="font-size:13.5px; font-weight:700; color:#0f172a; margin-bottom:8px;">{highlight_tags(line)}</p>\n'
+                body_content += f'<p style="font-size:12.8px; color:#1e293b; margin-bottom:8px;">{highlight_tags(line)}</p>\n'
                 continue
 
             # Subject Line
-            if line.startswith("Subject:"):
+            if re.match(r'^Subject\s*:', line, re.I):
                 if in_bullet_list:
                     body_content += "</ul>\n"
                     in_bullet_list = False
-                body_content += f'<p style="font-size:13px; font-weight:700; color:#1e293b; margin-bottom:14px;">{highlight_tags(line)}</p>\n'
+                body_content += f'<p style="font-size:13px; font-weight:700; color:#0f172a; margin-bottom:12px;">{highlight_tags(line)}</p>\n'
                 continue
 
             # Annexure titles (Centered Georgia)
@@ -465,24 +481,36 @@ def convert_segments_to_tasknera_html(segments, page_number, total_pages):
                 if in_bullet_list:
                     body_content += "</ul>\n"
                     in_bullet_list = False
-                body_content += f'<h2 style="font-size:16px; font-weight:800; color:#a35d39; text-align:center; margin:24px 0 16px; font-family:\'Georgia\',serif;">{highlight_tags(line)}</h2>\n'
+                body_content += f'<h3 style="font-size:16px; font-weight:700; color:#a35d39; text-align:center; margin:20px 0 12px; font-family:\'Georgia\',serif;">{highlight_tags(line)}</h3>\n'
                 continue
 
-            # Numbered section header: "1. Position and Role"
-            num_match = re.match(r'^(\d{1,2})\.\s+([A-Za-z\s\/\,\-\&\(\)]+)$', line)
-            if num_match and len(line) < 60:
+            # Section headers:
+            # Matches numbered clauses e.g. "1. Position...", "1. Handover of company property...", "Section 1", "Clause 1",
+            # OR titled section headings e.g. "Confidentiality and Company Property", "Terms and Conditions", "Notice Period & Handover"
+            is_num_header = bool(re.match(r'^(\d{1,2}[\.\)]|(?:Section|Clause)\s+\d+)[\s\t]+(.+)$', line, re.I))
+            is_titled_header = (
+                len(line) < 70
+                and not line.endswith(('.', ';', ':'))
+                and not re.match(r'^(Dear|Subject|Phone|Email|ADD|To|Date|Reference|For TaskNera)', line, re.I)
+                and (
+                    line.isupper()
+                    or bool(re.match(r'^(Confidentiality|Company Property|Terms|Notice Period|Handover|Clearance|Settlement|Disciplinary|Governing Law|Jurisdiction|Severability|Non-Compete|Non-Disclosure|Intellectual Property|Code of Conduct|Duties and Responsibilities|Working Hours|Leave Policy|Probation|Termination|General Provisions)', line, re.I))
+                )
+            )
+
+            if is_num_header or is_titled_header:
                 if in_bullet_list:
                     body_content += "</ul>\n"
                     in_bullet_list = False
-                body_content += f'<h3 style="font-size:14px; font-weight:700; color:#a35d39; margin:16px 0 6px;">{highlight_tags(line)}</h3>\n'
+                body_content += f'<h3 style="font-size:13.5px; font-weight:700; color:#a35d39; border-bottom:1px solid #e2d3ca; padding-bottom:3px; margin:16px 0 6px; font-family:\'Georgia\',serif;">{highlight_tags(line)}</h3>\n'
                 continue
 
-            # Major section subtitle: "Mandatory Joining Documents"
+            # Major section subtitles
             if re.match(r'^(Mandatory Joining Documents|Pre-Existing IP Disclosure|Acknowledgement and Execution)', line, re.I):
                 if in_bullet_list:
                     body_content += "</ul>\n"
                     in_bullet_list = False
-                body_content += f'<h3 style="font-size:14px; font-weight:700; color:#a35d39; margin:16px 0 8px;">{highlight_tags(line)}</h3>\n'
+                body_content += f'<h3 style="font-size:13.5px; font-weight:700; color:#a35d39; border-bottom:1px solid #e2d3ca; padding-bottom:3px; margin:16px 0 6px; font-family:\'Georgia\',serif;">{highlight_tags(line)}</h3>\n'
                 continue
 
             # Bullet points
@@ -492,9 +520,9 @@ def convert_segments_to_tasknera_html(segments, page_number, total_pages):
                 bullet_match = re.match(r'^(.*)$', bullet_text)
             if bullet_match:
                 if not in_bullet_list:
-                    body_content += '<ul style="margin:8px 0 14px 20px; padding:0; list-style-type:disc;">\n'
+                    body_content += '<ul style="margin:6px 0 10px 22px; padding:0; list-style-type:disc; font-size:12.8px; color:#334155; line-height:1.65;">\n'
                     in_bullet_list = True
-                body_content += f'  <li style="margin-bottom:6px; color:#334155; line-height:1.6;">{highlight_tags(bullet_match.group(1))}</li>\n'
+                body_content += f'  <li style="margin-bottom:4px;">{highlight_tags(bullet_match.group(1))}</li>\n'
                 continue
 
             if in_bullet_list:
@@ -503,7 +531,7 @@ def convert_segments_to_tasknera_html(segments, page_number, total_pages):
 
             # Signature block headers
             if line.startswith("For TaskNera") or line.startswith("Accepted and Agreed by"):
-                body_content += f'<p style="font-weight:700; color:#0f172a; margin-top:16px; margin-bottom:4px;">{highlight_tags(line)}</p>\n'
+                body_content += f'<p style="font-weight:700; color:#0f172a; margin-top:16px; margin-bottom:4px; font-size:13px;">{highlight_tags(line)}</p>\n'
                 continue
 
             if line.startswith("_______"):
@@ -515,20 +543,20 @@ def convert_segments_to_tasknera_html(segments, page_number, total_pages):
                 continue
 
             # Standard paragraph
-            body_content += f'<p style="margin-bottom:10px; color:#334155; line-height:1.65; text-align:justify;">{highlight_tags(line)}</p>\n'
+            body_content += f'<p style="margin-bottom:8px; font-size:12.8px; color:#334155; line-height:1.65; text-align:justify;">{highlight_tags(line)}</p>\n'
 
     if in_bullet_list:
         body_content += "</ul>\n"
 
     footer_html = f"""
-    <div style="margin-top:auto; padding-top:12px; border-top:1px solid #e2d3ca; display:flex; justify-content:space-between; align-items:center; font-size:11px; color:#64748b;">
+    <div class="tasknera-page-footer" style="margin-top:auto; padding-top:10px; border-top:1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center; font-size:11px; color:#94a3b8;">
       <span style="font-weight:600; color:#0f172a;">TaskNera</span>
-      <span>Page {page_number} of {total_pages}</span>
+      <span>TaskNera | Page {page_number} of {total_pages}</span>
     </div>
     """
 
     page_html = f"""
-    <div class="tasknera-a4-page" style="width:100%; max-width:794px; min-height:297mm; padding:20mm 20mm 15mm 20mm; background:#ffffff; box-shadow:0 4px 20px rgba(0,0,0,0.08); margin:0 auto 24px; font-family:'Arial',sans-serif; color:#0f172a; box-sizing:border-box; display:flex; flex-direction:column; position:relative; overflow:hidden;">
+    <div class="document-page-sheet" data-page="{page_number}" style="display:flex; flex-direction:column; min-height:1120px; background:#ffffff; box-shadow:0 4px 20px -2px rgba(0,0,0,0.08); border:1px solid #cbd5e1; border-radius:6px; padding:44px 50px; margin-bottom:28px; position:relative; box-sizing:border-box; font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; color:#1e293b; line-height:1.6;">
       {header_html}
       <div class="page-content" style="flex:1;">
         {body_content}
