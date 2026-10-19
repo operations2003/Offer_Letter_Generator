@@ -508,9 +508,18 @@ export class EmployeeService {
     const formData = new FormData();
     formData.append('document', file);
 
+    const token =
+      localStorage.getItem('offergen_token') ||
+      localStorage.getItem('token');
+
+    const headers: Record<string, string> = {};
+    if (token && !token.startsWith('mock_') && token !== 'demo_jwt_token_sample') {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
     const res = await fetch('/api/v1/templates/upload', {
       method: 'POST',
-      headers: this.getHeaders(false),
+      headers,
       body: formData,
     });
 

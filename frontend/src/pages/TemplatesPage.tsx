@@ -34,6 +34,7 @@ import { templateService } from '../services/templateService.js';
 import { DocumentEngineService } from '../services/documentEngineService.js';
 import { HrDocument } from '../types/document-engine.js';
 import { useToast } from '../context/ToastContext.js';
+import { parseDocumentClientSide } from '../utils/clientDocumentParser.js';
 
 interface StandardPreset {
   id: string;
@@ -1092,10 +1093,10 @@ export const TemplatesPage: React.FC = () => {
     setTemplateFileName(file.name);
     setTemplateTitle(file.name.replace(/\.[^/.]+$/, '').replace(/[_-]/g, ' '));
 
+    // 1. Try Backend extraction (Mammoth for DOCX, pdf-parse for PDF)
     try {
-      // 1. Backend extraction (Mammoth for DOCX, pdf-parse for PDF)
       const res = await EmployeeService.uploadTemplate(file);
-      if (res && res.extractedContent) {
+      if (res && res.extractedContent && res.extractedContent.trim().length > 0) {
         setTemplateText(res.extractedContent);
         if (res.suggestedCategory) setTemplateCategory(res.suggestedCategory);
 
@@ -1110,31 +1111,33 @@ export const TemplatesPage: React.FC = () => {
         return;
       }
     } catch (err: any) {
-      console.warn('Backend upload parsing failed:', err);
-      // For binary files (.docx, .doc, .pdf), NEVER call readAsText (prevents binary corruption)
-      const isBinary = file.name.match(/\.(docx|doc|pdf)$/i);
-      if (isBinary) {
-        error(`Failed to parse "${file.name}": ${err.message || 'Document extraction error'}. Please check your file or copy-paste the text.`);
-        setIsUploading(false);
-        return;
-      }
+      console.warn('Backend upload parsing failed, falling back to browser-native document engine:', err);
     }
 
-    // 2. Client-side fallback reader (ONLY for .txt, .html, markdown, or plain text)
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const raw = (e.target?.result as string) || '';
-      setTemplateText(raw);
-      extractPlaceholdersFromText(raw);
-      success(`Uploaded template "${file.name}". Ready to fill fields!`);
-      setStep(2);
+    // 2. Resilient Browser-Native Extractor Fallback (PDF, DOCX, TXT, HTML, Markdown)
+    try {
+      const clientRes = await parseDocumentClientSide(file);
+      if (clientRes && clientRes.extractedContent && clientRes.extractedContent.trim().length > 0) {
+        setTemplateText(clientRes.extractedContent);
+        extractPlaceholdersFromText(clientRes.extractedContent);
+        runAiAutoDetectPlaceholders(clientRes.extractedContent);
+
+        success(`Parsed "${file.name}" successfully (${clientRes.detectedFormat})! Ready to customize.`);
+        setStep(2);
+        setIsUploading(false);
+        return;
+      } else {
+        throw new Error('Document contains no extractable text content.');
+      }
+    } catch (clientErr: any) {
+      console.error('Client-side document parsing failed:', clientErr);
+      error(
+        `Failed to parse "${file.name}": ${
+          clientErr.message || 'File is scanned or corrupt'
+        }. Please check your file or copy-paste the text directly.`
+      );
       setIsUploading(false);
-    };
-    reader.onerror = () => {
-      error(`Failed to read text file "${file.name}".`);
-      setIsUploading(false);
-    };
-    reader.readAsText(file);
+    }
   };
 
   const handleDrop = (e: React.DragEvent) => {
