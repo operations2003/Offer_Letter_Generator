@@ -1338,40 +1338,212 @@ export const GenerateLetterFromPdfModal: React.FC<GenerateLetterFromPdfModalProp
                       dangerouslySetInnerHTML={{ __html: getCompiledLetterBody() }}
                     />
 
-                    {/* 6. Dual Corporate Sign-Off Block */}
-                    <div style={{ marginTop: 'auto', paddingTop: 16, borderTop: '1px solid #e2d3ca', marginBottom: 14 }}>
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
-                        {/* Employer Signature */}
-                        <div style={{ border: '1px solid #cbd5e1', borderRadius: 8, padding: 14, backgroundColor: '#f8fafc' }}>
-                          <div style={{ fontSize: '13px', fontWeight: 700, color: '#0f172a' }}>For TaskNera</div>
-                          <div style={{ fontSize: '11px', fontStyle: 'italic', color: '#64748b', marginTop: 2 }}>
-                            Authorized Corporate Signatory
+                    {/* 6. Professional Executive Corporate Sign-Off & Acceptance Block */}
+                    <div
+                      style={{
+                        marginTop: 'auto',
+                        paddingTop: 18,
+                        borderTop: '1.5px solid #dfcfc7',
+                        marginBottom: 16,
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: 'grid',
+                          gridTemplateColumns: '1fr 1fr',
+                          gap: 36,
+                          alignItems: 'start',
+                        }}
+                      >
+                        {/* Employer / Authorized Signatory Column */}
+                        <div style={{ display: 'flex', flexDirection: 'column' }}>
+                          <div
+                            style={{
+                              fontSize: '13.5px',
+                              fontWeight: 700,
+                              color: '#a35d39',
+                              fontFamily: "'Georgia', serif",
+                              letterSpacing: '0.02em',
+                              marginBottom: 2,
+                            }}
+                          >
+                            For TaskNera
                           </div>
-                          <div style={{ height: 38, display: 'flex', alignItems: 'center' }}>
-                            <span style={{ fontFamily: "'Brush Script MT', cursive, sans-serif", fontSize: '22px', color: '#1e3a8a' }}>
+                          <div
+                            style={{
+                              fontSize: '10.5px',
+                              fontWeight: 600,
+                              color: '#64748b',
+                              letterSpacing: '0.04em',
+                              textTransform: 'uppercase',
+                              marginBottom: 4,
+                            }}
+                          >
+                            Authorized Signatory
+                          </div>
+
+                          {/* Authentic Executive Calligraphic Signature */}
+                          <div
+                            style={{
+                              height: 44,
+                              display: 'flex',
+                              alignItems: 'flex-end',
+                              paddingBottom: 2,
+                            }}
+                          >
+                            <span
+                              style={{
+                                fontFamily: "'Alex Brush', 'Caveat', 'Segoe Script', cursive",
+                                fontSize: '32px',
+                                color: '#1e3a8a',
+                                lineHeight: 1,
+                                transform: 'rotate(-2deg)',
+                                transformOrigin: 'left bottom',
+                                display: 'inline-block',
+                              }}
+                            >
                               Sheetal Bedi
                             </span>
                           </div>
-                          <div style={{ fontSize: '13.5px', fontWeight: 800, color: '#0f172a' }}>
+
+                          {/* Clean Solid Underline */}
+                          <div
+                            style={{
+                              height: '1.5px',
+                              backgroundColor: '#334155',
+                              width: '85%',
+                              maxWidth: 240,
+                              marginBottom: 8,
+                            }}
+                          />
+
+                          <div
+                            style={{
+                              fontSize: '13.5px',
+                              fontWeight: 700,
+                              color: '#0f172a',
+                              lineHeight: 1.3,
+                            }}
+                          >
                             Sheetal Bedi
                           </div>
-                          <div style={{ fontSize: '11px', color: '#475569' }}>
-                            CEO &amp; FOUNDER
+                          <div
+                            style={{
+                              fontSize: '11px',
+                              fontWeight: 600,
+                              color: '#475569',
+                              letterSpacing: '0.02em',
+                              marginTop: 2,
+                            }}
+                          >
+                            CEO &amp; Founder
+                          </div>
+                          <div
+                            style={{
+                              fontSize: '10.5px',
+                              color: '#64748b',
+                              marginTop: 2,
+                            }}
+                          >
+                            TaskNera
                           </div>
                         </div>
 
-                        {/* Candidate Acceptance Receipt */}
-                        <div style={{ border: '1px solid #cbd5e1', borderRadius: 8, padding: 14, backgroundColor: '#ffffff' }}>
-                          <div style={{ fontSize: '13px', fontWeight: 700, color: '#0f172a' }}>Employee Acceptance Receipt</div>
-                          <div style={{ fontSize: '11px', color: '#64748b', marginTop: 2 }}>
-                            I acknowledge and accept the terms of this document.
+                        {/* Candidate Acceptance & Acknowledgement Column */}
+                        <div style={{ display: 'flex', flexDirection: 'column' }}>
+                          <div
+                            style={{
+                              fontSize: '13.5px',
+                              fontWeight: 700,
+                              color: '#a35d39',
+                              fontFamily: "'Georgia', serif",
+                              letterSpacing: '0.02em',
+                              marginBottom: 2,
+                            }}
+                          >
+                            Accepted &amp; Agreed
                           </div>
-                          <div style={{ height: 32, borderBottom: '1px dashed #94a3b8', margin: '8px 0 6px 0' }} />
-                          <div style={{ fontSize: '13.5px', fontWeight: 700, color: '#0f172a' }}>
+                          <div
+                            style={{
+                              fontSize: '10.5px',
+                              color: '#64748b',
+                              lineHeight: 1.45,
+                              marginBottom: 4,
+                            }}
+                          >
+                            I acknowledge and accept the terms and conditions outlined in this offer of employment.
+                          </div>
+
+                          {/* Candidate Signature placeholder */}
+                          <div
+                            style={{
+                              height: 44,
+                              display: 'flex',
+                              alignItems: 'flex-end',
+                              paddingBottom: 2,
+                            }}
+                          >
+                            <span
+                              style={{
+                                fontSize: '11px',
+                                color: '#94a3b8',
+                                fontStyle: 'italic',
+                              }}
+                            >
+                              (Candidate Signature)
+                            </span>
+                          </div>
+
+                          {/* Clean Solid Underline */}
+                          <div
+                            style={{
+                              height: '1.5px',
+                              backgroundColor: '#334155',
+                              width: '90%',
+                              maxWidth: 260,
+                              marginBottom: 8,
+                            }}
+                          />
+
+                          <div
+                            style={{
+                              fontSize: '13.5px',
+                              fontWeight: 700,
+                              color: '#0f172a',
+                              textTransform: 'capitalize',
+                              lineHeight: 1.3,
+                            }}
+                          >
                             {selectedEmployee.fullName}
                           </div>
-                          <div style={{ fontSize: '11px', color: '#475569' }}>
-                            Date of Signature: __________________
+                          <div
+                            style={{
+                              fontSize: '11px',
+                              color: '#475569',
+                              marginTop: 2,
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: 6,
+                            }}
+                          >
+                            <span>Date:</span>
+                            <span
+                              style={{
+                                borderBottom: '1px dotted #94a3b8',
+                                width: 140,
+                                display: 'inline-block',
+                                height: 12,
+                              }}
+                            />
+                          </div>
+                          <div
+                            style={{
+                              fontSize: '10.5px',
+                              color: '#64748b',
+                              marginTop: 2,
+                            }}
+                          >
+                            Place: Delhi
                           </div>
                         </div>
                       </div>
