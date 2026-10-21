@@ -39,12 +39,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
       roles: ['SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER', 'APPROVER'],
     },
     {
-      to: '/templates',
-      label: 'AI Generator',
-      icon: <Sparkles size={18} />,
-      roles: ['SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER', 'APPROVER'],
-    },
-    {
       to: '/documents',
       label: 'Documents',
       icon: <Layers size={18} />,
