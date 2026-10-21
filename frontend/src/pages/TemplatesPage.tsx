@@ -3034,7 +3034,7 @@ On behalf of **{{company_name}}**, we are pleased to offer you the full-time pos
                       {/* Live Template Header Bar */}
                       <div
                         style={{
-                          backgroundColor: '#f8fafc',
+                          backgroundColor: '#ffffff',
                           padding: '12px 18px',
                           borderBottom: '1px solid #e2e8f0',
                           display: 'flex',
@@ -3112,33 +3112,35 @@ On behalf of **{{company_name}}**, we are pleased to offer you the full-time pos
                         </div>
                       </div>
 
-                      {/* A4 Letterhead Sheet Container */}
+                      {/* A4 Letterhead Sheet Container - Full Page White Background */}
                       <div
                         style={{
-                          padding: '24px 20px',
-                          backgroundColor: '#f1f5f9',
+                          padding: step1ViewLayout === 'preview' ? '32px 36px' : '20px',
+                          backgroundColor: '#ffffff',
                           display: 'flex',
                           justifyContent: 'center',
                           overflowX: 'auto',
-                          maxHeight: step1ViewLayout === 'preview' ? 'none' : '650px',
+                          maxHeight: step1ViewLayout === 'preview' ? 'none' : '750px',
                           overflowY: 'auto',
+                          flex: 1,
+                          width: '100%',
                         }}
                       >
                         <div
                           style={{
                             width: '100%',
-                            maxWidth: 760,
+                            maxWidth: step1ViewLayout === 'preview' ? 840 : '100%',
                             backgroundColor: '#ffffff',
                             borderRadius: 8,
-                            boxShadow: '0 8px 24px rgba(0, 0, 0, 0.08)',
+                            boxShadow: '0 2px 14px rgba(0, 0, 0, 0.04)',
                             border: '1px solid #e2e8f0',
-                            padding: '36px 44px',
+                            padding: '40px 48px',
                             fontFamily: 'Georgia, "Times New Roman", Times, serif',
                             fontSize: '13.5px',
                             lineHeight: 1.7,
                             color: '#1e293b',
                             boxSizing: 'border-box',
-                            minHeight: 480,
+                            minHeight: 850,
                           }}
                         >
                           {/* Official Header */}
@@ -3212,7 +3214,7 @@ On behalf of **{{company_name}}**, we are pleased to offer you the full-time pos
                       {/* Footer Actions inside Preview */}
                       <div
                         style={{
-                          backgroundColor: '#f8fafc',
+                          backgroundColor: '#ffffff',
                           padding: '12px 18px',
                           borderTop: '1px solid #e2e8f0',
                           display: 'flex',
@@ -3356,7 +3358,7 @@ On behalf of **{{company_name}}**, we are pleased to offer you the full-time pos
                         </Button>
                       </div>
 
-                      <div style={{ maxHeight: 400, overflowY: 'auto', backgroundColor: '#f8fafc', padding: 20, borderRadius: 8, border: '1px solid #e2e8f0' }}>
+                      <div style={{ maxHeight: 500, overflowY: 'auto', backgroundColor: '#ffffff', padding: 24, borderRadius: 8, border: '1px solid #e2e8f0', minHeight: 400 }}>
                         <ExecutiveDocumentRenderer
                           content={templateText}
                           formData={formData}
@@ -3966,7 +3968,10 @@ On behalf of **{{company_name}}**, we are pleased to offer you the full-time pos
                 style={{
                   display: 'flex',
                   justifyContent: 'center',
-                  padding: '10px 0',
+                  padding: '24px 0',
+                  backgroundColor: '#ffffff',
+                  borderRadius: 14,
+                  border: '1px solid #e2e8f0',
                 }}
               >
                 <div
@@ -3976,7 +3981,7 @@ On behalf of **{{company_name}}**, we are pleased to offer you the full-time pos
                     maxWidth: 820,
                     backgroundColor: '#ffffff',
                     borderRadius: 8,
-                    boxShadow: '0 10px 30px rgba(0, 0, 0, 0.08)',
+                    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.05)',
                     border: '1px solid #e2e8f0',
                     padding: '48px 56px',
                     fontFamily: 'Georgia, "Times New Roman", Times, serif',
@@ -3984,6 +3989,7 @@ On behalf of **{{company_name}}**, we are pleased to offer you the full-time pos
                     lineHeight: 1.7,
                     color: '#1e293b',
                     boxSizing: 'border-box',
+                    minHeight: 1050,
                   }}
                 >
                   {/* Official Header Banner */}
