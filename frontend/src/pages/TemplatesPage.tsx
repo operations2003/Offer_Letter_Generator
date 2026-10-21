@@ -27,6 +27,8 @@ import {
   Briefcase,
   FileCode,
   RotateCcw,
+  Clipboard,
+  Trash2,
 } from 'lucide-react';
 import { Button } from '../components/common/Button.js';
 import { DocumentTemplateItem, EmployeeService, Employee } from '../services/employeeService.js';
@@ -597,35 +599,71 @@ function renderInlineFormatting(
   formData: Record<string, string>,
   highlight: boolean
 ): React.ReactNode[] {
-  // First interpolate tokens: {{key}}
-  const tokenRegex = /(\{\{\s*[a-zA-Z0-9_\s]+\s*\}\})/g;
+  // Interpolate tokens: {{key}}, [Key], or <<Key>>
+  const tokenRegex = /(\{\{\s*[a-zA-Z0-9_\s]+\s*\}\}|\[\s*[a-zA-Z0-9_\s]{2,40}\s*\]|<<\s*[a-zA-Z0-9_\s]{2,40}\s*>>)/g;
   const segments = text.split(tokenRegex);
 
   return segments.map((seg, sIdx) => {
-    const tokenMatch = seg.match(/^\{\{\s*([a-zA-Z0-9_\s]+)\s*\}\}$/);
-    if (tokenMatch) {
-      const rawKey = tokenMatch[1].trim();
+    let rawKey: string | null = null;
+    if (seg.startsWith('{{') && seg.endsWith('}}')) {
+      rawKey = seg.slice(2, -2).trim();
+    } else if (seg.startsWith('[') && seg.endsWith(']')) {
+      const inner = seg.slice(1, -1).trim();
+      if (!/^\d+$/.test(inner) && !inner.startsWith('http')) {
+        rawKey = inner;
+      }
+    } else if (seg.startsWith('<<') && seg.endsWith('>>')) {
+      rawKey = seg.slice(2, -2).trim();
+    }
+
+    if (rawKey) {
       const cleanKey = rawKey.toLowerCase().replace(/[^a-z0-9_]/g, '_');
       const val =
         formData[cleanKey] !== undefined && formData[cleanKey] !== ''
           ? formData[cleanKey]
           : formData[rawKey] !== undefined && formData[rawKey] !== ''
           ? formData[rawKey]
-          : `{{${rawKey}}}`;
+          : formData[rawKey.toLowerCase()] !== undefined && formData[rawKey.toLowerCase()] !== ''
+          ? formData[rawKey.toLowerCase()]
+          : null;
 
+      if (val !== null) {
+        return (
+          <span
+            key={`token-${sIdx}`}
+            style={{
+              backgroundColor: highlight ? '#fef08a' : 'transparent',
+              padding: highlight ? '1px 5px' : '0',
+              borderRadius: 3,
+              fontWeight: 700,
+              color: '#0f172a',
+              transition: 'background-color 0.2s ease',
+            }}
+          >
+            {val}
+          </span>
+        );
+      }
+
+      // If no filled value, display clean placeholder pill
       return (
         <span
           key={`token-${sIdx}`}
+          title={`Dynamic Field: ${cleanKey}`}
           style={{
-            backgroundColor: highlight ? '#fef08a' : 'transparent',
-            padding: highlight ? '1px 5px' : '0',
-            borderRadius: 3,
+            backgroundColor: highlight ? '#fef3c7' : '#f1f5f9',
+            color: highlight ? '#92400e' : '#475569',
+            border: highlight ? '1px solid #fcd34d' : '1px solid #cbd5e1',
+            padding: '1px 6px',
+            borderRadius: 4,
             fontWeight: 700,
-            color: '#0f172a',
-            transition: 'background-color 0.2s ease',
+            fontSize: '0.85em',
+            display: 'inline-block',
+            margin: '0 2px',
+            fontFamily: 'monospace',
           }}
         >
-          {val}
+          {`{{${cleanKey}}}`}
         </span>
       );
     }
@@ -672,6 +710,33 @@ const ExecutiveDocumentRenderer: React.FC<{
 
     if (!trimmed) {
       renderedElements.push(<div key={`spacer-${i}`} style={{ height: 10 }} />);
+      continue;
+    }
+
+    // 0. Markdown Headers (# Title, ## Section, ### Subheading)
+    if (trimmed.startsWith('# ') || trimmed.startsWith('## ') || trimmed.startsWith('### ')) {
+      const cleanH = trimmed.replace(/^#+\s*/, '');
+      const isTopLevel = trimmed.startsWith('# ');
+      renderedElements.push(
+        <div
+          key={`h-${i}`}
+          style={{
+            fontSize: isTopLevel ? '1.2rem' : '0.98rem',
+            fontWeight: 800,
+            color: '#0f172a',
+            marginTop: 18,
+            marginBottom: 8,
+            paddingBottom: 4,
+            borderBottom: isTopLevel ? '2px solid #0f172a' : '1px solid #e2e8f0',
+            letterSpacing: '0.02em',
+            textTransform: 'uppercase',
+            textAlign: isTopLevel ? 'center' : 'left',
+            fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+          }}
+        >
+          {renderInlineFormatting(cleanH, formData, highlightPlaceholders)}
+        </div>
+      );
       continue;
     }
 
@@ -899,6 +964,10 @@ export const TemplatesPage: React.FC = () => {
   const [templateText, setTemplateText] = useState<string>(STANDARD_PRESETS[0].content);
   const [detectedPlaceholders, setDetectedPlaceholders] = useState<string[]>([]);
   const [formData, setFormData] = useState<Record<string, string>>(STANDARD_PRESETS[0].sampleData);
+
+  // Step 1 Input Mode ('paste' vs 'upload' vs 'preset') & View Layout ('split' vs 'editor' vs 'preview')
+  const [step1Mode, setStep1Mode] = useState<'paste' | 'upload' | 'preset'>('paste');
+  const [step1ViewLayout, setStep1ViewLayout] = useState<'split' | 'editor' | 'preview'>('split');
 
   // Upload state
   const [isUploading, setIsUploading] = useState<boolean>(false);
@@ -1157,6 +1226,54 @@ export const TemplatesPage: React.FC = () => {
     setTemplateText(preset.content);
     setFormData({ ...preset.sampleData });
     success(`Loaded "${preset.name}" template with sample fields.`);
+  };
+
+  // Handle Paste from Clipboard
+  const handlePasteFromClipboard = async () => {
+    try {
+      if (navigator.clipboard && navigator.clipboard.readText) {
+        const clipText = await navigator.clipboard.readText();
+        if (clipText && clipText.trim()) {
+          setTemplateText(clipText);
+          extractPlaceholdersFromText(clipText);
+          const firstLine = clipText.trim().split('\n')[0].replace(/^[*#\s]+|[*#\s]+$/g, '').trim();
+          if (firstLine && firstLine.length > 3 && firstLine.length < 60 && !firstLine.includes('{{')) {
+            setTemplateTitle(firstLine);
+          }
+          success(`Pasted ${clipText.length} characters from clipboard! Placeholders detected.`);
+          return;
+        }
+      }
+    } catch (e) {
+      console.warn('Clipboard read error or permission denied:', e);
+    }
+    info('Please press Ctrl+V (or Cmd+V) inside the text box to paste your content.');
+  };
+
+  // Quick insert placeholder token into template text
+  const handleInsertPlaceholderToken = (token: string) => {
+    const tokenFormatted = `{{${token}}}`;
+    setTemplateText((prev) => {
+      if (!prev.trim()) return tokenFormatted;
+      return prev + (prev.endsWith(' ') || prev.endsWith('\n') ? '' : ' ') + tokenFormatted;
+    });
+    info(`Inserted ${tokenFormatted}`);
+  };
+
+  // Clear template text box
+  const handleClearTemplateText = () => {
+    setTemplateText('');
+    setDetectedPlaceholders([]);
+    info('Text box cleared.');
+  };
+
+  // Fill sample candidate data into formData for instant live preview
+  const handleFillDemoData = () => {
+    if (employees.length > 0) {
+      handleSelectEmployee(employees[0].id);
+    } else {
+      handleSelectEmployee(DEMO_EMPLOYEES[0].id);
+    }
   };
 
   // 1-Click Employee Master Auto-Fill
@@ -1737,237 +1854,903 @@ export const TemplatesPage: React.FC = () => {
           </div>
 
           {/* =================================================================== */}
-          {/* STEP 1: CHOOSE OR UPLOAD TEMPLATE                                   */}
+          {/* STEP 1: CHOOSE, PASTE, OR UPLOAD TEMPLATE                           */}
           {/* =================================================================== */}
           {step === 1 && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-              {/* Drag & Drop File Upload Area */}
+              {/* Method Selector Tabs: Paste vs Upload vs Presets */}
               <div
-                onDragEnter={(e) => {
-                  e.preventDefault();
-                  setDragActive(true);
-                }}
-                onDragOver={(e) => {
-                  e.preventDefault();
-                  setDragActive(true);
-                }}
-                onDragLeave={() => setDragActive(false)}
-                onDrop={handleDrop}
-                onClick={() => fileInputRef.current?.click()}
                 style={{
-                  border: dragActive ? '2px dashed #2563eb' : '2px dashed #cbd5e1',
-                  backgroundColor: dragActive ? '#eff6ff' : '#ffffff',
-                  borderRadius: 14,
-                  padding: '36px 24px',
-                  textAlign: 'center',
-                  cursor: 'pointer',
-                  transition: 'all 0.15s ease',
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  backgroundColor: '#ffffff',
+                  padding: '8px 12px',
+                  borderRadius: 12,
+                  border: '1px solid #e2e8f0',
+                  flexWrap: 'wrap',
+                  gap: 10,
                 }}
               >
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept=".docx,.pdf,.txt,.html,.md"
-                  style={{ display: 'none' }}
-                  onChange={(e) => {
-                    if (e.target.files && e.target.files[0]) {
-                      handleFileUpload(e.target.files[0]);
-                    }
-                  }}
-                />
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                  <button
+                    type="button"
+                    onClick={() => setStep1Mode('paste')}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 8,
+                      padding: '8px 18px',
+                      borderRadius: 8,
+                      border: step1Mode === 'paste' ? '2px solid #2563eb' : '1px solid #e2e8f0',
+                      backgroundColor: step1Mode === 'paste' ? '#eff6ff' : '#f8fafc',
+                      color: step1Mode === 'paste' ? '#1d4ed8' : '#475569',
+                      fontWeight: 700,
+                      fontSize: '0.85rem',
+                      cursor: 'pointer',
+                      transition: 'all 0.15s ease',
+                    }}
+                  >
+                    <FileText size={16} style={{ color: step1Mode === 'paste' ? '#2563eb' : '#64748b' }} />
+                    <span>Copy & Paste Content</span>
+                    <span
+                      style={{
+                        fontSize: '0.68rem',
+                        backgroundColor: step1Mode === 'paste' ? '#dbeafe' : '#e2e8f0',
+                        color: step1Mode === 'paste' ? '#1e40af' : '#64748b',
+                        padding: '1px 6px',
+                        borderRadius: 10,
+                        fontWeight: 700,
+                      }}
+                    >
+                      Instant
+                    </span>
+                  </button>
 
-                <div
-                  style={{
-                    width: 56,
-                    height: 56,
-                    borderRadius: '50%',
-                    backgroundColor: '#eff6ff',
-                    color: '#2563eb',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    margin: '0 auto 14px',
-                  }}
-                >
-                  <Upload size={26} />
+                  <button
+                    type="button"
+                    onClick={() => setStep1Mode('upload')}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 8,
+                      padding: '8px 18px',
+                      borderRadius: 8,
+                      border: step1Mode === 'upload' ? '2px solid #2563eb' : '1px solid #e2e8f0',
+                      backgroundColor: step1Mode === 'upload' ? '#eff6ff' : '#f8fafc',
+                      color: step1Mode === 'upload' ? '#1d4ed8' : '#475569',
+                      fontWeight: 700,
+                      fontSize: '0.85rem',
+                      cursor: 'pointer',
+                      transition: 'all 0.15s ease',
+                    }}
+                  >
+                    <Upload size={16} style={{ color: step1Mode === 'upload' ? '#2563eb' : '#64748b' }} />
+                    <span>Upload Document File</span>
+                    <span style={{ fontSize: '0.68rem', color: '#64748b' }}>.docx, .pdf, .txt</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setStep1Mode('preset')}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 8,
+                      padding: '8px 18px',
+                      borderRadius: 8,
+                      border: step1Mode === 'preset' ? '2px solid #2563eb' : '1px solid #e2e8f0',
+                      backgroundColor: step1Mode === 'preset' ? '#eff6ff' : '#f8fafc',
+                      color: step1Mode === 'preset' ? '#1d4ed8' : '#475569',
+                      fontWeight: 700,
+                      fontSize: '0.85rem',
+                      cursor: 'pointer',
+                      transition: 'all 0.15s ease',
+                    }}
+                  >
+                    <Layers size={16} style={{ color: step1Mode === 'preset' ? '#2563eb' : '#64748b' }} />
+                    <span>Standard Presets</span>
+                    <span style={{ fontSize: '0.68rem', color: '#64748b' }}>({STANDARD_PRESETS.length})</span>
+                  </button>
                 </div>
 
-                <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#0f172a', margin: '0 0 6px' }}>
-                  {isUploading ? 'Uploading & Parsing Template...' : 'Upload Any Custom Document Template'}
-                </h3>
-                <p style={{ fontSize: '0.85rem', color: '#64748b', maxWidth: 520, margin: '0 auto 16px', lineHeight: 1.5 }}>
-                  Drop your Microsoft Word (<strong>.docx</strong>), PDF (<strong>.pdf</strong>), or Text (<strong>.txt</strong>) file here.
-                  The system will cleanly parse the text and detect all fields automatically.
-                </p>
-
-                <Button
-                  variant="primary"
-                  icon={<Upload size={15} />}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    fileInputRef.current?.click();
-                  }}
-                >
-                  Browse Files on Computer
-                </Button>
+                {/* View Layout Switcher (Split vs Full Editor vs Full Preview) */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 600 }}>View:</span>
+                  {[
+                    { id: 'split', label: 'Split View' },
+                    { id: 'editor', label: 'Text Box' },
+                    { id: 'preview', label: 'Live Template' },
+                  ].map((layout) => (
+                    <button
+                      key={layout.id}
+                      type="button"
+                      onClick={() => setStep1ViewLayout(layout.id as any)}
+                      style={{
+                        padding: '4px 10px',
+                        borderRadius: 6,
+                        border: step1ViewLayout === layout.id ? '1px solid #2563eb' : '1px solid #e2e8f0',
+                        backgroundColor: step1ViewLayout === layout.id ? '#2563eb' : '#f8fafc',
+                        color: step1ViewLayout === layout.id ? '#ffffff' : '#64748b',
+                        fontSize: '0.75rem',
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                        transition: 'all 0.15s ease',
+                      }}
+                    >
+                      {layout.label}
+                    </button>
+                  ))}
+                </div>
               </div>
 
-              {/* Standard Corporate Presets */}
-              <div
-                style={{
-                  backgroundColor: '#ffffff',
-                  borderRadius: 14,
-                  border: '1px solid #e2e8f0',
-                  padding: '22px 24px',
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-                  <div>
-                    <h4 style={{ fontSize: '1rem', fontWeight: 700, margin: 0, color: '#0f172a' }}>
-                      Or Choose a Standard Template
-                    </h4>
-                    <p style={{ fontSize: '0.8125rem', color: '#64748b', margin: '2px 0 0' }}>
-                      Select a standard HR template blueprint to get started immediately:
-                    </p>
-                  </div>
-                </div>
-
+              {/* ------------------------------------------------------------- */}
+              {/* TAB A: COPY & PASTE DOCUMENT CONTENT DIRECTLY                */}
+              {/* ------------------------------------------------------------- */}
+              {step1Mode === 'paste' && (
                 <div
                   style={{
                     display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-                    gap: 12,
+                    gridTemplateColumns:
+                      step1ViewLayout === 'split'
+                        ? 'minmax(420px, 1fr) minmax(460px, 1.15fr)'
+                        : step1ViewLayout === 'editor'
+                        ? '1fr'
+                        : '1fr',
+                    gap: 20,
+                    alignItems: 'start',
                   }}
                 >
-                  {STANDARD_PRESETS.map((preset) => {
-                    const isSelected = selectedPresetId === preset.id;
-                    return (
-                      <div
-                        key={preset.id}
-                        onClick={() => handleSelectPreset(preset)}
-                        style={{
-                          padding: '14px 16px',
-                          borderRadius: 10,
-                          border: isSelected ? '2px solid #2563eb' : '1px solid #e2e8f0',
-                          backgroundColor: isSelected ? '#eff6ff' : '#f8fafc',
-                          cursor: 'pointer',
-                          transition: 'all 0.15s ease',
-                          display: 'flex',
-                          alignItems: 'flex-start',
-                          gap: 12,
-                        }}
-                      >
-                        <span style={{ fontSize: '1.4rem' }}>{preset.icon}</span>
-                        <div style={{ flex: 1 }}>
-                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                            <span style={{ fontSize: '0.875rem', fontWeight: 700, color: '#0f172a' }}>
-                              {preset.name}
-                            </span>
-                            {isSelected && (
-                              <span style={{ fontSize: '0.7rem', color: '#2563eb', fontWeight: 700 }}>
-                                Active
-                              </span>
-                            )}
+                  {/* Left Column / Editor: Direct Copy & Paste Text Box */}
+                  {(step1ViewLayout === 'split' || step1ViewLayout === 'editor') && (
+                    <div
+                      style={{
+                        backgroundColor: '#ffffff',
+                        borderRadius: 14,
+                        border: '1.5px solid #cbd5e1',
+                        padding: '20px 22px',
+                        boxShadow: '0 2px 10px rgba(0,0,0,0.03)',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: 16,
+                      }}
+                    >
+                      {/* Box Header & Action Toolbar */}
+                      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10 }}>
+                        <div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <div
+                              style={{
+                                width: 32,
+                                height: 32,
+                                borderRadius: 8,
+                                backgroundColor: '#eff6ff',
+                                color: '#2563eb',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                              }}
+                            >
+                              <Clipboard size={18} />
+                            </div>
+                            <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#0f172a', margin: 0 }}>
+                              Paste Document / Letter Content
+                            </h3>
                           </div>
-                          <p style={{ fontSize: '0.75rem', color: '#64748b', margin: '3px 0 0', lineHeight: 1.35 }}>
-                            {preset.description}
+                          <p style={{ fontSize: '0.78125rem', color: '#64748b', margin: '4px 0 0', lineHeight: 1.4 }}>
+                            Copy any text from Word, PDF, email, or drafts and paste below. The live template preview updates instantly.
                           </p>
                         </div>
+
+                        {/* Quick Toolbar */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                          <button
+                            type="button"
+                            onClick={handlePasteFromClipboard}
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: 5,
+                              padding: '5px 10px',
+                              borderRadius: 6,
+                              border: '1px solid #bfdbfe',
+                              backgroundColor: '#eff6ff',
+                              color: '#1d4ed8',
+                              fontSize: '0.75rem',
+                              fontWeight: 700,
+                              cursor: 'pointer',
+                            }}
+                            title="Paste text from your computer clipboard"
+                          >
+                            <Clipboard size={13} />
+                            <span>Paste Clipboard</span>
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={handleAiFormatToOfficialStyle}
+                            disabled={isAiFormatting || !templateText.trim()}
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: 5,
+                              padding: '5px 10px',
+                              borderRadius: 6,
+                              border: '1px solid #93c5fd',
+                              background: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
+                              color: '#1d4ed8',
+                              fontSize: '0.75rem',
+                              fontWeight: 700,
+                              cursor: 'pointer',
+                            }}
+                            title="Format plain text into corporate bold clauses, numbered headers, and bullet points"
+                          >
+                            <Sparkles size={13} style={{ color: '#2563eb' }} />
+                            <span>{isAiFormatting ? 'Formatting...' : '✨ AI Format'}</span>
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => handleSelectPreset(STANDARD_PRESETS[0])}
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: 5,
+                              padding: '5px 10px',
+                              borderRadius: 6,
+                              border: '1px solid #e2e8f0',
+                              backgroundColor: '#f8fafc',
+                              color: '#475569',
+                              fontSize: '0.75rem',
+                              fontWeight: 600,
+                              cursor: 'pointer',
+                            }}
+                            title="Load standard Corporate Offer Letter sample content"
+                          >
+                            <span>Sample</span>
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={handleClearTemplateText}
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: 4,
+                              padding: '5px 8px',
+                              borderRadius: 6,
+                              border: '1px solid #fecaca',
+                              backgroundColor: '#fef2f2',
+                              color: '#dc2626',
+                              fontSize: '0.75rem',
+                              fontWeight: 600,
+                              cursor: 'pointer',
+                            }}
+                            title="Clear text box"
+                          >
+                            <Trash2 size={13} />
+                          </button>
+                        </div>
                       </div>
-                    );
-                  })}
-                </div>
-              </div>
 
-              {/* Template Content Inspector (Collapsible) */}
-              <div
-                style={{
-                  backgroundColor: '#ffffff',
-                  borderRadius: 14,
-                  border: '1px solid #e2e8f0',
-                  padding: '18px 24px',
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <FileCode size={18} style={{ color: '#2563eb' }} />
-                    <span style={{ fontSize: '0.95rem', fontWeight: 700, color: '#0f172a' }}>
-                      Template Content & Placeholders ({detectedPlaceholders.length} detected)
-                    </span>
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <button
-                      type="button"
-                      onClick={handleAiFormatToOfficialStyle}
-                      disabled={isAiFormatting}
+                      {/* Template Metadata Fields: Title & Category */}
+                      <div
+                        style={{
+                          display: 'grid',
+                          gridTemplateColumns: '1.4fr 1fr',
+                          gap: 12,
+                          backgroundColor: '#f8fafc',
+                          padding: '10px 14px',
+                          borderRadius: 10,
+                          border: '1px solid #e2e8f0',
+                        }}
+                      >
+                        <div>
+                          <label style={{ fontSize: '0.72rem', fontWeight: 700, color: '#475569', display: 'block', marginBottom: 4, textTransform: 'uppercase' }}>
+                            Document / Template Title
+                          </label>
+                          <input
+                            type="text"
+                            className="form-input"
+                            value={templateTitle}
+                            onChange={(e) => setTemplateTitle(e.target.value)}
+                            placeholder="e.g. Senior Software Engineer Offer Letter"
+                            style={{
+                              fontSize: '0.8125rem',
+                              height: 34,
+                              backgroundColor: '#ffffff',
+                              border: '1px solid #cbd5e1',
+                              borderRadius: 6,
+                              width: '100%',
+                            }}
+                          />
+                        </div>
+
+                        <div>
+                          <label style={{ fontSize: '0.72rem', fontWeight: 700, color: '#475569', display: 'block', marginBottom: 4, textTransform: 'uppercase' }}>
+                            Document Category
+                          </label>
+                          <select
+                            className="form-select"
+                            value={templateCategory}
+                            onChange={(e) => setTemplateCategory(e.target.value)}
+                            style={{
+                              fontSize: '0.8125rem',
+                              height: 34,
+                              backgroundColor: '#ffffff',
+                              border: '1px solid #cbd5e1',
+                              borderRadius: 6,
+                              width: '100%',
+                              cursor: 'pointer',
+                            }}
+                          >
+                            <option value="OFFER_LETTER">Offer Letters</option>
+                            <option value="EMPLOYMENT_AGREEMENT">Employment Agreement</option>
+                            <option value="APPOINTMENT_LETTER">Appointment Letter</option>
+                            <option value="INTERNSHIP_LETTER">Internship Agreement</option>
+                            <option value="EXPERIENCE_CERTIFICATE">Experience / Relieving</option>
+                            <option value="BONAFIDE_CERTIFICATE">Bonafide Certificate</option>
+                            <option value="NDA">Non-Disclosure Agreement</option>
+                            <option value="CUSTOM">Custom Document</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      {/* The Big Copy & Paste Text Area */}
+                      <div>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+                          <label style={{ fontSize: '0.75rem', fontWeight: 700, color: '#0f172a' }}>
+                            Document Text Content (Paste here):
+                          </label>
+                          <span style={{ fontSize: '0.72rem', color: '#64748b' }}>
+                            Supports <code style={{ color: '#2563eb' }}>{'{{variable}}'}</code>, <code style={{ color: '#2563eb' }}>[Variable]</code> & <code style={{ color: '#2563eb' }}>&lt;&lt;Variable&gt;&gt;</code>
+                          </span>
+                        </div>
+
+                        <textarea
+                          rows={16}
+                          className="form-textarea"
+                          value={templateText}
+                          onChange={(e) => setTemplateText(e.target.value)}
+                          placeholder="Paste your document or letter text here...&#10;&#10;Example:&#10;**OFFER OF EMPLOYMENT**&#10;Date: {{issue_date}}&#10;Ref: {{reference_number}}&#10;&#10;Dear {{candidate_name}},&#10;&#10;TaskNera is pleased to offer you the position of {{job_title}} in our {{department}} team at {{work_location}}.&#10;&#10;1. COMPENSATION & BENEFITS&#10;• Annual CTC: {{annual_ctc}}&#10;• Joining Date: {{joining_date}}&#10;&#10;Sincerely,&#10;Sheetal Bedi&#10;Chief Executive Officer"
+                          style={{
+                            fontFamily: 'monospace',
+                            fontSize: '0.85rem',
+                            lineHeight: 1.6,
+                            backgroundColor: '#fafbfc',
+                            border: '1.5px solid #cbd5e1',
+                            borderRadius: 8,
+                            padding: '12px 14px',
+                            width: '100%',
+                            boxSizing: 'border-box',
+                            minHeight: 340,
+                            resize: 'vertical',
+                          }}
+                        />
+                      </div>
+
+                      {/* Quick Insert Common Placeholder Pills */}
+                      <div>
+                        <div style={{ fontSize: '0.72rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', marginBottom: 6 }}>
+                          Click to insert dynamic placeholder:
+                        </div>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                          {[
+                            'candidate_name',
+                            'job_title',
+                            'department',
+                            'annual_ctc',
+                            'joining_date',
+                            'work_location',
+                            'reporting_manager',
+                            'company_name',
+                            'employee_id',
+                            'issue_date',
+                          ].map((tok) => (
+                            <button
+                              key={tok}
+                              type="button"
+                              onClick={() => handleInsertPlaceholderToken(tok)}
+                              style={{
+                                fontSize: '0.72rem',
+                                padding: '3px 8px',
+                                borderRadius: 6,
+                                border: '1px solid #cbd5e1',
+                                backgroundColor: '#ffffff',
+                                color: '#1e293b',
+                                cursor: 'pointer',
+                                fontFamily: 'monospace',
+                                transition: 'all 0.15s ease',
+                              }}
+                              title={`Insert {{${tok}}} into content`}
+                            >
+                              +{`{{${tok}}}`}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Content Stats Bar & Next Action */}
+                      <div
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          paddingTop: 12,
+                          borderTop: '1px solid #e2e8f0',
+                          flexWrap: 'wrap',
+                          gap: 10,
+                        }}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 12, fontSize: '0.75rem', color: '#64748b' }}>
+                          <span>
+                            <strong>{templateText.trim() ? templateText.trim().split(/\s+/).length : 0}</strong> words
+                          </span>
+                          <span>•</span>
+                          <span>
+                            <strong>{templateText.length}</strong> chars
+                          </span>
+                          <span>•</span>
+                          <span
+                            style={{
+                              backgroundColor: detectedPlaceholders.length > 0 ? '#dbeafe' : '#f1f5f9',
+                              color: detectedPlaceholders.length > 0 ? '#1e40af' : '#64748b',
+                              padding: '2px 8px',
+                              borderRadius: 10,
+                              fontWeight: 700,
+                            }}
+                          >
+                            {detectedPlaceholders.length} Dynamic Variables
+                          </span>
+                        </div>
+
+                        <Button
+                          variant="primary"
+                          icon={<ArrowRight size={15} />}
+                          onClick={() => setStep(2)}
+                          style={{ padding: '8px 20px', fontSize: '0.85rem' }}
+                        >
+                          Proceed to Fill Details with AI
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Right Column / Preview: The Official Letterhead Template Sheet */}
+                  {(step1ViewLayout === 'split' || step1ViewLayout === 'preview') && (
+                    <div
                       style={{
+                        backgroundColor: '#ffffff',
+                        borderRadius: 14,
+                        border: '1.5px solid #e2e8f0',
+                        overflow: 'hidden',
+                        boxShadow: '0 4px 20px rgba(0,0,0,0.04)',
                         display: 'flex',
-                        alignItems: 'center',
-                        gap: 6,
-                        background: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
-                        border: '1.5px solid #93c5fd',
-                        borderRadius: 6,
-                        padding: '5px 12px',
-                        fontSize: '0.75rem',
-                        fontWeight: 700,
-                        color: '#1d4ed8',
-                        cursor: 'pointer',
+                        flexDirection: 'column',
                       }}
                     >
-                      <Sparkles size={13} style={{ color: '#2563eb' }} />
-                      {isAiFormatting ? 'Formatting with AI...' : '✨ AI Format to Official Template Style'}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setShowRawMarkup(!showRawMarkup)}
-                      style={{
-                        background: 'none',
-                        border: '1px solid #cbd5e1',
-                        borderRadius: 6,
-                        padding: '5px 10px',
-                        fontSize: '0.75rem',
-                        color: '#475569',
-                        cursor: 'pointer',
-                      }}
-                    >
-                      {showRawMarkup ? 'Hide Markup' : 'View / Edit Markup'}
-                    </button>
-                  </div>
-                </div>
+                      {/* Live Template Header Bar */}
+                      <div
+                        style={{
+                          backgroundColor: '#f8fafc',
+                          padding: '12px 18px',
+                          borderBottom: '1px solid #e2e8f0',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          flexWrap: 'wrap',
+                          gap: 10,
+                        }}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                          <Eye size={16} style={{ color: '#2563eb' }} />
+                          <span style={{ fontSize: '0.875rem', fontWeight: 700, color: '#0f172a' }}>
+                            Official Template Live Preview
+                          </span>
+                          <span
+                            style={{
+                              fontSize: '0.7rem',
+                              color: '#16a34a',
+                              backgroundColor: '#dcfce7',
+                              padding: '2px 8px',
+                              borderRadius: 10,
+                              fontWeight: 700,
+                            }}
+                          >
+                            Live Template
+                          </span>
+                        </div>
 
-                {showRawMarkup && (
-                  <div style={{ marginTop: 14 }}>
-                    <textarea
-                      rows={12}
-                      className="form-textarea"
-                      value={templateText}
-                      onChange={(e) => setTemplateText(e.target.value)}
-                      style={{
-                        fontFamily: 'monospace',
-                        fontSize: '0.8125rem',
-                        lineHeight: 1.5,
-                        backgroundColor: '#f8fafc',
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                          <label
+                            style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: 5,
+                              fontSize: '0.75rem',
+                              color: '#475569',
+                              cursor: 'pointer',
+                              padding: '3px 8px',
+                              borderRadius: 6,
+                              background: highlightPlaceholders ? '#fef08a' : '#f1f5f9',
+                              fontWeight: 600,
+                            }}
+                          >
+                            <Highlighter size={12} />
+                            <input
+                              type="checkbox"
+                              checked={highlightPlaceholders}
+                              onChange={(e) => setHighlightPlaceholders(e.target.checked)}
+                              style={{ cursor: 'pointer' }}
+                            />
+                            <span>Highlight Fields</span>
+                          </label>
+
+                          <button
+                            type="button"
+                            onClick={handleFillDemoData}
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: 5,
+                              fontSize: '0.75rem',
+                              padding: '4px 10px',
+                              borderRadius: 6,
+                              border: '1px solid #bfdbfe',
+                              backgroundColor: '#eff6ff',
+                              color: '#1d4ed8',
+                              cursor: 'pointer',
+                              fontWeight: 600,
+                            }}
+                            title="Auto-fill sample employee details into variables for instant preview"
+                          >
+                            <Users size={12} />
+                            <span>Sample Data</span>
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* A4 Letterhead Sheet Container */}
+                      <div
+                        style={{
+                          padding: '24px 20px',
+                          backgroundColor: '#f1f5f9',
+                          display: 'flex',
+                          justifyContent: 'center',
+                          overflowX: 'auto',
+                          maxHeight: step1ViewLayout === 'preview' ? 'none' : '650px',
+                          overflowY: 'auto',
+                        }}
+                      >
+                        <div
+                          style={{
+                            width: '100%',
+                            maxWidth: 760,
+                            backgroundColor: '#ffffff',
+                            borderRadius: 8,
+                            boxShadow: '0 8px 24px rgba(0, 0, 0, 0.08)',
+                            border: '1px solid #e2e8f0',
+                            padding: '36px 44px',
+                            fontFamily: 'Georgia, "Times New Roman", Times, serif',
+                            fontSize: '13.5px',
+                            lineHeight: 1.7,
+                            color: '#1e293b',
+                            boxSizing: 'border-box',
+                            minHeight: 480,
+                          }}
+                        >
+                          {/* Official Header */}
+                          <div
+                            style={{
+                              borderBottom: '2px solid #0f172a',
+                              paddingBottom: 14,
+                              marginBottom: 24,
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'space-between',
+                            }}
+                          >
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                              <img
+                                src="/logo.png"
+                                alt="Logo"
+                                style={{ width: 34, height: 34, objectFit: 'contain' }}
+                              />
+                              <div>
+                                <div style={{ fontSize: '1.15rem', fontWeight: 800, color: '#0f172a', fontFamily: 'sans-serif' }}>
+                                  TASKNERA
+                                </div>
+                                <div style={{ fontSize: '0.68rem', color: '#64748b', fontFamily: 'sans-serif', letterSpacing: '0.04em' }}>
+                                  OFFICIAL WORKFORCE DOCUMENTATION
+                                </div>
+                              </div>
+                            </div>
+
+                            <div style={{ textAlign: 'right', fontSize: '0.72rem', color: '#64748b', fontFamily: 'sans-serif' }}>
+                              <div>Ref: {formData.reference_number || 'TSK-DOC-2026'}</div>
+                              <div>Date: {formData.issue_date || new Date().toLocaleDateString()}</div>
+                            </div>
+                          </div>
+
+                          {/* Document Content Rendered via ExecutiveDocumentRenderer */}
+                          {templateText.trim().length === 0 ? (
+                            <div style={{ padding: '60px 20px', textAlign: 'center', color: '#94a3b8', fontStyle: 'italic', fontFamily: 'sans-serif' }}>
+                              <FileText size={36} style={{ color: '#cbd5e1', margin: '0 auto 12px' }} />
+                              <p style={{ margin: 0, fontSize: '0.95rem', fontWeight: 600 }}>Paste your document content into the text box.</p>
+                              <p style={{ margin: '6px 0 0', fontSize: '0.8rem' }}>It will cleanly format and be visible on this official TaskNera template.</p>
+                            </div>
+                          ) : (
+                            <ExecutiveDocumentRenderer
+                              content={templateText}
+                              formData={formData}
+                              highlightPlaceholders={highlightPlaceholders}
+                            />
+                          )}
+
+                          {/* Official Footer */}
+                          <div
+                            style={{
+                              borderTop: '1px solid #e2e8f0',
+                              marginTop: 36,
+                              paddingTop: 14,
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'space-between',
+                              fontSize: '0.72rem',
+                              color: '#94a3b8',
+                              fontFamily: 'sans-serif',
+                            }}
+                          >
+                            <div>Generated with TaskNera AI Document Engine</div>
+                            <div>Confidential & Legally Binding</div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Footer Actions inside Preview */}
+                      <div
+                        style={{
+                          backgroundColor: '#f8fafc',
+                          padding: '12px 18px',
+                          borderTop: '1px solid #e2e8f0',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          flexWrap: 'wrap',
+                          gap: 10,
+                        }}
+                      >
+                        <span style={{ fontSize: '0.75rem', color: '#64748b' }}>
+                          Template: <strong style={{ color: '#0f172a' }}>{templateTitle}</strong>
+                        </span>
+
+                        <Button
+                          variant="primary"
+                          icon={<ArrowRight size={15} />}
+                          onClick={() => setStep(2)}
+                          style={{ padding: '8px 20px', fontSize: '0.85rem' }}
+                        >
+                          Proceed to Fill Details with AI
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* ------------------------------------------------------------- */}
+              {/* TAB B: UPLOAD DOCUMENT FILE (.DOCX, .PDF, .TXT)               */}
+              {/* ------------------------------------------------------------- */}
+              {step1Mode === 'upload' && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+                  <div
+                    onDragEnter={(e) => {
+                      e.preventDefault();
+                      setDragActive(true);
+                    }}
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                      setDragActive(true);
+                    }}
+                    onDragLeave={() => setDragActive(false)}
+                    onDrop={handleDrop}
+                    onClick={() => fileInputRef.current?.click()}
+                    style={{
+                      border: dragActive ? '2px dashed #2563eb' : '2px dashed #cbd5e1',
+                      backgroundColor: dragActive ? '#eff6ff' : '#ffffff',
+                      borderRadius: 14,
+                      padding: '36px 24px',
+                      textAlign: 'center',
+                      cursor: 'pointer',
+                      transition: 'all 0.15s ease',
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
+                    }}
+                  >
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept=".docx,.pdf,.txt,.html,.md"
+                      style={{ display: 'none' }}
+                      onChange={(e) => {
+                        if (e.target.files && e.target.files[0]) {
+                          handleFileUpload(e.target.files[0]);
+                        }
                       }}
                     />
-                    <p style={{ fontSize: '0.75rem', color: '#64748b', marginTop: 6 }}>
-                      You can insert placeholders using double curly braces, e.g. <code style={{ color: '#2563eb' }}>{'{{custom_field}}'}</code>.
-                    </p>
-                  </div>
-                )}
-              </div>
 
-              {/* Step 1 Footer Action */}
-              <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                <Button
-                  variant="primary"
-                  icon={<ArrowRight size={16} />}
-                  onClick={() => setStep(2)}
-                  style={{ padding: '10px 24px', fontSize: '0.875rem' }}
+                    <div
+                      style={{
+                        width: 56,
+                        height: 56,
+                        borderRadius: '50%',
+                        backgroundColor: '#eff6ff',
+                        color: '#2563eb',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        margin: '0 auto 14px',
+                      }}
+                    >
+                      <Upload size={26} />
+                    </div>
+
+                    <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#0f172a', margin: '0 0 6px' }}>
+                      {isUploading ? 'Uploading & Parsing Template...' : 'Upload Any Custom Document Template'}
+                    </h3>
+                    <p style={{ fontSize: '0.85rem', color: '#64748b', maxWidth: 520, margin: '0 auto 16px', lineHeight: 1.5 }}>
+                      Drop your Microsoft Word (<strong>.docx</strong>), PDF (<strong>.pdf</strong>), or Text (<strong>.txt</strong>) file here.
+                      The system will cleanly parse the text and detect all fields automatically.
+                    </p>
+
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, flexWrap: 'wrap' }}>
+                      <Button
+                        variant="primary"
+                        icon={<Upload size={15} />}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          fileInputRef.current?.click();
+                        }}
+                      >
+                        Browse Files on Computer
+                      </Button>
+
+                      <Button
+                        variant="secondary"
+                        icon={<FileText size={15} />}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setStep1Mode('paste');
+                        }}
+                      >
+                        Prefer Copy-Pasting Content
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* Render Live Preview of parsed content below if text exists */}
+                  {templateText && (
+                    <div
+                      style={{
+                        backgroundColor: '#ffffff',
+                        borderRadius: 14,
+                        border: '1.5px solid #e2e8f0',
+                        overflow: 'hidden',
+                        padding: 20,
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                          <FileCode size={18} style={{ color: '#2563eb' }} />
+                          <span style={{ fontSize: '0.95rem', fontWeight: 700, color: '#0f172a' }}>
+                            Parsed Template Preview ({detectedPlaceholders.length} fields detected)
+                          </span>
+                        </div>
+                        <Button
+                          variant="primary"
+                          icon={<ArrowRight size={15} />}
+                          onClick={() => setStep(2)}
+                        >
+                          Proceed to Step 2
+                        </Button>
+                      </div>
+
+                      <div style={{ maxHeight: 400, overflowY: 'auto', backgroundColor: '#f8fafc', padding: 20, borderRadius: 8, border: '1px solid #e2e8f0' }}>
+                        <ExecutiveDocumentRenderer
+                          content={templateText}
+                          formData={formData}
+                          highlightPlaceholders={highlightPlaceholders}
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* ------------------------------------------------------------- */}
+              {/* TAB C: STANDARD CORPORATE PRESETS                             */}
+              {/* ------------------------------------------------------------- */}
+              {step1Mode === 'preset' && (
+                <div
+                  style={{
+                    backgroundColor: '#ffffff',
+                    borderRadius: 14,
+                    border: '1px solid #e2e8f0',
+                    padding: '22px 24px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 16,
+                  }}
                 >
-                  Proceed to Fill Details with AI
-                </Button>
-              </div>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+                    <div>
+                      <h4 style={{ fontSize: '1rem', fontWeight: 700, margin: 0, color: '#0f172a' }}>
+                        Choose a Standard HR Blueprint
+                      </h4>
+                      <p style={{ fontSize: '0.8125rem', color: '#64748b', margin: '2px 0 0' }}>
+                        Select a standard template blueprint to load immediately:
+                      </p>
+                    </div>
+                  </div>
+
+                  <div
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+                      gap: 12,
+                    }}
+                  >
+                    {STANDARD_PRESETS.map((preset) => {
+                      const isSelected = selectedPresetId === preset.id;
+                      return (
+                        <div
+                          key={preset.id}
+                          onClick={() => handleSelectPreset(preset)}
+                          style={{
+                            padding: '14px 16px',
+                            borderRadius: 10,
+                            border: isSelected ? '2px solid #2563eb' : '1px solid #e2e8f0',
+                            backgroundColor: isSelected ? '#eff6ff' : '#f8fafc',
+                            cursor: 'pointer',
+                            transition: 'all 0.15s ease',
+                            display: 'flex',
+                            alignItems: 'flex-start',
+                            gap: 12,
+                          }}
+                        >
+                          <span style={{ fontSize: '1.4rem' }}>{preset.icon}</span>
+                          <div style={{ flex: 1 }}>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                              <span style={{ fontSize: '0.875rem', fontWeight: 700, color: '#0f172a' }}>
+                                {preset.name}
+                              </span>
+                              {isSelected && (
+                                <span style={{ fontSize: '0.7rem', color: '#2563eb', fontWeight: 700 }}>
+                                  Active
+                                </span>
+                              )}
+                            </div>
+                            <p style={{ fontSize: '0.75rem', color: '#64748b', margin: '3px 0 0', lineHeight: 1.35 }}>
+                              {preset.description}
+                            </p>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Footer with Step 2 action */}
+                  <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 10 }}>
+                    <Button
+                      variant="primary"
+                      icon={<ArrowRight size={16} />}
+                      onClick={() => setStep(2)}
+                      style={{ padding: '10px 24px', fontSize: '0.875rem' }}
+                    >
+                      Proceed to Fill Details with AI
+                    </Button>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
