@@ -642,6 +642,7 @@ Date: ___________________________`
 
 export interface CategoryItemDef {
   value: string;
+  legacyValue?: string;
   label: string;
   group: 'templates' | 'certificates' | 'policies' | 'other';
   groupLabel: string;
@@ -652,12 +653,69 @@ export interface CategoryItemDef {
 
 // All Document Categories and Sections present in the Offers page
 export const OFFERS_ALL_CATEGORIES: CategoryItemDef[] = [
-  // Group 1: Templates & Offers
+  // 1. Recruitment Agreement (MRSA)
   {
-    value: 'OFFER_LETTER',
-    label: 'Offer Letter (18 Official Sections)',
+    value: 'Recruitment Agreement',
+    legacyValue: 'RECRUITMENT_AGREEMENT',
+    label: 'Recruitment Agreement',
     group: 'templates',
-    groupLabel: '📋 Templates & Offers (from Offers)',
+    groupLabel: 'Recruitment Agreement',
+    defaultTitle: 'Master Recruitment Agreement (MRSA)',
+    blueprintContent: `**MASTER RECRUITMENT SERVICES AGREEMENT (MRSA)**
+
+**Agreement Reference**: {{reference_number}}
+**Effective Date**: {{issue_date}}
+
+This Master Recruitment Services Agreement is entered into between **{{company_name}}** ("Agency") and **{{candidate_name}}** ("Hiring Partner / Client").
+
+**1. SCOPE OF RECRUITMENT & TALENT SERVICES**
+• **Search Mandate**: Provision of specialized technical recruiting, executive search, candidate vetting, and assessment.
+• **Candidate Quality**: Agency shall deploy certified evaluation frameworks to present pre-screened talent matching verified job descriptions.
+
+**2. PROFESSIONAL PLACEMENT FEES & COMMERCIAL COVENANTS**
+• **Service Fee**: **{{base_salary}}** of the placed candidate's first-year Total Cost to Company (CTC).
+• **Invoicing Schedule**: Invoices are generated within 5 business days of candidate commencement.
+• **Payment Period**: Payment is due within **{{notice_period}}** of invoice dispatch.
+
+**3. REPLACEMENT WARRANTY & GUARANTEE**
+• **Guarantee Duration**: **{{probation_period}}** from candidate joining date.
+• **Free Replacement**: In the event of resignation or performance-based exit during warranty, Agency provides one free replacement candidate.
+
+**4. NON-SOLICITATION & CONFIDENTIALITY**
+• Neither party shall solicit, hire, or engage the other party's staff for a period of 12 months following termination.
+• Resumes and commercial rates are strictly confidential proprietary information.
+
+Agreed and Authorized:
+
+For **{{company_name}}** (Agency)
+___________________________
+**{{signatory_name}}**
+{{signatory_title}}
+
+For **{{candidate_name}}** (Client)
+___________________________
+Authorized Corporate Officer
+Date: ___________________________`,
+    sampleData: {
+      reference_number: 'TSK-MRSA-2026-014',
+      company_name: 'TaskNera Technologies Ltd.',
+      candidate_name: 'Apex Global Enterprises Inc.',
+      issue_date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
+      base_salary: '8.33% (1 Month CTC)',
+      notice_period: '30 calendar days',
+      probation_period: '90 days replacement warranty',
+      signatory_name: 'Sheetal Bedi',
+      signatory_title: 'Chief Executive Officer',
+    },
+  },
+
+  // 2. Offer Letter
+  {
+    value: 'Offer Letter',
+    legacyValue: 'OFFER_LETTER',
+    label: 'Offer Letter',
+    group: 'templates',
+    groupLabel: 'Offer Letter',
     defaultTitle: 'Corporate Offer Letter',
     blueprintContent: `**CONFIDENTIAL OFFER OF EMPLOYMENT**
 
@@ -727,153 +785,29 @@ Date: ___________________________`,
       signatory_title: 'Chief Executive Officer',
     },
   },
+
+  // 3. Character Certificate
   {
-    value: 'RECRUITMENT_AGREEMENT',
-    label: 'Recruitment Agreement (MRSA)',
-    group: 'templates',
-    groupLabel: '📋 Templates & Offers (from Offers)',
-    defaultTitle: 'Master Recruitment Services Agreement (MRSA)',
-    blueprintContent: `**MASTER RECRUITMENT SERVICES AGREEMENT (MRSA)**
-
-**Agreement Reference**: {{reference_number}}
-**Effective Date**: {{issue_date}}
-
-This Master Recruitment Services Agreement is entered into between **{{company_name}}** ("Agency") and **{{candidate_name}}** ("Hiring Partner / Client").
-
-**1. SCOPE OF RECRUITMENT & TALENT SERVICES**
-• **Search Mandate**: Provision of specialized technical recruiting, executive search, candidate vetting, and assessment.
-• **Candidate Quality**: Agency shall deploy certified evaluation frameworks to present pre-screened talent matching verified job descriptions.
-
-**2. PROFESSIONAL PLACEMENT FEES & COMMERCIAL COVENANTS**
-• **Service Fee**: **{{base_salary}}** of the placed candidate's first-year Total Cost to Company (CTC).
-• **Invoicing Schedule**: Invoices are generated within 5 business days of candidate commencement.
-• **Payment Period**: Payment is due within **{{notice_period}}** of invoice dispatch.
-
-**3. REPLACEMENT WARRANTY & GUARANTEE**
-• **Guarantee Duration**: **{{probation_period}}** from candidate joining date.
-• **Free Replacement**: In the event of resignation or performance-based exit during warranty, Agency provides one free replacement candidate.
-
-**4. NON-SOLICITATION & CONFIDENTIALITY**
-• Neither party shall solicit, hire, or engage the other party's staff for a period of 12 months following termination.
-• Resumes and commercial rates are strictly confidential proprietary information.
-
-Agreed and Authorized:
-
-For **{{company_name}}** (Agency)
-___________________________
-**{{signatory_name}}**
-{{signatory_title}}
-
-For **{{candidate_name}}** (Client)
-___________________________
-Authorized Corporate Officer
-Date: ___________________________`,
-    sampleData: {
-      reference_number: 'TSK-MRSA-2026-014',
-      company_name: 'TaskNera Technologies Ltd.',
-      candidate_name: 'Apex Global Enterprises Inc.',
-      issue_date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
-      base_salary: '8.33% (1 Month CTC)',
-      notice_period: '30 calendar days',
-      probation_period: '90 days replacement warranty',
-      signatory_name: 'Sheetal Bedi',
-      signatory_title: 'Chief Executive Officer',
-    },
-  },
-  {
-    value: 'APPOINTMENT_LETTER',
-    label: 'Appointment Letter',
-    group: 'templates',
-    groupLabel: '📋 Templates & Offers (from Offers)',
-    defaultTitle: 'Formal Letter of Appointment',
-    blueprintContent: `**FORMAL LETTER OF APPOINTMENT**
+    value: 'Character Certificate',
+    legacyValue: 'CHARACTER_CERTIFICATE',
+    label: 'Character Certificate',
+    group: 'certificates',
+    groupLabel: 'Character Certificate',
+    defaultTitle: 'Character & Conduct Certificate',
+    blueprintContent: `**TO WHOM IT MAY CONCERN**
+**CHARACTER & CONDUCT CERTIFICATE**
 
 **Date of Issue**: {{issue_date}}
 **Reference Number**: {{reference_number}}
 
-Dear **{{candidate_name}}**,
+This is to formally certify that **{{candidate_name}}** (Employee Code: **{{employee_id}}**) has been associated with **{{company_name}}** from **{{joining_date}}** to **{{end_date}}** as **{{job_title}}**.
 
-Consequent to our employment offer and your formal acceptance, the management of **{{company_name}}** is pleased to confirm your appointment as **{{job_title}}** effective from **{{joining_date}}**.
+**1. CONDUCT & PROFESSIONAL INTEGRITY**
+• During their tenure with our organization, we found **{{candidate_name}}** to be disciplined, sincere, and diligent in all assigned professional responsibilities.
+• They demonstrated exemplary moral character, high professional ethics, and maintained respectful rapport with team members and management.
+• No disciplinary infractions or inquiries were recorded against them during their period of service.
 
-**1. DEPARTMENT, ROLE & REPORTING STRUCTURE**
-• **Designation**: **{{job_title}}**
-• **Department / Division**: **{{department}}**
-• **Reporting Line**: **{{reporting_manager}}**
-• **Work Location**: **{{work_location}}**
-
-**2. REMUNERATION & COMPENSATION STRUCTURE**
-• **Total Cost-to-Company (CTC)**: **{{annual_ctc}}** per annum.
-• **Fixed Base Salary**: **{{base_salary}}**
-• **Disbursement Cycle**: Credited monthly on the final business day of each calendar month.
-
-**3. PROBATION & CONFIRMATION OF SERVICES**
-• You shall undergo a probation period of **{{probation_period}}** from your date of joining.
-• Confirmation of permanent appointment is subject to satisfactory performance and written confirmation.
-
-**4. NOTICE PERIOD & CODE OF CONDUCT**
-• Applicable notice period upon confirmation is **{{notice_period}}**.
-• You agree to adhere strictly to Company policies, confidentiality covenants, and workplace code of conduct.
-
-Sincerely,
-
-For **{{company_name}}**
-___________________________
-**{{signatory_name}}**
-{{signatory_title}}
-
-**ACKNOWLEDGEMENT & ACCEPTANCE**
-I acknowledge receipt of this Appointment Letter and accept all terms specified.
-
-Signature: ___________________________
-Candidate Name: **{{candidate_name}}**
-Date: ___________________________`,
-    sampleData: {
-      reference_number: 'TSK-APT-2026-302',
-      candidate_name: 'Rahul Sharma',
-      company_name: 'TaskNera Technologies Ltd.',
-      issue_date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
-      job_title: 'Senior Software Engineer',
-      department: 'Engineering',
-      reporting_manager: 'Sheetal Bedi',
-      joining_date: 'June 01, 2024',
-      work_location: 'Bangalore, India',
-      annual_ctc: 'INR 22,00,000 per annum',
-      base_salary: 'INR 18,00,000 per annum',
-      probation_period: '6 Months',
-      notice_period: '45 days',
-      signatory_name: 'Sheetal Bedi',
-      signatory_title: 'Chief Executive Officer',
-    },
-  },
-  {
-    value: 'ONBOARDING_LETTER',
-    label: 'Onboarding & Welcome Letter',
-    group: 'templates',
-    groupLabel: '📋 Templates & Offers (from Offers)',
-    defaultTitle: 'Welcome & Onboarding Directive',
-    blueprintContent: `**WELCOME & ONBOARDING DIRECTIVE**
-
-**Date of Welcome**: {{issue_date}}
-**Reference Number**: {{reference_number}}
-
-Dear **{{candidate_name}}**,
-
-Welcome to **{{company_name}}**! We are thrilled to welcome you to our workforce as **{{job_title}}** in the **{{department}}** department.
-
-**1. JOINING SCHEDULE & REPORTING DETAILS**
-• **Reporting Date**: **{{joining_date}}** at 09:30 AM IST
-• **Reporting Location**: **{{work_location}}**
-• **HR Onboarding Lead**: **{{reporting_manager}}**
-
-**2. MANDATORY DAY-1 DOCUMENTATION CHECKLIST**
-• Copy of Government-issued photo ID (PAN Card, Aadhaar / National ID / Passport)
-• Original educational certificates and degree transcripts for physical verification
-• Relieving letter and formal service certificate from previous employer
-• 3 Passport-size photographs and cancelled cheque for payroll account setup
-
-**3. IT ASSET ALLOCATION & ORIENTATION**
-• Official laptop, access credentials, and VPN tokens will be provisioned during Day-1 orientation.
-• Mandatory security orientation and Code of Conduct compliance briefings will follow.
+We wish **{{candidate_name}}** all success in future endeavors.
 
 Sincerely,
 
@@ -882,24 +816,78 @@ ___________________________
 **{{signatory_name}}**
 {{signatory_title}}`,
     sampleData: {
-      reference_number: 'TSK-ONB-2026-055',
-      candidate_name: 'Ananya Roy',
+      reference_number: 'TSK-CHR-2026-440',
+      candidate_name: 'Priya Patel',
+      employee_id: 'EMP-1002',
       company_name: 'TaskNera Technologies Ltd.',
       issue_date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
-      job_title: 'UI/UX Product Designer',
-      department: 'Design',
-      reporting_manager: 'Sheetal Bedi',
-      joining_date: 'January 10, 2025',
-      work_location: 'Remote / Bangalore Hub',
+      job_title: 'Lead Product Manager',
+      department: 'Product',
+      joining_date: 'November 15, 2023',
+      end_date: 'October 15, 2026',
       signatory_name: 'Sheetal Bedi',
       signatory_title: 'Chief Executive Officer',
     },
   },
+
+  // 4. Experience Letter
   {
-    value: 'INTERNSHIP_LETTER',
+    value: 'Experience Letter',
+    legacyValue: 'EXPERIENCE_LETTER',
+    label: 'Experience Letter',
+    group: 'certificates',
+    groupLabel: 'Experience Letter',
+    defaultTitle: 'Experience & Service Certificate',
+    blueprintContent: `**TO WHOM IT MAY CONCERN**
+**EXPERIENCE & SERVICE CERTIFICATE**
+
+**Date of Issue**: {{issue_date}}
+**Certificate Reference**: {{reference_number}}
+
+This is to formally certify that **{{candidate_name}}** (Employee Code: **{{employee_id}}**) was employed with **{{company_name}}** from **{{joining_date}}** to **{{end_date}}**.
+
+**1. TENURE & DESIGNATION DETAILS**
+• **Final Designation**: **{{job_title}}**
+• **Department / Practice**: **{{department}}**
+• **Tenure of Service**: From **{{joining_date}}** to **{{end_date}}**
+• **Reporting Line**: **{{reporting_manager}}**
+
+**2. PROFESSIONAL CONDUCT & PERFORMANCE**
+• **Technical Competency**: Demonstrated exceptional professional capability and dedication across all assigned mandates.
+• **Integrity & Conduct**: Maintained the highest ethical standards, dedication, and professional integrity.
+• **Clearance Status**: All official handovers, intellectual property assignments, and accounts have been fully settled.
+
+We appreciate **{{candidate_name}}**'s contributions to our organization and wish them continued success in all future professional endeavors.
+
+Sincerely,
+
+For **{{company_name}}**
+___________________________
+**{{signatory_name}}**
+{{signatory_title}}`,
+    sampleData: {
+      reference_number: 'TSK-EXP-2026-891',
+      candidate_name: 'Rohan Mehra',
+      employee_id: 'TN-1044',
+      company_name: 'TaskNera Technologies Ltd.',
+      issue_date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
+      job_title: 'Senior Frontend Engineer',
+      department: 'Web Applications',
+      joining_date: 'February 10, 2023',
+      end_date: 'September 30, 2026',
+      reporting_manager: 'Sheetal Bedi',
+      signatory_name: 'Sheetal Bedi',
+      signatory_title: 'Chief Executive Officer',
+    },
+  },
+
+  // 5. Internship Letter
+  {
+    value: 'Internship Letter',
+    legacyValue: 'INTERNSHIP_LETTER',
     label: 'Internship Letter',
     group: 'templates',
-    groupLabel: '📋 Templates & Offers (from Offers)',
+    groupLabel: 'Internship Letter',
     defaultTitle: 'Internship Appointment Letter',
     blueprintContent: `**INTERNSHIP APPOINTMENT LETTER**
 
@@ -954,341 +942,14 @@ Date: ___________________________`,
       signatory_title: 'Chief Executive Officer',
     },
   },
+
+  // 6. Salary Slip
   {
-    value: 'CONTRACTOR_AGREEMENT',
-    label: 'Independent Contractor Agreement',
-    group: 'templates',
-    groupLabel: '📋 Templates & Offers (from Offers)',
-    defaultTitle: 'Independent Contractor Agreement',
-    blueprintContent: `**INDEPENDENT CONTRACTOR ENGAGEMENT AGREEMENT**
-
-**Agreement Reference**: {{reference_number}}
-**Effective Date**: {{issue_date}}
-
-This Agreement is entered into between **{{company_name}}** ("Client") and **{{candidate_name}}** ("Contractor").
-
-**1. SCOPE OF SERVICES & DELIVERABLES**
-• **Role / Specialization**: **{{job_title}}**
-• **Core Objectives**: Execution of specialized technical architecture, roadmap features, and sprint tasks.
-• **Standard of Performance**: Services will be conducted with professional excellence adhering to industry standards.
-
-**2. PROFESSIONAL FEES & PAYMENT TERMS**
-• **Milestone Fee**: **{{base_salary}}**
-• **Invoicing Schedule**: Payable within 15 business days of deliverable milestone verification.
-• **Expenses**: Pre-approved travel and infrastructure expenses reimbursed at actual cost.
-
-**3. ENGAGEMENT TENURE & TERMINATION**
-• **Commencement Date**: **{{joining_date}}**
-• **Scheduled Completion**: **{{end_date}}**
-• **Notice Period for Termination**: **{{notice_period}}** written notice by either party.
-
-Agreed and Accepted:
-
-For **{{company_name}}** (Client)
-___________________________
-**{{signatory_name}}**
-{{signatory_title}}
-
-For **{{candidate_name}}** (Contractor)
-___________________________
-Authorized Signature
-Date: ___________________________`,
-    sampleData: {
-      reference_number: 'TSK-CTR-2026-042',
-      candidate_name: 'Devon Scott Consulting LLC',
-      company_name: 'TaskNera Technologies Ltd.',
-      issue_date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
-      job_title: 'Cloud DevOps & SRE Specialist',
-      base_salary: 'INR 1,20,000 per milestone sprint',
-      joining_date: 'November 01, 2026',
-      end_date: 'April 30, 2027',
-      notice_period: '14 business days',
-      signatory_name: 'Sheetal Bedi',
-      signatory_title: 'Chief Executive Officer',
-    },
-  },
-  {
-    value: 'NDA',
-    label: 'Non-Disclosure Agreement (NDA)',
-    group: 'templates',
-    groupLabel: '📋 Templates & Offers (from Offers)',
-    defaultTitle: 'Mutual Non-Disclosure Agreement (NDA)',
-    blueprintContent: `**MUTUAL NON-DISCLOSURE & CONFIDENTIALITY AGREEMENT**
-
-**Agreement Reference**: {{reference_number}}
-**Effective Date**: {{issue_date}}
-
-This Agreement is entered into between **{{company_name}}** and **{{candidate_name}}** ("Participant / Recipient").
-
-**1. PURPOSE & PROPRIETARY INFORMATION**
-• **Purpose**: Evaluation and performance of duties associated with the position of **{{job_title}}**.
-• **Scope of Information**: Technical architectures, algorithmic codebases, business roadmaps, financial data, and customer identities.
-
-**2. OBLIGATIONS OF CONFIDENTIALITY**
-• **Duty of Care**: Recipient shall protect confidential information with the same degree of care used for their own sensitive assets, but no less than reasonable care.
-• **Non-Disclosure**: Information shall not be published, disseminated, or transferred to third parties without prior written consent.
-• **Return of Materials**: All materials and backups shall be returned or destroyed immediately upon written request.
-
-**3. DURATION & GOVERNING JURISDICTION**
-• **Duration of Covenant**: The confidentiality obligations remain in force for a period of {{notice_period}} following disclosure.
-• **Governing Law**: Subject to the laws and jurisdiction applicable at **{{work_location}}**.
-
-In Witness Whereof, the parties have executed this Agreement as of the Effective Date:
-
-For **{{company_name}}**
-___________________________
-**{{signatory_name}}**
-{{signatory_title}}
-
-For **{{candidate_name}}**
-___________________________
-Signature
-Date: ___________________________`,
-    sampleData: {
-      reference_number: 'TSK-NDA-2026-108',
-      company_name: 'TaskNera Technologies Ltd.',
-      candidate_name: 'Vikram Joshi',
-      issue_date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
-      work_location: 'Delhi, India',
-      job_title: 'Technical Consultant',
-      notice_period: '2 Years',
-      signatory_name: 'Sheetal Bedi',
-      signatory_title: 'Chief Executive Officer',
-    },
-  },
-
-  // Group 2: Certificates
-  {
-    value: 'EXPERIENCE_LETTER',
-    label: 'Experience Letter & Certificate',
-    group: 'certificates',
-    groupLabel: '📜 Certificates (from Offers)',
-    defaultTitle: 'Experience & Service Certificate',
-    blueprintContent: `**TO WHOM IT MAY CONCERN**
-**EXPERIENCE & SERVICE CERTIFICATE**
-
-**Date of Issue**: {{issue_date}}
-**Certificate Reference**: {{reference_number}}
-
-This is to formally certify that **{{candidate_name}}** (Employee Code: **{{employee_id}}**) was employed with **{{company_name}}** from **{{joining_date}}** to **{{end_date}}**.
-
-**1. TENURE & DESIGNATION DETAILS**
-• **Final Designation**: **{{job_title}}**
-• **Department / Practice**: **{{department}}**
-• **Tenure of Service**: From **{{joining_date}}** to **{{end_date}}**
-• **Reporting Line**: **{{reporting_manager}}**
-
-**2. PROFESSIONAL CONDUCT & PERFORMANCE**
-• **Technical Competency**: Demonstrated exceptional professional capability and dedication across all assigned mandates.
-• **Integrity & Conduct**: Maintained the highest ethical standards, dedication, and professional integrity.
-• **Clearance Status**: All official handovers, intellectual property assignments, and accounts have been fully settled.
-
-We appreciate **{{candidate_name}}**'s contributions to our organization and wish them continued success in all future professional endeavors.
-
-Sincerely,
-
-For **{{company_name}}**
-___________________________
-**{{signatory_name}}**
-{{signatory_title}}`,
-    sampleData: {
-      reference_number: 'TSK-EXP-2026-891',
-      candidate_name: 'Rohan Mehra',
-      employee_id: 'TN-1044',
-      company_name: 'TaskNera Technologies Ltd.',
-      issue_date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
-      job_title: 'Senior Frontend Engineer',
-      department: 'Web Applications',
-      joining_date: 'February 10, 2023',
-      end_date: 'September 30, 2026',
-      reporting_manager: 'Sheetal Bedi',
-      signatory_name: 'Sheetal Bedi',
-      signatory_title: 'Chief Executive Officer',
-    },
-  },
-  {
-    value: 'RELIEVING_CERTIFICATE',
-    label: 'Relieving & Clearance Certificate',
-    group: 'certificates',
-    groupLabel: '📜 Certificates (from Offers)',
-    defaultTitle: 'Relieving & Clearance Letter',
-    blueprintContent: `**TO WHOM IT MAY CONCERN**
-**RELIEVING & CLEARANCE LETTER**
-
-**Date of Issue**: {{issue_date}}
-**Reference Number**: {{reference_number}}
-
-Dear **{{candidate_name}}**,
-
-This has reference to your formal resignation letter dated **{{resignation_date}}**. We hereby confirm that your resignation has been accepted by the management of **{{company_name}}**.
-
-**1. RELIEVING & TENURE CONFIRMATION**
-• **Designation Relieved From**: **{{job_title}}**
-• **Department**: **{{department}}**
-• **Effective Relieving Date**: Close of business hours on **{{end_date}}**
-• **Total Employment Period**: From **{{joining_date}}** to **{{end_date}}**
-
-**2. CLEARANCE & SETTLEMENT CONFIRMATION**
-• **Asset Handover**: Complete return and clearance of all company equipment, credentials, and software devices.
-• **Project Transition**: Satisfactory handover of ongoing deliverables and client documentation.
-• **Financial Settlement**: Full and final settlement disbursed in accordance with company payroll policy.
-
-We thank you for your dedicated service and wish you the very best in your subsequent career journey.
-
-Sincerely,
-
-For **{{company_name}}**
-___________________________
-**{{signatory_name}}**
-{{signatory_title}}`,
-    sampleData: {
-      reference_number: 'TSK-RLV-2026-512',
-      candidate_name: 'Ananya Verma',
-      company_name: 'TaskNera Technologies Ltd.',
-      issue_date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
-      resignation_date: 'August 15, 2026',
-      job_title: 'Product Operations Associate',
-      department: 'Operations',
-      joining_date: 'June 01, 2024',
-      end_date: 'September 30, 2026',
-      signatory_name: 'Sheetal Bedi',
-      signatory_title: 'Chief Executive Officer',
-    },
-  },
-  {
-    value: 'BONAFIDE_CERTIFICATE',
-    label: 'Bonafide Certificate',
-    group: 'certificates',
-    groupLabel: '📜 Certificates (from Offers)',
-    defaultTitle: 'Bonafide Employee Certificate',
-    blueprintContent: `**TO WHOM IT MAY CONCERN**
-**BONAFIDE EMPLOYEE CERTIFICATE**
-
-**Date of Issue**: {{issue_date}}
-**Certificate Reference**: {{reference_number}}
-
-This is to certify that **{{candidate_name}}** (Employee ID: **{{employee_id}}**) is a bonafide, full-time regular employee of **{{company_name}}**, currently employed as **{{job_title}}** in the **{{department}}** department since **{{joining_date}}**.
-
-**1. EMPLOYMENT PARTICULARS**
-• **Employee Full Name**: **{{candidate_name}}**
-• **Employee Code**: **{{employee_id}}**
-• **Current Designation**: **{{job_title}}**
-• **Date of Joining**: **{{joining_date}}**
-• **Current Employment Status**: Active & Full-Time Regular
-• **Annual Gross Emoluments**: **{{annual_ctc}}**
-
-**2. PURPOSE OF ISSUANCE**
-This certificate is issued at the specific request of the employee for official verification purposes (such as bank loan processing, visa application, or government documentation).
-
-Sincerely,
-
-For **{{company_name}}**
-___________________________
-**{{signatory_name}}**
-{{signatory_title}}`,
-    sampleData: {
-      reference_number: 'TSK-BNF-2026-194',
-      candidate_name: 'Rahul Sharma',
-      employee_id: 'EMP-1001',
-      company_name: 'TaskNera Technologies Ltd.',
-      issue_date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
-      job_title: 'Senior Software Engineer',
-      department: 'Engineering',
-      joining_date: 'June 01, 2024',
-      annual_ctc: 'INR 22,00,000 per annum',
-      signatory_name: 'Sheetal Bedi',
-      signatory_title: 'Chief Executive Officer',
-    },
-  },
-  {
-    value: 'CHARACTER_CERTIFICATE',
-    label: 'Character Certificate',
-    group: 'certificates',
-    groupLabel: '📜 Certificates (from Offers)',
-    defaultTitle: 'Character & Conduct Certificate',
-    blueprintContent: `**TO WHOM IT MAY CONCERN**
-**CHARACTER & CONDUCT CERTIFICATE**
-
-**Date of Issue**: {{issue_date}}
-**Reference Number**: {{reference_number}}
-
-This is to formally certify that **{{candidate_name}}** (Employee Code: **{{employee_id}}**) has been associated with **{{company_name}}** from **{{joining_date}}** to **{{end_date}}** as **{{job_title}}**.
-
-**1. CONDUCT & PROFESSIONAL INTEGRITY**
-• During their tenure with our organization, we found **{{candidate_name}}** to be disciplined, sincere, and diligent in all assigned professional responsibilities.
-• They demonstrated exemplary moral character, high professional ethics, and maintained respectful rapport with team members and management.
-• No disciplinary infractions or inquiries were recorded against them during their period of service.
-
-We wish **{{candidate_name}}** all success in future endeavors.
-
-Sincerely,
-
-For **{{company_name}}**
-___________________________
-**{{signatory_name}}**
-{{signatory_title}}`,
-    sampleData: {
-      reference_number: 'TSK-CHR-2026-440',
-      candidate_name: 'Priya Patel',
-      employee_id: 'EMP-1002',
-      company_name: 'TaskNera Technologies Ltd.',
-      issue_date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
-      job_title: 'Lead Product Manager',
-      department: 'Product',
-      joining_date: 'November 15, 2023',
-      end_date: 'October 15, 2026',
-      signatory_name: 'Sheetal Bedi',
-      signatory_title: 'Chief Executive Officer',
-    },
-  },
-  {
-    value: 'COMPLETION_CERTIFICATE',
-    label: 'Completion Certificate',
-    group: 'certificates',
-    groupLabel: '📜 Certificates (from Offers)',
-    defaultTitle: 'Certificate of Completion',
-    blueprintContent: `**CERTIFICATE OF COMPLETION**
-
-**Certificate Reference**: {{reference_number}}
-**Issue Date**: {{issue_date}}
-
-This is proudly presented to:
-
-**{{candidate_name}}**
-
-In recognition of the successful completion of the **{{job_title}}** Program with **{{company_name}}** from **{{joining_date}}** to **{{end_date}}**.
-
-**1. PERFORMANCE HIGHLIGHTS & ACHIEVEMENTS**
-• **Specialization Track**: **{{department}}**
-• **Core Competencies**: Architecture engineering, software delivery, and sprint execution.
-• **Mentor Assessment**: Commended for high analytical capability, technical discipline, and commitment.
-
-Sincerely,
-
-For **{{company_name}}**
-___________________________
-**{{signatory_name}}**
-{{signatory_title}}`,
-    sampleData: {
-      reference_number: 'TSK-CMP-2026-788',
-      candidate_name: 'Amitabh Sen',
-      company_name: 'TaskNera Technologies Ltd.',
-      issue_date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
-      job_title: 'Cloud Infrastructure Training Fellowship',
-      department: 'Cloud Infrastructure',
-      joining_date: 'March 01, 2024',
-      end_date: 'August 31, 2024',
-      signatory_name: 'Sheetal Bedi',
-      signatory_title: 'Chief Executive Officer',
-    },
-  },
-
-  // Group 3: Compensation & Policies
-  {
-    value: 'SALARY_SLIP',
-    label: 'Salary Slip / Payslip',
+    value: 'Salary Slip',
+    legacyValue: 'SALARY_SLIP',
+    label: 'Salary Slip',
     group: 'policies',
-    groupLabel: '💰 Compensation & Policies (from Offers)',
+    groupLabel: 'Salary Slip',
     defaultTitle: 'Monthly Pay Slip Statement',
     blueprintContent: `**MONTHLY PAYSLIP & EARNINGS STATEMENT**
 
@@ -1330,11 +991,14 @@ Confidential — Generated by TaskNera Enterprise Payroll Engine`,
       annual_ctc: '1,83,333',
     },
   },
+
+  // 7. Company Policies
   {
-    value: 'COMPANY_POLICIES',
-    label: 'Company Policies & Handbook',
+    value: 'Company Policies',
+    legacyValue: 'COMPANY_POLICIES',
+    label: 'Company Policies',
     group: 'policies',
-    groupLabel: '💰 Compensation & Policies (from Offers)',
+    groupLabel: 'Company Policies',
     defaultTitle: 'Company Workplace Policies & Code of Conduct',
     blueprintContent: `**TASKNERA WORKPLACE CODE OF CONDUCT & HR POLICIES**
 
@@ -1360,48 +1024,6 @@ Adopted and Authorized by Management, TaskNera Technologies Ltd.`,
       reference_number: 'TASK/HR-POL/2026/v1.2',
       company_name: 'TaskNera Technologies Ltd.',
       issue_date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
-    },
-  },
-
-  // Group 4: Other
-  {
-    value: 'CUSTOM',
-    label: 'Custom Document',
-    group: 'other',
-    groupLabel: '⚙️ Other',
-    defaultTitle: 'Custom Corporate Document',
-    blueprintContent: `**CONFIDENTIAL CORPORATE DIRECTIVE**
-
-**Date**: {{issue_date}}
-**Reference**: {{reference_number}}
-
-Dear **{{candidate_name}}**,
-
-This document sets forth official terms and conditions from **{{company_name}}** regarding your position as **{{job_title}}** in the **{{department}}** department.
-
-**1. SCOPE & DETAILS**
-• **Designation**: **{{job_title}}**
-• **Commencement**: **{{joining_date}}**
-• **Reporting**: **{{reporting_manager}}**
-• **Location**: **{{work_location}}**
-
-Sincerely,
-
-For **{{company_name}}**
-___________________________
-**{{signatory_name}}**
-{{signatory_title}}`,
-    sampleData: {
-      reference_number: 'TSK-GEN-2026-001',
-      candidate_name: 'Candidate Name',
-      company_name: 'TaskNera Technologies Ltd.',
-      issue_date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
-      job_title: 'Team Member',
-      department: 'Operations',
-      joining_date: 'November 01, 2026',
-      work_location: 'Headquarters',
-      signatory_name: 'Sheetal Bedi',
-      signatory_title: 'Chief Executive Officer',
     },
   },
 ];
@@ -2215,7 +1837,13 @@ export const TemplatesPage: React.FC = () => {
   // Handle Category Change from dropdown with auto-loading blueprint
   const handleCategoryChange = (catKey: string) => {
     setTemplateCategory(catKey);
-    const found = OFFERS_ALL_CATEGORIES.find((c) => c.value === catKey);
+    const found = OFFERS_ALL_CATEGORIES.find(
+      (c) =>
+        c.value === catKey ||
+        c.label.toLowerCase() === catKey.toLowerCase() ||
+        c.legacyValue === catKey ||
+        c.value.toLowerCase().replace(/[^a-z0-9]/g, '') === catKey.toLowerCase().replace(/[^a-z0-9]/g, '')
+    );
     if (found) {
       setTemplateTitle(found.defaultTitle);
       if (found.blueprintContent) {
@@ -2242,7 +1870,7 @@ On behalf of **{{company_name}}**, we are pleased to offer you the full-time pos
 
 ` + OFFICIAL_18_OFFER_SECTIONS.map((s) => s.content).join('\n\n');
 
-    setTemplateCategory('OFFER_LETTER');
+    setTemplateCategory('Offer Letter');
     setTemplateTitle('Official 18-Section Employment Offer Letter');
     setTemplateText(full18Content);
     extractPlaceholdersFromText(full18Content);
@@ -3170,29 +2798,11 @@ On behalf of **{{company_name}}**, we are pleased to offer you the full-time pos
                               color: '#0f172a',
                             }}
                           >
-                            <optgroup label="📋 Templates & Offers (from Offers)">
-                              <option value="OFFER_LETTER">Offer Letter (18 Official Sections)</option>
-                              <option value="RECRUITMENT_AGREEMENT">Recruitment Agreement (MRSA)</option>
-                              <option value="APPOINTMENT_LETTER">Appointment Letter</option>
-                              <option value="ONBOARDING_LETTER">Onboarding & Welcome Letter</option>
-                              <option value="INTERNSHIP_LETTER">Internship Letter</option>
-                              <option value="CONTRACTOR_AGREEMENT">Independent Contractor Agreement</option>
-                              <option value="NDA">Non-Disclosure Agreement (NDA)</option>
-                            </optgroup>
-                            <optgroup label="📜 Certificates (from Offers)">
-                              <option value="EXPERIENCE_LETTER">Experience Letter & Certificate</option>
-                              <option value="RELIEVING_CERTIFICATE">Relieving & Clearance Certificate</option>
-                              <option value="BONAFIDE_CERTIFICATE">Bonafide Certificate</option>
-                              <option value="CHARACTER_CERTIFICATE">Character Certificate</option>
-                              <option value="COMPLETION_CERTIFICATE">Certificate of Completion</option>
-                            </optgroup>
-                            <optgroup label="💰 Compensation & Policies (from Offers)">
-                              <option value="SALARY_SLIP">Salary Slip / Payslip</option>
-                              <option value="COMPANY_POLICIES">Company Policies & Handbook</option>
-                            </optgroup>
-                            <optgroup label="⚙️ Custom">
-                              <option value="CUSTOM">Custom Document</option>
-                            </optgroup>
+                            {OFFERS_ALL_CATEGORIES.map((cat) => (
+                              <option key={cat.value} value={cat.value}>
+                                {cat.label}
+                              </option>
+                            ))}
                           </select>
                         </div>
                       </div>
