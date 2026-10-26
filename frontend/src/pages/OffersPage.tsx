@@ -45,6 +45,7 @@ import {
   UserMinus,
   TrendingUp,
   MessageSquare,
+  CheckSquare,
 } from 'lucide-react';
 import { Button } from '../components/common/Button.js';
 import { OfferStatusBadge, AiAdvisoryBadge } from '../components/common/Badge.js';
@@ -81,6 +82,7 @@ import { ShowCauseNoticeModal } from '../components/documents/ShowCauseNoticeMod
 import { MisconductWarningModal } from '../components/documents/MisconductWarningModal.js';
 import { PerformanceImprovementPlanModal } from '../components/documents/PerformanceImprovementPlanModal.js';
 import { FeedbackDiscussionModal } from '../components/documents/FeedbackDiscussionModal.js';
+import { OnboardingChecklistModal } from '../components/documents/OnboardingChecklistModal.js';
 import { OFFICIAL_POLICIES } from '../services/policyCatalog.js';
 import {
   getAllPolicies,
@@ -152,7 +154,9 @@ export const OffersPage: React.FC = () => {
   const [isMisconductWarningModalOpen, setIsMisconductWarningModalOpen] = useState(false);
   const [isPipModalOpen, setIsPipModalOpen] = useState(false);
   const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
-  const [activeDocumentTab, setActiveDocumentTab] = useState<'ALL' | 'TEMPLATES' | 'DISCIPLINARY' | 'INTERNSHIP_EXTENSION' | 'PROMOTION' | 'RELIEVING' | 'SALARY_REVISION' | 'EMPLOYEE_TERMINATION' | 'RESIGNATION' | 'INTERNSHIP' | 'CERTIFICATES' | 'POLICIES'>('ALL');
+  const [isOnboardingModalOpen, setIsOnboardingModalOpen] = useState(false);
+  const [activeDocumentTab, setActiveDocumentTab] = useState<'ALL' | 'TEMPLATES' | 'ONBOARDING' | 'DISCIPLINARY' | 'INTERNSHIP_EXTENSION' | 'PROMOTION' | 'RELIEVING' | 'SALARY_REVISION' | 'EMPLOYEE_TERMINATION' | 'RESIGNATION' | 'INTERNSHIP' | 'CERTIFICATES' | 'POLICIES'>('ALL');
+  const [onboardingSectionPulse, setOnboardingSectionPulse] = useState(false);
   const [internshipExtensionSectionPulse, setInternshipExtensionSectionPulse] = useState(false);
   const [promotionSectionPulse, setPromotionSectionPulse] = useState(false);
   const [relievingSectionPulse, setRelievingSectionPulse] = useState(false);
@@ -636,6 +640,18 @@ export const OffersPage: React.FC = () => {
       onClick: () => setIsFeedbackModalOpen(true),
     },
     {
+      id: 'onboarding_checklist',
+      title: 'Onboarding Checklist',
+      description: 'Official 2-page employee onboarding checklist covering Before Joining, Day 1, First Week & First 30 Days.',
+      icon: <CheckSquare size={22} style={{ color: '#0284c7' }} />,
+      badge: 'TN/HR/ONB Format',
+      badgeColor: '#0284c7',
+      badgeBg: '#f0f9ff',
+      badgeBorder: '#bae6fd',
+      active: true,
+      onClick: () => setIsOnboardingModalOpen(true),
+    },
+    {
       id: 'internship_extension',
       title: 'Extension of Internship',
       description: 'Official 1-page letter extending internship tenure, stipend details, reporting manager & acceptance.',
@@ -867,6 +883,7 @@ export const OffersPage: React.FC = () => {
           {[
             { key: 'ALL', label: 'All', count: documentCards.length + certificateCards.length + allPoliciesList.length + 1 },
             { key: 'TEMPLATES', label: 'Templates', count: documentCards.length },
+            { key: 'ONBOARDING', label: 'Onboarding Checklist', count: 1, icon: <CheckSquare size={13} /> },
             { key: 'INTERNSHIP_EXTENSION', label: 'Internship Extension', count: 1, icon: <GraduationCap size={13} /> },
             { key: 'PROMOTION', label: 'Promotion Letter', count: 1, icon: <Award size={13} /> },
             { key: 'RELIEVING', label: 'Relieving Letter', count: 1, icon: <FileCheck2 size={13} /> },
@@ -884,7 +901,14 @@ export const OffersPage: React.FC = () => {
                 type="button"
                 onClick={() => {
                   setActiveDocumentTab(tab.key as any);
-                  if (tab.key === 'INTERNSHIP_EXTENSION') {
+                  if (tab.key === 'ONBOARDING') {
+                    const el = document.getElementById('onboarding-checklist-section');
+                    if (el) {
+                      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                      setOnboardingSectionPulse(true);
+                      setTimeout(() => setOnboardingSectionPulse(false), 2400);
+                    }
+                  } else if (tab.key === 'INTERNSHIP_EXTENSION') {
                     const el = document.getElementById('internship-extension-section');
                     if (el) {
                       el.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -1156,7 +1180,230 @@ export const OffersPage: React.FC = () => {
       )}
 
       {/* ========================================================================= */}
-      {/* 2. EMPLOYEE TERMINATION LETTER SECTION (ZERO TOLERANCE POLICY)             */}
+      {/* 2. ONBOARDING CHECKLIST SECTION (TN/HR/ONB 2-PAGE MILESTONES)               */}
+      {/* ========================================================================= */}
+      {(activeDocumentTab === 'ALL' || activeDocumentTab === 'ONBOARDING') && (
+        <div
+          id="onboarding-checklist-section"
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 16,
+            marginTop: 6,
+            paddingTop: 10,
+            scrollMarginTop: '80px',
+            borderRadius: 14,
+            padding: '16px',
+            backgroundColor: onboardingSectionPulse ? 'rgba(2, 132, 199, 0.06)' : 'transparent',
+            boxShadow: onboardingSectionPulse ? '0 0 0 2px rgba(2, 132, 199, 0.4)' : 'none',
+            transition: 'all 0.4s ease',
+          }}
+        >
+          {/* Section Header */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#0f172a', margin: 0 }}>
+                  Onboarding Checklist
+                </h3>
+                <span
+                  style={{
+                    fontSize: '0.72rem',
+                    fontWeight: 700,
+                    backgroundColor: '#f0f9ff',
+                    color: '#0369a1',
+                    padding: '2px 9px',
+                    borderRadius: 12,
+                    border: '1px solid #bae6fd',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 4,
+                  }}
+                >
+                  <CheckSquare size={12} />
+                  TN/HR/ONB Format &bull; 2-Page Checklist
+                </span>
+              </div>
+              <p style={{ fontSize: '0.8125rem', color: '#64748b', margin: '2px 0 0 0' }}>
+                Official 2-page Tasknera onboarding checklist covering Before Joining, Day 1, First Week, and First 30 Days with task owners, completion tracking &amp; tripartite sign-off.
+              </p>
+            </div>
+
+            <Button
+              variant="primary"
+              icon={<CheckSquare size={14} />}
+              onClick={() => setIsOnboardingModalOpen(true)}
+              style={{
+                backgroundColor: '#0284c7',
+                borderColor: '#0284c7',
+                boxShadow: '0 2px 8px rgba(2, 132, 199, 0.25)',
+                fontSize: '0.8125rem',
+                padding: '8px 16px',
+              }}
+            >
+              Generate Onboarding Checklist
+            </Button>
+          </div>
+
+          {/* Feature Showcase Card */}
+          <div
+            style={{
+              backgroundColor: '#ffffff',
+              borderRadius: 12,
+              padding: '22px 24px',
+              border: '1.5px solid #bae6fd',
+              boxShadow: '0 4px 20px rgba(2, 132, 199, 0.08)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 16,
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
+              <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start', maxWidth: 740 }}>
+                <div
+                  style={{
+                    width: 52,
+                    height: 52,
+                    borderRadius: 12,
+                    backgroundColor: '#f0f9ff',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    border: '1px solid #bae6fd',
+                    color: '#0284c7',
+                    flexShrink: 0,
+                  }}
+                >
+                  <CheckSquare size={26} />
+                </div>
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                    <h4 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#0f172a', margin: 0 }}>
+                      Employee Onboarding Checklist (Lifecycle &amp; Milestone Tracking)
+                    </h4>
+                    <span
+                      style={{
+                        fontSize: '0.6875rem',
+                        fontWeight: 700,
+                        padding: '2px 7px',
+                        borderRadius: 6,
+                        backgroundColor: '#f0f9ff',
+                        color: '#0369a1',
+                        border: '1px solid #bae6fd',
+                      }}
+                    >
+                      Ref: TN/HR/ONB/[YYYY]/[000]
+                    </span>
+                  </div>
+                  <p style={{ fontSize: '0.84rem', color: '#475569', lineHeight: 1.5, margin: 0 }}>
+                    Comprehensive 20-milestone onboarding tracking system: Before Joining (tasks 1–5), Day 1 (tasks 6–12), First Week (tasks 13–17), and First 30 Days (tasks 18–20). Supports live task status, due dates, remarks, and tripartite signatures for Employee, Reporting Manager, and HR Representative.
+                  </p>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: 10 }}>
+                <Button
+                  variant="primary"
+                  icon={<CheckSquare size={14} />}
+                  onClick={() => setIsOnboardingModalOpen(true)}
+                  style={{
+                    backgroundColor: '#0284c7',
+                    borderColor: '#0284c7',
+                    boxShadow: '0 2px 8px rgba(2, 132, 199, 0.25)',
+                    fontSize: '0.8125rem',
+                    padding: '8px 16px',
+                  }}
+                >
+                  Open Checklist Generator
+                </Button>
+              </div>
+            </div>
+
+            {/* Quick parameter preview pills */}
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))',
+                gap: 12,
+                marginTop: 4,
+                paddingTop: 14,
+                borderTop: '1px solid #f1f5f9',
+              }}
+            >
+              <div
+                style={{
+                  backgroundColor: '#f8fafc',
+                  padding: '10px 14px',
+                  borderRadius: 8,
+                  border: '1px solid #e2e8f0',
+                  fontSize: '0.78rem',
+                }}
+              >
+                <span style={{ fontWeight: 700, color: '#0284c7', display: 'block', marginBottom: 2 }}>
+                  Phase A &bull; Before Joining
+                </span>
+                <span style={{ color: '#64748b' }}>
+                  5 tasks: Offer letter, Welcome packet, BGV, System access &amp; Laptop provisioning.
+                </span>
+              </div>
+
+              <div
+                style={{
+                  backgroundColor: '#f8fafc',
+                  padding: '10px 14px',
+                  borderRadius: 8,
+                  border: '1px solid #e2e8f0',
+                  fontSize: '0.78rem',
+                }}
+              >
+                <span style={{ fontWeight: 700, color: '#0284c7', display: 'block', marginBottom: 2 }}>
+                  Phase B &bull; Day 1
+                </span>
+                <span style={{ color: '#64748b' }}>
+                  7 tasks: Team intro, Document collection, ID card, Asset handover, Policies &amp; Statutory forms.
+                </span>
+              </div>
+
+              <div
+                style={{
+                  backgroundColor: '#f8fafc',
+                  padding: '10px 14px',
+                  borderRadius: 8,
+                  border: '1px solid #e2e8f0',
+                  fontSize: '0.78rem',
+                }}
+              >
+                <span style={{ fontWeight: 700, color: '#0284c7', display: 'block', marginBottom: 2 }}>
+                  Phase C &bull; First Week
+                </span>
+                <span style={{ color: '#64748b' }}>
+                  5 tasks: 30-60-90 plan, Buddy allocation, System access verify, HR portal walkthrough &amp; Insurance.
+                </span>
+              </div>
+
+              <div
+                style={{
+                  backgroundColor: '#f8fafc',
+                  padding: '10px 14px',
+                  borderRadius: 8,
+                  border: '1px solid #e2e8f0',
+                  fontSize: '0.78rem',
+                }}
+              >
+                <span style={{ fontWeight: 700, color: '#0284c7', display: 'block', marginBottom: 2 }}>
+                  Phase D &bull; First 30 Days
+                </span>
+                <span style={{ color: '#64748b' }}>
+                  3 tasks: Compliance training, Probation objectives &amp; 30-day feedback check-in.
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* 3. EMPLOYEE TERMINATION LETTER SECTION (ZERO TOLERANCE POLICY)             */}
       {/* ========================================================================= */}
       {(activeDocumentTab === 'ALL' || activeDocumentTab === 'EMPLOYEE_TERMINATION') && (
         <div
@@ -3498,6 +3745,13 @@ export const OffersPage: React.FC = () => {
       <FeedbackDiscussionModal
         isOpen={isFeedbackModalOpen}
         onClose={() => setIsFeedbackModalOpen(false)}
+        onSuccess={() => fetchOffers()}
+      />
+
+      {/* Official Onboarding Checklist (TN/HR/ONB) 2-Page Modal */}
+      <OnboardingChecklistModal
+        isOpen={isOnboardingModalOpen}
+        onClose={() => setIsOnboardingModalOpen(false)}
         onSuccess={() => fetchOffers()}
       />
     </div>

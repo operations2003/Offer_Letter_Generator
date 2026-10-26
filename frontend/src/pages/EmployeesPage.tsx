@@ -49,6 +49,7 @@ import { ShowCauseNoticeModal } from '../components/documents/ShowCauseNoticeMod
 import { MisconductWarningModal } from '../components/documents/MisconductWarningModal.js';
 import { PerformanceImprovementPlanModal } from '../components/documents/PerformanceImprovementPlanModal.js';
 import { FeedbackDiscussionModal } from '../components/documents/FeedbackDiscussionModal.js';
+import { OnboardingChecklistModal } from '../components/documents/OnboardingChecklistModal.js';
 import { useToast } from '../context/ToastContext.js';
 
 export const EmployeesPage: React.FC = () => {
@@ -115,6 +116,10 @@ export const EmployeesPage: React.FC = () => {
   // Feedback Discussion Modal
   const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
   const [selectedEmployeeForFeedback, setSelectedEmployeeForFeedback] = useState<Employee | null>(null);
+
+  // Onboarding Checklist Modal
+  const [isOnboardingModalOpen, setIsOnboardingModalOpen] = useState(false);
+  const [selectedEmployeeForOnboarding, setSelectedEmployeeForOnboarding] = useState<Employee | null>(null);
 
   useEffect(() => {
     loadEmployees();
@@ -1205,6 +1210,19 @@ export const EmployeesPage: React.FC = () => {
           onClose={() => {
             setIsFeedbackModalOpen(false);
             setSelectedEmployeeForFeedback(null);
+          }}
+          onSuccess={() => loadEmployees()}
+        />
+      )}
+
+      {/* Onboarding Checklist (TN/HR/ONB) Modal */}
+      {isOnboardingModalOpen && (
+        <OnboardingChecklistModal
+          isOpen={isOnboardingModalOpen}
+          initialEmployee={selectedEmployeeForOnboarding}
+          onClose={() => {
+            setIsOnboardingModalOpen(false);
+            setSelectedEmployeeForOnboarding(null);
           }}
           onSuccess={() => loadEmployees()}
         />

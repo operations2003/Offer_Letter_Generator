@@ -28,6 +28,7 @@ import {
   GraduationCap,
   UserMinus,
   MessageSquare,
+  CheckSquare,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.js';
 import { Button } from '../components/common/Button.js';
@@ -61,6 +62,7 @@ import { ShowCauseNoticeModal } from '../components/documents/ShowCauseNoticeMod
 import { MisconductWarningModal } from '../components/documents/MisconductWarningModal.js';
 import { PerformanceImprovementPlanModal } from '../components/documents/PerformanceImprovementPlanModal.js';
 import { FeedbackDiscussionModal } from '../components/documents/FeedbackDiscussionModal.js';
+import { OnboardingChecklistModal } from '../components/documents/OnboardingChecklistModal.js';
 import { useToast } from '../context/ToastContext.js';
 
 export const DashboardPage: React.FC = () => {
@@ -112,6 +114,7 @@ export const DashboardPage: React.FC = () => {
   const [isMisconductWarningModalOpen, setIsMisconductWarningModalOpen] = useState(false);
   const [isPipModalOpen, setIsPipModalOpen] = useState(false);
   const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
+  const [isOnboardingModalOpen, setIsOnboardingModalOpen] = useState(false);
 
   const [selectedOfferForDetail, setSelectedOfferForDetail] = useState<OfferListItem | null>(null);
   const [selectedOfferForEmail, setSelectedOfferForEmail] = useState<OfferListItem | null>(null);
@@ -1035,6 +1038,12 @@ export const DashboardPage: React.FC = () => {
                   action: () => setIsFeedbackModalOpen(true),
                 },
                 {
+                  label: 'Onboarding Checklist',
+                  desc: '2-Page Before Joining, Day 1 & First 30 Days checklist',
+                  icon: <CheckSquare size={15} style={{ color: '#0284c7' }} />,
+                  action: () => setIsOnboardingModalOpen(true),
+                },
+                {
                   label: 'Internship Conclusion',
                   desc: 'Letter on internship conclusion',
                   icon: <GraduationCap size={15} style={{ color: '#ea580c' }} />,
@@ -1337,6 +1346,12 @@ export const DashboardPage: React.FC = () => {
       <FeedbackDiscussionModal
         isOpen={isFeedbackModalOpen}
         onClose={() => setIsFeedbackModalOpen(false)}
+        onSuccess={() => loadDashboardData()}
+      />
+
+      <OnboardingChecklistModal
+        isOpen={isOnboardingModalOpen}
+        onClose={() => setIsOnboardingModalOpen(false)}
         onSuccess={() => loadDashboardData()}
       />
     </div>
