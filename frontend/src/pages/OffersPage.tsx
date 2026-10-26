@@ -41,6 +41,7 @@ import {
   Percent,
   Clock,
   Scale,
+  ShieldAlert,
 } from 'lucide-react';
 import { Button } from '../components/common/Button.js';
 import { OfferStatusBadge, AiAdvisoryBadge } from '../components/common/Badge.js';
@@ -66,6 +67,7 @@ import { MasterRecruitmentAgreementModal } from '../components/documents/MasterR
 import { FreelancerOnboardingModal } from '../components/documents/FreelancerOnboardingModal.js';
 import { FreelanceRecruiterAgreementModal } from '../components/documents/FreelanceRecruiterAgreementModal.js';
 import { FreelancerTerminationModal } from '../components/documents/FreelancerTerminationModal.js';
+import { EmployeeTerminationModal } from '../components/documents/EmployeeTerminationModal.js';
 import { OFFICIAL_POLICIES } from '../services/policyCatalog.js';
 import {
   getAllPolicies,
@@ -126,10 +128,12 @@ export const OffersPage: React.FC = () => {
   const [isFreelancerModalOpen, setIsFreelancerModalOpen] = useState(false);
   const [isRecruiterAgreementModalOpen, setIsRecruiterAgreementModalOpen] = useState(false);
   const [isTerminationModalOpen, setIsTerminationModalOpen] = useState(false);
-  const [activeDocumentTab, setActiveDocumentTab] = useState<'ALL' | 'TEMPLATES' | 'FREELANCER' | 'TERMINATION' | 'CERTIFICATES' | 'POLICIES'>('ALL');
+  const [isEmployeeTerminationModalOpen, setIsEmployeeTerminationModalOpen] = useState(false);
+  const [activeDocumentTab, setActiveDocumentTab] = useState<'ALL' | 'TEMPLATES' | 'FREELANCER' | 'TERMINATION' | 'EMPLOYEE_TERMINATION' | 'CERTIFICATES' | 'POLICIES'>('ALL');
   const [certificateSectionPulse, setCertificateSectionPulse] = useState(false);
   const [freelancerSectionPulse, setFreelancerSectionPulse] = useState(false);
   const [terminationSectionPulse, setTerminationSectionPulse] = useState(false);
+  const [employeeTerminationSectionPulse, setEmployeeTerminationSectionPulse] = useState(false);
   const [isWizardOpen, setIsWizardOpen] = useState(() => searchParams.get('create') === 'true');
   const [selectedOfferForDetail, setSelectedOfferForDetail] = useState<OfferItem | null>(null);
   const [detailModalTab, setDetailModalTab] = useState<'preview' | 'pdf' | 'versions' | 'status'>('preview');
@@ -521,6 +525,18 @@ export const OffersPage: React.FC = () => {
       onClick: () => setIsTerminationModalOpen(true),
     },
     {
+      id: 'employee_termination',
+      title: 'Employee Termination',
+      description: 'Official termination letter for violation of the Zero Tolerance Policy and Code of Conduct.',
+      icon: <ShieldAlert size={22} style={{ color: '#e11d48' }} />,
+      badge: 'Zero Tolerance',
+      badgeColor: '#e11d48',
+      badgeBg: '#fff1f2',
+      badgeBorder: '#fecdd3',
+      active: true,
+      onClick: () => setIsEmployeeTerminationModalOpen(true),
+    },
+    {
       id: 'experience_letter',
       title: 'Experience Letter',
       description: 'Official letter stating employment tenure and role held.',
@@ -693,7 +709,8 @@ export const OffersPage: React.FC = () => {
             { key: 'ALL', label: 'All', count: documentCards.length + certificateCards.length + allPoliciesList.length + 1 },
             { key: 'TEMPLATES', label: 'Templates', count: documentCards.length },
             { key: 'FREELANCER', label: 'Freelancer Contracts', count: 2, icon: <Briefcase size={13} /> },
-            { key: 'TERMINATION', label: 'Termination Notice', count: 1, icon: <AlertTriangle size={13} /> },
+            { key: 'TERMINATION', label: 'Recruiter Termination', count: 1, icon: <AlertTriangle size={13} /> },
+            { key: 'EMPLOYEE_TERMINATION', label: 'Employee Termination', count: 1, icon: <ShieldAlert size={13} /> },
             { key: 'CERTIFICATES', label: 'Certificates', count: certificateCards.length, icon: <Award size={13} /> },
             { key: 'POLICIES', label: 'Policies', count: allPoliciesList.length },
           ].map((tab) => {
@@ -717,6 +734,13 @@ export const OffersPage: React.FC = () => {
                       el.scrollIntoView({ behavior: 'smooth', block: 'start' });
                       setTerminationSectionPulse(true);
                       setTimeout(() => setTerminationSectionPulse(false), 2400);
+                    }
+                  } else if (tab.key === 'EMPLOYEE_TERMINATION') {
+                    const el = document.getElementById('employee-termination-section');
+                    if (el) {
+                      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                      setEmployeeTerminationSectionPulse(true);
+                      setTimeout(() => setEmployeeTerminationSectionPulse(false), 2400);
                     }
                   } else if (tab.key === 'CERTIFICATES') {
                     const el = document.getElementById('certificates-section');
@@ -1461,7 +1485,203 @@ export const OffersPage: React.FC = () => {
       )}
 
       {/* ========================================================================= */}
-      {/* 4. CERTIFICATES SECTION                                                   */}
+      {/* 4. EMPLOYEE TERMINATION LETTER SECTION (ZERO TOLERANCE POLICY)             */}
+      {/* ========================================================================= */}
+      {(activeDocumentTab === 'ALL' || activeDocumentTab === 'EMPLOYEE_TERMINATION') && (
+        <div
+          id="employee-termination-section"
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 16,
+            marginTop: 6,
+            paddingTop: 10,
+            scrollMarginTop: '80px',
+            borderRadius: 14,
+            padding: '16px',
+            backgroundColor: employeeTerminationSectionPulse ? 'rgba(225, 29, 72, 0.06)' : 'transparent',
+            boxShadow: employeeTerminationSectionPulse ? '0 0 0 2px rgba(225, 29, 72, 0.4)' : 'none',
+            transition: 'all 0.4s ease',
+          }}
+        >
+          {/* Section Header */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#0f172a', margin: 0 }}>
+                  Employee Termination Letter
+                </h3>
+                <span
+                  style={{
+                    fontSize: '0.72rem',
+                    fontWeight: 700,
+                    backgroundColor: '#ffe4e6',
+                    color: '#be123c',
+                    padding: '2px 9px',
+                    borderRadius: 12,
+                    border: '1px solid #fecdd3',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 4,
+                  }}
+                >
+                  <ShieldAlert size={12} />
+                  Zero Tolerance Policy &bull; Code of Conduct
+                </span>
+              </div>
+              <p style={{ fontSize: '0.8125rem', color: '#64748b', margin: '2px 0 0 0' }}>
+                Official formal termination of employment for violation of Company policies, covering show-cause notice, domestic inquiry, FNF settlement &amp; property handover.
+              </p>
+            </div>
+
+            <Button
+              variant="primary"
+              icon={<ShieldAlert size={14} />}
+              onClick={() => setIsEmployeeTerminationModalOpen(true)}
+              style={{
+                backgroundColor: '#e11d48',
+                borderColor: '#e11d48',
+                boxShadow: '0 2px 8px rgba(225, 29, 72, 0.25)',
+                fontSize: '0.8125rem',
+                padding: '8px 16px',
+              }}
+            >
+              Generate Employee Termination
+            </Button>
+          </div>
+
+          {/* Feature Showcase Card */}
+          <div
+            style={{
+              backgroundColor: '#ffffff',
+              borderRadius: 12,
+              padding: '22px 24px',
+              border: '1.5px solid #fecdd3',
+              boxShadow: '0 4px 20px rgba(225, 29, 72, 0.08)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 16,
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
+              <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start', maxWidth: 720 }}>
+                <div
+                  style={{
+                    width: 52,
+                    height: 52,
+                    borderRadius: 12,
+                    backgroundColor: '#fff1f2',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    border: '1px solid #fecdd3',
+                    color: '#e11d48',
+                    flexShrink: 0,
+                  }}
+                >
+                  <ShieldAlert size={26} />
+                </div>
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                    <h4 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#0f172a', margin: 0 }}>
+                      Termination of Employment – Violation of Zero Tolerance Policy &amp; Code of Conduct
+                    </h4>
+                    <span
+                      style={{
+                        fontSize: '0.6875rem',
+                        fontWeight: 700,
+                        padding: '2px 7px',
+                        borderRadius: 6,
+                        backgroundColor: '#ffe4e6',
+                        color: '#be123c',
+                        border: '1px solid #fda4af',
+                      }}
+                    >
+                      Ref: TN/HR/TERM/YYYY/000
+                    </span>
+                  </div>
+                  <p style={{ fontSize: '0.84rem', color: '#475569', lineHeight: 1.5, margin: 0 }}>
+                    Official 2-page Tasknera legal letter referencing the original employment appointment letter. Formulates factual allegations, show-cause due process, inquiry hearings, immediate termination without notice (or pay in lieu), Full &amp; Final settlement timelines, company property handover, and post-employment confidentiality obligations.
+                  </p>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: 10 }}>
+                <Button
+                  variant="primary"
+                  icon={<FileText size={14} />}
+                  onClick={() => setIsEmployeeTerminationModalOpen(true)}
+                  style={{
+                    backgroundColor: '#e11d48',
+                    borderColor: '#e11d48',
+                    fontSize: '0.8125rem',
+                  }}
+                >
+                  Open Termination Generator
+                </Button>
+              </div>
+            </div>
+
+            {/* Quick Parameter Badges */}
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))',
+                gap: 12,
+                paddingTop: 14,
+                borderTop: '1px solid #f1f5f9',
+              }}
+            >
+              {[
+                {
+                  label: 'Policy Violation Grounds',
+                  val: 'Zero Tolerance Policy (ZTP) & Code of Conduct Breach',
+                  icon: <ShieldAlert size={14} style={{ color: '#e11d48' }} />,
+                },
+                {
+                  label: 'Due Process & Inquiry',
+                  val: 'Show-cause notice, written explanation & fair opportunity',
+                  icon: <Scale size={14} style={{ color: '#7c3aed' }} />,
+                },
+                {
+                  label: 'Notice & Pay Terms',
+                  val: 'Without notice / pay in lieu under appointment letter',
+                  icon: <Clock size={14} style={{ color: '#0284c7' }} />,
+                },
+                {
+                  label: 'Clearance & Settlement',
+                  val: 'Full & final settlement in working days & laptop/ID return',
+                  icon: <FileCheck2 size={14} style={{ color: '#059669' }} />,
+                },
+              ].map((item, idx) => (
+                <div
+                  key={idx}
+                  style={{
+                    padding: '10px 14px',
+                    borderRadius: 8,
+                    backgroundColor: '#f8fafc',
+                    border: '1px solid #e2e8f0',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 3,
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.72rem', color: '#64748b', fontWeight: 600 }}>
+                    {item.icon}
+                    <span>{item.label}</span>
+                  </div>
+                  <div style={{ fontSize: '0.8125rem', fontWeight: 700, color: '#0f172a' }}>
+                    {item.val}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* 5. CERTIFICATES SECTION                                                   */}
       {/* ========================================================================= */}
       {(activeDocumentTab === 'ALL' || activeDocumentTab === 'CERTIFICATES') && (
         <div
@@ -2322,6 +2542,13 @@ export const OffersPage: React.FC = () => {
       <FreelancerTerminationModal
         isOpen={isTerminationModalOpen}
         onClose={() => setIsTerminationModalOpen(false)}
+        onSuccess={() => fetchOffers()}
+      />
+
+      {/* Official Employee Termination Letter (Zero Tolerance Policy) Modal */}
+      <EmployeeTerminationModal
+        isOpen={isEmployeeTerminationModalOpen}
+        onClose={() => setIsEmployeeTerminationModalOpen(false)}
         onSuccess={() => fetchOffers()}
       />
     </div>

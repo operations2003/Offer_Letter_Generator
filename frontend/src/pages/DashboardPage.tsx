@@ -24,6 +24,7 @@ import {
   UserCheck,
   Scale,
   AlertTriangle,
+  ShieldAlert,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.js';
 import { Button } from '../components/common/Button.js';
@@ -45,6 +46,7 @@ import { RelievingCertificateModal } from '../components/documents/RelievingCert
 import { FreelancerOnboardingModal } from '../components/documents/FreelancerOnboardingModal.js';
 import { FreelanceRecruiterAgreementModal } from '../components/documents/FreelanceRecruiterAgreementModal.js';
 import { FreelancerTerminationModal } from '../components/documents/FreelancerTerminationModal.js';
+import { EmployeeTerminationModal } from '../components/documents/EmployeeTerminationModal.js';
 import { useToast } from '../context/ToastContext.js';
 
 export const DashboardPage: React.FC = () => {
@@ -84,6 +86,7 @@ export const DashboardPage: React.FC = () => {
   const [isFreelancerModalOpen, setIsFreelancerModalOpen] = useState(false);
   const [isRecruiterAgreementModalOpen, setIsRecruiterAgreementModalOpen] = useState(false);
   const [isTerminationModalOpen, setIsTerminationModalOpen] = useState(false);
+  const [isEmployeeTerminationModalOpen, setIsEmployeeTerminationModalOpen] = useState(false);
 
   const [selectedOfferForDetail, setSelectedOfferForDetail] = useState<OfferListItem | null>(null);
   const [selectedOfferForEmail, setSelectedOfferForEmail] = useState<OfferListItem | null>(null);
@@ -936,9 +939,15 @@ export const DashboardPage: React.FC = () => {
                 },
                 {
                   label: 'Termination Notice',
-                  desc: 'Notice of contract termination',
+                  desc: 'Notice of recruiter contract termination',
                   icon: <AlertTriangle size={15} style={{ color: '#dc2626' }} />,
                   action: () => setIsTerminationModalOpen(true),
+                },
+                {
+                  label: 'Employee Termination',
+                  desc: 'Zero Tolerance Policy termination',
+                  icon: <ShieldAlert size={15} style={{ color: '#e11d48' }} />,
+                  action: () => setIsEmployeeTerminationModalOpen(true),
                 },
                 {
                   label: 'Relieving Letter',
@@ -1165,6 +1174,12 @@ export const DashboardPage: React.FC = () => {
       <FreelancerTerminationModal
         isOpen={isTerminationModalOpen}
         onClose={() => setIsTerminationModalOpen(false)}
+        onSuccess={() => loadDashboardData()}
+      />
+
+      <EmployeeTerminationModal
+        isOpen={isEmployeeTerminationModalOpen}
+        onClose={() => setIsEmployeeTerminationModalOpen(false)}
         onSuccess={() => loadDashboardData()}
       />
     </div>
