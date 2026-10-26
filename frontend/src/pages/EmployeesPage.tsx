@@ -41,6 +41,7 @@ import { FreelanceRecruiterAgreementModal } from '../components/documents/Freela
 import { FreelancerTerminationModal } from '../components/documents/FreelancerTerminationModal.js';
 import { ResignationAcceptanceModal } from '../components/documents/ResignationAcceptanceModal.js';
 import { SalaryRevisionModal } from '../components/documents/SalaryRevisionModal.js';
+import { PromotionLetterModal } from '../components/documents/PromotionLetterModal.js';
 import { useToast } from '../context/ToastContext.js';
 
 export const EmployeesPage: React.FC = () => {
@@ -75,6 +76,10 @@ export const EmployeesPage: React.FC = () => {
   // Salary Revision Modal
   const [isSalaryRevisionModalOpen, setIsSalaryRevisionModalOpen] = useState(false);
   const [selectedEmployeeForSalaryRevision, setSelectedEmployeeForSalaryRevision] = useState<Employee | null>(null);
+
+  // Promotion Letter Modal
+  const [isPromotionModalOpen, setIsPromotionModalOpen] = useState(false);
+  const [selectedEmployeeForPromotion, setSelectedEmployeeForPromotion] = useState<Employee | null>(null);
 
   useEffect(() => {
     loadEmployees();
@@ -1061,6 +1066,19 @@ export const EmployeesPage: React.FC = () => {
           onClose={() => {
             setIsSalaryRevisionModalOpen(false);
             setSelectedEmployeeForSalaryRevision(null);
+          }}
+          onSuccess={() => loadEmployees()}
+        />
+      )}
+
+      {/* Promotion Letter (TN/HR/PRO) Modal */}
+      {isPromotionModalOpen && (
+        <PromotionLetterModal
+          isOpen={isPromotionModalOpen}
+          initialEmployee={selectedEmployeeForPromotion}
+          onClose={() => {
+            setIsPromotionModalOpen(false);
+            setSelectedEmployeeForPromotion(null);
           }}
           onSuccess={() => loadEmployees()}
         />
