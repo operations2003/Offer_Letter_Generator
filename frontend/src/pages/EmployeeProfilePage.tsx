@@ -28,6 +28,7 @@ import {
   Sparkles,
   AlertCircle,
   FileCheck,
+  Trash2,
   X,
 } from 'lucide-react';
 import { Employee, EmployeeDocument, EmployeeService } from '../services/employeeService.js';
@@ -128,6 +129,19 @@ export const EmployeeProfilePage: React.FC = () => {
       alert(`Upload failed: ${err.message}`);
     } finally {
       setUploading(false);
+    }
+  };
+
+  const handleDeleteProfile = async () => {
+    if (!employee) return;
+    if (!window.confirm(`Are you sure you want to delete employee "${employee.fullName}"? This action cannot be undone.`)) {
+      return;
+    }
+    try {
+      await EmployeeService.deleteEmployee(employee.id);
+      navigate('/employees');
+    } catch (err: any) {
+      alert(`Failed to delete employee: ${err.message || err}`);
     }
   };
 
@@ -274,8 +288,8 @@ export const EmployeeProfilePage: React.FC = () => {
           </div>
         </div>
 
-        {/* Primary Action: Generate Document */}
-        <div style={{ display: 'flex', gap: 10 }}>
+        {/* Primary Action: Generate Document & Delete */}
+        <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
           <button
             onClick={() => setIsGenerateModalOpen(true)}
             style={{
@@ -295,6 +309,35 @@ export const EmployeeProfilePage: React.FC = () => {
           >
             <FileText size={17} />
             <span>Generate Document</span>
+          </button>
+
+          <button
+            onClick={handleDeleteProfile}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              padding: '11px 18px',
+              fontSize: '0.875rem',
+              fontWeight: 600,
+              backgroundColor: '#ffffff',
+              color: '#ef4444',
+              border: '1px solid #fecaca',
+              borderRadius: 8,
+              cursor: 'pointer',
+              transition: 'all 0.15s ease',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#fef2f2';
+              e.currentTarget.style.borderColor = '#f87171';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = '#ffffff';
+              e.currentTarget.style.borderColor = '#fecaca';
+            }}
+          >
+            <Trash2 size={16} />
+            <span>Delete Employee</span>
           </button>
         </div>
       </div>

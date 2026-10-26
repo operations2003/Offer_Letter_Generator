@@ -162,104 +162,7 @@ export interface RegenerateDocumentPayload {
   updatedContent?: string;
 }
 
-const DEFAULT_EMPLOYEES: Employee[] = [
-  {
-    id: 'emp_seed_001',
-    companyId: 'cmp_tasknera_001',
-    employeeId: 'EMP-10021',
-    fullName: 'Ajay Sharma',
-    personalEmail: 'ajay.sharma@example.com',
-    officialEmail: 'ajay@tasknera.com',
-    phone: '+91 9876543210',
-    designation: 'Senior Software Engineer',
-    department: 'Engineering',
-    employmentType: 'Full-time',
-    joiningDate: '2024-03-01',
-    status: 'ACTIVE',
-    reportingManager: 'Sheetal Bedi',
-    workLocation: 'New Delhi',
-    annualCtc: 1800000,
-    currency: 'INR',
-    title: 'Mr.',
-    firstName: 'Ajay',
-    lastName: 'Sharma',
-    pinCode: '110095',
-    city: 'Delhi',
-    state: 'Delhi',
-    addressLine: 'D-57 Dilshad Colony',
-    basicPercent: 50,
-    hraPercent: 40,
-    incentiveApplicable: true,
-    createdAt: '2024-03-01T00:00:00.000Z',
-    updatedAt: '2024-03-01T00:00:00.000Z',
-    documentCount: 0,
-    documents: [],
-  },
-  {
-    id: 'emp_seed_002',
-    companyId: 'cmp_tasknera_001',
-    employeeId: 'EMP-10045',
-    fullName: 'Priya Patel',
-    personalEmail: 'priya.patel@example.com',
-    officialEmail: 'priya@tasknera.com',
-    phone: '+91 9811223344',
-    designation: 'Product Designer',
-    department: 'Design',
-    employmentType: 'Full-time',
-    joiningDate: '2024-06-15',
-    status: 'ACTIVE',
-    reportingManager: 'Sheetal Bedi',
-    workLocation: 'Bengaluru',
-    annualCtc: 1400000,
-    currency: 'INR',
-    title: 'Ms.',
-    firstName: 'Priya',
-    lastName: 'Patel',
-    pinCode: '560001',
-    city: 'Bengaluru',
-    state: 'Karnataka',
-    addressLine: 'MG Road, Indiranagar',
-    basicPercent: 50,
-    hraPercent: 40,
-    incentiveApplicable: false,
-    createdAt: '2024-06-15T00:00:00.000Z',
-    updatedAt: '2024-06-15T00:00:00.000Z',
-    documentCount: 0,
-    documents: [],
-  },
-  {
-    id: 'emp_seed_003',
-    companyId: 'cmp_tasknera_001',
-    employeeId: 'EMP-10088',
-    fullName: 'Rahul Verma',
-    personalEmail: 'rahul.verma@example.com',
-    officialEmail: 'rahul@tasknera.com',
-    phone: '+91 9988776655',
-    designation: 'HR Operations Lead',
-    department: 'Human Resources',
-    employmentType: 'Full-time',
-    joiningDate: '2024-01-10',
-    status: 'ACTIVE',
-    reportingManager: 'Sheetal Bedi',
-    workLocation: 'Mumbai',
-    annualCtc: 1200000,
-    currency: 'INR',
-    title: 'Mr.',
-    firstName: 'Rahul',
-    lastName: 'Verma',
-    pinCode: '400001',
-    city: 'Mumbai',
-    state: 'Maharashtra',
-    addressLine: 'Fort, South Mumbai',
-    basicPercent: 50,
-    hraPercent: 40,
-    incentiveApplicable: true,
-    createdAt: '2024-01-10T00:00:00.000Z',
-    updatedAt: '2024-01-10T00:00:00.000Z',
-    documentCount: 0,
-    documents: [],
-  },
-];
+const DEFAULT_EMPLOYEES: Employee[] = [];
 
 const FALLBACK_TEMPLATES: DocumentTemplateItem[] = [
   {
@@ -338,27 +241,55 @@ export class EmployeeService {
     return headers;
   }
 
+  private static isForbiddenEmployee(e: any): boolean {
+    if (!e) return false;
+    const name = (e.fullName || '').toLowerCase().trim();
+    const email = (e.personalEmail || '').toLowerCase().trim();
+    const id = (e.employeeId || '').toUpperCase().trim();
+    const recordId = (e.id || '').toLowerCase().trim();
+
+    return (
+      recordId === 'emp_seed_001' ||
+      recordId === 'emp_seed_002' ||
+      recordId === 'emp_seed_003' ||
+      id === 'EMP-10021' ||
+      id === 'EMP-10045' ||
+      id === 'EMP-10088' ||
+      email === 'ajay.sharma@example.com' ||
+      email === 'priya.patel@example.com' ||
+      email === 'rahul.verma@example.com' ||
+      name === 'ajay sharma' ||
+      name === 'priya patel' ||
+      name === 'rahul verma'
+    );
+  }
+
   public static getLocalEmployees(): Employee[] {
     try {
       const raw = localStorage.getItem(this.STORAGE_KEY);
       if (!raw) {
-        localStorage.setItem(this.STORAGE_KEY, JSON.stringify(DEFAULT_EMPLOYEES));
-        return [...DEFAULT_EMPLOYEES];
+        localStorage.setItem(this.STORAGE_KEY, JSON.stringify([]));
+        return [];
       }
       const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        return parsed;
+      if (Array.isArray(parsed)) {
+        const cleaned = parsed.filter((e) => !this.isForbiddenEmployee(e));
+        if (cleaned.length !== parsed.length) {
+          localStorage.setItem(this.STORAGE_KEY, JSON.stringify(cleaned));
+        }
+        return cleaned;
       }
-      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(DEFAULT_EMPLOYEES));
-      return [...DEFAULT_EMPLOYEES];
+      localStorage.setItem(this.STORAGE_KEY, JSON.stringify([]));
+      return [];
     } catch {
-      return [...DEFAULT_EMPLOYEES];
+      return [];
     }
   }
 
   public static saveLocalEmployees(employees: Employee[]): void {
     try {
-      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(employees));
+      const cleaned = employees.filter((e) => !this.isForbiddenEmployee(e));
+      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(cleaned));
     } catch (err) {
       console.warn('Failed to save employees to localStorage:', err);
     }
@@ -387,7 +318,8 @@ export class EmployeeService {
 
       if (res.ok) {
         const json = await res.json();
-        const backendEmps: Employee[] = json.data || [];
+        const rawBackend: Employee[] = json.data || [];
+        const backendEmps: Employee[] = rawBackend.filter((b) => !this.isForbiddenEmployee(b));
         const local = this.getLocalEmployees();
         const backendIds = new Set(backendEmps.map((b) => b.id));
         const backendEmails = new Set(backendEmps.map((b) => b.personalEmail?.toLowerCase()));

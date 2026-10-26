@@ -25,13 +25,16 @@ import {
   AlertTriangle,
   ChevronRight,
   FileCheck,
+  Trash2,
 } from 'lucide-react';
 import { Employee, EmployeeService } from '../services/employeeService.js';
 import { AddEmployeeModal } from '../components/employees/AddEmployeeModal.js';
 import { GenerateDocumentModal } from '../components/employees/GenerateDocumentModal.js';
+import { useToast } from '../context/ToastContext.js';
 
 export const EmployeesPage: React.FC = () => {
   const navigate = useNavigate();
+  const { success, error: toastError } = useToast();
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -70,6 +73,19 @@ export const EmployeesPage: React.FC = () => {
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     loadEmployees();
+  };
+
+  const handleDeleteEmployee = async (empId: string, empName: string) => {
+    if (!window.confirm(`Are you sure you want to delete employee "${empName}"? This action cannot be undone.`)) {
+      return;
+    }
+    try {
+      await EmployeeService.deleteEmployee(empId);
+      success(`Employee "${empName}" deleted successfully.`);
+      loadEmployees();
+    } catch (err: any) {
+      toastError(err.message || 'Failed to delete employee');
+    }
   };
 
   // Metrics
@@ -538,6 +554,33 @@ export const EmployeesPage: React.FC = () => {
                       >
                         <span>Profile</span>
                         <ChevronRight size={13} />
+                      </button>
+
+                      <button
+                        title="Delete Employee"
+                        onClick={() => handleDeleteEmployee(emp.id, emp.fullName)}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          padding: '6px 8px',
+                          backgroundColor: '#ffffff',
+                          color: '#ef4444',
+                          border: '1px solid #fecaca',
+                          borderRadius: 6,
+                          cursor: 'pointer',
+                          transition: 'all 0.15s ease',
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.backgroundColor = '#fef2f2';
+                          e.currentTarget.style.borderColor = '#f87171';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.backgroundColor = '#ffffff';
+                          e.currentTarget.style.borderColor = '#fecaca';
+                        }}
+                      >
+                        <Trash2 size={13} />
                       </button>
                     </div>
                   </td>
