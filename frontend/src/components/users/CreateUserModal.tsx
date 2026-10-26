@@ -86,12 +86,17 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
   if (!isOpen) return null;
 
   const generateStrongPassword = () => {
-    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789!@#$%&*';
+    const uppercase = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+    const lowercase = 'abcdefghijkmnpqrstuvwxyz';
+    const numbers = '23456789';
+    const special = '!@#$%&*';
     let pwd = 'TN@';
+    const all = uppercase + lowercase + numbers + special;
     for (let i = 0; i < 9; i++) {
-      pwd += chars.charAt(Math.floor(Math.random() * chars.length));
+      pwd += all.charAt(Math.floor(Math.random() * all.length));
     }
     setPassword(pwd);
+    setShowPassword(true);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -102,8 +107,34 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
       return;
     }
 
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email.trim())) {
+      error('Please enter a valid work email address.');
+      return;
+    }
+
     if (password.length < 8) {
-      error('Password must be at least 8 characters.');
+      error('Password must be at least 8 characters long.');
+      return;
+    }
+
+    const hasUpper = /[A-Z]/.test(password);
+    const hasLower = /[a-z]/.test(password);
+    const hasDigit = /[0-9]/.test(password);
+    const hasSpecial = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(password);
+
+    if (!hasUpper || !hasLower || !hasDigit || !hasSpecial) {
+      error(
+        'Password must contain at least 1 uppercase letter, 1 lowercase letter, 1 number, and 1 special symbol (or click Auto-Generate).'
+      );
+      return;
+    }
+
+    const existingUser = UserService.getLocalUsers().find(
+      (u) => u.email.toLowerCase() === email.trim().toLowerCase()
+    );
+    if (existingUser) {
+      error(`A user account with email "${email.trim()}" already exists.`);
       return;
     }
 
@@ -130,7 +161,7 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
       setPassword('');
       setTitle('');
     } catch (err: any) {
-      error(err.message || 'Failed to create user account. Please check inputs.');
+      error(err?.message || 'Failed to create user account. Please check inputs.');
     } finally {
       setIsSubmitting(false);
     }
@@ -328,6 +359,9 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
                 >
                   {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
                 </button>
+              </div>
+              <div style={{ fontSize: '0.72rem', color: '#64748b', marginTop: 4 }}>
+                Requires min. 8 chars with uppercase, lowercase, number, and symbol (or click Auto-Generate).
               </div>
             </div>
 

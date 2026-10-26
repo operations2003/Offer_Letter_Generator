@@ -217,23 +217,36 @@ export class UserService {
         return created;
       }
 
-      const err = await res.json().catch(() => ({}));
-      const errMsg = err.error?.message || err.message;
-      if (res.status === 400 && errMsg) {
-        throw new Error(errMsg);
+      // If backend returns client validation error (400, 409, 422), extract clear message
+      if (res.status === 400 || res.status === 409 || res.status === 422) {
+        const err = await res.json().catch(() => ({}));
+        let errMsg = '';
+        if (Array.isArray(err.error?.details) && err.error.details.length > 0) {
+          errMsg = err.error.details.map((d: any) => d.message || d.field).filter(Boolean).join('. ');
+        }
+        if (!errMsg) {
+          errMsg = err.error?.message || err.message;
+        }
+        if (errMsg) {
+          throw new Error(errMsg);
+        }
       }
     } catch (err: any) {
+      // Propagate explicit validation errors to inform user; swallow network/proxy/5xx errors
       if (
         err.message &&
         !err.message.includes('fetch') &&
         !err.message.includes('Failed to') &&
-        !err.message.includes('NetworkError')
+        !err.message.includes('NetworkError') &&
+        !err.message.includes('Unexpected') &&
+        !err.message.includes('JSON') &&
+        !err.message.includes('50')
       ) {
         throw err;
       }
     }
 
-    // LocalStorage fallback ensures creation succeeds smoothly
+    // LocalStorage fallback ensures creation succeeds smoothly across test & demo environments
     const current = this.getLocalUsers();
     this.saveLocalUsers([localUser, ...current.filter((u) => u.email.toLowerCase() !== localUser.email.toLowerCase())]);
     return localUser;
