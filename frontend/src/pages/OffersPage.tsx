@@ -129,9 +129,8 @@ export const OffersPage: React.FC = () => {
   const [isRecruiterAgreementModalOpen, setIsRecruiterAgreementModalOpen] = useState(false);
   const [isTerminationModalOpen, setIsTerminationModalOpen] = useState(false);
   const [isEmployeeTerminationModalOpen, setIsEmployeeTerminationModalOpen] = useState(false);
-  const [activeDocumentTab, setActiveDocumentTab] = useState<'ALL' | 'TEMPLATES' | 'TERMINATION' | 'EMPLOYEE_TERMINATION' | 'INTERNSHIP' | 'CERTIFICATES' | 'POLICIES'>('ALL');
+  const [activeDocumentTab, setActiveDocumentTab] = useState<'ALL' | 'TEMPLATES' | 'EMPLOYEE_TERMINATION' | 'INTERNSHIP' | 'CERTIFICATES' | 'POLICIES'>('ALL');
   const [certificateSectionPulse, setCertificateSectionPulse] = useState(false);
-  const [terminationSectionPulse, setTerminationSectionPulse] = useState(false);
   const [employeeTerminationSectionPulse, setEmployeeTerminationSectionPulse] = useState(false);
   const [internshipSectionPulse, setInternshipSectionPulse] = useState(false);
   const [isWizardOpen, setIsWizardOpen] = useState(() => searchParams.get('create') === 'true');
@@ -708,7 +707,6 @@ export const OffersPage: React.FC = () => {
           {[
             { key: 'ALL', label: 'All', count: documentCards.length + certificateCards.length + allPoliciesList.length + 1 },
             { key: 'TEMPLATES', label: 'Templates', count: documentCards.length },
-            { key: 'TERMINATION', label: 'Recruiter Termination', count: 1, icon: <AlertTriangle size={13} /> },
             { key: 'EMPLOYEE_TERMINATION', label: 'Employee Termination', count: 1, icon: <ShieldAlert size={13} /> },
             { key: 'INTERNSHIP', label: 'Internship Conclusion', count: 1, icon: <GraduationCap size={13} /> },
             { key: 'CERTIFICATES', label: 'Certificates', count: certificateCards.length, icon: <Award size={13} /> },
@@ -721,14 +719,7 @@ export const OffersPage: React.FC = () => {
                 type="button"
                 onClick={() => {
                   setActiveDocumentTab(tab.key as any);
-                  if (tab.key === 'TERMINATION') {
-                    const el = document.getElementById('freelancer-termination-section');
-                    if (el) {
-                      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                      setTerminationSectionPulse(true);
-                      setTimeout(() => setTerminationSectionPulse(false), 2400);
-                    }
-                  } else if (tab.key === 'EMPLOYEE_TERMINATION') {
+                  if (tab.key === 'EMPLOYEE_TERMINATION') {
                     const el = document.getElementById('employee-termination-section');
                     if (el) {
                       el.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -965,203 +956,7 @@ export const OffersPage: React.FC = () => {
       )}
 
       {/* ========================================================================= */}
-      {/* 2. NOTICE OF TERMINATION SECTION (FREELANCE RECRUITER SERVICES)          */}
-      {/* ========================================================================= */}
-      {(activeDocumentTab === 'ALL' || activeDocumentTab === 'TERMINATION') && (
-        <div
-          id="freelancer-termination-section"
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 16,
-            marginTop: 6,
-            paddingTop: 10,
-            scrollMarginTop: '80px',
-            borderRadius: 14,
-            padding: '16px',
-            backgroundColor: terminationSectionPulse ? 'rgba(220, 38, 38, 0.06)' : 'transparent',
-            boxShadow: terminationSectionPulse ? '0 0 0 2px rgba(220, 38, 38, 0.4)' : 'none',
-            transition: 'all 0.4s ease',
-          }}
-        >
-          {/* Section Header */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#0f172a', margin: 0 }}>
-                  Notice of Termination
-                </h3>
-                <span
-                  style={{
-                    fontSize: '0.72rem',
-                    fontWeight: 700,
-                    backgroundColor: '#fef2f2',
-                    color: '#dc2626',
-                    padding: '2px 9px',
-                    borderRadius: 12,
-                    border: '1px solid #fecaca',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: 4,
-                  }}
-                >
-                  <AlertTriangle size={12} />
-                  Clause 15 Legal Notice
-                </span>
-              </div>
-              <p style={{ fontSize: '0.8125rem', color: '#64748b', margin: '2px 0 0 0' }}>
-                Formal notice terminating the Freelance Recruiter Services Agreement with 3 termination options, ATS closure, and 5-day exit handover.
-              </p>
-            </div>
-
-            <Button
-              variant="primary"
-              icon={<AlertTriangle size={14} />}
-              onClick={() => setIsTerminationModalOpen(true)}
-              style={{
-                backgroundColor: '#dc2626',
-                borderColor: '#dc2626',
-                boxShadow: '0 2px 8px rgba(220, 38, 38, 0.25)',
-                fontSize: '0.8125rem',
-                padding: '8px 16px',
-              }}
-            >
-              Generate Termination Notice
-            </Button>
-          </div>
-
-          {/* Feature Showcase Banner / Card */}
-          <div
-            style={{
-              backgroundColor: '#ffffff',
-              borderRadius: 12,
-              padding: '22px 24px',
-              border: '1.5px solid #fecaca',
-              boxShadow: '0 4px 20px rgba(220, 38, 38, 0.08)',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 16,
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
-              <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start', maxWidth: 720 }}>
-                <div
-                  style={{
-                    width: 52,
-                    height: 52,
-                    borderRadius: 12,
-                    backgroundColor: '#fef2f2',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    border: '1px solid #fca5a5',
-                    color: '#dc2626',
-                    flexShrink: 0,
-                  }}
-                >
-                  <AlertTriangle size={26} />
-                </div>
-                <div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-                    <h4 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#0f172a', margin: 0 }}>
-                      Notice of Termination – Freelance Recruiter Services Agreement
-                    </h4>
-                    <span
-                      style={{
-                        fontSize: '0.6875rem',
-                        fontWeight: 700,
-                        padding: '2px 7px',
-                        borderRadius: 6,
-                        backgroundColor: '#fff1f2',
-                        color: '#be123c',
-                        border: '1px solid #fecdd3',
-                      }}
-                    >
-                      Ref: TN/FRSA/TERM/YYYY/000
-                    </span>
-                  </div>
-                  <p style={{ fontSize: '0.84rem', color: '#475569', lineHeight: 1.5, margin: 0 }}>
-                    Official 2-page Tasknera legal notice referencing the Freelance Recruiter Services Agreement dated 21 October 2026. Provides selectable Options A (Convenience, 7 days), B (Curable Breach, 7-day cure), C (Immediate termination for cause), open assignment closure, post-termination payout retention under Clause 15.4, and dual signatory acknowledgement.
-                  </p>
-                </div>
-              </div>
-
-              <div style={{ display: 'flex', gap: 10 }}>
-                <Button
-                  variant="primary"
-                  icon={<FileText size={14} />}
-                  onClick={() => setIsTerminationModalOpen(true)}
-                  style={{
-                    backgroundColor: '#dc2626',
-                    borderColor: '#dc2626',
-                    fontSize: '0.8125rem',
-                  }}
-                >
-                  Open Termination Generator
-                </Button>
-              </div>
-            </div>
-
-            {/* Quick Parameter Badges */}
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))',
-                gap: 12,
-                paddingTop: 14,
-                borderTop: '1px solid #f1f5f9',
-              }}
-            >
-              {[
-                {
-                  label: 'Option A: Convenience',
-                  val: 'Clause 15.2 – 7 calendar days written notice',
-                  icon: <Clock size={14} style={{ color: '#0284c7' }} />,
-                },
-                {
-                  label: 'Option B: Curable Breach',
-                  val: 'Clause 15.3 – 7 calendar days cure period',
-                  icon: <AlertCircle size={14} style={{ color: '#d97706' }} />,
-                },
-                {
-                  label: 'Option C: Immediate',
-                  val: 'Clause 15.3 – Immediate effect & system access suspension',
-                  icon: <AlertTriangle size={14} style={{ color: '#dc2626' }} />,
-                },
-                {
-                  label: 'Clause 5 Exit Obligations',
-                  val: 'Clause 15.5 & 9.5 – 5 Business Days data deletion & ATS handover',
-                  icon: <Scale size={14} style={{ color: '#7c3aed' }} />,
-                },
-              ].map((item, idx) => (
-                <div
-                  key={idx}
-                  style={{
-                    padding: '10px 14px',
-                    borderRadius: 8,
-                    backgroundColor: '#f8fafc',
-                    border: '1px solid #e2e8f0',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: 3,
-                  }}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.72rem', color: '#64748b', fontWeight: 600 }}>
-                    {item.icon}
-                    <span>{item.label}</span>
-                  </div>
-                  <div style={{ fontSize: '0.8125rem', fontWeight: 700, color: '#0f172a' }}>
-                    {item.val}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ========================================================================= */}
-      {/* 4. EMPLOYEE TERMINATION LETTER SECTION (ZERO TOLERANCE POLICY)             */}
+      {/* 2. EMPLOYEE TERMINATION LETTER SECTION (ZERO TOLERANCE POLICY)             */}
       {/* ========================================================================= */}
       {(activeDocumentTab === 'ALL' || activeDocumentTab === 'EMPLOYEE_TERMINATION') && (
         <div
