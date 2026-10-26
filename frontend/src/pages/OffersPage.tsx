@@ -73,6 +73,7 @@ import { EmployeeTerminationModal } from '../components/documents/EmployeeTermin
 import { ResignationAcceptanceModal } from '../components/documents/ResignationAcceptanceModal.js';
 import { SalaryRevisionModal } from '../components/documents/SalaryRevisionModal.js';
 import { PromotionLetterModal } from '../components/documents/PromotionLetterModal.js';
+import { InternshipExtensionModal } from '../components/documents/InternshipExtensionModal.js';
 import { OFFICIAL_POLICIES } from '../services/policyCatalog.js';
 import {
   getAllPolicies,
@@ -137,7 +138,9 @@ export const OffersPage: React.FC = () => {
   const [isResignationModalOpen, setIsResignationModalOpen] = useState(false);
   const [isSalaryRevisionModalOpen, setIsSalaryRevisionModalOpen] = useState(false);
   const [isPromotionModalOpen, setIsPromotionModalOpen] = useState(false);
-  const [activeDocumentTab, setActiveDocumentTab] = useState<'ALL' | 'TEMPLATES' | 'PROMOTION' | 'RELIEVING' | 'SALARY_REVISION' | 'EMPLOYEE_TERMINATION' | 'RESIGNATION' | 'INTERNSHIP' | 'CERTIFICATES' | 'POLICIES'>('ALL');
+  const [isInternshipExtensionModalOpen, setIsInternshipExtensionModalOpen] = useState(false);
+  const [activeDocumentTab, setActiveDocumentTab] = useState<'ALL' | 'TEMPLATES' | 'INTERNSHIP_EXTENSION' | 'PROMOTION' | 'RELIEVING' | 'SALARY_REVISION' | 'EMPLOYEE_TERMINATION' | 'RESIGNATION' | 'INTERNSHIP' | 'CERTIFICATES' | 'POLICIES'>('ALL');
+  const [internshipExtensionSectionPulse, setInternshipExtensionSectionPulse] = useState(false);
   const [promotionSectionPulse, setPromotionSectionPulse] = useState(false);
   const [relievingSectionPulse, setRelievingSectionPulse] = useState(false);
   const [salaryRevisionSectionPulse, setSalaryRevisionSectionPulse] = useState(false);
@@ -548,6 +551,18 @@ export const OffersPage: React.FC = () => {
       onClick: () => setIsEmployeeTerminationModalOpen(true),
     },
     {
+      id: 'internship_extension',
+      title: 'Extension of Internship',
+      description: 'Official 1-page letter extending internship tenure, stipend details, reporting manager & acceptance.',
+      icon: <GraduationCap size={22} style={{ color: '#2563eb' }} />,
+      badge: 'TN/HR/INTX Format',
+      badgeColor: '#2563eb',
+      badgeBg: '#eff6ff',
+      badgeBorder: '#bfdbfe',
+      active: true,
+      onClick: () => setIsInternshipExtensionModalOpen(true),
+    },
+    {
       id: 'promotion_letter',
       title: 'Promotion Letter',
       description: 'Official 1-page letter with promotion particulars table, reporting structure, new compensation & clauses.',
@@ -767,6 +782,7 @@ export const OffersPage: React.FC = () => {
           {[
             { key: 'ALL', label: 'All', count: documentCards.length + certificateCards.length + allPoliciesList.length + 1 },
             { key: 'TEMPLATES', label: 'Templates', count: documentCards.length },
+            { key: 'INTERNSHIP_EXTENSION', label: 'Internship Extension', count: 1, icon: <GraduationCap size={13} /> },
             { key: 'PROMOTION', label: 'Promotion Letter', count: 1, icon: <Award size={13} /> },
             { key: 'RELIEVING', label: 'Relieving Letter', count: 1, icon: <FileCheck2 size={13} /> },
             { key: 'SALARY_REVISION', label: 'Salary Revision', count: 1, icon: <TrendingUp size={13} /> },
@@ -783,7 +799,14 @@ export const OffersPage: React.FC = () => {
                 type="button"
                 onClick={() => {
                   setActiveDocumentTab(tab.key as any);
-                  if (tab.key === 'PROMOTION') {
+                  if (tab.key === 'INTERNSHIP_EXTENSION') {
+                    const el = document.getElementById('internship-extension-section');
+                    if (el) {
+                      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                      setInternshipExtensionSectionPulse(true);
+                      setTimeout(() => setInternshipExtensionSectionPulse(false), 2400);
+                    }
+                  } else if (tab.key === 'PROMOTION') {
                     const el = document.getElementById('promotion-letter-section');
                     if (el) {
                       el.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -2052,6 +2075,210 @@ export const OffersPage: React.FC = () => {
       )}
 
       {/* ========================================================================= */}
+      {/* 3E. EXTENSION OF INTERNSHIP SECTION (TN/HR/INTX FORMAT)                   */}
+      {/* ========================================================================= */}
+      {(activeDocumentTab === 'ALL' || activeDocumentTab === 'INTERNSHIP_EXTENSION') && (
+        <div
+          id="internship-extension-section"
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 16,
+            marginTop: 6,
+            paddingTop: 10,
+            scrollMarginTop: '80px',
+            borderRadius: 14,
+            padding: '16px',
+            backgroundColor: internshipExtensionSectionPulse ? 'rgba(37, 99, 235, 0.06)' : 'transparent',
+            boxShadow: internshipExtensionSectionPulse ? '0 0 0 2px rgba(37, 99, 235, 0.4)' : 'none',
+            transition: 'all 0.4s ease',
+          }}
+        >
+          {/* Section Header */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#0f172a', margin: 0 }}>
+                  Extension of Internship
+                </h3>
+                <span
+                  style={{
+                    fontSize: '0.72rem',
+                    fontWeight: 700,
+                    backgroundColor: '#eff6ff',
+                    color: '#1d4ed8',
+                    padding: '2px 9px',
+                    borderRadius: 12,
+                    border: '1px solid #bfdbfe',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 4,
+                  }}
+                >
+                  <GraduationCap size={12} />
+                  TN/HR/INTX Format &bull; Tenure Extension
+                </span>
+              </div>
+              <p style={{ fontSize: '0.8125rem', color: '#64748b', margin: '2px 0 0 0' }}>
+                Official 1-page Tasknera internship extension letter covering extended dates, further duration, stipend terms, reporting line, and intern acceptance acknowledgement.
+              </p>
+            </div>
+
+            <Button
+              variant="primary"
+              icon={<GraduationCap size={14} />}
+              onClick={() => setIsInternshipExtensionModalOpen(true)}
+              style={{
+                backgroundColor: '#2563eb',
+                borderColor: '#2563eb',
+                boxShadow: '0 2px 8px rgba(37, 99, 235, 0.25)',
+                fontSize: '0.8125rem',
+                padding: '8px 16px',
+              }}
+            >
+              Generate Internship Extension
+            </Button>
+          </div>
+
+          {/* Feature Showcase Card */}
+          <div
+            style={{
+              backgroundColor: '#ffffff',
+              borderRadius: 12,
+              padding: '22px 24px',
+              border: '1.5px solid #bfdbfe',
+              boxShadow: '0 4px 20px rgba(37, 99, 235, 0.08)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 16,
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
+              <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start', maxWidth: 740 }}>
+                <div
+                  style={{
+                    width: 52,
+                    height: 52,
+                    borderRadius: 12,
+                    backgroundColor: '#eff6ff',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    border: '1px solid #bfdbfe',
+                    color: '#2563eb',
+                    flexShrink: 0,
+                  }}
+                >
+                  <GraduationCap size={26} />
+                </div>
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                    <h4 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#0f172a', margin: 0 }}>
+                      Extension of Internship (Tenure Extension &amp; Terms)
+                    </h4>
+                    <span
+                      style={{
+                        fontSize: '0.6875rem',
+                        fontWeight: 700,
+                        padding: '2px 7px',
+                        borderRadius: 6,
+                        backgroundColor: '#eff6ff',
+                        color: '#1d4ed8',
+                        border: '1px solid #bfdbfe',
+                      }}
+                    >
+                      Ref: TN/HR/INTX/[YYYY]/[000]
+                    </span>
+                  </div>
+                  <p style={{ fontSize: '0.84rem', color: '#475569', lineHeight: 1.5, margin: 0 }}>
+                    Official 1-page Tasknera letter extending the internship period based on intern performance and project requirements. Outlines the extended start and end dates, further duration, 4 core terms (Stipend, Role and reporting line, Confidentiality &amp; Company policies, Fixed-period nature of internship), CEO authorization with Company Seal, and formal intern receipt &amp; acceptance acknowledgement.
+                  </p>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: 10 }}>
+                <Button
+                  variant="primary"
+                  icon={<GraduationCap size={14} />}
+                  onClick={() => setIsInternshipExtensionModalOpen(true)}
+                  style={{
+                    backgroundColor: '#2563eb',
+                    borderColor: '#2563eb',
+                    boxShadow: '0 2px 8px rgba(37, 99, 235, 0.25)',
+                    fontSize: '0.8125rem',
+                    padding: '8px 16px',
+                  }}
+                >
+                  Open Extension Generator
+                </Button>
+              </div>
+            </div>
+
+            {/* Quick parameter preview pills */}
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))',
+                gap: 12,
+                marginTop: 4,
+                paddingTop: 14,
+                borderTop: '1px solid #f1f5f9',
+              }}
+            >
+              <div
+                style={{
+                  backgroundColor: '#f8fafc',
+                  padding: '10px 14px',
+                  borderRadius: 8,
+                  border: '1px solid #e2e8f0',
+                  fontSize: '0.78rem',
+                }}
+              >
+                <div style={{ color: '#64748b', fontWeight: 600, marginBottom: 2 }}>Extended Period</div>
+                <div style={{ color: '#0f172a', fontWeight: 700 }}>Start &amp; End Dates + Duration</div>
+              </div>
+              <div
+                style={{
+                  backgroundColor: '#f8fafc',
+                  padding: '10px 14px',
+                  borderRadius: 8,
+                  border: '1px solid #e2e8f0',
+                  fontSize: '0.78rem',
+                }}
+              >
+                <div style={{ color: '#64748b', fontWeight: 600, marginBottom: 2 }}>Stipend &amp; Reporting</div>
+                <div style={{ color: '#0f172a', fontWeight: 700 }}>INR Amount / Month &amp; Reporting Line</div>
+              </div>
+              <div
+                style={{
+                  backgroundColor: '#f8fafc',
+                  padding: '10px 14px',
+                  borderRadius: 8,
+                  border: '1px solid #e2e8f0',
+                  fontSize: '0.78rem',
+                }}
+              >
+                <div style={{ color: '#64748b', fontWeight: 600, marginBottom: 2 }}>Signatory Authority</div>
+                <div style={{ color: '#0f172a', fontWeight: 700 }}>Ms. Sheetal Bedi &bull; CEO (Delhi, India)</div>
+              </div>
+              <div
+                style={{
+                  backgroundColor: '#f8fafc',
+                  padding: '10px 14px',
+                  borderRadius: 8,
+                  border: '1px solid #e2e8f0',
+                  fontSize: '0.78rem',
+                }}
+              >
+                <div style={{ color: '#64748b', fontWeight: 600, marginBottom: 2 }}>Intern Acknowledgement</div>
+                <div style={{ color: '#0f172a', fontWeight: 700 }}>Acceptance Signature, Date &amp; City</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
       {/* 4. CONCLUSION OF INTERNSHIP SECTION (TN/HR/INT FORMAT)                    */}
       {/* ========================================================================= */}
       {(activeDocumentTab === 'ALL' || activeDocumentTab === 'INTERNSHIP') && (
@@ -3137,6 +3364,13 @@ export const OffersPage: React.FC = () => {
       <PromotionLetterModal
         isOpen={isPromotionModalOpen}
         onClose={() => setIsPromotionModalOpen(false)}
+        onSuccess={() => fetchOffers()}
+      />
+
+      {/* Official Extension of Internship (TN/HR/INTX) Modal */}
+      <InternshipExtensionModal
+        isOpen={isInternshipExtensionModalOpen}
+        onClose={() => setIsInternshipExtensionModalOpen(false)}
         onSuccess={() => fetchOffers()}
       />
     </div>

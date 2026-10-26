@@ -42,6 +42,7 @@ import { FreelancerTerminationModal } from '../components/documents/FreelancerTe
 import { ResignationAcceptanceModal } from '../components/documents/ResignationAcceptanceModal.js';
 import { SalaryRevisionModal } from '../components/documents/SalaryRevisionModal.js';
 import { PromotionLetterModal } from '../components/documents/PromotionLetterModal.js';
+import { InternshipExtensionModal } from '../components/documents/InternshipExtensionModal.js';
 import { useToast } from '../context/ToastContext.js';
 
 export const EmployeesPage: React.FC = () => {
@@ -80,6 +81,10 @@ export const EmployeesPage: React.FC = () => {
   // Promotion Letter Modal
   const [isPromotionModalOpen, setIsPromotionModalOpen] = useState(false);
   const [selectedEmployeeForPromotion, setSelectedEmployeeForPromotion] = useState<Employee | null>(null);
+
+  // Extension of Internship Modal
+  const [isInternshipExtensionModalOpen, setIsInternshipExtensionModalOpen] = useState(false);
+  const [selectedEmployeeForInternshipExtension, setSelectedEmployeeForInternshipExtension] = useState<Employee | null>(null);
 
   useEffect(() => {
     loadEmployees();
@@ -1079,6 +1084,19 @@ export const EmployeesPage: React.FC = () => {
           onClose={() => {
             setIsPromotionModalOpen(false);
             setSelectedEmployeeForPromotion(null);
+          }}
+          onSuccess={() => loadEmployees()}
+        />
+      )}
+
+      {/* Extension of Internship (TN/HR/INTX) Modal */}
+      {isInternshipExtensionModalOpen && (
+        <InternshipExtensionModal
+          isOpen={isInternshipExtensionModalOpen}
+          initialEmployee={selectedEmployeeForInternshipExtension}
+          onClose={() => {
+            setIsInternshipExtensionModalOpen(false);
+            setSelectedEmployeeForInternshipExtension(null);
           }}
           onSuccess={() => loadEmployees()}
         />

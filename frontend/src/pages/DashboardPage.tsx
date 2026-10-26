@@ -53,6 +53,7 @@ import { InternshipConcludingModal } from '../components/documents/InternshipCon
 import { ResignationAcceptanceModal } from '../components/documents/ResignationAcceptanceModal.js';
 import { SalaryRevisionModal } from '../components/documents/SalaryRevisionModal.js';
 import { PromotionLetterModal } from '../components/documents/PromotionLetterModal.js';
+import { InternshipExtensionModal } from '../components/documents/InternshipExtensionModal.js';
 import { useToast } from '../context/ToastContext.js';
 
 export const DashboardPage: React.FC = () => {
@@ -97,6 +98,7 @@ export const DashboardPage: React.FC = () => {
   const [isResignationModalOpen, setIsResignationModalOpen] = useState(false);
   const [isSalaryRevisionModalOpen, setIsSalaryRevisionModalOpen] = useState(false);
   const [isPromotionModalOpen, setIsPromotionModalOpen] = useState(false);
+  const [isInternshipExtensionModalOpen, setIsInternshipExtensionModalOpen] = useState(false);
 
   const [selectedOfferForDetail, setSelectedOfferForDetail] = useState<OfferListItem | null>(null);
   const [selectedOfferForEmail, setSelectedOfferForEmail] = useState<OfferListItem | null>(null);
@@ -978,6 +980,12 @@ export const DashboardPage: React.FC = () => {
                   action: () => setIsPromotionModalOpen(true),
                 },
                 {
+                  label: 'Extension of Internship',
+                  desc: 'Tenure extension & terms letter',
+                  icon: <GraduationCap size={15} style={{ color: '#2563eb' }} />,
+                  action: () => setIsInternshipExtensionModalOpen(true),
+                },
+                {
                   label: 'Internship Conclusion',
                   desc: 'Letter on internship conclusion',
                   icon: <GraduationCap size={15} style={{ color: '#ea580c' }} />,
@@ -1238,6 +1246,12 @@ export const DashboardPage: React.FC = () => {
       <PromotionLetterModal
         isOpen={isPromotionModalOpen}
         onClose={() => setIsPromotionModalOpen(false)}
+        onSuccess={() => loadDashboardData()}
+      />
+
+      <InternshipExtensionModal
+        isOpen={isInternshipExtensionModalOpen}
+        onClose={() => setIsInternshipExtensionModalOpen(false)}
         onSuccess={() => loadDashboardData()}
       />
     </div>
