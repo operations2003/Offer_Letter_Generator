@@ -20,12 +20,17 @@ import {
   ShieldCheck,
   UserCheck,
   ArrowUp,
+  MapPin,
+  Mail,
+  Globe,
 } from 'lucide-react';
 import { Button } from '../common/Button.js';
 import { Employee, EmployeeService } from '../../services/employeeService.js';
 import { DocumentEngineService } from '../../services/documentEngineService.js';
 import { HrDocument } from '../../types/document-engine.js';
 import { useToast } from '../../context/ToastContext.js';
+
+const SHEETAL_BEDI_SIGNATURE_DATA_URL = 'data:image/png;base64,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';
 
 interface CharacterCertificateModalProps {
   isOpen: boolean;
@@ -57,38 +62,36 @@ export const CharacterCertificateModal: React.FC<CharacterCertificateModalProps>
   const [isSaving, setIsSaving] = useState<boolean>(false);
 
   // Form Fields State
-  const [salutation, setSalutation] = useState<'Mr.' | 'Ms.' | 'Dr.'>('Mr.');
-  const [fullName, setFullName] = useState<string>('');
-  const [designation, setDesignation] = useState<string>('');
-  const [department, setDepartment] = useState<string>('');
-  const [associationType, setAssociationType] = useState<'employment' | 'internship'>('employment');
-  const [genderPronoun, setGenderPronoun] = useState<'male' | 'female'>('male');
+  const [salutation, setSalutation] = useState<'Mr.' | 'Ms.' | 'Dr.'>('Ms.');
+  const [fullName, setFullName] = useState<string>('Edwina Zephra Gomes');
+  const [designation, setDesignation] = useState<string>('HR Intern');
+  const [department, setDepartment] = useState<string>('Talent Acquisition and Learning and Development (L&D)');
+  const [associationType, setAssociationType] = useState<'employment' | 'internship'>('internship');
+  const [genderPronoun, setGenderPronoun] = useState<'male' | 'female'>('female');
 
   // Dates
-  const [startDate, setStartDate] = useState<string>('January 15, 2024');
-  const [endDate, setEndDate] = useState<string>('September 30, 2026');
-  const [issueDate, setIssueDate] = useState<string>(
-    new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
-  );
-  const [referenceNumber, setReferenceNumber] = useState<string>(
-    `TASK/${new Date().getFullYear()}/CC-${Math.floor(100 + Math.random() * 900)}`
-  );
+  const [startDate, setStartDate] = useState<string>('August 06, 2026');
+  const [endDate, setEndDate] = useState<string>('September 14, 2026');
+  const [issueDate, setIssueDate] = useState<string>('September 14, 2026');
+  const [referenceNumber, setReferenceNumber] = useState<string>('TKS/HR/INT/2026-27/001');
   const [place, setPlace] = useState<string>('Delhi');
 
-  // Custom Content Fields (Give authority to edit manually)
-  const [areaOfWork, setAreaOfWork] = useState<string>('talent acquisition, process automation, and HR operations');
-  const [responsibilityLevel, setResponsibilityLevel] = useState<'assisted with' | 'was responsible for'>('was responsible for');
-  const [keyResponsibilities, setKeyResponsibilities] = useState<string>(
-    'candidate sourcing, technical screening coordination, employee lifecycle maintenance, and compliance documentation'
+  // Custom Content Fields (Matching official Tasknera Character Certificate)
+  const [ldAssistance, setLdAssistance] = useState<string>(
+    'assisted the Learning & Development Department in various activities, particularly in the research, development, structuring, and preparation of training modules and learning materials for the organization'
+  );
+  const [taExperience, setTaExperience] = useState<string>(
+    'gained hands-on experience as a member of the Talent Acquisition team, supporting candidate sourcing and screening, coordinating interview schedules, and assisting with various stages of the end-to-end recruitment process'
   );
   const [demonstratedQualities, setDemonstratedQualities] = useState<string>(
-    'professionalism, sincerity, adaptability, willingness to learn, teamwork, and responsibility'
+    'demonstrated a professional attitude, sincerity, discipline, willingness to learn, and a responsible approach toward assigned responsibilities. She maintained professional conduct while working with the team and showed a positive attitude toward feedback and continuous improvement.'
   );
   const [conductEvaluation, setConductEvaluation] = useState<string>('satisfactory and professional');
   const [characterTraits, setCharacterTraits] = useState<string>('cooperative, respectful, and committed');
-  const [includeDisciplinaryClause, setIncludeDisciplinaryClause] = useState<boolean>(true);
   const [futureEndeavours, setFutureEndeavours] = useState<string>('academic and professional');
-  const [issuanceReason, setIssuanceReason] = useState<string>('separation from employment');
+  const [issuanceReason, setIssuanceReason] = useState<string>(
+    'completion/conclusion of her internship with Tasknera HR Solutions'
+  );
 
   // Signatory
   const [signatoryName, setSignatoryName] = useState<string>('Sheetal Bedi');
@@ -394,12 +397,12 @@ export const CharacterCertificateModal: React.FC<CharacterCertificateModalProps>
             associationType,
             startDate,
             endDate,
-            areaOfWork,
-            keyResponsibilities,
+            ldAssistance,
+            taExperience,
             demonstratedQualities,
             conductEvaluation,
             characterTraits,
-            includeDisciplinaryClause,
+            futureEndeavours,
             issuanceReason,
             referenceNumber,
             issueDate,
@@ -437,12 +440,12 @@ export const CharacterCertificateModal: React.FC<CharacterCertificateModalProps>
           associationType,
           startDate,
           endDate,
-          areaOfWork,
-          keyResponsibilities,
+          ldAssistance,
+          taExperience,
           demonstratedQualities,
           conductEvaluation,
           characterTraits,
-          includeDisciplinaryClause,
+          futureEndeavours,
           issuanceReason,
           referenceNumber,
           issueDate,
@@ -917,68 +920,53 @@ export const CharacterCertificateModal: React.FC<CharacterCertificateModalProps>
                     />
                   </div>
 
-                  {/* Responsibility Level */}
-                  <div>
-                    <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: '#475569', marginBottom: 4 }}>
-                      Responsibility Role
-                    </label>
-                    <select
-                      className="form-input"
-                      value={responsibilityLevel}
-                      onChange={(e) => setResponsibilityLevel(e.target.value as any)}
-                      style={{ width: '100%', fontSize: '0.8125rem' }}
-                    >
-                      <option value="was responsible for">Was responsible for</option>
-                      <option value="assisted with">Assisted with</option>
-                    </select>
-                  </div>
                 </div>
 
-                {/* Detailed Narrative Customizations */}
+                {/* Detailed Narrative Customizations matching official Tasknera template */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 16 }}>
                   <div>
                     <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: '#475569', marginBottom: 4 }}>
-                      Area of Work / Contribution Scope
-                    </label>
-                    <input
-                      type="text"
-                      className="form-input"
-                      value={areaOfWork}
-                      onChange={(e) => setAreaOfWork(e.target.value)}
-                      style={{ width: '100%', fontSize: '0.8125rem' }}
-                    />
-                  </div>
-
-                  <div>
-                    <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: '#475569', marginBottom: 4 }}>
-                      Key Responsibilities & Activities
+                      Learning & Development Assistance (Paragraph 2)
                     </label>
                     <textarea
                       rows={2}
                       className="form-input"
-                      value={keyResponsibilities}
-                      onChange={(e) => setKeyResponsibilities(e.target.value)}
+                      value={ldAssistance}
+                      onChange={(e) => setLdAssistance(e.target.value)}
                       style={{ width: '100%', fontSize: '0.8125rem', resize: 'vertical' }}
                     />
                   </div>
 
                   <div>
                     <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: '#475569', marginBottom: 4 }}>
-                      Demonstrated Qualities & Work Ethic
+                      Talent Acquisition Team Experience (Paragraph 3)
                     </label>
-                    <input
-                      type="text"
+                    <textarea
+                      rows={2}
+                      className="form-input"
+                      value={taExperience}
+                      onChange={(e) => setTaExperience(e.target.value)}
+                      style={{ width: '100%', fontSize: '0.8125rem', resize: 'vertical' }}
+                    />
+                  </div>
+
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: '#475569', marginBottom: 4 }}>
+                      Demonstrated Qualities & Work Ethic (Paragraph 4)
+                    </label>
+                    <textarea
+                      rows={2}
                       className="form-input"
                       value={demonstratedQualities}
                       onChange={(e) => setDemonstratedQualities(e.target.value)}
-                      style={{ width: '100%', fontSize: '0.8125rem' }}
+                      style={{ width: '100%', fontSize: '0.8125rem', resize: 'vertical' }}
                     />
                   </div>
 
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                     <div>
                       <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: '#475569', marginBottom: 4 }}>
-                        Conduct Evaluation
+                        Conduct & Character Evaluation (Paragraph 5)
                       </label>
                       <input
                         type="text"
@@ -990,7 +978,7 @@ export const CharacterCertificateModal: React.FC<CharacterCertificateModalProps>
                     </div>
                     <div>
                       <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: '#475569', marginBottom: 4 }}>
-                        Character Traits Found
+                        Character Traits Found (Paragraph 5)
                       </label>
                       <input
                         type="text"
@@ -1002,41 +990,31 @@ export const CharacterCertificateModal: React.FC<CharacterCertificateModalProps>
                     </div>
                   </div>
 
-                  {/* Disciplinary Action Checkbox Toggle */}
-                  <div
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 10,
-                      padding: '12px 14px',
-                      backgroundColor: '#f8fafc',
-                      borderRadius: 8,
-                      border: '1px solid #e2e8f0',
-                    }}
-                  >
-                    <input
-                      type="checkbox"
-                      id="disciplinary_clause"
-                      checked={includeDisciplinaryClause}
-                      onChange={(e) => setIncludeDisciplinaryClause(e.target.checked)}
-                      style={{ width: 16, height: 16, cursor: 'pointer' }}
-                    />
-                    <label htmlFor="disciplinary_clause" style={{ fontSize: '0.8125rem', color: '#1e293b', cursor: 'pointer', fontWeight: 600 }}>
-                      Include verified clause: "No disciplinary action or complaint relating to misconduct was recorded against {pronounHimHer} during the period of association."
-                    </label>
-                  </div>
-
-                  <div>
-                    <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: '#475569', marginBottom: 4 }}>
-                      Issuance Ground / Reason
-                    </label>
-                    <input
-                      type="text"
-                      className="form-input"
-                      value={issuanceReason}
-                      onChange={(e) => setIssuanceReason(e.target.value)}
-                      style={{ width: '100%', fontSize: '0.8125rem' }}
-                    />
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: '#475569', marginBottom: 4 }}>
+                        Future Endeavors Scope (Paragraph 6)
+                      </label>
+                      <input
+                        type="text"
+                        className="form-input"
+                        value={futureEndeavours}
+                        onChange={(e) => setFutureEndeavours(e.target.value)}
+                        style={{ width: '100%', fontSize: '0.8125rem' }}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: '#475569', marginBottom: 4 }}>
+                        Issuance Ground / Context (Paragraph 7)
+                      </label>
+                      <input
+                        type="text"
+                        className="form-input"
+                        value={issuanceReason}
+                        onChange={(e) => setIssuanceReason(e.target.value)}
+                        style={{ width: '100%', fontSize: '0.8125rem' }}
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1130,157 +1108,222 @@ export const CharacterCertificateModal: React.FC<CharacterCertificateModalProps>
                 id="printable-character-certificate"
                 className="printable-character-sheet"
                 style={{
-                  backgroundColor: '#ffffff',
-                  boxShadow: '0 4px 20px rgba(0,0,0,0.06)',
-                  borderRadius: 8,
-                  padding: '36px 48px',
-                  maxWidth: '820px',
+                  maxWidth: 816,
                   margin: '0 auto',
                   width: '100%',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'space-between',
-                  fontFamily: '"Times New Roman", Times, Georgia, serif',
+                  backgroundColor: '#ffffff',
                   color: '#1e293b',
-                  lineHeight: 1.55,
-                  fontSize: '0.9375rem',
+                  padding: '48px 56px 40px 56px',
+                  borderRadius: 6,
+                  boxShadow: '0 8px 30px rgba(0, 0, 0, 0.08)',
+                  fontFamily: 'Georgia, "Times New Roman", Times, serif',
+                  fontSize: '0.9125rem',
+                  lineHeight: 1.65,
                   border: '1px solid #e2e8f0',
+                  position: 'relative',
+                  overflow: 'hidden',
                 }}
               >
                 <div>
-                  {/* Official Top Header: TaskNera Logo Left + Address & Email Right */}
+                  {/* Official Top Header: Tasknera Logo + Brand + Tagline */}
                   <div
                     style={{
                       display: 'flex',
-                      alignItems: 'flex-start',
-                      justifyContent: 'space-between',
-                      borderBottom: '1px solid #f1f5f9',
+                      alignItems: 'center',
+                      gap: 16,
                       paddingBottom: 14,
-                      marginBottom: 16,
                     }}
                   >
                     <div>
                       <img
                         src="/logo.png"
-                        alt="TaskNera Logo"
-                        style={{ width: 48, height: 48, objectFit: 'contain' }}
+                        alt="Tasknera"
+                        style={{ width: 56, height: 56, objectFit: 'contain' }}
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                        }}
                       />
                     </div>
-                    <div style={{ textAlign: 'right', fontFamily: 'Arial, sans-serif' }}>
-                      <div style={{ fontWeight: 800, fontSize: '1.15rem', color: '#0f172a', letterSpacing: '-0.02em' }}>
-                        TaskNera
+                    <div>
+                      <div
+                        style={{
+                          fontWeight: 800,
+                          fontSize: '1.75rem',
+                          color: '#0f2238',
+                          letterSpacing: '0.03em',
+                          lineHeight: 1.1,
+                          fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                        }}
+                      >
+                        TASKNERA
                       </div>
-                      <div style={{ fontSize: '0.72rem', color: '#475569', marginTop: 2 }}>
-                        D-57 F1 Dilshad Colony, Shahdara, Delhi – 110095
-                      </div>
-                      <div style={{ fontSize: '0.72rem', color: '#475569' }}>
-                        Email: careers@tasknera.com
+                      <div
+                        style={{
+                          fontSize: '0.8rem',
+                          fontWeight: 600,
+                          marginTop: 4,
+                          letterSpacing: '0.01em',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 6,
+                          fontFamily: 'system-ui, -apple-system, sans-serif',
+                        }}
+                      >
+                        <span style={{ color: '#0d9488' }}>Global HR</span>
+                        <span style={{ color: '#0284c7', fontSize: '0.65rem' }}>•</span>
+                        <span style={{ color: '#0d9488' }}>Recruitment</span>
+                        <span style={{ color: '#0284c7', fontSize: '0.65rem' }}>•</span>
+                        <span style={{ color: '#0d9488' }}>Workforce Solutions</span>
                       </div>
                     </div>
                   </div>
 
-                  {/* Reference & Date Block */}
-                  <div style={{ marginBottom: 16, fontFamily: 'Arial, sans-serif', fontSize: '0.82rem', color: '#334155' }}>
-                    <div>
-                      <strong>Reference:</strong> {hl(referenceNumber)}
-                    </div>
-                    <div>
-                      <strong>Date:</strong> {hl(issueDate)}
-                    </div>
-                  </div>
+                  <div style={{ width: '100%', height: 1, backgroundColor: '#cbd5e1', marginBottom: 24 }} />
 
-                  {/* Centered Document Title */}
-                  <div style={{ textAlign: 'center', marginBottom: 18 }}>
+                  {/* Centered Document Title with Teal Underline */}
+                  <div style={{ textAlign: 'center', marginBottom: 20 }}>
                     <h1
                       style={{
-                        margin: '0 0 4px',
-                        fontSize: '1.6rem',
+                        margin: '0 0 8px 0',
+                        fontSize: '1.45rem',
                         fontWeight: 700,
-                        color: '#0f172a',
-                        letterSpacing: '0.01em',
-                        fontFamily: '"Times New Roman", Times, serif',
+                        color: '#0f2238',
+                        letterSpacing: '0.04em',
+                        fontFamily: 'Georgia, "Times New Roman", Times, serif',
+                        textTransform: 'uppercase',
                       }}
                     >
-                      Character Certificate
+                      CHARACTER CERTIFICATE
                     </h1>
                     <div
                       style={{
-                        fontSize: '1rem',
+                        width: 140,
+                        height: 3,
+                        backgroundColor: '#0f766e',
+                        margin: '0 auto 16px auto',
+                        borderRadius: 2,
+                      }}
+                    />
+                    <div
+                      style={{
+                        fontSize: '1.05rem',
                         fontStyle: 'italic',
-                        color: '#334155',
-                        fontWeight: 600,
+                        fontWeight: 700,
+                        color: '#0f172a',
+                        fontFamily: 'Georgia, "Times New Roman", Times, serif',
                       }}
                     >
                       To Whomsoever It May Concern
                     </div>
                   </div>
 
-                  {/* Certificate Body Paragraphs */}
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 10, textAlign: 'justify' }}>
+                  {/* Certificate Body Paragraphs (Exact 7 Paragraphs matching official document) */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 14, textAlign: 'justify' }}>
                     <p style={{ margin: 0 }}>
-                      This is to certify that {hl(`${salutation} ${fullName}`)} was associated with TaskNera HR Solutions as {hl(designationArticle)} {hl(designation)}, contributing to the {hl(department)}, from {hl(startDate)} to {hl(endDate)}.
+                      This is to certify that {hl(salutation ? `${salutation} ${fullName}` : fullName)} was associated with <strong>Tasknera HR Solutions</strong> as an <strong>{hl(designation)}</strong>, contributing to the <strong>{hl(department)}</strong> teams, from <strong>{hl(startDate)}</strong> to <strong>{hl(endDate)}</strong>.
                     </p>
 
                     <p style={{ margin: 0 }}>
-                      During the period of {hl(pronounHisHer)} {hl(associationType)}, {hl(fullName)} was part of the {hl(department)} and contributed to {hl(areaOfWork)} activities throughout {hl(pronounHisHer)} association with the organization.
+                      During the period of {hl(pronounHisHer)} internship, {hl(fullName)} {hl(ldAssistance)}.
                     </p>
 
                     <p style={{ margin: 0 }}>
-                      As part of the {hl(department)}, {hl(pronounHeShe)} {hl(responsibilityLevel)} {hl(keyResponsibilities)}, and supporting other {hl(department)} activities as assigned.
+                      In addition, {hl(fullName)} {hl(taExperience)}.
                     </p>
 
                     <p style={{ margin: 0 }}>
-                      Throughout {hl(pronounHisHer)} association with TaskNera HR Solutions, {hl(fullName)} demonstrated {hl(demonstratedQualities)} in carrying out {hl(pronounHisHer)} responsibilities.
+                      Throughout {hl(pronounHisHer)} association with Tasknera HR Solutions, {hl(fullName)} {hl(demonstratedQualities)}
                     </p>
 
                     <p style={{ margin: 0 }}>
-                      To the best of our knowledge, {hl(pronounHisHer)} conduct and character during the {hl(associationType)} period were {hl(conductEvaluation)}. We found {hl(pronounHimHer)} to be {hl(characterTraits)} to the responsibilities entrusted to {hl(pronounHimHer)}.
-                    </p>
-
-                    {includeDisciplinaryClause && (
-                      <p style={{ margin: 0 }}>
-                        {hl(`No disciplinary action or complaint relating to misconduct was recorded against ${pronounHimHer} during the period of association.`)}
-                      </p>
-                    )}
-
-                    <p style={{ margin: 0 }}>
-                      We appreciate {hl(pronounHisHer)} contribution to the {hl(department)} function and wish {hl(pronounHimHer)} continued success and growth in {hl(pronounHisHer)} future {hl(futureEndeavours)} endeavours.
+                      To the best of our knowledge, {hl(pronounHisHer)} conduct and character during the internship period were {hl(conductEvaluation)}. We found them to be {hl(characterTraits)} to the responsibilities entrusted to them.
                     </p>
 
                     <p style={{ margin: 0 }}>
-                      This certificate is being issued upon {hl(issuanceReason)} with TaskNera HR Solutions.
+                      We appreciate {hl(pronounHisHer)} contribution to the Talent Acquisition and L&D functions and wish {hl(pronounHimHer)} success and growth in their future {hl(futureEndeavours)} endeavors.
+                    </p>
+
+                    <p style={{ margin: 0 }}>
+                      This certificate is being issued upon {hl(issuanceReason)}.
                     </p>
                   </div>
 
-                  {/* Signatory Section */}
-                  <div style={{ marginTop: 24, display: 'inline-block' }}>
-                    <div style={{ fontWeight: 700, fontSize: '0.95rem', color: '#0f172a', marginBottom: 22 }}>
-                      For TaskNera HR Solutions
+                  {/* Signatory Section with Authentic Sheetal Bedi Signature */}
+                  <div style={{ marginTop: 24, fontFamily: "'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif" }}>
+                    <div style={{ fontWeight: 700, fontSize: '0.96rem', color: '#0f2a5c', marginBottom: 2 }}>
+                      For Tasknera HR Solutions
                     </div>
-                    <div style={{ borderBottom: '1px solid #475569', width: 200, marginBottom: 6 }} />
-                    <div style={{ fontSize: '0.85rem', color: '#334155' }}>
-                      <div style={{ fontWeight: 600 }}>Authorized Signatory</div>
-                      <div>Name: {hl(signatoryName)}</div>
-                      <div>Designation: {hl(signatoryTitle)}</div>
-                      <div>Date of Issue: {hl(issueDate)}</div>
-                      <div>Place: {hl(place)}</div>
+                    <div style={{ margin: '2px 0 2px -4px', minHeight: 90, display: 'flex', alignItems: 'center' }}>
+                      <img
+                        src={SHEETAL_BEDI_SIGNATURE_DATA_URL}
+                        alt="Sheetal Bedi Signature"
+                        style={{
+                          width: 110,
+                          height: 'auto',
+                          display: 'block',
+                          objectFit: 'contain',
+                        }}
+                      />
+                    </div>
+                    <div style={{ fontStyle: 'italic', fontSize: '0.88rem', color: '#475569', marginBottom: 6 }}>
+                      Authorized Signatory
+                    </div>
+                    <div style={{ fontSize: '0.9rem', color: '#1e293b', lineHeight: 1.5 }}>
+                      <span style={{ fontWeight: 700 }}>Name:</span>{' '}
+                      <span style={{ color: '#334155' }}>{hl(signatoryName)}</span>
+                    </div>
+                    <div style={{ fontSize: '0.9rem', color: '#1e293b', lineHeight: 1.5 }}>
+                      <span style={{ fontWeight: 700 }}>Designation:</span>{' '}
+                      <span style={{ color: '#334155' }}>{hl(signatoryTitle)}</span>
+                    </div>
+                    <div style={{ fontSize: '0.9rem', color: '#1e293b', lineHeight: 1.5 }}>
+                      <span style={{ fontWeight: 700 }}>Date of Issue:</span>{' '}
+                      <span style={{ color: '#334155' }}>{hl(issueDate)}</span>
+                    </div>
+                    <div style={{ fontSize: '0.9rem', color: '#1e293b', lineHeight: 1.5 }}>
+                      <span style={{ fontWeight: 700 }}>Place:</span>{' '}
+                      <span style={{ color: '#334155' }}>{hl(place)}</span>
                     </div>
                   </div>
                 </div>
 
-                {/* Footer Page Numbering */}
-                <div
-                  style={{
-                    borderTop: '1px solid #f1f5f9',
-                    paddingTop: 10,
-                    marginTop: 20,
-                    textAlign: 'center',
-                    fontSize: '0.75rem',
-                    color: '#94a3b8',
-                    fontFamily: 'Arial, sans-serif',
-                  }}
-                >
-                  TaskNera | Page 1 of 1
+                {/* Footer with Contact Bar and Geometric Corner Shape */}
+                <div style={{ marginTop: 36, paddingTop: 14, borderTop: '1px solid #cbd5e1', position: 'relative' }}>
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: 14,
+                      fontSize: '0.75rem',
+                      color: '#334155',
+                      fontFamily: 'system-ui, -apple-system, sans-serif',
+                      flexWrap: 'wrap',
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                      <MapPin size={13} style={{ color: '#0284c7' }} />
+                      <span>D-57 F1, Dilshad Colony Shahdara, Delhi 110095</span>
+                    </div>
+                    <span style={{ color: '#94a3b8' }}>|</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                      <Mail size={13} style={{ color: '#0284c7' }} />
+                      <span>operations@tasknera.com</span>
+                    </div>
+                    <span style={{ color: '#94a3b8' }}>|</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                      <Globe size={13} style={{ color: '#0284c7' }} />
+                      <span>https://tasknera.com</span>
+                    </div>
+                  </div>
+
+                  {/* Corner Accent Graphic */}
+                  <div style={{ position: 'absolute', right: -56, bottom: -40, width: 140, height: 36, pointerEvents: 'none', overflow: 'hidden' }}>
+                    <svg width="140" height="36" viewBox="0 0 140 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M0 36 L140 36 L140 0 L40 0 Z" fill="#0f2a5c" />
+                      <polygon points="10,36 45,0 75,0 40,36" fill="#f97316" />
+                    </svg>
+                  </div>
                 </div>
               </div>
             </div>

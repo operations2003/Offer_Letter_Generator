@@ -793,40 +793,55 @@ Date: ___________________________`,
     label: 'Character Certificate',
     group: 'certificates',
     groupLabel: 'Character Certificate',
-    defaultTitle: 'Character & Conduct Certificate',
-    blueprintContent: `**TO WHOM IT MAY CONCERN**
-**CHARACTER & CONDUCT CERTIFICATE**
+    defaultTitle: 'CHARACTER CERTIFICATE',
+    blueprintContent: `# CHARACTER CERTIFICATE
 
-**Date of Issue**: {{issue_date}}
-**Reference Number**: {{reference_number}}
+*To Whomsoever It May Concern*
 
-This is to formally certify that **{{candidate_name}}** (Employee Code: **{{employee_id}}**) has been associated with **{{company_name}}** from **{{joining_date}}** to **{{end_date}}** as **{{job_title}}**.
+This is to certify that {{honorific}} {{candidate_name}} was associated with {{company_name}} as an {{job_title}}, contributing to the {{department}} teams, from {{joining_date}} to {{end_date}}.
 
-**1. CONDUCT & PROFESSIONAL INTEGRITY**
-• During their tenure with our organization, we found **{{candidate_name}}** to be disciplined, sincere, and diligent in all assigned professional responsibilities.
-• They demonstrated exemplary moral character, high professional ethics, and maintained respectful rapport with team members and management.
-• No disciplinary infractions or inquiries were recorded against them during their period of service.
+During the period of {{possessive_pronoun}} internship, {{candidate_name}} {{ld_assistance}}.
 
-We wish **{{candidate_name}}** all success in future endeavors.
+In addition, {{candidate_name}} {{ta_experience}}.
 
-Sincerely,
+Throughout {{possessive_pronoun}} association with {{company_name}}, {{candidate_name}} {{demonstrated_qualities}}.
 
-For **{{company_name}}**
-___________________________
-**{{signatory_name}}**
-{{signatory_title}}`,
+To the best of our knowledge, {{possessive_pronoun}} conduct and character during the internship period were {{conduct_evaluation}}. We found them to be {{character_traits}} to the responsibilities entrusted to them.
+
+We appreciate {{possessive_pronoun}} contribution to the Talent Acquisition and L&D functions and wish {{possessive_pronoun}} success and growth in their future {{future_endeavors}} endeavors.
+
+This certificate is being issued upon {{issuance_reason}}.
+
+For {{company_name}}
+
+*Authorized Signatory*
+
+Name: {{signatory_name}}
+Designation: {{signatory_title}}
+Date of Issue: {{issue_date}}
+Place: {{signatory_place}}`,
     sampleData: {
-      reference_number: 'TSK-CHR-2026-440',
-      candidate_name: 'Priya Patel',
-      employee_id: 'EMP-1002',
-      company_name: 'TaskNera Technologies Ltd.',
-      issue_date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
-      job_title: 'Lead Product Manager',
-      department: 'Product',
-      joining_date: 'November 15, 2023',
-      end_date: 'October 15, 2026',
+      reference_number: 'TKS/HR/INT/2026-27/001',
+      candidate_name: 'Edwina Zephra Gomes',
+      honorific: 'Ms.',
+      pronoun: 'she',
+      possessive_pronoun: 'her',
+      company_name: 'Tasknera HR Solutions',
+      issue_date: 'September 14, 2026',
+      job_title: 'HR Intern',
+      department: 'Talent Acquisition and Learning and Development (L&D)',
+      joining_date: 'August 06, 2026',
+      end_date: 'September 14, 2026',
+      ld_assistance: 'assisted the Learning & Development Department in various activities, particularly in the research, development, structuring, and preparation of training modules and learning materials for the organization',
+      ta_experience: 'gained hands-on experience as a member of the Talent Acquisition team, supporting candidate sourcing and screening, coordinating interview schedules, and assisting with various stages of the end-to-end recruitment process',
+      demonstrated_qualities: 'demonstrated a professional attitude, sincerity, discipline, willingness to learn, and a responsible approach toward assigned responsibilities. She maintained professional conduct while working with the team and showed a positive attitude toward feedback and continuous improvement.',
+      conduct_evaluation: 'satisfactory and professional',
+      character_traits: 'cooperative, respectful, and committed',
+      future_endeavors: 'academic and professional',
+      issuance_reason: 'completion/conclusion of her internship with Tasknera HR Solutions',
       signatory_name: 'Sheetal Bedi',
-      signatory_title: 'Chief Executive Officer',
+      signatory_title: 'CEO',
+      signatory_place: 'Delhi',
     },
   },
 

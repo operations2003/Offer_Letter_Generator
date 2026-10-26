@@ -227,16 +227,21 @@ export const DocumentPreview: React.FC<DocumentPreviewProps> = ({
   const keyResponsibilities =
     terms.keyResponsibilities ||
     'candidate sourcing, technical screening coordination, employee lifecycle maintenance, and compliance documentation';
+  const ldAssistance =
+    terms.ldAssistance ||
+    'assisted the Learning & Development Department in various activities, particularly in the research, development, structuring, and preparation of training modules and learning materials for the organization';
+  const taExperience =
+    terms.taExperience ||
+    'gained hands-on experience as a member of the Talent Acquisition team, supporting candidate sourcing and screening, coordinating interview schedules, and assisting with various stages of the end-to-end recruitment process';
   const demonstratedQualities =
     terms.demonstratedQualities ||
-    'professionalism, sincerity, adaptability, willingness to learn, teamwork, and responsibility';
+    'demonstrated a professional attitude, sincerity, discipline, willingness to learn, and a responsible approach toward assigned responsibilities. She maintained professional conduct while working with the team and showed a positive attitude toward feedback and continuous improvement.';
   const conductEvaluation = terms.conductEvaluation || 'satisfactory and professional';
   const characterTraits = terms.characterTraits || 'cooperative, respectful, and committed';
-  const includeDisciplinaryClause = terms.includeDisciplinaryClause !== false;
   const futureEndeavours = terms.futureEndeavours || 'academic and professional';
   const issuanceReason =
     terms.issuanceReason ||
-    (associationType === 'internship' ? 'completion/conclusion of his/her internship' : 'separation from employment');
+    'completion/conclusion of her internship with Tasknera HR Solutions';
   const referenceNumber = terms.referenceNumber || document.referenceNumber;
   const issueDate =
     terms.issueDate ||
@@ -1879,85 +1884,222 @@ export const DocumentPreview: React.FC<DocumentPreviewProps> = ({
           id="printable-character-certificate"
           className="printable-character-sheet"
           style={{
-            maxWidth: 780,
+            maxWidth: 816,
             margin: '0 auto',
             width: '100%',
             backgroundColor: '#ffffff',
             color: '#1e293b',
-            padding: '44px 50px',
-            borderRadius: 4,
-            boxShadow: '0 8px 30px rgba(0, 0, 0, 0.12)',
-            fontFamily: '"Times New Roman", Times, Georgia, serif',
-            fontSize: '11pt',
-            lineHeight: 1.6,
+            padding: '48px 56px 40px 56px',
+            borderRadius: 6,
+            boxShadow: '0 8px 30px rgba(0, 0, 0, 0.08)',
+            fontFamily: 'Georgia, "Times New Roman", Times, serif',
+            fontSize: '0.9125rem',
+            lineHeight: 1.65,
+            border: '1px solid #e2e8f0',
+            position: 'relative',
+            overflow: 'hidden',
           }}
         >
-          {/* Official Letterhead Header */}
-          <div style={{ textAlign: 'center', borderBottom: '2px solid #0f172a', paddingBottom: 12, marginBottom: 16 }}>
-            <img
-              src="/logo.png"
-              alt="TaskNera"
-              style={{ width: 52, height: 52, objectFit: 'contain', margin: '0 auto 6px', display: 'block' }}
-              onError={(e) => {
-                e.currentTarget.style.display = 'none';
+          <div>
+            {/* Official Top Header: Tasknera Logo + Brand + Tagline */}
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 16,
+                paddingBottom: 14,
               }}
-            />
-            <div style={{ fontSize: '1.45rem', fontWeight: 800, color: '#0f172a', letterSpacing: '0.04em', textTransform: 'uppercase' }}>
-              TaskNera HR Solutions
+            >
+              <div>
+                <img
+                  src="/logo.png"
+                  alt="Tasknera"
+                  style={{ width: 56, height: 56, objectFit: 'contain' }}
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                  }}
+                />
+              </div>
+              <div>
+                <div
+                  style={{
+                    fontWeight: 800,
+                    fontSize: '1.75rem',
+                    color: '#0f2238',
+                    letterSpacing: '0.03em',
+                    lineHeight: 1.1,
+                    fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                  }}
+                >
+                  TASKNERA
+                </div>
+                <div
+                  style={{
+                    fontSize: '0.8rem',
+                    fontWeight: 600,
+                    marginTop: 4,
+                    letterSpacing: '0.01em',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    fontFamily: 'system-ui, -apple-system, sans-serif',
+                  }}
+                >
+                  <span style={{ color: '#0d9488' }}>Global HR</span>
+                  <span style={{ color: '#0284c7', fontSize: '0.65rem' }}>•</span>
+                  <span style={{ color: '#0d9488' }}>Recruitment</span>
+                  <span style={{ color: '#0284c7', fontSize: '0.65rem' }}>•</span>
+                  <span style={{ color: '#0d9488' }}>Workforce Solutions</span>
+                </div>
+              </div>
             </div>
-            <div style={{ fontSize: '0.85rem', color: '#475569', fontStyle: 'italic', marginTop: 2 }}>
-              People • Processes • Performance
+
+            <div style={{ width: '100%', height: 1, backgroundColor: '#cbd5e1', marginBottom: 24 }} />
+
+            {/* Centered Document Title with Teal Underline */}
+            <div style={{ textAlign: 'center', marginBottom: 20 }}>
+              <h1
+                style={{
+                  margin: '0 0 8px 0',
+                  fontSize: '1.45rem',
+                  fontWeight: 700,
+                  color: '#0f2238',
+                  letterSpacing: '0.04em',
+                  fontFamily: 'Georgia, "Times New Roman", Times, serif',
+                  textTransform: 'uppercase',
+                }}
+              >
+                CHARACTER CERTIFICATE
+              </h1>
+              <div
+                style={{
+                  width: 140,
+                  height: 3,
+                  backgroundColor: '#0f766e',
+                  margin: '0 auto 16px auto',
+                  borderRadius: 2,
+                }}
+              />
+              <div
+                style={{
+                  fontSize: '1.05rem',
+                  fontStyle: 'italic',
+                  fontWeight: 700,
+                  color: '#0f172a',
+                  fontFamily: 'Georgia, "Times New Roman", Times, serif',
+                }}
+              >
+                To Whomsoever It May Concern
+              </div>
             </div>
-            <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: 4 }}>
-              D-57 Dilshad Colony, Shahdara, Delhi &ndash; 110095 • Email: careers@tasknera.com • Phone: +91 7065278229
+
+            {/* Certificate Body Paragraphs (Exact 7 Paragraphs matching official document) */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 14, textAlign: 'justify' }}>
+              <p style={{ margin: 0 }}>
+                This is to certify that {salutation ? `${salutation} ${fullName}` : fullName} was associated with <strong>Tasknera HR Solutions</strong> as an <strong>{designation}</strong>, contributing to the <strong>{department}</strong> teams, from <strong>{startDate}</strong> to <strong>{endDate}</strong>.
+              </p>
+
+              <p style={{ margin: 0 }}>
+                During the period of {pronounHisHer} internship, {fullName} {ldAssistance}.
+              </p>
+
+              <p style={{ margin: 0 }}>
+                In addition, {fullName} {taExperience}.
+              </p>
+
+              <p style={{ margin: 0 }}>
+                Throughout {pronounHisHer} association with Tasknera HR Solutions, {fullName} {demonstratedQualities}
+              </p>
+
+              <p style={{ margin: 0 }}>
+                To the best of our knowledge, {pronounHisHer} conduct and character during the internship period were {conductEvaluation}. We found them to be {characterTraits} to the responsibilities entrusted to them.
+              </p>
+
+              <p style={{ margin: 0 }}>
+                We appreciate {pronounHisHer} contribution to the Talent Acquisition and L&D functions and wish {pronounHimHer} success and growth in their future {futureEndeavours} endeavors.
+              </p>
+
+              <p style={{ margin: 0 }}>
+                This certificate is being issued upon {issuanceReason}.
+              </p>
+            </div>
+
+            {/* Signatory Section with Authentic Sheetal Bedi Signature */}
+            <div style={{ marginTop: 24, fontFamily: "'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif" }}>
+              <div style={{ fontWeight: 700, fontSize: '0.96rem', color: '#0f2a5c', marginBottom: 2 }}>
+                For Tasknera HR Solutions
+              </div>
+              <div style={{ margin: '2px 0 2px -4px', minHeight: 90, display: 'flex', alignItems: 'center' }}>
+                <img
+                  src={SHEETAL_BEDI_SIGNATURE_DATA_URL}
+                  alt="Sheetal Bedi Signature"
+                  style={{
+                    width: 110,
+                    height: 'auto',
+                    display: 'block',
+                    objectFit: 'contain',
+                  }}
+                />
+              </div>
+              <div style={{ fontStyle: 'italic', fontSize: '0.88rem', color: '#475569', marginBottom: 6 }}>
+                Authorized Signatory
+              </div>
+              <div style={{ fontSize: '0.9rem', color: '#1e293b', lineHeight: 1.5 }}>
+                <span style={{ fontWeight: 700 }}>Name:</span>{' '}
+                <span style={{ color: '#334155' }}>{signatoryName}</span>
+              </div>
+              <div style={{ fontSize: '0.9rem', color: '#1e293b', lineHeight: 1.5 }}>
+                <span style={{ fontWeight: 700 }}>Designation:</span>{' '}
+                <span style={{ color: '#334155' }}>{signatoryTitle}</span>
+              </div>
+              <div style={{ fontSize: '0.9rem', color: '#1e293b', lineHeight: 1.5 }}>
+                <span style={{ fontWeight: 700 }}>Date of Issue:</span>{' '}
+                <span style={{ color: '#334155' }}>{issueDate}</span>
+              </div>
+              <div style={{ fontSize: '0.9rem', color: '#1e293b', lineHeight: 1.5 }}>
+                <span style={{ fontWeight: 700 }}>Place:</span>{' '}
+                <span style={{ color: '#334155' }}>{place}</span>
+              </div>
             </div>
           </div>
 
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem', color: '#334155', marginBottom: 18 }}>
-            <div><strong>Ref:</strong> {referenceNumber}</div>
-            <div><strong>Date:</strong> {issueDate}</div>
-          </div>
-
-          <div style={{ textAlign: 'center', marginBottom: 18 }}>
-            <h1 style={{ margin: '0 0 4px', fontSize: '1.6rem', fontWeight: 700, color: '#0f172a', textTransform: 'uppercase' }}>
-              Character Certificate
-            </h1>
-            <div style={{ fontSize: '1rem', fontStyle: 'italic', color: '#334155', fontWeight: 600 }}>
-              To Whomsoever It May Concern
+          {/* Footer with Contact Bar and Geometric Corner Shape */}
+          <div style={{ marginTop: 36, paddingTop: 14, borderTop: '1px solid #cbd5e1', position: 'relative' }}>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 14,
+                fontSize: '0.75rem',
+                color: '#334155',
+                fontFamily: 'system-ui, -apple-system, sans-serif',
+                flexWrap: 'wrap',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                <MapPin size={13} style={{ color: '#0284c7' }} />
+                <span>D-57 F1, Dilshad Colony Shahdara, Delhi 110095</span>
+              </div>
+              <span style={{ color: '#94a3b8' }}>|</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                <Mail size={13} style={{ color: '#0284c7' }} />
+                <span>operations@tasknera.com</span>
+              </div>
+              <span style={{ color: '#94a3b8' }}>|</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                <Globe size={13} style={{ color: '#0284c7' }} />
+                <span>https://tasknera.com</span>
+              </div>
             </div>
-          </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12, textAlign: 'justify' }}>
-            <p style={{ margin: 0 }}>
-              This is to certify that {salutation} {fullName} was associated with TaskNera HR Solutions as {designationArticle} {designation} in the {department} Department from {startDate} to {endDate}.
-            </p>
-            <p style={{ margin: 0 }}>
-              During {pronounHisHer} tenure with our organization, {pronounHeShe} was found to be honest, sincere, diligent, and of good moral character. {pronounHisHerCap} conduct and behaviour towards colleagues, superiors, and clients were exemplary and professional.
-            </p>
-            <p style={{ margin: 0 }}>
-              To the best of our knowledge and belief, {pronounHeShe} bears a good reputation and has not come to adverse notice during {pronounHisHer} period of service.
-            </p>
-            <p style={{ margin: 0 }}>
-              We wish {pronounHimHer} all success in {pronounHisHer} future endeavours.
-            </p>
-          </div>
-
-          <div style={{ marginTop: 28, display: 'inline-block' }}>
-            <div style={{ fontWeight: 700, fontSize: '0.95rem', color: '#0f172a', marginBottom: 24 }}>
-              For TaskNera HR Solutions
+            {/* Corner Accent Graphic */}
+            <div style={{ position: 'absolute', right: -56, bottom: -40, width: 140, height: 36, pointerEvents: 'none', overflow: 'hidden' }}>
+              <svg width="140" height="36" viewBox="0 0 140 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M0 36 L140 36 L140 0 L40 0 Z" fill="#0f2a5c" />
+                <polygon points="10,36 45,0 75,0 40,36" fill="#f97316" />
+              </svg>
             </div>
-            <div style={{ borderBottom: '1px solid #475569', width: 200, marginBottom: 6 }} />
-            <div style={{ fontSize: '0.85rem', color: '#334155' }}>
-              <div style={{ fontWeight: 600 }}>Authorized Signatory</div>
-              <div>Name: {signatoryName}</div>
-              <div>Designation: {signatoryTitle}</div>
-              <div>Date: {issueDate}</div>
-              <div>Place: {place}</div>
-            </div>
-          </div>
-
-          <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: 10, marginTop: 20, textAlign: 'center', fontSize: '0.75rem', color: '#94a3b8' }}>
-            TaskNera | Page 1 of 1
           </div>
         </div>
       ) : isExperienceLetter ? (
