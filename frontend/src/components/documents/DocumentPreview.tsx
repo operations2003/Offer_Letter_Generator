@@ -14,6 +14,9 @@ import {
   Calendar,
   Briefcase,
   Trash2,
+  MapPin,
+  Mail,
+  Globe,
 } from 'lucide-react';
 import { DocumentTypeDefinition, HrDocument } from '../../types/document-engine.js';
 import { Button } from '../common/Button.js';
@@ -1963,91 +1966,224 @@ export const DocumentPreview: React.FC<DocumentPreviewProps> = ({
           id="printable-experience-letter"
           className="printable-experience-sheet"
           style={{
-            maxWidth: 780,
+            maxWidth: 816,
             margin: '0 auto',
             width: '100%',
             backgroundColor: '#ffffff',
             color: '#1e293b',
-            padding: '44px 50px',
-            borderRadius: 4,
-            boxShadow: '0 8px 30px rgba(0, 0, 0, 0.12)',
-            fontFamily: '"Times New Roman", Times, Georgia, serif',
-            fontSize: '11pt',
-            lineHeight: 1.6,
+            padding: '48px 56px 40px 56px',
+            borderRadius: 6,
+            boxShadow: '0 8px 30px rgba(0, 0, 0, 0.08)',
+            fontFamily: 'Georgia, "Times New Roman", Times, serif',
+            fontSize: '0.9125rem',
+            lineHeight: 1.65,
+            border: '1px solid #e2e8f0',
+            position: 'relative',
+            overflow: 'hidden',
           }}
         >
-          {/* Official Letterhead Header */}
-          <div style={{ textAlign: 'center', borderBottom: '2px solid #0f172a', paddingBottom: 12, marginBottom: 16 }}>
-            <img
-              src="/logo.png"
-              alt="TaskNera"
-              style={{ width: 52, height: 52, objectFit: 'contain', margin: '0 auto 6px', display: 'block' }}
-              onError={(e) => {
-                e.currentTarget.style.display = 'none';
+          <div>
+            {/* Official Top Header: Tasknera Logo + Brand + Tagline */}
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 16,
+                paddingBottom: 14,
               }}
-            />
-            <div style={{ fontSize: '1.45rem', fontWeight: 800, color: '#0f172a', letterSpacing: '0.04em', textTransform: 'uppercase' }}>
-              TaskNera HR Solutions
+            >
+              <div>
+                <img
+                  src="/logo.png"
+                  alt="Tasknera"
+                  style={{ width: 56, height: 56, objectFit: 'contain' }}
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                  }}
+                />
+              </div>
+              <div>
+                <div
+                  style={{
+                    fontWeight: 800,
+                    fontSize: '1.75rem',
+                    color: '#0f2238',
+                    letterSpacing: '0.03em',
+                    lineHeight: 1.1,
+                    fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                  }}
+                >
+                  TASKNERA
+                </div>
+                <div
+                  style={{
+                    fontSize: '0.8rem',
+                    fontWeight: 600,
+                    marginTop: 4,
+                    letterSpacing: '0.01em',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    fontFamily: 'system-ui, -apple-system, sans-serif',
+                  }}
+                >
+                  <span style={{ color: '#0d9488' }}>Global HR</span>
+                  <span style={{ color: '#0284c7', fontSize: '0.65rem' }}>•</span>
+                  <span style={{ color: '#0d9488' }}>Recruitment</span>
+                  <span style={{ color: '#0284c7', fontSize: '0.65rem' }}>•</span>
+                  <span style={{ color: '#0d9488' }}>Workforce Solutions</span>
+                </div>
+              </div>
             </div>
-            <div style={{ fontSize: '0.85rem', color: '#475569', fontStyle: 'italic', marginTop: 2 }}>
-              People • Processes • Performance
-            </div>
-            <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: 4 }}>
-              D-57 Dilshad Colony, Shahdara, Delhi &ndash; 110095 • Email: careers@tasknera.com • Phone: +91 7065278229
-            </div>
-          </div>
 
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem', color: '#334155', marginBottom: 18 }}>
-            <div><strong>Ref:</strong> {referenceNumber}</div>
-            <div><strong>Date:</strong> {issueDate}</div>
-          </div>
+            <div style={{ width: '100%', height: 1, backgroundColor: '#cbd5e1', marginBottom: 18 }} />
 
-          <div style={{ textAlign: 'center', marginBottom: 18 }}>
-            <h1 style={{ margin: '0 0 4px', fontSize: '1.6rem', fontWeight: 700, color: '#0f172a', textTransform: 'uppercase' }}>
-              Experience Letter
-            </h1>
-            <div style={{ fontSize: '1rem', fontStyle: 'italic', color: '#334155', fontWeight: 600 }}>
+            {/* Reference & Date Line */}
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                fontFamily: 'system-ui, -apple-system, sans-serif',
+                fontSize: '0.85rem',
+                color: '#0f172a',
+                marginBottom: 24,
+              }}
+            >
+              <div>
+                <span style={{ fontWeight: 500 }}>Ref: </span>
+                <span style={{ fontWeight: 600 }}>{referenceNumber || 'TKS/HR/INT/2026-27/001'}</span>
+              </div>
+              <div>
+                <span style={{ fontWeight: 500 }}>Date: </span>
+                <span style={{ fontWeight: 600 }}>{issueDate || '14/09/2026'}</span>
+              </div>
+            </div>
+
+            {/* Centered Document Title with Teal Accent Bar */}
+            <div style={{ textAlign: 'center', marginBottom: 22 }}>
+              <h1
+                style={{
+                  margin: '0 0 10px',
+                  fontSize: '1.45rem',
+                  fontWeight: 800,
+                  color: '#0f2238',
+                  letterSpacing: '0.06em',
+                  textTransform: 'uppercase',
+                  fontFamily: 'Georgia, "Times New Roman", Times, serif',
+                }}
+              >
+                EXPERIENCE LETTER
+              </h1>
+              <div style={{ width: '100%', height: '2.5px', backgroundColor: '#0f766e', margin: '0 auto' }} />
+            </div>
+
+            {/* Salutation / Subheading */}
+            <div
+              style={{
+                textAlign: 'center',
+                fontSize: '1.05rem',
+                fontStyle: 'italic',
+                fontWeight: 700,
+                color: '#0f172a',
+                marginBottom: 24,
+                fontFamily: 'Georgia, "Times New Roman", Times, serif',
+              }}
+            >
               To Whomsoever It May Concern
             </div>
-          </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 11, textAlign: 'justify' }}>
-            <p style={{ margin: 0 }}>
-              This is to certify that {salutation} {fullName} was associated with TaskNera HR Solutions as {designationArticle} {designation} from {startDate} to {endDate}.
-            </p>
-            <p style={{ margin: 0 }}>
-              During {pronounHisHer} {associationType}, {pronounHeShe} was part of the {department} and contributed to {areaOfWork}-related activities throughout {pronounHisHer} association with the organization.
-            </p>
-            <p style={{ margin: 0 }}>
-              As part of the {department}, {pronounHeShe} {responsibilityLevel} {keyResponsibilities}, and supported other {department} activities as assigned.
-            </p>
-            <p style={{ margin: 0 }}>
-              Throughout {pronounHisHer} association with TaskNera HR Solutions, {pronounHeShe} demonstrated {demonstratedQualities} in carrying out {pronounHisHer} responsibilities.
-            </p>
-            <p style={{ margin: 0 }}>
-              {pronounHisHerCap} association with TaskNera HR Solutions {statusMode === 'ended' ? `ended on ${endDate}` : 'is continuing as on the date of this letter'}.
-            </p>
-            <p style={{ margin: 0 }}>
-              We appreciate {pronounHisHer} contribution to the organization and wish {pronounHimHer} continued success and growth in all {pronounHisHer} future endeavours.
-            </p>
-          </div>
+            {/* Body Paragraphs matching PDF template exactly */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 14, textAlign: 'justify' }}>
+              <p style={{ margin: 0 }}>
+                This is to certify that {salutation} {fullName} was associated with Tasknera HR Solutions as an {designation} from {startDate} to {endDate}.
+              </p>
 
-          <div style={{ marginTop: 24, display: 'inline-block' }}>
-            <div style={{ fontWeight: 700, fontSize: '0.95rem', color: '#0f172a', marginBottom: 22 }}>
-              For TaskNera HR Solutions
+              <p style={{ margin: 0 }}>
+                During {pronounHisHer} tenure with the organization, {pronounHeShe} supported {terms.departmentSupport || 'the Talent Acquisition (TA) Team and the Learning & Development (L&D) Department'}.
+              </p>
+
+              <p style={{ margin: 0 }}>
+                As part of the Talent Acquisition function, {pronounHeShe} assisted with {terms.taDuties || 'candidate sourcing and screening, recruitment coordination, maintaining candidate records, and supported other talent acquisition activities as assigned.'}
+              </p>
+
+              <p style={{ margin: 0 }}>
+                Within the Learning &amp; Development function, {pronounHeShe} contributed to {terms.ldDuties || 'the research, preparation, structuring, and development of training modules and learning materials for internal L&D initiatives.'}
+              </p>
+
+              <p style={{ margin: 0 }}>
+                Throughout {pronounHisHer} association with Tasknera HR Solutions, {pronounHeShe} demonstrated {demonstratedQualities} in carrying out {pronounHisHer} responsibilities.
+              </p>
+
+              <p style={{ margin: 0 }}>
+                {pronounHisHerCap} association with Tasknera HR Solutions {statusMode === 'ended' ? `ended on ${endDate}.` : 'is continuing as on the date of this letter.'}
+              </p>
+
+              <p style={{ margin: 0 }}>
+                We appreciate {pronounHisHer} contribution to the organization and wish {pronounHimHer} continued success and growth in all {pronounHisHer} future endeavors.
+              </p>
             </div>
-            <div style={{ borderBottom: '1px solid #475569', width: 200, marginBottom: 6 }} />
-            <div style={{ fontSize: '0.85rem', color: '#334155' }}>
-              <div style={{ fontWeight: 600 }}>Authorized Signatory</div>
-              <div>Name: {signatoryName}</div>
-              <div>Designation: {signatoryTitle || 'Chief Executive Officer'}</div>
-              <div>Date: {issueDate}</div>
-              <div>Place: {place}</div>
+
+            {/* Signatory Section with Sheetal Bedi Signature */}
+            <div style={{ marginTop: 28 }}>
+              <div style={{ fontWeight: 700, fontSize: '0.95rem', color: '#0f172a', marginBottom: 4, fontFamily: 'Georgia, "Times New Roman", Times, serif' }}>
+                For Tasknera HR Solutions
+              </div>
+              <div style={{ margin: '4px 0 2px 0' }}>
+                <svg width="150" height="70" viewBox="0 0 160 85" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M22 65 C20 40, 30 18, 48 12 C58 8, 62 16, 56 32 C50 48, 42 68, 55 64 C65 60, 72 35, 78 24 C82 18, 86 28, 84 42 C82 56, 88 62, 98 52 C108 42, 114 26, 120 20 C125 15, 128 32, 125 48 C122 60, 134 50, 142 42" stroke="#0f172a" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M32 72 C55 69, 90 67, 135 68" stroke="#0f172a" strokeWidth="2.2" strokeLinecap="round"/>
+                  <path d="M48 78 C70 76, 105 75, 128 77" stroke="#0f172a" strokeWidth="1.8" strokeLinecap="round"/>
+                </svg>
+              </div>
+              <div style={{ fontWeight: 700, fontSize: '0.95rem', color: '#0f172a' }}>{signatoryName}</div>
+              <div style={{ fontSize: '0.85rem', color: '#334155' }}>{signatoryTitle || 'Chief Executive Officer'}</div>
+              <div style={{ fontSize: '0.85rem', color: '#334155', marginTop: 10 }}>
+                <strong>Date:</strong> {issueDate || '14/09/2026'}
+              </div>
+              <div style={{ fontSize: '0.85rem', color: '#334155' }}>
+                <strong>Place:</strong> {place || 'Delhi'}
+              </div>
             </div>
           </div>
 
-          <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: 10, marginTop: 20, textAlign: 'center', fontSize: '0.75rem', color: '#94a3b8' }}>
-            TaskNera | Page 1 of 1
+          {/* Footer with Contact Bar and Geometric Corner Shape */}
+          <div style={{ marginTop: 44, paddingTop: 14, borderTop: '1px solid #cbd5e1', position: 'relative' }}>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 14,
+                fontSize: '0.75rem',
+                color: '#334155',
+                fontFamily: 'system-ui, -apple-system, sans-serif',
+                flexWrap: 'wrap',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                <MapPin size={13} style={{ color: '#0284c7' }} />
+                <span>D-57 F1, Dilshad Colony Shahdara, Delhi 110095</span>
+              </div>
+              <span style={{ color: '#94a3b8' }}>|</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                <Mail size={13} style={{ color: '#0284c7' }} />
+                <span>operations@tasknera.com</span>
+              </div>
+              <span style={{ color: '#94a3b8' }}>|</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                <Globe size={13} style={{ color: '#0284c7' }} />
+                <span>https://tasknera.com</span>
+              </div>
+            </div>
+
+            {/* Corner Accent Graphic */}
+            <div style={{ position: 'absolute', right: -56, bottom: -40, width: 140, height: 36, pointerEvents: 'none', overflow: 'hidden' }}>
+              <svg width="140" height="36" viewBox="0 0 140 36" fill="none">
+                <polygon points="35,36 60,0 140,0 140,16" fill="#f97316" />
+                <polygon points="55,36 80,0 140,0 140,36" fill="#0f2a5c" />
+              </svg>
+            </div>
           </div>
         </div>
       ) : (

@@ -837,47 +837,53 @@ ___________________________
     label: 'Experience Letter',
     group: 'certificates',
     groupLabel: 'Experience Letter',
-    defaultTitle: 'Experience & Service Certificate',
-    blueprintContent: `**TO WHOM IT MAY CONCERN**
-**EXPERIENCE & SERVICE CERTIFICATE**
+    defaultTitle: 'EXPERIENCE LETTER',
+    blueprintContent: `Ref: {{reference_number}}    Date: {{issue_date}}
 
-**Date of Issue**: {{issue_date}}
-**Certificate Reference**: {{reference_number}}
+# EXPERIENCE LETTER
 
-This is to formally certify that **{{candidate_name}}** (Employee Code: **{{employee_id}}**) was employed with **{{company_name}}** from **{{joining_date}}** to **{{end_date}}**.
+*To Whomsoever It May Concern*
 
-**1. TENURE & DESIGNATION DETAILS**
-• **Final Designation**: **{{job_title}}**
-• **Department / Practice**: **{{department}}**
-• **Tenure of Service**: From **{{joining_date}}** to **{{end_date}}**
-• **Reporting Line**: **{{reporting_manager}}**
+This is to certify that {{honorific}} {{candidate_name}} was associated with {{company_name}} as an {{job_title}} from {{joining_date}} to {{end_date}}.
 
-**2. PROFESSIONAL CONDUCT & PERFORMANCE**
-• **Technical Competency**: Demonstrated exceptional professional capability and dedication across all assigned mandates.
-• **Integrity & Conduct**: Maintained the highest ethical standards, dedication, and professional integrity.
-• **Clearance Status**: All official handovers, intellectual property assignments, and accounts have been fully settled.
+During {{possessive_pronoun}} tenure with the organization, {{pronoun}} supported the {{department_support}}.
 
-We appreciate **{{candidate_name}}**'s contributions to our organization and wish them continued success in all future professional endeavors.
+As part of the Talent Acquisition function, {{pronoun}} {{ta_duties}}.
 
-Sincerely,
+Within the Learning & Development function, {{pronoun}} {{ld_duties}}.
 
-For **{{company_name}}**
-___________________________
-**{{signatory_name}}**
-{{signatory_title}}`,
+Throughout {{possessive_pronoun}} association with {{company_name}}, {{pronoun}} demonstrated {{conduct_summary}}.
+
+{{possessive_pronoun_cap}} association with {{company_name}} ended on {{end_date}}.
+
+We appreciate {{possessive_pronoun}} contribution to the organization and wish {{possessive_pronoun}} continued success and growth in all {{possessive_pronoun}} future endeavors.
+
+For {{company_name}}
+
+{{signatory_name}}
+{{signatory_title}}
+Date: {{issue_date}}
+Place: {{signatory_place}}`,
     sampleData: {
-      reference_number: 'TSK-EXP-2026-891',
-      candidate_name: 'Rohan Mehra',
-      employee_id: 'TN-1044',
-      company_name: 'TaskNera Technologies Ltd.',
-      issue_date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
-      job_title: 'Senior Frontend Engineer',
-      department: 'Web Applications',
-      joining_date: 'February 10, 2023',
-      end_date: 'September 30, 2026',
-      reporting_manager: 'Sheetal Bedi',
+      reference_number: 'TKS/HR/INT/2026-27/001',
+      candidate_name: 'Edwina Zephra Gomes',
+      honorific: 'Ms.',
+      pronoun: 'she',
+      possessive_pronoun: 'her',
+      possessive_pronoun_cap: 'Her',
+      company_name: 'Tasknera HR Solutions',
+      issue_date: '14/09/2026',
+      job_title: 'HR Intern',
+      department: 'Human Resources',
+      department_support: 'Talent Acquisition (TA) Team and the Learning & Development (L&D) Department',
+      ta_duties: 'assisted with candidate sourcing and screening, recruitment coordination, maintaining candidate records, and supported other talent acquisition activities as assigned',
+      ld_duties: 'contributed to the research, preparation, structuring, and development of training modules and learning materials for internal L&D initiatives',
+      conduct_summary: 'professionalism, sincerity, adaptability, willingness to learn, teamwork, and responsibility in carrying out her responsibilities',
+      joining_date: 'August 06, 2026',
+      end_date: 'September 14, 2026',
       signatory_name: 'Sheetal Bedi',
       signatory_title: 'Chief Executive Officer',
+      signatory_place: 'Delhi',
     },
   },
 

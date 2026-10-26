@@ -252,38 +252,45 @@ For {{company_name}}
   EXPERIENCE_LETTER: {
     code: 'EXPERIENCE_LETTER',
     category: 'Experience Letter',
-    name: 'Formal Certificate of Service & Experience',
-    description: 'Attests employee tenure, designation history, duties executed, and conduct record.',
+    name: 'Official Tasknera Experience Letter',
+    description: 'Attests employee tenure, designation history, duties executed, and conduct record on Tasknera letterhead.',
     supportedFormats: ['PDF', 'DOCX'],
     defaultDocxAvailable: true,
     requiredEmployeePlaceholders: ['employee_name', 'employee_id', 'designation', 'department', 'joining_date'],
     docSpecificFields: [
       { key: 'last_working_date', label: 'Last Working Day', type: 'date' },
-      { key: 'conduct_summary', label: 'Conduct Assessment', type: 'string', defaultValue: 'Exemplary, diligent, and professionally committed' },
-      { key: 'key_deliverables', label: 'Key Responsibilities & Deliverables', type: 'textarea', defaultValue: 'Spearheaded core software architecture, collaborated across cross-functional product teams, and upheld rigorous engineering standards.' },
-      { key: 'signatory_name', label: 'Signatory Name', type: 'string', defaultValue: 'Sarah Jenkins' },
-      { key: 'signatory_title', label: 'Signatory Title', type: 'string', defaultValue: 'VP of Human Resources' },
+      { key: 'department_support', label: 'Departments/Teams Supported', type: 'string', defaultValue: 'the Talent Acquisition (TA) Team and the Learning & Development (L&D) Department' },
+      { key: 'ta_duties', label: 'Talent Acquisition Contributions', type: 'textarea', defaultValue: 'candidate sourcing and screening, recruitment coordination, maintaining candidate records, and supported other talent acquisition activities as assigned.' },
+      { key: 'ld_duties', label: 'Learning & Development Contributions', type: 'textarea', defaultValue: 'the research, preparation, structuring, and development of training modules and learning materials for internal L&D initiatives.' },
+      { key: 'conduct_summary', label: 'Conduct & Qualities', type: 'string', defaultValue: 'professionalism, sincerity, adaptability, willingness to learn, teamwork, and responsibility' },
+      { key: 'signatory_name', label: 'Signatory Name', type: 'string', defaultValue: 'Sheetal Bedi' },
+      { key: 'signatory_title', label: 'Signatory Title', type: 'string', defaultValue: 'Chief Executive Officer' },
     ],
-    contentMarkup: `TO WHOMSOEVER IT MAY CONCERN
+    contentMarkup: `Ref: {{reference_number}}    Date: {{issue_date}}
 
-DATE OF ISSUANCE: {{issue_date}}
+EXPERIENCE LETTER
+To Whomsoever It May Concern
 
-This is to certify that {{employee_name}} (Employee ID: {{employee_id}}) was employed with {{company_name}} from {{joining_date}} to {{last_working_date}}.
+This is to certify that {{salutation}} {{employee_name}} was associated with Tasknera HR Solutions as an {{designation}} from {{joining_date}} to {{last_working_date}}.
 
-At the time of leaving, {{employee_name}} was holding the position of {{designation}} in the {{department}} department.
+During their tenure with the organization, they supported {{department_support}}.
 
-CORE RESPONSIBILITIES:
-{{key_deliverables}}
+As part of the Talent Acquisition function, they assisted with {{ta_duties}}
 
-During their tenure with {{company_name}}, {{employee_name}} demonstrated outstanding technical capabilities, integrity, and proactive collaboration. Their conduct was {{conduct_summary}}.
+Within the Learning & Development function, they contributed to {{ld_duties}}
 
-We thank {{employee_name}} for their valuable service and wish them every success in their future professional endeavors.
+Throughout their association with Tasknera HR Solutions, they demonstrated {{conduct_summary}} in carrying out their responsibilities.
 
-Authorized Signatory,
-For {{company_name}}
+Their association with Tasknera HR Solutions ended on {{last_working_date}}.
+
+We appreciate their contribution to the organization and wish them continued success and growth in all their future endeavors.
+
+For Tasknera HR Solutions
 
 {{signatory_name}}
-{{signatory_title}}`,
+{{signatory_title}}
+Date: {{issue_date}}
+Place: {{place}}`,
   },
 
   // 6. RELIEVING LETTER

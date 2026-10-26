@@ -317,25 +317,36 @@ Signatory: Katherine Ward (VP of Human Resources)`,
     {
       id: 'tmpl_experience_standard',
       documentTypeCode: 'EXPERIENCE_LETTER',
-      name: 'Certificate of Service & Experience',
-      description: 'Formal credential certifying employee tenure, designation history, and duties performed.',
-      version: 'v1.6',
+      name: 'Official Tasknera Experience Letter',
+      description: 'Official corporate experience certificate on Tasknera letterhead with designated duties, performance commendation, and executive sign-off.',
+      version: 'v2.0',
       category: 'SEPARATION',
       isDefault: true,
-      content: `TO WHOMSOEVER IT MAY CONCERN
+      content: `Ref: {{reference_number}}    Date: {{issue_date}}
 
-This is to certify that {{employee_name}} (Employee ID: {{employee_id}}) was employed with our organization from {{date_of_joining}} to {{last_working_date}}.
+EXPERIENCE LETTER
+To Whomsoever It May Concern
 
-At the time of departure, {{employee_name}} was serving as {{designation}} in the {{department}} department.
+This is to certify that {{salutation}} {{employee_name}} was associated with Tasknera HR Solutions as an {{designation}} from {{date_of_joining}} to {{last_working_date}}.
 
-ROLE & KEY DELIVERABLES:
-{{roles_and_responsibilities}}
+During their tenure with the organization, they supported {{department_support}}.
 
-During their tenure, {{employee_name}} exhibited professional diligence, technical capability, and exemplary conduct. We wish them continued success in all future professional endeavors.
+As part of the Talent Acquisition function, they assisted with {{ta_duties}}.
 
-Authorized Signatory,
+Within the Learning & Development function, they contributed to {{ld_duties}}.
+
+Throughout their association with Tasknera HR Solutions, they demonstrated {{demonstrated_qualities}} in carrying out their responsibilities.
+
+Their association with Tasknera HR Solutions ended on {{last_working_date}}.
+
+We appreciate their contribution to the organization and wish them continued success and growth in all their future endeavors.
+
+For Tasknera HR Solutions
+
 {{signatory_name}}
-{{signatory_title}}`,
+{{signatory_title}}
+Date: {{issue_date}}
+Place: {{place}}`,
       sampleInputText: `SERVICE RECORD ARCHIVE:
 Employee: Maya Lin (Emp ID: EMP-55018) | maya.lin@alumni.org
 Designation: Principal Product Designer | Department: User Experience & Design

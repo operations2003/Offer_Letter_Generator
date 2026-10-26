@@ -19,6 +19,9 @@ import {
   ArrowLeft,
   ShieldCheck,
   UserCheck,
+  MapPin,
+  Mail,
+  Globe,
 } from 'lucide-react';
 import { Button } from '../common/Button.js';
 import { Employee, EmployeeService } from '../../services/employeeService.js';
@@ -56,38 +59,38 @@ export const ExperienceLetterModal: React.FC<ExperienceLetterModalProps> = ({
   const [isSaving, setIsSaving] = useState<boolean>(false);
 
   // Form Fields State (Auto-fetched from employee + editable)
-  const [salutation, setSalutation] = useState<'Mr.' | 'Ms.' | 'Dr.'>('Mr.');
-  const [fullName, setFullName] = useState<string>('');
-  const [designation, setDesignation] = useState<string>('');
-  const [department, setDepartment] = useState<string>('');
-  const [associationType, setAssociationType] = useState<'employment' | 'internship'>('employment');
-  const [genderPronoun, setGenderPronoun] = useState<'male' | 'female'>('male');
+  const [salutation, setSalutation] = useState<'Mr.' | 'Ms.' | 'Dr.'>('Ms.');
+  const [fullName, setFullName] = useState<string>('Edwina Zephra Gomes');
+  const [designation, setDesignation] = useState<string>('HR Intern');
+  const [department, setDepartment] = useState<string>('Human Resources');
+  const [associationType, setAssociationType] = useState<'employment' | 'internship'>('internship');
+  const [genderPronoun, setGenderPronoun] = useState<'male' | 'female'>('female');
 
   // Dates & Reference
-  const [startDate, setStartDate] = useState<string>('January 15, 2024');
-  const [endDate, setEndDate] = useState<string>('September 30, 2026');
-  const [issueDate, setIssueDate] = useState<string>(
-    new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
-  );
-  const [referenceNumber, setReferenceNumber] = useState<string>(
-    `TASK/${new Date().getFullYear()}/EXP-${Math.floor(100 + Math.random() * 900)}`
-  );
+  const [startDate, setStartDate] = useState<string>('August 06, 2026');
+  const [endDate, setEndDate] = useState<string>('September 14, 2026');
+  const [issueDate, setIssueDate] = useState<string>('14/09/2026');
+  const [referenceNumber, setReferenceNumber] = useState<string>('TKS/HR/INT/2026-27/001');
   const [place, setPlace] = useState<string>('Delhi');
 
   // Status of association: either ended on date or continuing
   const [statusMode, setStatusMode] = useState<'ended' | 'continuing'>('ended');
 
-  // Custom Content Fields (Authority to user)
-  const [areaOfWork, setAreaOfWork] = useState<string>('talent acquisition and recruitment operations');
-  const [responsibilityLevel, setResponsibilityLevel] = useState<'assisted with' | 'was responsible for'>('was responsible for');
-  const [keyResponsibilities, setKeyResponsibilities] = useState<string>(
-    'candidate sourcing and screening, recruitment coordination, maintaining candidate records'
+  // Specific functions & contributions matching official Tasknera Experience Letter
+  const [departmentSupport, setDepartmentSupport] = useState<string>(
+    'the Talent Acquisition (TA) Team and the Learning & Development (L&D) Department'
+  );
+  const [taDuties, setTaDuties] = useState<string>(
+    'candidate sourcing and screening, recruitment coordination, maintaining candidate records, and supported other talent acquisition activities as assigned.'
+  );
+  const [ldDuties, setLdDuties] = useState<string>(
+    'the research, preparation, structuring, and development of training modules and learning materials for internal L&D initiatives.'
   );
   const [demonstratedQualities, setDemonstratedQualities] = useState<string>(
-    'professionalism, sincerity, adaptability, willingness to learn, teamwork and responsibility'
+    'professionalism, sincerity, adaptability, willingness to learn, teamwork, and responsibility'
   );
 
-  // Signatory (Matches official template: Chief Executive Officer)
+  // Signatory (Matches official template: Sheetal Bedi, Chief Executive Officer)
   const [signatoryName, setSignatoryName] = useState<string>('Sheetal Bedi');
   const [signatoryTitle, setSignatoryTitle] = useState<string>('Chief Executive Officer');
 
@@ -330,9 +333,9 @@ export const ExperienceLetterModal: React.FC<ExperienceLetterModalProps> = ({
             startDate,
             endDate,
             statusMode,
-            areaOfWork,
-            responsibilityLevel,
-            keyResponsibilities,
+            departmentSupport,
+            taDuties,
+            ldDuties,
             demonstratedQualities,
             referenceNumber,
             issueDate,
@@ -371,9 +374,9 @@ export const ExperienceLetterModal: React.FC<ExperienceLetterModalProps> = ({
           startDate,
           endDate,
           statusMode,
-          areaOfWork,
-          responsibilityLevel,
-          keyResponsibilities,
+          departmentSupport,
+          taDuties,
+          ldDuties,
           demonstratedQualities,
           referenceNumber,
           issueDate,
@@ -819,61 +822,58 @@ export const ExperienceLetterModal: React.FC<ExperienceLetterModalProps> = ({
                 </h4>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 14 }}>
-                    <div>
-                      <label className="form-label" style={{ fontSize: '0.78rem', fontWeight: 700 }}>
-                        Area of Work Activities
-                      </label>
-                      <input
-                        type="text"
-                        className="form-input"
-                        value={areaOfWork}
-                        onChange={(e) => setAreaOfWork(e.target.value)}
-                        placeholder="e.g. talent acquisition and recruitment operations"
-                        style={{ fontSize: '0.8125rem' }}
-                      />
-                    </div>
-
-                    <div>
-                      <label className="form-label" style={{ fontSize: '0.78rem', fontWeight: 700 }}>
-                        Responsibility Level
-                      </label>
-                      <select
-                        className="form-input"
-                        value={responsibilityLevel}
-                        onChange={(e) => setResponsibilityLevel(e.target.value as any)}
-                        style={{ fontSize: '0.8125rem' }}
-                      >
-                        <option value="was responsible for">was responsible for (Primary Ownership)</option>
-                        <option value="assisted with">assisted with (Supportive / Collaborative)</option>
-                      </select>
-                    </div>
-                  </div>
-
                   <div>
                     <label className="form-label" style={{ fontSize: '0.78rem', fontWeight: 700 }}>
-                      Key Responsibilities Undertaken
+                      Departments / Teams Supported (Paragraph 2)
                     </label>
-                    <textarea
-                      rows={2}
+                    <input
+                      type="text"
                       className="form-input"
-                      value={keyResponsibilities}
-                      onChange={(e) => setKeyResponsibilities(e.target.value)}
-                      placeholder="e.g. candidate sourcing and screening, recruitment coordination, maintaining candidate records"
+                      value={departmentSupport}
+                      onChange={(e) => setDepartmentSupport(e.target.value)}
+                      placeholder="e.g. the Talent Acquisition (TA) Team and the Learning & Development (L&D) Department"
                       style={{ fontSize: '0.8125rem' }}
                     />
                   </div>
 
                   <div>
                     <label className="form-label" style={{ fontSize: '0.78rem', fontWeight: 700 }}>
-                      Demonstrated Qualities &amp; Professional Attributes
+                      Primary Function Contributions (Paragraph 3 - Talent Acquisition)
                     </label>
                     <textarea
                       rows={2}
                       className="form-input"
+                      value={taDuties}
+                      onChange={(e) => setTaDuties(e.target.value)}
+                      placeholder="e.g. candidate sourcing and screening, recruitment coordination, maintaining candidate records, and supported other talent acquisition activities as assigned."
+                      style={{ fontSize: '0.8125rem' }}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="form-label" style={{ fontSize: '0.78rem', fontWeight: 700 }}>
+                      Secondary Function Contributions (Paragraph 4 - Learning &amp; Development)
+                    </label>
+                    <textarea
+                      rows={2}
+                      className="form-input"
+                      value={ldDuties}
+                      onChange={(e) => setLdDuties(e.target.value)}
+                      placeholder="e.g. the research, preparation, structuring, and development of training modules and learning materials for internal L&D initiatives."
+                      style={{ fontSize: '0.8125rem' }}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="form-label" style={{ fontSize: '0.78rem', fontWeight: 700 }}>
+                      Demonstrated Qualities &amp; Attributes (Paragraph 5)
+                    </label>
+                    <input
+                      type="text"
+                      className="form-input"
                       value={demonstratedQualities}
                       onChange={(e) => setDemonstratedQualities(e.target.value)}
-                      placeholder="e.g. professionalism, sincerity, adaptability, willingness to learn, teamwork and responsibility"
+                      placeholder="e.g. professionalism, sincerity, adaptability, willingness to learn, teamwork, and responsibility"
                       style={{ fontSize: '0.8125rem' }}
                     />
                   </div>
@@ -1013,146 +1013,226 @@ export const ExperienceLetterModal: React.FC<ExperienceLetterModalProps> = ({
                 className="printable-experience-sheet"
                 style={{
                   backgroundColor: '#ffffff',
-                  boxShadow: '0 4px 20px rgba(0,0,0,0.06)',
-                  borderRadius: 8,
-                  padding: '36px 48px',
-                  maxWidth: '820px',
+                  boxShadow: '0 8px 30px rgba(0,0,0,0.08)',
+                  borderRadius: 6,
+                  padding: '48px 56px 40px 56px',
+                  maxWidth: '816px',
                   margin: '0 auto',
                   width: '100%',
                   display: 'flex',
                   flexDirection: 'column',
                   justifyContent: 'space-between',
-                  fontFamily: '"Times New Roman", Times, Georgia, serif',
+                  fontFamily: 'Georgia, "Times New Roman", Times, serif',
                   color: '#1e293b',
-                  lineHeight: 1.55,
-                  fontSize: '0.9375rem',
+                  lineHeight: 1.65,
+                  fontSize: '0.9125rem',
                   border: '1px solid #e2e8f0',
+                  position: 'relative',
+                  overflow: 'hidden',
                 }}
               >
                 <div>
-                  {/* Official Top Header: TaskNera Logo Left + Address & Email Right */}
+                  {/* Official Top Header: Tasknera Logo + Brand + Tagline */}
                   <div
                     style={{
                       display: 'flex',
-                      alignItems: 'flex-start',
-                      justifyContent: 'space-between',
-                      borderBottom: '1px solid #f1f5f9',
+                      alignItems: 'center',
+                      gap: 16,
                       paddingBottom: 14,
-                      marginBottom: 16,
                     }}
                   >
                     <div>
                       <img
                         src="/logo.png"
-                        alt="TaskNera Logo"
-                        style={{ width: 48, height: 48, objectFit: 'contain' }}
+                        alt="Tasknera"
+                        style={{ width: 56, height: 56, objectFit: 'contain' }}
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                        }}
                       />
                     </div>
-                    <div style={{ textAlign: 'right', fontFamily: 'Arial, sans-serif' }}>
-                      <div style={{ fontWeight: 800, fontSize: '1.15rem', color: '#0f172a', letterSpacing: '-0.02em' }}>
-                        TaskNera
+                    <div>
+                      <div
+                        style={{
+                          fontWeight: 800,
+                          fontSize: '1.75rem',
+                          color: '#0f2238',
+                          letterSpacing: '0.03em',
+                          lineHeight: 1.1,
+                          fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                        }}
+                      >
+                        TASKNERA
                       </div>
-                      <div style={{ fontSize: '0.72rem', color: '#475569', marginTop: 2 }}>
-                        D-57 F1 Dilshad Colony, Shahdara, Delhi – 110095
-                      </div>
-                      <div style={{ fontSize: '0.72rem', color: '#475569' }}>
-                        Email: careers@tasknera.com
+                      <div
+                        style={{
+                          fontSize: '0.8rem',
+                          fontWeight: 600,
+                          marginTop: 4,
+                          letterSpacing: '0.01em',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 6,
+                          fontFamily: 'system-ui, -apple-system, sans-serif',
+                        }}
+                      >
+                        <span style={{ color: '#0d9488' }}>Global HR</span>
+                        <span style={{ color: '#0284c7', fontSize: '0.65rem' }}>•</span>
+                        <span style={{ color: '#0d9488' }}>Recruitment</span>
+                        <span style={{ color: '#0284c7', fontSize: '0.65rem' }}>•</span>
+                        <span style={{ color: '#0d9488' }}>Workforce Solutions</span>
                       </div>
                     </div>
                   </div>
 
-                  {/* Reference & Date Block */}
-                  <div style={{ marginBottom: 16, fontFamily: 'Arial, sans-serif', fontSize: '0.82rem', color: '#334155' }}>
+                  <div style={{ width: '100%', height: 1, backgroundColor: '#cbd5e1', marginBottom: 18 }} />
+
+                  {/* Reference & Date Line */}
+                  <div
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      fontFamily: 'system-ui, -apple-system, sans-serif',
+                      fontSize: '0.85rem',
+                      color: '#0f172a',
+                      marginBottom: 24,
+                    }}
+                  >
                     <div>
-                      <strong>Reference:</strong> {hl(referenceNumber)}
+                      <span style={{ fontWeight: 500 }}>Ref: </span>
+                      <span style={{ fontWeight: 600 }}>{hl(referenceNumber)}</span>
                     </div>
                     <div>
-                      <strong>Date:</strong> {hl(issueDate)}
+                      <span style={{ fontWeight: 500 }}>Date: </span>
+                      <span style={{ fontWeight: 600 }}>{hl(issueDate)}</span>
                     </div>
                   </div>
 
-                  {/* Centered Document Title */}
-                  <div style={{ textAlign: 'center', marginBottom: 18 }}>
+                  {/* Centered Document Title with Teal Accent Bar */}
+                  <div style={{ textAlign: 'center', marginBottom: 22 }}>
                     <h1
                       style={{
-                        margin: '0 0 4px',
-                        fontSize: '1.6rem',
-                        fontWeight: 700,
-                        color: '#0f172a',
-                        letterSpacing: '0.01em',
-                        fontFamily: '"Times New Roman", Times, serif',
+                        margin: '0 0 10px',
+                        fontSize: '1.45rem',
+                        fontWeight: 800,
+                        color: '#0f2238',
+                        letterSpacing: '0.06em',
+                        textTransform: 'uppercase',
+                        fontFamily: 'Georgia, "Times New Roman", Times, serif',
                       }}
                     >
-                      Experience Letter
+                      EXPERIENCE LETTER
                     </h1>
-                    <div
-                      style={{
-                        fontSize: '1rem',
-                        fontStyle: 'italic',
-                        color: '#334155',
-                        fontWeight: 600,
-                      }}
-                    >
-                      To Whomsoever It May Concern
-                    </div>
+                    <div style={{ width: '100%', height: '2.5px', backgroundColor: '#0f766e', margin: '0 auto' }} />
+                  </div>
+
+                  {/* Salutation / Subheading */}
+                  <div
+                    style={{
+                      textAlign: 'center',
+                      fontSize: '1.05rem',
+                      fontStyle: 'italic',
+                      fontWeight: 700,
+                      color: '#0f172a',
+                      marginBottom: 24,
+                      fontFamily: 'Georgia, "Times New Roman", Times, serif',
+                    }}
+                  >
+                    To Whomsoever It May Concern
                   </div>
 
                   {/* Body Paragraphs matching PDF template exactly */}
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 11, textAlign: 'justify' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 14, textAlign: 'justify' }}>
                     <p style={{ margin: 0 }}>
-                      This is to certify that {hl(`${salutation} ${fullName}`)} was associated with TaskNera HR Solutions as {hl(designationArticle)} {hl(designation)} from {hl(startDate)} to {hl(endDate)}.
+                      This is to certify that {hl(`${salutation} ${fullName}`)} was associated with Tasknera HR Solutions as an {hl(designation)} from {hl(startDate)} to {hl(endDate)}.
                     </p>
 
                     <p style={{ margin: 0 }}>
-                      During {hl(pronounHisHer)} {hl(associationType)}, {hl(pronounHeShe)} was part of the {hl(department)} and contributed to {hl(areaOfWork)}-related activities throughout {hl(pronounHisHer)} association with the organization.
+                      During {hl(pronounHisHer)} tenure with the organization, {hl(pronounHeShe)} supported {hl(departmentSupport)}.
                     </p>
 
                     <p style={{ margin: 0 }}>
-                      As part of the {hl(department)}, {hl(pronounHeShe)} {hl(responsibilityLevel)} {hl(keyResponsibilities)}, and supporting other {hl(department)} activities as assigned.
+                      As part of the Talent Acquisition function, {hl(pronounHeShe)} assisted with {hl(taDuties)}
                     </p>
 
                     <p style={{ margin: 0 }}>
-                      Throughout {hl(pronounHisHer)} association with TaskNera HR Solutions, {hl(pronounHeShe)} demonstrated {hl(demonstratedQualities)} in carrying out {hl(pronounHisHer)} responsibilities.
+                      Within the Learning &amp; Development function, {hl(pronounHeShe)} contributed to {hl(ldDuties)}
                     </p>
 
                     <p style={{ margin: 0 }}>
-                      {hl(pronounHisHerCap)} association with TaskNera HR Solutions {statusMode === 'ended' ? hl(`ended on ${endDate}`) : hl('is continuing as on the date of this letter')}.
+                      Throughout {hl(pronounHisHer)} association with Tasknera HR Solutions, {hl(pronounHeShe)} demonstrated {hl(demonstratedQualities)} in carrying out {hl(pronounHisHer)} responsibilities.
                     </p>
 
                     <p style={{ margin: 0 }}>
-                      We appreciate {hl(pronounHisHer)} contribution to the organization and wish {hl(pronounHimHer)} continued success and growth in all {hl(pronounHisHer)} future endeavours.
+                      {hl(pronounHisHerCap)} association with Tasknera HR Solutions {statusMode === 'ended' ? hl(`ended on ${endDate}.`) : hl('is continuing as on the date of this letter.')}
+                    </p>
+
+                    <p style={{ margin: 0 }}>
+                      We appreciate {hl(pronounHisHer)} contribution to the organization and wish {hl(pronounHimHer)} continued success and growth in all {hl(pronounHisHer)} future endeavors.
                     </p>
                   </div>
 
-                  {/* Signatory Section */}
-                  <div style={{ marginTop: 24, display: 'inline-block' }}>
-                    <div style={{ fontWeight: 700, fontSize: '0.95rem', color: '#0f172a', marginBottom: 22 }}>
-                      For TaskNera HR Solutions
+                  {/* Signatory Section with Sheetal Bedi Signature */}
+                  <div style={{ marginTop: 28 }}>
+                    <div style={{ fontWeight: 700, fontSize: '0.95rem', color: '#0f172a', marginBottom: 4, fontFamily: 'Georgia, "Times New Roman", Times, serif' }}>
+                      For Tasknera HR Solutions
                     </div>
-                    <div style={{ borderBottom: '1px solid #475569', width: 200, marginBottom: 6 }} />
+                    <div style={{ margin: '4px 0 2px 0' }}>
+                      <svg width="150" height="70" viewBox="0 0 160 85" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M22 65 C20 40, 30 18, 48 12 C58 8, 62 16, 56 32 C50 48, 42 68, 55 64 C65 60, 72 35, 78 24 C82 18, 86 28, 84 42 C82 56, 88 62, 98 52 C108 42, 114 26, 120 20 C125 15, 128 32, 125 48 C122 60, 134 50, 142 42" stroke="#0f172a" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"/>
+                        <path d="M32 72 C55 69, 90 67, 135 68" stroke="#0f172a" strokeWidth="2.2" strokeLinecap="round"/>
+                        <path d="M48 78 C70 76, 105 75, 128 77" stroke="#0f172a" strokeWidth="1.8" strokeLinecap="round"/>
+                      </svg>
+                    </div>
+                    <div style={{ fontWeight: 700, fontSize: '0.95rem', color: '#0f172a' }}>{hl(signatoryName)}</div>
+                    <div style={{ fontSize: '0.85rem', color: '#334155' }}>{hl(signatoryTitle)}</div>
+                    <div style={{ fontSize: '0.85rem', color: '#334155', marginTop: 10 }}>
+                      <strong>Date:</strong> {hl(issueDate)}
+                    </div>
                     <div style={{ fontSize: '0.85rem', color: '#334155' }}>
-                      <div style={{ fontWeight: 600 }}>Authorized Signatory</div>
-                      <div>Name: {hl(signatoryName)}</div>
-                      <div>Designation: {hl(signatoryTitle)}</div>
-                      <div>Date: {hl(issueDate)}</div>
-                      <div>Place: {hl(place)}</div>
+                      <strong>Place:</strong> {hl(place)}
                     </div>
                   </div>
                 </div>
 
-                {/* Footer Page Numbering */}
-                <div
-                  style={{
-                    borderTop: '1px solid #f1f5f9',
-                    paddingTop: 10,
-                    marginTop: 20,
-                    textAlign: 'center',
-                    fontSize: '0.75rem',
-                    color: '#94a3b8',
-                    fontFamily: 'Arial, sans-serif',
-                  }}
-                >
-                  TaskNera | Page 1 of 1
+                {/* Footer with Contact Bar and Geometric Corner Shape */}
+                <div style={{ marginTop: 44, paddingTop: 14, borderTop: '1px solid #cbd5e1', position: 'relative' }}>
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: 14,
+                      fontSize: '0.75rem',
+                      color: '#334155',
+                      fontFamily: 'system-ui, -apple-system, sans-serif',
+                      flexWrap: 'wrap',
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                      <MapPin size={13} style={{ color: '#0284c7' }} />
+                      <span>D-57 F1, Dilshad Colony Shahdara, Delhi 110095</span>
+                    </div>
+                    <span style={{ color: '#94a3b8' }}>|</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                      <Mail size={13} style={{ color: '#0284c7' }} />
+                      <span>operations@tasknera.com</span>
+                    </div>
+                    <span style={{ color: '#94a3b8' }}>|</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                      <Globe size={13} style={{ color: '#0284c7' }} />
+                      <span>https://tasknera.com</span>
+                    </div>
+                  </div>
+
+                  {/* Corner Accent Graphic */}
+                  <div style={{ position: 'absolute', right: -56, bottom: -40, width: 140, height: 36, pointerEvents: 'none', overflow: 'hidden' }}>
+                    <svg width="140" height="36" viewBox="0 0 140 36" fill="none">
+                      <polygon points="35,36 60,0 140,0 140,16" fill="#f97316" />
+                      <polygon points="55,36 80,0 140,0 140,36" fill="#0f2a5c" />
+                    </svg>
+                  </div>
                 </div>
               </div>
             </div>
