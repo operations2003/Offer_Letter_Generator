@@ -6,8 +6,20 @@
 // Step 3: Compensation (Annual CTC, Basic % of CTC, HRA % of Basic, Incentive Applicable)
 // =============================================================================
 
-import React, { useState, useEffect } from 'react';
-import { X, ChevronLeft, ChevronRight, Check, AlertCircle, Plus } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import {
+  X,
+  ChevronLeft,
+  ChevronRight,
+  Check,
+  AlertCircle,
+  Plus,
+  Briefcase,
+  ChevronDown,
+  Search,
+  Trash2,
+  Sparkles,
+} from 'lucide-react';
 import { CreateEmployeePayload, EmployeeService } from '../../services/employeeService.js';
 
 interface AddEmployeeModalProps {
@@ -50,6 +62,27 @@ const METRO_CITIES = ['mumbai', 'delhi', 'new delhi', 'kolkata', 'chennai', 'ben
 
 const DEFAULT_DEPARTMENTS = ['IT', 'HR', 'TA', 'BDM'];
 const DEPARTMENTS_STORAGE_KEY = 'offer_gen_departments';
+
+const DEFAULT_POSITIONS = [
+  'Software Engineer',
+  'Senior Software Engineer',
+  'Lead Full-Stack Architect',
+  'IT Support Specialist',
+  'DevOps Engineer',
+  'QA Automation Engineer',
+  'Product Manager',
+  'Product Designer',
+  'HR Executive',
+  'HR Manager',
+  'Talent Acquisition Specialist',
+  'Technical Recruiter',
+  'Business Development Manager',
+  'Business Development Associate',
+  'Operations Executive',
+  'Finance Analyst',
+  'Executive Assistant',
+];
+const POSITIONS_STORAGE_KEY = 'offer_gen_positions';
 
 export const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({
   isOpen,
@@ -95,8 +128,30 @@ export const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({
   const [isAddingDept, setIsAddingDept] = useState(false);
   const [newDeptInput, setNewDeptInput] = useState('');
 
+  // Positions (Designations) state & authority to manage
+  const [positions, setPositions] = useState<string[]>(() => {
+    try {
+      const saved = localStorage.getItem(POSITIONS_STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return Array.from(new Set([...DEFAULT_POSITIONS, ...parsed]));
+        }
+      }
+    } catch {
+      // fallback
+    }
+    return DEFAULT_POSITIONS;
+  });
+
   const [workLocation, setWorkLocation] = useState('');
   const [designation, setDesignation] = useState('');
+  const [isDesignationOpen, setIsDesignationOpen] = useState(false);
+  const [designationSearch, setDesignationSearch] = useState('');
+  const [isAddingPosition, setIsAddingPosition] = useState(false);
+  const [newPositionInput, setNewPositionInput] = useState('');
+  const designationRef = useRef<HTMLDivElement>(null);
+
   const [joiningDate, setJoiningDate] = useState(() => {
     return new Date().toISOString().split('T')[0];
   });
@@ -173,7 +228,65 @@ export const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({
     }
   }, [workLocation, city]);
 
+  // Listen for outside click to close designation dropdown
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (designationRef.current && !designationRef.current.contains(e.target as Node)) {
+        setIsDesignationOpen(false);
+        setIsAddingPosition(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   if (!isOpen) return null;
+
+  // Filtered positions based on active search
+  const filteredPositions = positions.filter((p) =>
+    p.toLowerCase().includes(designationSearch.toLowerCase().trim())
+  );
+
+  // Add custom designation / position handler
+  const handleAddNewPosition = (titleToAdd?: string) => {
+    const trimmed = (titleToAdd !== undefined ? titleToAdd : newPositionInput).trim();
+    if (!trimmed) {
+      setIsAddingPosition(false);
+      return;
+    }
+
+    if (!positions.some((p) => p.toLowerCase() === trimmed.toLowerCase())) {
+      const updated = [trimmed, ...positions];
+      setPositions(updated);
+      try {
+        localStorage.setItem(POSITIONS_STORAGE_KEY, JSON.stringify(updated));
+      } catch {
+        // ignore storage errors
+      }
+    }
+
+    setDesignation(trimmed);
+    setNewPositionInput('');
+    setDesignationSearch('');
+    setIsAddingPosition(false);
+    setIsDesignationOpen(false);
+    setError(null);
+  };
+
+  // Delete custom position from list
+  const handleDeletePosition = (posToDelete: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const updated = positions.filter((p) => p !== posToDelete);
+    setPositions(updated);
+    try {
+      localStorage.setItem(POSITIONS_STORAGE_KEY, JSON.stringify(updated));
+    } catch {
+      // ignore storage errors
+    }
+    if (designation === posToDelete) {
+      setDesignation('');
+    }
+  };
 
   // Add custom department handler
   const handleAddNewDepartment = () => {
@@ -1117,46 +1230,479 @@ export const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({
                       </datalist>
                     </div>
 
-                    {/* Employee Designation */}
-                    <div>
-                      <label
+                    {/* Employee Designation / Position with Authority to Add Positions */}
+                    <div ref={designationRef} style={{ position: 'relative' }}>
+                      <div
                         style={{
-                          display: 'block',
-                          fontSize: '0.8125rem',
-                          fontWeight: 600,
-                          color: '#1e293b',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
                           marginBottom: 6,
                         }}
                       >
-                        Employee Designation <span style={{ color: '#ef4444' }}>*</span>
-                      </label>
-                      <input
-                        type="text"
-                        placeholder="Designation"
-                        value={designation}
-                        onChange={(e) => setDesignation(e.target.value)}
-                        required
-                        list="designations-list"
-                        style={{
-                          width: '100%',
-                          padding: '9px 12px',
-                          fontSize: '0.85rem',
-                          border: '1px solid #cbd5e1',
-                          borderRadius: 8,
-                        }}
-                      />
-                      <datalist id="designations-list">
-                        <option value="Software Engineer" />
-                        <option value="Senior Software Engineer" />
-                        <option value="IT Support Specialist" />
-                        <option value="HR Executive" />
-                        <option value="HR Manager" />
-                        <option value="Talent Acquisition Specialist" />
-                        <option value="Technical Recruiter" />
-                        <option value="Business Development Manager" />
-                        <option value="Business Development Associate" />
-                        <option value="Operations Executive" />
-                      </datalist>
+                        <label
+                          style={{
+                            fontSize: '0.8125rem',
+                            fontWeight: 600,
+                            color: '#1e293b',
+                            margin: 0,
+                          }}
+                        >
+                          Employee Designation (Position) <span style={{ color: '#ef4444' }}>*</span>
+                        </label>
+                        {!isAddingPosition && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setIsAddingPosition(true);
+                              setIsDesignationOpen(false);
+                            }}
+                            style={{
+                              background: 'none',
+                              border: 'none',
+                              color: '#0284c7',
+                              fontSize: '0.75rem',
+                              fontWeight: 600,
+                              cursor: 'pointer',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: 4,
+                              padding: '2px 6px',
+                              borderRadius: 4,
+                              transition: 'all 0.15s ease',
+                            }}
+                            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#f0f9ff')}
+                            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
+                          >
+                            <Plus size={13} /> Add New Position
+                          </button>
+                        )}
+                      </div>
+
+                      {/* Inline Add Position Mode */}
+                      {isAddingPosition ? (
+                        <div
+                          style={{
+                            backgroundColor: '#f8fafc',
+                            border: '1.5px dashed #0284c7',
+                            borderRadius: 10,
+                            padding: '10px 12px',
+                          }}
+                        >
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+                            <Sparkles size={14} color="#0284c7" />
+                            <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#0369a1', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                              Add Organization Position
+                            </span>
+                          </div>
+                          <div style={{ display: 'flex', gap: 8 }}>
+                            <input
+                              type="text"
+                              autoFocus
+                              placeholder="e.g. Lead Platform Architect, Staff AI Engineer"
+                              value={newPositionInput}
+                              onChange={(e) => setNewPositionInput(e.target.value)}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                  e.preventDefault();
+                                  handleAddNewPosition();
+                                } else if (e.key === 'Escape') {
+                                  setIsAddingPosition(false);
+                                  setNewPositionInput('');
+                                }
+                              }}
+                              style={{
+                                flex: 1,
+                                padding: '8px 12px',
+                                fontSize: '0.85rem',
+                                border: '1px solid #cbd5e1',
+                                borderRadius: 6,
+                                backgroundColor: '#ffffff',
+                                outline: 'none',
+                              }}
+                            />
+                            <button
+                              type="button"
+                              onClick={() => handleAddNewPosition()}
+                              style={{
+                                padding: '8px 14px',
+                                backgroundColor: '#0284c7',
+                                color: '#ffffff',
+                                fontSize: '0.8rem',
+                                fontWeight: 600,
+                                border: 'none',
+                                borderRadius: 6,
+                                cursor: 'pointer',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: 4,
+                                whiteSpace: 'nowrap',
+                              }}
+                            >
+                              <Check size={14} /> Save
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setIsAddingPosition(false);
+                                setNewPositionInput('');
+                              }}
+                              style={{
+                                padding: '8px 12px',
+                                backgroundColor: '#e2e8f0',
+                                color: '#475569',
+                                fontSize: '0.8rem',
+                                fontWeight: 600,
+                                border: 'none',
+                                borderRadius: 6,
+                                cursor: 'pointer',
+                              }}
+                            >
+                              ✕
+                            </button>
+                          </div>
+                          <p style={{ margin: '6px 0 0 0', fontSize: '0.72rem', color: '#64748b' }}>
+                            New positions are permanently saved to your company catalog for all employee files and offers.
+                          </p>
+                        </div>
+                      ) : (
+                        /* Modern Custom Select Box */
+                        <div style={{ position: 'relative' }}>
+                          <div
+                            onClick={() => {
+                              setIsDesignationOpen(!isDesignationOpen);
+                              setDesignationSearch('');
+                            }}
+                            style={{
+                              width: '100%',
+                              padding: '9px 12px 9px 36px',
+                              fontSize: '0.85rem',
+                              border: isDesignationOpen ? '1px solid #0284c7' : '1px solid #cbd5e1',
+                              borderRadius: 8,
+                              backgroundColor: '#ffffff',
+                              color: designation ? '#0f172a' : '#94a3b8',
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'space-between',
+                              boxShadow: isDesignationOpen ? '0 0 0 3px rgba(2, 132, 199, 0.12)' : 'none',
+                              transition: 'all 0.15s ease',
+                              userSelect: 'none',
+                            }}
+                          >
+                            <div style={{ position: 'absolute', left: 11, top: '50%', transform: 'translateY(-50%)', color: '#64748b', display: 'flex', alignItems: 'center' }}>
+                              <Briefcase size={16} />
+                            </div>
+                            <span style={{ fontWeight: designation ? 500 : 400 }}>
+                              {designation || 'Select or type a position...'}
+                            </span>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                              {designation && (
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setDesignation('');
+                                  }}
+                                  style={{
+                                    border: 'none',
+                                    background: 'none',
+                                    color: '#94a3b8',
+                                    cursor: 'pointer',
+                                    padding: '2px',
+                                    borderRadius: 4,
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                  }}
+                                  title="Clear selection"
+                                >
+                                  ✕
+                                </button>
+                              )}
+                              <ChevronDown
+                                size={16}
+                                style={{
+                                  color: '#64748b',
+                                  transform: isDesignationOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+                                  transition: 'transform 0.2s ease',
+                                }}
+                              />
+                            </div>
+                          </div>
+
+                          {/* Hidden actual form input for form validation */}
+                          <input
+                            type="text"
+                            tabIndex={-1}
+                            style={{ position: 'absolute', opacity: 0, height: 0, width: 0, pointerEvents: 'none' }}
+                            value={designation}
+                            onChange={() => {}}
+                            required
+                          />
+
+                          {/* Floating Dropdown */}
+                          {isDesignationOpen && (
+                            <div
+                              style={{
+                                position: 'absolute',
+                                top: 'calc(100% + 6px)',
+                                left: 0,
+                                right: 0,
+                                backgroundColor: '#ffffff',
+                                border: '1px solid #e2e8f0',
+                                borderRadius: 10,
+                                boxShadow: '0 14px 30px -4px rgba(15, 23, 42, 0.15), 0 4px 8px -2px rgba(15, 23, 42, 0.06)',
+                                zIndex: 1060,
+                                overflow: 'hidden',
+                              }}
+                            >
+                              {/* Search Box */}
+                              <div
+                                style={{
+                                  padding: '10px 12px',
+                                  borderBottom: '1px solid #f1f5f9',
+                                  backgroundColor: '#f8fafc',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: 8,
+                                }}
+                              >
+                                <Search size={15} color="#64748b" />
+                                <input
+                                  type="text"
+                                  autoFocus
+                                  placeholder="Type to filter or add position..."
+                                  value={designationSearch}
+                                  onChange={(e) => setDesignationSearch(e.target.value)}
+                                  onClick={(e) => e.stopPropagation()}
+                                  onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                      e.preventDefault();
+                                      if (filteredPositions.length > 0) {
+                                        setDesignation(filteredPositions[0]);
+                                        setIsDesignationOpen(false);
+                                      } else if (designationSearch.trim()) {
+                                        handleAddNewPosition(designationSearch.trim());
+                                      }
+                                    }
+                                  }}
+                                  style={{
+                                    border: 'none',
+                                    outline: 'none',
+                                    backgroundColor: 'transparent',
+                                    fontSize: '0.8125rem',
+                                    width: '100%',
+                                    color: '#0f172a',
+                                  }}
+                                />
+                                {designationSearch && (
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setDesignationSearch('');
+                                    }}
+                                    style={{ border: 'none', background: 'none', color: '#94a3b8', cursor: 'pointer', fontSize: '0.75rem' }}
+                                  >
+                                    ✕
+                                  </button>
+                                )}
+                              </div>
+
+                              {/* Quick Add Custom Action if search query doesn't exactly match */}
+                              {designationSearch.trim() && !positions.some((p) => p.toLowerCase() === designationSearch.trim().toLowerCase()) && (
+                                <div
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleAddNewPosition(designationSearch.trim());
+                                  }}
+                                  style={{
+                                    padding: '10px 14px',
+                                    backgroundColor: '#f0f9ff',
+                                    borderBottom: '1px solid #e0f2fe',
+                                    cursor: 'pointer',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                    transition: 'background-color 0.15s ease',
+                                  }}
+                                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#e0f2fe')}
+                                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#f0f9ff')}
+                                >
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                    <Sparkles size={15} color="#0284c7" />
+                                    <div>
+                                      <div style={{ fontSize: '0.8125rem', fontWeight: 600, color: '#0369a1' }}>
+                                        Add &quot;{designationSearch.trim()}&quot; as New Position
+                                      </div>
+                                      <div style={{ fontSize: '0.7rem', color: '#0284c7' }}>
+                                        Saves to organization position directory
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <span
+                                    style={{
+                                      fontSize: '0.7rem',
+                                      fontWeight: 700,
+                                      padding: '2px 8px',
+                                      backgroundColor: '#0284c7',
+                                      color: '#ffffff',
+                                      borderRadius: 4,
+                                    }}
+                                  >
+                                    + Add
+                                  </span>
+                                </div>
+                              )}
+
+                              {/* Positions List */}
+                              <div style={{ maxHeight: 220, overflowY: 'auto' }}>
+                                {filteredPositions.length === 0 ? (
+                                  <div style={{ padding: '24px 16px', textAlign: 'center', color: '#64748b' }}>
+                                    <p style={{ margin: 0, fontSize: '0.8125rem' }}>No matching positions found.</p>
+                                    <button
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleAddNewPosition(designationSearch.trim());
+                                      }}
+                                      style={{
+                                        marginTop: 8,
+                                        padding: '5px 12px',
+                                        backgroundColor: '#0284c7',
+                                        color: '#ffffff',
+                                        border: 'none',
+                                        borderRadius: 6,
+                                        fontSize: '0.78rem',
+                                        fontWeight: 600,
+                                        cursor: 'pointer',
+                                      }}
+                                    >
+                                      Create &quot;{designationSearch.trim()}&quot;
+                                    </button>
+                                  </div>
+                                ) : (
+                                  filteredPositions.map((pos) => {
+                                    const isSelected = designation === pos;
+                                    const isCustom = !DEFAULT_POSITIONS.includes(pos);
+                                    return (
+                                      <div
+                                        key={pos}
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          setDesignation(pos);
+                                          setIsDesignationOpen(false);
+                                        }}
+                                        style={{
+                                          padding: '9px 14px',
+                                          display: 'flex',
+                                          alignItems: 'center',
+                                          justifyContent: 'space-between',
+                                          backgroundColor: isSelected ? '#eff6ff' : 'transparent',
+                                          color: isSelected ? '#1d4ed8' : '#1e293b',
+                                          fontWeight: isSelected ? 600 : 400,
+                                          fontSize: '0.8125rem',
+                                          cursor: 'pointer',
+                                          transition: 'background-color 0.12s ease',
+                                        }}
+                                        onMouseEnter={(e) => {
+                                          if (!isSelected) e.currentTarget.style.backgroundColor = '#f8fafc';
+                                        }}
+                                        onMouseLeave={(e) => {
+                                          if (!isSelected) e.currentTarget.style.backgroundColor = 'transparent';
+                                        }}
+                                      >
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                          {isSelected ? (
+                                            <Check size={15} color="#2563eb" />
+                                          ) : (
+                                            <div style={{ width: 15 }} />
+                                          )}
+                                          <span>{pos}</span>
+                                          {isCustom && (
+                                            <span
+                                              style={{
+                                                fontSize: '0.65rem',
+                                                fontWeight: 600,
+                                                padding: '1px 6px',
+                                                backgroundColor: '#fef3c7',
+                                                color: '#b45309',
+                                                borderRadius: 4,
+                                                border: '1px solid #fde68a',
+                                              }}
+                                            >
+                                              Custom
+                                            </span>
+                                          )}
+                                        </div>
+
+                                        {isCustom && (
+                                          <button
+                                            type="button"
+                                            title="Delete custom position"
+                                            onClick={(e) => handleDeletePosition(pos, e)}
+                                            style={{
+                                              border: 'none',
+                                              background: 'none',
+                                              color: '#94a3b8',
+                                              cursor: 'pointer',
+                                              padding: '3px 5px',
+                                              borderRadius: 4,
+                                              display: 'flex',
+                                              alignItems: 'center',
+                                            }}
+                                            onMouseEnter={(e) => (e.currentTarget.style.color = '#ef4444')}
+                                            onMouseLeave={(e) => (e.currentTarget.style.color = '#94a3b8')}
+                                          >
+                                            <Trash2 size={13} />
+                                          </button>
+                                        )}
+                                      </div>
+                                    );
+                                  })
+                                )}
+                              </div>
+
+                              {/* Footer Action */}
+                              <div
+                                style={{
+                                  padding: '8px 12px',
+                                  borderTop: '1px solid #f1f5f9',
+                                  backgroundColor: '#fafafa',
+                                  display: 'flex',
+                                  justifyContent: 'space-between',
+                                  alignItems: 'center',
+                                }}
+                              >
+                                <span style={{ fontSize: '0.72rem', color: '#64748b' }}>
+                                  {positions.length} organization positions
+                                </span>
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setIsAddingPosition(true);
+                                    setIsDesignationOpen(false);
+                                  }}
+                                  style={{
+                                    border: 'none',
+                                    background: 'none',
+                                    color: '#0284c7',
+                                    fontSize: '0.75rem',
+                                    fontWeight: 700,
+                                    cursor: 'pointer',
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: 4,
+                                  }}
+                                >
+                                  <Plus size={13} /> Add Position
+                                </button>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
