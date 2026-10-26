@@ -56,30 +56,6 @@ const INITIAL_USERS: SystemUser[] = [
     lastLoginAt: new Date().toISOString(),
     roles: [{ id: 'role_admin', code: 'SUPER_ADMIN', name: 'Super Administrator' }],
   },
-  {
-    id: 'usr_hr_002',
-    email: 'hr@gmail.com',
-    firstName: 'HR',
-    lastName: 'Manager',
-    title: 'HR Operations Manager',
-    department: 'Human Resources',
-    status: 'ACTIVE',
-    createdAt: new Date().toISOString(),
-    lastLoginAt: new Date().toISOString(),
-    roles: [{ id: 'role_hr', code: 'HR_MANAGER', name: 'HR Manager' }],
-  },
-  {
-    id: 'usr_rec_003',
-    email: 'recruiter@tasknera.com',
-    firstName: 'David',
-    lastName: 'Kim',
-    title: 'Talent Acquisition Lead',
-    department: 'Recruiting',
-    status: 'ACTIVE',
-    createdAt: new Date().toISOString(),
-    lastLoginAt: new Date().toISOString(),
-    roles: [{ id: 'role_rec', code: 'RECRUITER', name: 'Recruiter' }],
-  },
 ];
 
 export class UserService {
@@ -104,7 +80,16 @@ export class UserService {
       }
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed) && parsed.length > 0) {
-        return parsed;
+        // Automatically purge removed accounts
+        const cleaned = parsed.filter(
+          (u) =>
+            u.email.toLowerCase() !== 'hr@gmail.com' &&
+            u.email.toLowerCase() !== 'recruiter@tasknera.com'
+        );
+        if (cleaned.length !== parsed.length) {
+          localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(cleaned));
+        }
+        return cleaned.length > 0 ? cleaned : [...INITIAL_USERS];
       }
       localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(INITIAL_USERS));
       return [...INITIAL_USERS];

@@ -10,6 +10,7 @@ import {
   Mail,
   RefreshCw,
   Filter,
+  Trash2,
 } from 'lucide-react';
 import { Button } from '../components/common/Button.js';
 import { useAuth } from '../context/AuthContext.js';
@@ -53,6 +54,21 @@ export const UsersPage: React.FC = () => {
 
   const handleUserCreated = (newUser: SystemUser) => {
     setUsers((prev) => [newUser, ...prev]);
+  };
+
+  const handleDeleteUser = async (userToDelete: SystemUser) => {
+    const confirmDelete = window.confirm(
+      `Are you sure you want to delete user account "${userToDelete.firstName} ${userToDelete.lastName}" (${userToDelete.email})?`
+    );
+    if (!confirmDelete) return;
+
+    try {
+      await UserService.deleteUser(userToDelete.id);
+      setUsers((prev) => prev.filter((u) => u.id !== userToDelete.id));
+      success(`User account for ${userToDelete.firstName} ${userToDelete.lastName} has been deleted.`);
+    } catch (err: any) {
+      error(err?.message || 'Failed to delete user account.');
+    }
   };
 
   const getRoleBadge = (roleCode: string) => {
@@ -358,12 +374,15 @@ export const UsersPage: React.FC = () => {
                 <th style={{ padding: '12px 18px', fontWeight: 700, color: '#475569', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                   Created
                 </th>
+                <th style={{ padding: '12px 18px', fontWeight: 700, color: '#475569', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.04em', textAlign: 'right' }}>
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody>
               {isLoading ? (
                 <tr>
-                  <td colSpan={5} style={{ padding: '40px', textAlign: 'center', color: '#64748b' }}>
+                  <td colSpan={6} style={{ padding: '40px', textAlign: 'center', color: '#64748b' }}>
                     <div style={{ display: 'inline-flex', alignItems: 'center', gap: 10 }}>
                       <RefreshCw size={18} className="animate-spin" />
                       <span>Loading user directory...</span>
@@ -372,7 +391,7 @@ export const UsersPage: React.FC = () => {
                 </tr>
               ) : users.length === 0 ? (
                 <tr>
-                  <td colSpan={5} style={{ padding: '50px 20px', textAlign: 'center' }}>
+                  <td colSpan={6} style={{ padding: '50px 20px', textAlign: 'center' }}>
                     <div style={{ maxWidth: 360, margin: '0 auto' }}>
                       <div
                         style={{
@@ -539,6 +558,40 @@ export const UsersPage: React.FC = () => {
                       {/* Created */}
                       <td style={{ padding: '14px 18px', color: '#64748b', fontSize: '0.8rem' }}>
                         {u.createdAt ? new Date(u.createdAt).toLocaleDateString() : 'Active'}
+                      </td>
+
+                      {/* Actions */}
+                      <td style={{ padding: '14px 18px', textAlign: 'right' }}>
+                        {!isCurrent && (
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteUser(u)}
+                            title="Delete User"
+                            style={{
+                              padding: '5px 9px',
+                              borderRadius: 6,
+                              border: '1px solid #fee2e2',
+                              background: '#fff5f5',
+                              color: '#dc2626',
+                              cursor: 'pointer',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: 4,
+                              fontSize: '0.75rem',
+                              fontWeight: 600,
+                              transition: 'all 0.15s ease',
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.background = '#fee2e2';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.background = '#fff5f5';
+                            }}
+                          >
+                            <Trash2 size={13} />
+                            <span>Delete</span>
+                          </button>
+                        )}
                       </td>
                     </tr>
                   );
