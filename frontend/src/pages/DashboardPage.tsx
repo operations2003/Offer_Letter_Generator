@@ -26,6 +26,7 @@ import {
   AlertTriangle,
   ShieldAlert,
   GraduationCap,
+  UserMinus,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.js';
 import { Button } from '../components/common/Button.js';
@@ -49,6 +50,7 @@ import { FreelanceRecruiterAgreementModal } from '../components/documents/Freela
 import { FreelancerTerminationModal } from '../components/documents/FreelancerTerminationModal.js';
 import { EmployeeTerminationModal } from '../components/documents/EmployeeTerminationModal.js';
 import { InternshipConcludingModal } from '../components/documents/InternshipConcludingModal.js';
+import { ResignationAcceptanceModal } from '../components/documents/ResignationAcceptanceModal.js';
 import { useToast } from '../context/ToastContext.js';
 
 export const DashboardPage: React.FC = () => {
@@ -90,6 +92,7 @@ export const DashboardPage: React.FC = () => {
   const [isTerminationModalOpen, setIsTerminationModalOpen] = useState(false);
   const [isEmployeeTerminationModalOpen, setIsEmployeeTerminationModalOpen] = useState(false);
   const [isInternshipModalOpen, setIsInternshipModalOpen] = useState(false);
+  const [isResignationModalOpen, setIsResignationModalOpen] = useState(false);
 
   const [selectedOfferForDetail, setSelectedOfferForDetail] = useState<OfferListItem | null>(null);
   const [selectedOfferForEmail, setSelectedOfferForEmail] = useState<OfferListItem | null>(null);
@@ -953,6 +956,12 @@ export const DashboardPage: React.FC = () => {
                   action: () => setIsEmployeeTerminationModalOpen(true),
                 },
                 {
+                  label: 'Acceptance of Resignation',
+                  desc: 'Acknowledge resignation & Last Working Day',
+                  icon: <UserMinus size={15} style={{ color: '#2563eb' }} />,
+                  action: () => setIsResignationModalOpen(true),
+                },
+                {
                   label: 'Internship Conclusion',
                   desc: 'Letter on internship conclusion',
                   icon: <GraduationCap size={15} style={{ color: '#ea580c' }} />,
@@ -1195,6 +1204,12 @@ export const DashboardPage: React.FC = () => {
       <InternshipConcludingModal
         isOpen={isInternshipModalOpen}
         onClose={() => setIsInternshipModalOpen(false)}
+        onSuccess={() => loadDashboardData()}
+      />
+
+      <ResignationAcceptanceModal
+        isOpen={isResignationModalOpen}
+        onClose={() => setIsResignationModalOpen(false)}
         onSuccess={() => loadDashboardData()}
       />
     </div>

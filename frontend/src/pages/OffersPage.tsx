@@ -42,6 +42,7 @@ import {
   Clock,
   Scale,
   ShieldAlert,
+  UserMinus,
 } from 'lucide-react';
 import { Button } from '../components/common/Button.js';
 import { OfferStatusBadge, AiAdvisoryBadge } from '../components/common/Badge.js';
@@ -68,6 +69,7 @@ import { FreelancerOnboardingModal } from '../components/documents/FreelancerOnb
 import { FreelanceRecruiterAgreementModal } from '../components/documents/FreelanceRecruiterAgreementModal.js';
 import { FreelancerTerminationModal } from '../components/documents/FreelancerTerminationModal.js';
 import { EmployeeTerminationModal } from '../components/documents/EmployeeTerminationModal.js';
+import { ResignationAcceptanceModal } from '../components/documents/ResignationAcceptanceModal.js';
 import { OFFICIAL_POLICIES } from '../services/policyCatalog.js';
 import {
   getAllPolicies,
@@ -129,9 +131,11 @@ export const OffersPage: React.FC = () => {
   const [isRecruiterAgreementModalOpen, setIsRecruiterAgreementModalOpen] = useState(false);
   const [isTerminationModalOpen, setIsTerminationModalOpen] = useState(false);
   const [isEmployeeTerminationModalOpen, setIsEmployeeTerminationModalOpen] = useState(false);
-  const [activeDocumentTab, setActiveDocumentTab] = useState<'ALL' | 'TEMPLATES' | 'EMPLOYEE_TERMINATION' | 'INTERNSHIP' | 'CERTIFICATES' | 'POLICIES'>('ALL');
+  const [isResignationModalOpen, setIsResignationModalOpen] = useState(false);
+  const [activeDocumentTab, setActiveDocumentTab] = useState<'ALL' | 'TEMPLATES' | 'EMPLOYEE_TERMINATION' | 'RESIGNATION' | 'INTERNSHIP' | 'CERTIFICATES' | 'POLICIES'>('ALL');
   const [certificateSectionPulse, setCertificateSectionPulse] = useState(false);
   const [employeeTerminationSectionPulse, setEmployeeTerminationSectionPulse] = useState(false);
+  const [resignationSectionPulse, setResignationSectionPulse] = useState(false);
   const [internshipSectionPulse, setInternshipSectionPulse] = useState(false);
   const [isWizardOpen, setIsWizardOpen] = useState(() => searchParams.get('create') === 'true');
   const [selectedOfferForDetail, setSelectedOfferForDetail] = useState<OfferItem | null>(null);
@@ -536,6 +540,18 @@ export const OffersPage: React.FC = () => {
       onClick: () => setIsEmployeeTerminationModalOpen(true),
     },
     {
+      id: 'resignation_acceptance',
+      title: 'Acceptance of Resignation',
+      description: 'Official 2-page letter acknowledging resignation, Last Working Day, notice period & FNF.',
+      icon: <UserMinus size={22} style={{ color: '#2563eb' }} />,
+      badge: 'TN/HR/RES Format',
+      badgeColor: '#2563eb',
+      badgeBg: '#eff6ff',
+      badgeBorder: '#bfdbfe',
+      active: true,
+      onClick: () => setIsResignationModalOpen(true),
+    },
+    {
       id: 'experience_letter',
       title: 'Experience Letter',
       description: 'Official letter stating employment tenure and role held.',
@@ -707,6 +723,7 @@ export const OffersPage: React.FC = () => {
           {[
             { key: 'ALL', label: 'All', count: documentCards.length + certificateCards.length + allPoliciesList.length + 1 },
             { key: 'TEMPLATES', label: 'Templates', count: documentCards.length },
+            { key: 'RESIGNATION', label: 'Resignation Acceptance', count: 1, icon: <UserMinus size={13} /> },
             { key: 'EMPLOYEE_TERMINATION', label: 'Employee Termination', count: 1, icon: <ShieldAlert size={13} /> },
             { key: 'INTERNSHIP', label: 'Internship Conclusion', count: 1, icon: <GraduationCap size={13} /> },
             { key: 'CERTIFICATES', label: 'Certificates', count: certificateCards.length, icon: <Award size={13} /> },
@@ -719,7 +736,14 @@ export const OffersPage: React.FC = () => {
                 type="button"
                 onClick={() => {
                   setActiveDocumentTab(tab.key as any);
-                  if (tab.key === 'EMPLOYEE_TERMINATION') {
+                  if (tab.key === 'RESIGNATION') {
+                    const el = document.getElementById('resignation-acceptance-section');
+                    if (el) {
+                      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                      setResignationSectionPulse(true);
+                      setTimeout(() => setResignationSectionPulse(false), 2400);
+                    }
+                  } else if (tab.key === 'EMPLOYEE_TERMINATION') {
                     const el = document.getElementById('employee-termination-section');
                     if (el) {
                       el.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -1152,7 +1176,203 @@ export const OffersPage: React.FC = () => {
       )}
 
       {/* ========================================================================= */}
-      {/* 5. CONCLUSION OF INTERNSHIP SECTION (TN/HR/INT FORMAT)                    */}
+      {/* 3. ACCEPTANCE OF RESIGNATION LETTER SECTION (TN/HR/RES)                   */}
+      {/* ========================================================================= */}
+      {(activeDocumentTab === 'ALL' || activeDocumentTab === 'RESIGNATION') && (
+        <div
+          id="resignation-acceptance-section"
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 16,
+            marginTop: 6,
+            paddingTop: 10,
+            scrollMarginTop: '80px',
+            borderRadius: 14,
+            padding: '16px',
+            backgroundColor: resignationSectionPulse ? 'rgba(37, 99, 235, 0.06)' : 'transparent',
+            boxShadow: resignationSectionPulse ? '0 0 0 2px rgba(37, 99, 235, 0.4)' : 'none',
+            transition: 'all 0.4s ease',
+          }}
+        >
+          {/* Section Header */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#0f172a', margin: 0 }}>
+                  Acceptance of Resignation
+                </h3>
+                <span
+                  style={{
+                    fontSize: '0.72rem',
+                    fontWeight: 700,
+                    backgroundColor: '#eff6ff',
+                    color: '#1d4ed8',
+                    padding: '2px 9px',
+                    borderRadius: 12,
+                    border: '1px solid #bfdbfe',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 4,
+                  }}
+                >
+                  <UserMinus size={12} />
+                  TN/HR/RES Format &bull; Official Exit Letter
+                </span>
+              </div>
+              <p style={{ fontSize: '0.8125rem', color: '#64748b', margin: '2px 0 0 0' }}>
+                Formal 2-page Tasknera acknowledgement letter establishing Last Working Day, notice period waiver/shortfall options, handover protocols, and FNF settlement timeline.
+              </p>
+            </div>
+
+            <Button
+              variant="primary"
+              icon={<UserMinus size={14} />}
+              onClick={() => setIsResignationModalOpen(true)}
+              style={{
+                backgroundColor: '#2563eb',
+                borderColor: '#2563eb',
+                boxShadow: '0 2px 8px rgba(37, 99, 235, 0.25)',
+                fontSize: '0.8125rem',
+                padding: '8px 16px',
+              }}
+            >
+              Generate Resignation Acceptance
+            </Button>
+          </div>
+
+          {/* Feature Showcase Card */}
+          <div
+            style={{
+              backgroundColor: '#ffffff',
+              borderRadius: 12,
+              padding: '22px 24px',
+              border: '1.5px solid #bfdbfe',
+              boxShadow: '0 4px 20px rgba(37, 99, 235, 0.08)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 16,
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
+              <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start', maxWidth: 720 }}>
+                <div
+                  style={{
+                    width: 52,
+                    height: 52,
+                    borderRadius: 12,
+                    backgroundColor: '#eff6ff',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    border: '1px solid #bfdbfe',
+                    color: '#2563eb',
+                    flexShrink: 0,
+                  }}
+                >
+                  <UserMinus size={26} />
+                </div>
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                    <h4 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#0f172a', margin: 0 }}>
+                      Acceptance of Resignation
+                    </h4>
+                    <span
+                      style={{
+                        fontSize: '0.6875rem',
+                        fontWeight: 700,
+                        padding: '2px 7px',
+                        borderRadius: 6,
+                        backgroundColor: '#eff6ff',
+                        color: '#1d4ed8',
+                        border: '1px solid #bfdbfe',
+                      }}
+                    >
+                      Ref: TN/HR/RES/YYYY/000
+                    </span>
+                  </div>
+                  <p style={{ fontSize: '0.84rem', color: '#475569', lineHeight: 1.5, margin: 0 }}>
+                    Official 2-page Tasknera legal letter referencing the original resignation submission. Formulates formal acceptance, Last Working Day determination, 3 notice period choices (Serve Notice / Waive or Shorten / Recover Shortfall), handover tasks, exit clearance, and FNF settlement within 30 working days.
+                  </p>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: 10 }}>
+                <Button
+                  variant="primary"
+                  icon={<FileText size={14} />}
+                  onClick={() => setIsResignationModalOpen(true)}
+                  style={{
+                    backgroundColor: '#2563eb',
+                    borderColor: '#2563eb',
+                    fontSize: '0.8125rem',
+                  }}
+                >
+                  Open Resignation Generator
+                </Button>
+              </div>
+            </div>
+
+            {/* Quick Parameter Badges */}
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))',
+                gap: 12,
+                paddingTop: 14,
+                borderTop: '1px solid #f1f5f9',
+              }}
+            >
+              {[
+                {
+                  label: 'Point 2: Last Working Day',
+                  val: 'Determined based on resignation receipt date & notice period',
+                  icon: <Calendar size={14} style={{ color: '#2563eb' }} />,
+                },
+                {
+                  label: 'Point 3: Notice Period',
+                  val: '3 Options: Full Served / Waived or Shortened / Shortfall Recovered',
+                  icon: <Clock size={14} style={{ color: '#0284c7' }} />,
+                },
+                {
+                  label: 'Point 5: Exit Formalities',
+                  val: 'Asset return & systems access suspension at COB on LWD',
+                  icon: <ShieldCheck size={14} style={{ color: '#059669' }} />,
+                },
+                {
+                  label: 'Point 6: Full & Final Settlement',
+                  val: 'Salary, leave encashment & statutory dues in 30 working days',
+                  icon: <FileCheck2 size={14} style={{ color: '#7c3aed' }} />,
+                },
+              ].map((item, idx) => (
+                <div
+                  key={idx}
+                  style={{
+                    padding: '10px 14px',
+                    borderRadius: 8,
+                    backgroundColor: '#f8fafc',
+                    border: '1px solid #e2e8f0',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 3,
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.72rem', color: '#64748b', fontWeight: 600 }}>
+                    {item.icon}
+                    <span>{item.label}</span>
+                  </div>
+                  <div style={{ fontSize: '0.8125rem', fontWeight: 700, color: '#0f172a' }}>
+                    {item.val}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* 4. CONCLUSION OF INTERNSHIP SECTION (TN/HR/INT FORMAT)                    */}
       {/* ========================================================================= */}
       {(activeDocumentTab === 'ALL' || activeDocumentTab === 'INTERNSHIP') && (
         <div
@@ -2216,6 +2436,13 @@ export const OffersPage: React.FC = () => {
       <EmployeeTerminationModal
         isOpen={isEmployeeTerminationModalOpen}
         onClose={() => setIsEmployeeTerminationModalOpen(false)}
+        onSuccess={() => fetchOffers()}
+      />
+
+      {/* Official Acceptance of Resignation (TN/HR/RES) Modal */}
+      <ResignationAcceptanceModal
+        isOpen={isResignationModalOpen}
+        onClose={() => setIsResignationModalOpen(false)}
         onSuccess={() => fetchOffers()}
       />
     </div>

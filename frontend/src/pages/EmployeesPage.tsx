@@ -39,6 +39,7 @@ import { GenerateDocumentModal } from '../components/employees/GenerateDocumentM
 import { FreelancerOnboardingModal } from '../components/documents/FreelancerOnboardingModal.js';
 import { FreelanceRecruiterAgreementModal } from '../components/documents/FreelanceRecruiterAgreementModal.js';
 import { FreelancerTerminationModal } from '../components/documents/FreelancerTerminationModal.js';
+import { ResignationAcceptanceModal } from '../components/documents/ResignationAcceptanceModal.js';
 import { useToast } from '../context/ToastContext.js';
 
 export const EmployeesPage: React.FC = () => {
@@ -65,6 +66,10 @@ export const EmployeesPage: React.FC = () => {
   const [isFreelanceAgreementOpen, setIsFreelanceAgreementOpen] = useState(false);
   const [isFreelancerTerminationOpen, setIsFreelancerTerminationOpen] = useState(false);
   const [selectedFreelancerForLetter, setSelectedFreelancerForLetter] = useState<Employee | null>(null);
+
+  // Resignation Acceptance Modal
+  const [isResignationModalOpen, setIsResignationModalOpen] = useState(false);
+  const [selectedEmployeeForResignation, setSelectedEmployeeForResignation] = useState<Employee | null>(null);
 
   useEffect(() => {
     loadEmployees();
@@ -1025,6 +1030,19 @@ export const EmployeesPage: React.FC = () => {
           onClose={() => {
             setIsFreelancerTerminationOpen(false);
             setSelectedFreelancerForLetter(null);
+          }}
+          onSuccess={() => loadEmployees()}
+        />
+      )}
+
+      {/* Acceptance of Resignation (TN/HR/RES) Modal */}
+      {isResignationModalOpen && (
+        <ResignationAcceptanceModal
+          isOpen={isResignationModalOpen}
+          initialEmployee={selectedEmployeeForResignation}
+          onClose={() => {
+            setIsResignationModalOpen(false);
+            setSelectedEmployeeForResignation(null);
           }}
           onSuccess={() => loadEmployees()}
         />
