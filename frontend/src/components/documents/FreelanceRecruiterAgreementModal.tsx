@@ -269,6 +269,35 @@ export const FreelanceRecruiterAgreementModal: React.FC<FreelanceRecruiterAgreem
               font-size: 8.75pt;
               vertical-align: top;
             }
+            .particulars-table, .particulars-subtable {
+              width: 100% !important;
+              border-collapse: collapse !important;
+              border: 1.5px solid #000000 !important;
+              margin: 8px 0 0 0 !important;
+            }
+            .particulars-table th {
+              background-color: #ffffff !important;
+              color: #000000 !important;
+              border: 1.5px solid #000000 !important;
+              padding: 6px 8px !important;
+              vertical-align: middle !important;
+            }
+            .particulars-table td, .particulars-subtable td {
+              border: 1.5px solid #000000 !important;
+              padding: 7px 8px !important;
+              font-size: 8.75pt !important;
+              vertical-align: top !important;
+            }
+            .particulars-badge {
+              background-color: #163b65 !important;
+              color: #ffffff !important;
+              padding: 3px 8px !important;
+              font-weight: 700 !important;
+              display: inline-block !important;
+              font-size: 9pt !important;
+              -webkit-print-color-adjust: exact !important;
+              print-color-adjust: exact !important;
+            }
             p {
               margin: 0 0 8px 0;
               line-height: 1.5;
@@ -1246,59 +1275,274 @@ export const FreelanceRecruiterAgreementModal: React.FC<FreelanceRecruiterAgreem
                   </p>
                   <p>The Company and the Freelancer are each a “Party” and together the “Parties”.</p>
 
-                  <div style={{ fontWeight: 700, color: '#0f172a', margin: '14px 0 6px' }}>Particulars of the Parties</div>
+                  <div style={{ fontWeight: 700, fontSize: '11pt', color: '#163b65', margin: '18px 0 8px 0' }}>
+                    Particulars of the Parties
+                  </div>
 
-                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '8.75pt', marginBottom: 16 }}>
+                  {/* TABLE 1: MAIN PARTICULARS (3 COLUMNS) */}
+                  <table
+                    className="particulars-table"
+                    style={{
+                      width: '100%',
+                      borderCollapse: 'collapse',
+                      border: '1.5px solid #000000',
+                      fontSize: '8.75pt',
+                      backgroundColor: '#ffffff',
+                      marginBottom: 0,
+                    }}
+                  >
                     <thead>
-                      <tr style={{ backgroundColor: '#0f2744', color: '#ffffff' }}>
-                        <th style={{ padding: '6px 10px', width: '25%' }}>Particulars</th>
-                        <th style={{ padding: '6px 10px', width: '37%' }}>The Company</th>
-                        <th style={{ padding: '6px 10px', width: '38%' }}>The Freelancer</th>
+                      <tr>
+                        <th
+                          style={{
+                            border: '1.5px solid #000000',
+                            padding: '6px 8px',
+                            textAlign: 'left',
+                            width: '24%',
+                            backgroundColor: '#ffffff',
+                            verticalAlign: 'middle',
+                          }}
+                        >
+                          <span
+                            className="particulars-badge"
+                            style={{
+                              backgroundColor: '#163b65',
+                              color: '#ffffff',
+                              padding: '3px 8px',
+                              fontWeight: 700,
+                              display: 'inline-block',
+                              fontSize: '9pt',
+                            }}
+                          >
+                            Particulars
+                          </span>
+                        </th>
+                        <th
+                          style={{
+                            border: '1.5px solid #000000',
+                            padding: '6px 8px',
+                            textAlign: 'left',
+                            width: '34%',
+                            backgroundColor: '#ffffff',
+                            verticalAlign: 'middle',
+                          }}
+                        >
+                          <span
+                            className="particulars-badge"
+                            style={{
+                              backgroundColor: '#163b65',
+                              color: '#ffffff',
+                              padding: '3px 8px',
+                              fontWeight: 700,
+                              display: 'inline-block',
+                              fontSize: '9pt',
+                            }}
+                          >
+                            The Company
+                          </span>
+                        </th>
+                        <th
+                          style={{
+                            border: '1.5px solid #000000',
+                            padding: '6px 8px',
+                            textAlign: 'left',
+                            width: '42%',
+                            backgroundColor: '#ffffff',
+                            verticalAlign: 'middle',
+                          }}
+                        >
+                          <span
+                            className="particulars-badge"
+                            style={{
+                              backgroundColor: '#163b65',
+                              color: '#ffffff',
+                              padding: '3px 8px',
+                              fontWeight: 700,
+                              display: 'inline-block',
+                              fontSize: '9pt',
+                            }}
+                          >
+                            The Freelancer
+                          </span>
+                        </th>
                       </tr>
                     </thead>
                     <tbody>
                       <tr>
-                        <td style={{ fontWeight: 600 }}>Name / trade name</td>
-                        <td>{data.company.tradeName}</td>
-                        <td>{highlightPlaceholders ? <mark>{data.freelancer.legalName}</mark> : data.freelancer.legalName}</td>
+                        <td style={{ border: '1.5px solid #000000', padding: '7px 8px', fontWeight: 700, color: '#000000' }}>
+                          Name / trade name
+                        </td>
+                        <td style={{ border: '1.5px solid #000000', padding: '7px 8px', color: '#000000' }}>
+                          {data.company.tradeName}
+                        </td>
+                        <td style={{ border: '1.5px solid #000000', padding: '7px 8px', color: '#556987' }}>
+                          {highlightPlaceholders ? (
+                            <mark>{data.freelancer.tradeName || data.freelancer.legalName || 'Full legal name / trade name'}</mark>
+                          ) : (
+                            data.freelancer.tradeName || data.freelancer.legalName || 'Full legal name / trade name'
+                          )}
+                        </td>
                       </tr>
                       <tr>
-                        <td style={{ fontWeight: 600 }}>Legal status</td>
-                        <td>{data.company.legalStatus}</td>
-                        <td>{data.freelancer.legalStatus}</td>
+                        <td style={{ border: '1.5px solid #000000', padding: '7px 8px', fontWeight: 700, color: '#000000' }}>
+                          Legal status
+                        </td>
+                        <td style={{ border: '1.5px solid #000000', padding: '7px 8px', color: '#000000' }}>
+                          {data.company.legalStatus}
+                        </td>
+                        <td style={{ border: '1.5px solid #000000', padding: '7px 8px', color: '#556987' }}>
+                          {highlightPlaceholders ? (
+                            <mark>{data.freelancer.legalStatus || 'Individual / Proprietorship / Firm / Company'}</mark>
+                          ) : (
+                            data.freelancer.legalStatus || 'Individual / Proprietorship / Firm / Company'
+                          )}
+                        </td>
                       </tr>
                       <tr>
-                        <td style={{ fontWeight: 600 }}>Authorised signatory</td>
-                        <td>{data.company.signatoryName}, {data.company.signatoryTitle}</td>
-                        <td>{highlightPlaceholders ? <mark>{data.freelancer.signatoryName}</mark> : data.freelancer.signatoryName}</td>
+                        <td style={{ border: '1.5px solid #000000', padding: '7px 8px', fontWeight: 700, color: '#000000' }}>
+                          Authorised signatory
+                        </td>
+                        <td style={{ border: '1.5px solid #000000', padding: '7px 8px', color: '#000000' }}>
+                          {data.company.signatoryName}, {data.company.signatoryTitle}
+                        </td>
+                        <td style={{ border: '1.5px solid #000000', padding: '7px 8px', color: '#556987' }}>
+                          {highlightPlaceholders ? (
+                            <mark>{data.freelancer.signatoryName || 'Name and designation (if not an individual)'}</mark>
+                          ) : (
+                            data.freelancer.signatoryName || 'Name and designation (if not an individual)'
+                          )}
+                        </td>
                       </tr>
                       <tr>
-                        <td style={{ fontWeight: 600 }}>Address</td>
-                        <td>{data.company.address}</td>
-                        <td>{highlightPlaceholders ? <mark>{data.freelancer.address}</mark> : data.freelancer.address}</td>
+                        <td style={{ border: '1.5px solid #000000', padding: '7px 8px', fontWeight: 700, color: '#000000' }}>
+                          Address
+                        </td>
+                        <td style={{ border: '1.5px solid #000000', padding: '7px 8px', color: '#000000' }}>
+                          {data.company.address}
+                        </td>
+                        <td style={{ border: '1.5px solid #000000', padding: '7px 8px', color: '#556987' }}>
+                          {highlightPlaceholders ? (
+                            <mark>{data.freelancer.address || 'Complete correspondence address'}</mark>
+                          ) : (
+                            data.freelancer.address || 'Complete correspondence address'
+                          )}
+                        </td>
                       </tr>
                       <tr>
-                        <td style={{ fontWeight: 600 }}>Email</td>
-                        <td>{data.company.email}</td>
-                        <td>{highlightPlaceholders ? <mark>{data.freelancer.email}</mark> : data.freelancer.email}</td>
+                        <td style={{ border: '1.5px solid #000000', padding: '7px 8px', fontWeight: 700, color: '#000000' }}>
+                          Email
+                        </td>
+                        <td style={{ border: '1.5px solid #000000', padding: '7px 8px', color: '#000000' }}>
+                          {data.company.email}
+                        </td>
+                        <td style={{ border: '1.5px solid #000000', padding: '7px 8px', color: '#556987' }}>
+                          {highlightPlaceholders ? (
+                            <mark>{data.freelancer.email || 'Email address'}</mark>
+                          ) : (
+                            data.freelancer.email || 'Email address'
+                          )}
+                        </td>
                       </tr>
                       <tr>
-                        <td style={{ fontWeight: 600 }}>GSTIN</td>
-                        <td>{data.company.gstin}</td>
-                        <td>{data.freelancer.gstin}</td>
+                        <td style={{ border: '1.5px solid #000000', padding: '7px 8px', fontWeight: 700, color: '#000000' }}>
+                          GSTIN
+                        </td>
+                        <td style={{ border: '1.5px solid #000000', padding: '7px 8px', color: '#000000' }}>
+                          {data.company.gstin}
+                        </td>
+                        <td style={{ border: '1.5px solid #000000', padding: '7px 8px', color: '#556987' }}>
+                          {highlightPlaceholders ? (
+                            <mark>{data.freelancer.gstin || 'GSTIN, or “Not registered”'}</mark>
+                          ) : (
+                            data.freelancer.gstin || 'GSTIN, or “Not registered”'
+                          )}
+                        </td>
                       </tr>
                       <tr>
-                        <td style={{ fontWeight: 600 }}>Udyam Registration No.</td>
-                        <td>{data.company.udyam}</td>
-                        <td>{data.freelancer.udyam}</td>
+                        <td style={{ border: '1.5px solid #000000', padding: '7px 8px', fontWeight: 700, color: '#000000' }}>
+                          Udyam Registration No.
+                        </td>
+                        <td style={{ border: '1.5px solid #000000', padding: '7px 8px', color: '#000000' }}>
+                          {data.company.udyam}
+                        </td>
+                        <td style={{ border: '1.5px solid #000000', padding: '7px 8px', color: '#556987' }}>
+                          {highlightPlaceholders ? (
+                            <mark>{data.freelancer.udyam || 'Udyam No., if any'}</mark>
+                          ) : (
+                            data.freelancer.udyam || 'Udyam No., if any'
+                          )}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+
+                  {/* SEPARATOR GAP BETWEEN TABLES */}
+                  <div style={{ height: 26 }} />
+
+                  {/* TABLE 2: FREELANCER PHONE & PAN (2 COLUMNS) */}
+                  <table
+                    className="particulars-subtable"
+                    style={{
+                      width: '100%',
+                      borderCollapse: 'collapse',
+                      border: '1.5px solid #000000',
+                      fontSize: '8.75pt',
+                      backgroundColor: '#ffffff',
+                      marginBottom: 16,
+                    }}
+                  >
+                    <tbody>
+                      <tr>
+                        <td
+                          style={{
+                            border: '1.5px solid #000000',
+                            padding: '7px 8px',
+                            fontWeight: 700,
+                            width: '24%',
+                            color: '#000000',
+                          }}
+                        >
+                          Freelancer’s phone
+                        </td>
+                        <td
+                          style={{
+                            border: '1.5px solid #000000',
+                            padding: '7px 8px',
+                            color: '#556987',
+                          }}
+                        >
+                          {highlightPlaceholders ? (
+                            <mark>{data.freelancer.phone || '8238308758'}</mark>
+                          ) : (
+                            data.freelancer.phone || '8238308758'
+                          )}
+                        </td>
                       </tr>
                       <tr>
-                        <td style={{ fontWeight: 600 }}>Freelancer’s phone</td>
-                        <td colSpan={2}>{highlightPlaceholders ? <mark>{data.freelancer.phone}</mark> : data.freelancer.phone}</td>
-                      </tr>
-                      <tr>
-                        <td style={{ fontWeight: 600 }}>Freelancer’s PAN</td>
-                        <td colSpan={2}>{highlightPlaceholders ? <mark>{data.freelancer.pan}</mark> : data.freelancer.pan}</td>
+                        <td
+                          style={{
+                            border: '1.5px solid #000000',
+                            padding: '7px 8px',
+                            fontWeight: 700,
+                            width: '24%',
+                            color: '#000000',
+                          }}
+                        >
+                          Freelancer’s PAN
+                        </td>
+                        <td
+                          style={{
+                            border: '1.5px solid #000000',
+                            padding: '7px 8px',
+                            color: '#556987',
+                          }}
+                        >
+                          {highlightPlaceholders ? (
+                            <mark>{data.freelancer.pan || 'DUUPM7403L'}</mark>
+                          ) : (
+                            data.freelancer.pan || 'DUUPM7403L'
+                          )}
+                        </td>
                       </tr>
                     </tbody>
                   </table>
