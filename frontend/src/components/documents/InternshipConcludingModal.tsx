@@ -10,11 +10,9 @@ import {
   Search,
   CheckCircle2,
   RefreshCw,
-  Sparkles,
   Building2,
   Calendar,
   Briefcase,
-  FileCheck2,
   ArrowRight,
   ArrowLeft,
   GraduationCap,
@@ -22,7 +20,9 @@ import {
   Clock,
   ShieldCheck,
   Award,
-  ArrowUp,
+  DollarSign,
+  FileCheck2,
+  Check,
 } from 'lucide-react';
 import { Button } from '../common/Button.js';
 import { Employee, EmployeeService } from '../../services/employeeService.js';
@@ -45,13 +45,11 @@ export const InternshipConcludingModal: React.FC<InternshipConcludingModalProps>
 }) => {
   const { success, error } = useToast();
 
-  // Navigation steps: 1 = Details & Intern Selection, 2 = Official Concluding Letter Preview
+  // Navigation steps: 1 = Edit Details & Formalities, 2 = Official Letter Preview
   const [step, setStep] = useState<1 | 2>(1);
 
-  // Scroll Container Ref & State
+  // Scroll Container Ref
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const [showScrollTop, setShowScrollTop] = useState(false);
-  const [scrollProgress, setScrollProgress] = useState(0);
 
   // Employee / Intern Selection State
   const [employees, setEmployees] = useState<Employee[]>([]);
@@ -64,188 +62,130 @@ export const InternshipConcludingModal: React.FC<InternshipConcludingModalProps>
   const [highlightPlaceholders, setHighlightPlaceholders] = useState<boolean>(false);
   const [isSaving, setIsSaving] = useState<boolean>(false);
 
-  // Form Fields State
-  const [salutation, setSalutation] = useState<'Mr.' | 'Ms.'>('Mr.');
-  const [internName, setInternName] = useState<string>('Rohan Verma');
-  const [internshipRole, setInternshipRole] = useState<string>('Full-Stack Web Development Intern');
-  const [department, setDepartment] = useState<string>('Technology & Engineering');
-  const [commencedDate, setCommencedDate] = useState<string>('01/06/2026');
-  const [concludedDate, setConcludedDate] = useState<string>('31/08/2026');
-  const [issueDate, setIssueDate] = useState<string>(() => {
-    const now = new Date();
-    const d = now.getDate().toString().padStart(2, '0');
-    const m = (now.getMonth() + 1).toString().padStart(2, '0');
-    return `${d}/${m}/${now.getFullYear()}`;
-  });
-  const [offerLetterRef, setOfferLetterRef] = useState<string>('TASK/2026/INT-042');
+  // Helper date formatting
+  const formatDateString = (d: Date) => {
+    return d.toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' });
+  };
+
+  const addDays = (d: Date, days: number) => {
+    const result = new Date(d);
+    result.setDate(result.getDate() + days);
+    return result;
+  };
+
+  // Form Fields - Reference & Dates
+  const [letterDate, setLetterDate] = useState<string>(() => formatDateString(new Date()));
   const [referenceNumber, setReferenceNumber] = useState<string>(() => {
-    return `TASK/${new Date().getFullYear()}/ICL-${Math.floor(100 + Math.random() * 900)}`;
+    const yyyy = new Date().getFullYear();
+    const rand = Math.floor(10 + Math.random() * 90);
+    return `TN/HR/INT/${yyyy}/${rand.toString().padStart(3, '0')}`;
   });
 
-  // Signatory State
-  const [signatoryName, setSignatoryName] = useState<string>('Sheetal Bedi');
-  const [signatoryTitle, setSignatoryTitle] = useState<string>('CEO & Founder');
+  // Intern Personal & Role Details
+  const [internFullName, setInternFullName] = useState<string>('Rohan Verma');
+  const [internSalutation, setInternSalutation] = useState<string>('Rohan');
+  const [internId, setInternId] = useState<string>('INT-2026-042');
+  const [internshipRole, setInternshipRole] = useState<string>('Talent Acquisition & Sourcing Intern');
+  const [department, setDepartment] = useState<string>('HR & Recruitment');
+  const [contactAddress, setContactAddress] = useState<string>(
+    'Flat 102, Green Meadows, Koramangala, Bangalore – 560034 | rohan.verma@example.com'
+  );
 
-  // Lock body scroll while modal is open
-  useEffect(() => {
-    if (!isOpen) return;
-    const originalOverflow = document.body.style.overflow;
-    const originalPaddingRight = document.body.style.paddingRight;
-    const scrollBarWidth = window.innerWidth - document.documentElement.clientWidth;
-    document.body.style.overflow = 'hidden';
-    if (scrollBarWidth > 0) {
-      document.body.style.paddingRight = `${scrollBarWidth}px`;
-    }
-    return () => {
-      document.body.style.overflow = originalOverflow;
-      document.body.style.paddingRight = originalPaddingRight;
-    };
-  }, [isOpen]);
+  // Tenure & Engagement
+  const [commencedDate, setCommencedDate] = useState<string>('01 August 2026');
+  const [lastWorkingDay, setLastWorkingDay] = useState<string>(() => formatDateString(new Date()));
+  const [duration, setDuration] = useState<string>('3 months');
+  const [workDescription, setWorkDescription] = useState<string>(
+    'candidate sourcing, initial resume screening, interview coordination, and ATS pipeline tracking'
+  );
+  const [performanceConductNote, setPerformanceConductNote] = useState<string>(
+    'Your dedication, proactive initiative, and consistent professionalism were deeply appreciated by the team.'
+  );
 
-  // Close on Escape key
-  useEffect(() => {
-    if (!isOpen) return;
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, onClose]);
+  // Formalities (Points 1 to 5)
+  const [handoverRecipient, setHandoverRecipient] = useState<string>('Ms. Sheetal Bedi / Operations Lead');
+  const [hasStipend, setHasStipend] = useState<boolean>(true);
+  const [stipendPaymentDate, setStipendPaymentDate] = useState<string>(() =>
+    formatDateString(addDays(new Date(), 7))
+  );
 
-  // Reset scroll position on open or step change
-  useEffect(() => {
-    if (isOpen && scrollContainerRef.current) {
-      scrollContainerRef.current.scrollTop = 0;
-      setShowScrollTop(false);
-      setScrollProgress(0);
-    }
-  }, [isOpen, step]);
+  // Signatory (Tasknera)
+  const [taskneraSignatoryName, setTaskneraSignatoryName] = useState<string>('Ms. Sheetal Bedi');
+  const [taskneraSignatoryTitle, setTaskneraSignatoryTitle] = useState<string>('Chief Executive Officer (CEO)');
+  const [taskneraSignatoryPlace, setTaskneraSignatoryPlace] = useState<string>('Delhi, India');
+  const [taskneraSignDate, setTaskneraSignDate] = useState<string>(() => formatDateString(new Date()));
 
-  // Load employees/interns from database
+  // Acknowledgement (Intern)
+  const [internSignDate, setInternSignDate] = useState<string>(() => formatDateString(new Date()));
+  const [internSignPlace, setInternSignPlace] = useState<string>('Delhi');
+
+  // Load employee roster
   useEffect(() => {
-    if (isOpen) {
+    let isMounted = true;
+    const loadRoster = async () => {
       setLoadingEmployees(true);
-      EmployeeService.listEmployees()
-        .then((emps) => {
-          setEmployees(emps);
-          if (emps.length > 0 && !selectedEmployeeId) {
-            handleSelectEmployee(emps[0]);
-          }
-        })
-        .catch(() => {})
-        .finally(() => setLoadingEmployees(false));
-    }
-  }, [isOpen]);
+      try {
+        const list = await EmployeeService.listEmployees();
+        if (isMounted) {
+          setEmployees(list || []);
+        }
+      } catch (err) {
+        console.warn('Failed to load employee roster for internship autofill:', err);
+      } finally {
+        if (isMounted) setLoadingEmployees(false);
+      }
+    };
+    loadRoster();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
+  // Autofill on selecting intern / employee
   const handleSelectEmployee = (emp: Employee) => {
     setSelectedEmployeeId(emp.id);
-    setInternName(emp.fullName);
-
-    // Salutation detection if name looks typical
-    const firstName = emp.fullName.split(' ')[0].toLowerCase();
-    if (['ananya', 'priya', 'sneha', 'neha', 'pooja', 'sheetal', 'tanya', 'simran'].includes(firstName)) {
-      setSalutation('Ms.');
-    } else {
-      setSalutation('Mr.');
+    setInternFullName(emp.fullName);
+    const firstName = emp.fullName.trim().split(' ')[0] || emp.fullName;
+    setInternSalutation(firstName);
+    setInternId(emp.employeeId || 'INT-1001');
+    setInternshipRole(emp.designation || 'Intern');
+    setDepartment(emp.department || 'Operations');
+    const emailStr = emp.personalEmail || emp.officialEmail || '';
+    const locStr = emp.workLocation ? `${emp.workLocation}, India` : '';
+    setContactAddress([locStr, emailStr].filter(Boolean).join(' | '));
+    if (emp.workLocation) {
+      setInternSignPlace(emp.workLocation.split(',')[0].trim());
     }
-
-    if (emp.designation) {
-      setInternshipRole(
-        emp.designation.toLowerCase().includes('intern')
-          ? emp.designation
-          : `${emp.designation} Intern`
-      );
-    }
-    if (emp.department) setDepartment(emp.department);
-
     if (emp.joiningDate) {
-      const d = new Date(emp.joiningDate);
-      if (!isNaN(d.getTime())) {
-        const startDay = d.getDate().toString().padStart(2, '0');
-        const startMonth = (d.getMonth() + 1).toString().padStart(2, '0');
-        setCommencedDate(`${startDay}/${startMonth}/${d.getFullYear()}`);
-
-        // Set concluded date 3 months after commenced date as default internship tenure
-        const endD = new Date(d);
-        endD.setMonth(endD.getMonth() + 3);
-        const endDay = endD.getDate().toString().padStart(2, '0');
-        const endMonth = (endD.getMonth() + 1).toString().padStart(2, '0');
-        setConcludedDate(`${endDay}/${endMonth}/${endD.getFullYear()}`);
-      }
+      setCommencedDate(emp.joiningDate);
     }
-
-    if (emp.employeeId) {
-      setOfferLetterRef(`TASK/${new Date().getFullYear()}/OFF-${emp.employeeId.replace(/[^0-9]/g, '').slice(-3) || '088'}`);
-    }
+    success(`Selected ${emp.fullName} - intern details populated!`);
   };
 
-  const handleScroll = () => {
-    const el = scrollContainerRef.current;
-    if (!el) return;
-    const total = el.scrollHeight - el.clientHeight;
-    if (total > 0) {
-      const progress = Math.min(100, Math.max(0, (el.scrollTop / total) * 100));
-      setScrollProgress(progress);
-    } else {
-      setScrollProgress(0);
-    }
-    setShowScrollTop(el.scrollTop > 180);
-  };
-
-  const scrollToTop = () => {
-    if (scrollContainerRef.current) {
-      scrollContainerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-  };
-
-  // Filtered employees for list
+  // Filtered employees list
   const filteredEmployees = useMemo(() => {
-    return employees.filter((e) => {
+    return employees.filter((emp) => {
+      const matchDept = selectedDeptFilter === 'ALL' || emp.department === selectedDeptFilter;
       const q = employeeSearch.toLowerCase().trim();
-      const matchesSearch =
+      const matchSearch =
         !q ||
-        e.fullName.toLowerCase().includes(q) ||
-        (e.employeeId && e.employeeId.toLowerCase().includes(q)) ||
-        (e.designation && e.designation.toLowerCase().includes(q)) ||
-        (e.department && e.department.toLowerCase().includes(q));
-      const matchesDept = selectedDeptFilter === 'ALL' || e.department === selectedDeptFilter;
-      return matchesSearch && matchesDept;
+        emp.fullName.toLowerCase().includes(q) ||
+        emp.employeeId.toLowerCase().includes(q) ||
+        emp.designation.toLowerCase().includes(q) ||
+        (emp.officialEmail && emp.officialEmail.toLowerCase().includes(q));
+      return matchDept && matchSearch;
     });
-  }, [employees, employeeSearch, selectedDeptFilter]);
+  }, [employees, selectedDeptFilter, employeeSearch]);
 
-  const availableDepartments = useMemo(() => {
-    const depts = new Set<string>();
-    employees.forEach((e) => {
-      if (e.department) depts.add(e.department);
-    });
-    return Array.from(depts);
-  }, [employees]);
-
-  // Highlight helper for placeholders
-  const hl = (content: React.ReactNode) => {
-    if (!highlightPlaceholders) return <>{content}</>;
-    return (
-      <mark
-        style={{
-          backgroundColor: '#fef08a',
-          color: '#854d0e',
-          padding: '1px 4px',
-          borderRadius: 3,
-          fontWeight: 600,
-        }}
-      >
-        {content}
-      </mark>
-    );
-  };
-
-  // High-fidelity Print / PDF Export
+  // Download PDF via clean iframe
   const handleDownloadPdf = () => {
     const letterElement = document.getElementById('printable-internship-concluding-letter');
     if (!letterElement) {
-      error('Could not find letter preview to print');
+      window.print();
       return;
     }
+
+    const docTitle = `Tasknera_Conclusion_of_Internship_${internFullName.replace(/\s+/g, '_')}_${referenceNumber.replace(/[\/\\]/g, '_')}`;
 
     const iframe = document.createElement('iframe');
     iframe.style.position = 'fixed';
@@ -257,9 +197,10 @@ export const InternshipConcludingModal: React.FC<InternshipConcludingModalProps>
     document.body.appendChild(iframe);
 
     const doc = iframe.contentWindow?.document;
-    if (!doc) return;
-
-    const docTitle = `TaskNera_Internship_Concluding_${internName.replace(/\s+/g, '_')}`;
+    if (!doc) {
+      window.print();
+      return;
+    }
 
     doc.open();
     doc.write(`
@@ -271,7 +212,7 @@ export const InternshipConcludingModal: React.FC<InternshipConcludingModalProps>
           <style>
             @page {
               size: A4 portrait;
-              margin: 18mm 20mm 18mm 20mm;
+              margin: 12mm 16mm 12mm 16mm;
             }
             * {
               box-sizing: border-box;
@@ -282,27 +223,33 @@ export const InternshipConcludingModal: React.FC<InternshipConcludingModalProps>
               margin: 0;
               padding: 0;
               background: #ffffff;
-              color: #0f172a;
-              font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
-              font-size: 10pt;
-              line-height: 1.55;
+              color: #1e293b;
+              font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+              font-size: 9.75pt;
+              line-height: 1.48;
             }
-            #printable-internship-concluding-letter {
-              border: none !important;
-              box-shadow: none !important;
-              padding: 0 !important;
-              margin: 0 !important;
-              width: 100% !important;
-              min-height: auto !important;
-              height: auto !important;
-              page-break-after: avoid !important;
-              break-after: avoid !important;
-              page-break-inside: avoid !important;
-              break-inside: avoid !important;
+            .internship-page {
+              width: 100%;
+              min-height: 270mm;
+              display: flex;
+              flex-direction: column;
+              justify-content: space-between;
+              page-break-inside: avoid;
+              break-inside: avoid;
             }
-            .terracotta-title {
-              color: #8f422b !important;
-              font-family: Georgia, Cambria, "Times New Roman", Times, serif !important;
+            p {
+              margin: 0 0 9px 0;
+              line-height: 1.48;
+              text-align: justify;
+            }
+            ol {
+              margin: 4px 0 10px 0;
+              padding-left: 18px;
+            }
+            ol li {
+              margin-bottom: 6px;
+              line-height: 1.48;
+              padding-left: 4px;
             }
             mark {
               background-color: #fef08a !important;
@@ -310,6 +257,19 @@ export const InternshipConcludingModal: React.FC<InternshipConcludingModalProps>
               padding: 1px 3px;
               border-radius: 2px;
               font-weight: 600;
+            }
+            .company-seal-box {
+              width: 130px;
+              height: 120px;
+              border: 1.5px solid #475569;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              color: #64748b;
+              font-size: 8.5pt;
+              font-weight: 600;
+              text-align: center;
+              background-color: #ffffff;
             }
           </style>
         </head>
@@ -325,7 +285,7 @@ export const InternshipConcludingModal: React.FC<InternshipConcludingModalProps>
         iframe.contentWindow?.focus();
         iframe.contentWindow?.print();
       } catch (err) {
-        console.warn('Iframe print fallback:', err);
+        console.warn('Iframe print failed, falling back:', err);
         window.print();
       } finally {
         setTimeout(() => {
@@ -337,126 +297,31 @@ export const InternshipConcludingModal: React.FC<InternshipConcludingModalProps>
     }, 250);
   };
 
-  // Save to Documents Generated
+  // Save to generated documents registry
   const handleSaveToDocuments = async () => {
     setIsSaving(true);
     try {
-      const selectedEmp = employees.find((e) => e.id === selectedEmployeeId);
-      const recipientEmail =
-        selectedEmp?.personalEmail ||
-        selectedEmp?.officialEmail ||
-        `${internName.toLowerCase().replace(/[^a-z0-9]/g, '')}@tasknera.com`;
-
       let createdDoc: HrDocument | null = null;
       try {
         createdDoc = await DocumentEngineService.createDocument({
           documentTypeCode: 'INTERNSHIP_LETTER',
-          title: `Internship Concluding Letter — ${internName}`,
-          recipientName: internName,
-          recipientEmail: recipientEmail,
-          templateId: 'tpl_internship_concluding_official',
-          signatoryName,
-          signatoryTitle,
-          effectiveDate: concludedDate,
+          title: `Conclusion of Internship - ${internFullName} (${internId})`,
+          recipientName: internFullName,
+          recipientEmail: contactAddress.includes('@') ? contactAddress.split('|').pop()?.trim() || '' : '',
+          recipientExternalId: selectedEmployeeId || internId,
+          signatoryName: taskneraSignatoryName,
+          signatoryTitle: taskneraSignatoryTitle,
+          effectiveDate: lastWorkingDay,
         });
-
-        if (createdDoc && createdDoc.id) {
-          await DocumentEngineService.confirmTerms(createdDoc.id, {
-            salutation,
-            internName,
-            internshipRole,
-            department,
-            commencedDate,
-            concludedDate,
-            offerLetterRef,
-            referenceNumber,
-            issueDate,
-            signatoryName,
-            signatoryTitle,
-          });
-        }
       } catch (backendErr) {
-        console.warn('Backend createDocument note:', backendErr);
+        console.warn('Backend API note:', backendErr);
       }
-
-      // Local storage backup for immediate listing
-      const localDoc: HrDocument = {
-        id: createdDoc?.id || `doc_intern_conclude_${Date.now()}`,
-        companyId: 'company_default',
-        documentTypeCode: 'INTERNSHIP_LETTER',
-        referenceNumber: createdDoc?.referenceNumber || referenceNumber,
-        title: `Internship Concluding Letter — ${internName}`,
-        templateId: 'tpl_internship_concluding_official',
-        templateVersionId: 'v1.0',
-        recipientName: internName,
-        recipientEmail: recipientEmail,
-        currentStatus: 'APPROVED',
-        currentVersionNumber: 1,
-        aiReviewStatus: 'VERIFIED_BY_HR',
-        isAiGenerated: false,
-        aiConfidenceScore: 1.0,
-        aiExtractionWarnings: [],
-        aiExtractedData: {},
-        hrConfirmedData: {
-          salutation,
-          internName,
-          internshipRole,
-          department,
-          commencedDate,
-          concludedDate,
-          offerLetterRef,
-          referenceNumber,
-          issueDate,
-          signatoryName,
-          signatoryTitle,
-        },
-        humanOverrides: [],
-        versions: [],
-        generatedFiles: [],
-        statusHistory: [],
-        signatoryName,
-        signatoryTitle,
-        effectiveDate: concludedDate,
-        issuedAt: new Date().toISOString(),
-        createdByUserId: 'usr_current',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
-
-      try {
-        const existingSaved: HrDocument[] = JSON.parse(
-          localStorage.getItem('tasknera_saved_documents') || '[]'
-        );
-        const updatedList = [
-          localDoc,
-          ...existingSaved.filter(
-            (d) => d.id !== localDoc.id && d.referenceNumber !== localDoc.referenceNumber
-          ),
-        ];
-        localStorage.setItem('tasknera_saved_documents', JSON.stringify(updatedList));
-      } catch (err) {
-        console.warn('LocalStorage tasknera_saved_documents save failed:', err);
+      success(`Conclusion of Internship letter for ${internFullName} saved successfully to Documents Registry!`);
+      if (createdDoc && onSuccess) {
+        onSuccess(createdDoc);
       }
-
-      try {
-        const stored = localStorage.getItem('TASKNERA_HR_DOCUMENTS');
-        const docs: HrDocument[] = stored ? JSON.parse(stored) : [];
-        const existingIdx = docs.findIndex((d) => d.id === localDoc.id);
-        if (existingIdx >= 0) {
-          docs[existingIdx] = localDoc;
-        } else {
-          docs.unshift(localDoc);
-        }
-        localStorage.setItem('TASKNERA_HR_DOCUMENTS', JSON.stringify(docs));
-      } catch {
-        // LocalStorage fallback
-      }
-
-      success(`Successfully generated and issued Internship Concluding Letter for ${internName}!`);
-      if (onSuccess) onSuccess(createdDoc || localDoc);
-      onClose();
     } catch (err: any) {
-      error(`Failed to save internship concluding letter: ${err.message || 'Unknown error'}`);
+      error(err.message || 'Failed to record document.');
     } finally {
       setIsSaving(false);
     }
@@ -468,46 +333,42 @@ export const InternshipConcludingModal: React.FC<InternshipConcludingModalProps>
     <div
       style={{
         position: 'fixed',
-        inset: 0,
-        backgroundColor: 'rgba(15, 23, 42, 0.72)',
-        backdropFilter: 'blur(5px)',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
         zIndex: 9999,
+        backgroundColor: 'rgba(15, 23, 42, 0.75)',
+        backdropFilter: 'blur(5px)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         padding: '16px',
       }}
-      onClick={(e) => {
-        if (e.target === e.currentTarget) onClose();
-      }}
     >
       <div
         style={{
-          width: '100%',
-          maxWidth: '960px',
-          height: '90vh',
-          maxHeight: '90vh',
           backgroundColor: '#ffffff',
           borderRadius: 16,
           boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.35)',
+          width: '100%',
+          maxWidth: step === 1 ? '1060px' : '1160px',
+          maxHeight: '94vh',
           display: 'flex',
           flexDirection: 'column',
           overflow: 'hidden',
-          animation: 'fadeIn 0.2s ease-out',
-          position: 'relative',
+          transition: 'max-width 0.3s ease',
         }}
       >
-        {/* Header Bar */}
+        {/* Top Header Bar */}
         <div
           style={{
-            padding: '14px 22px',
+            padding: '16px 24px',
             borderBottom: '1px solid #e2e8f0',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            background: '#ffffff',
-            flexWrap: 'wrap',
-            gap: 12,
+            backgroundColor: '#ffffff',
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -517,743 +378,1134 @@ export const InternshipConcludingModal: React.FC<InternshipConcludingModalProps>
                 height: 40,
                 borderRadius: 10,
                 backgroundColor: '#fff7ed',
+                border: '1px solid #ffedd5',
+                color: '#ea580c',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                color: '#c2410c',
-                border: '1px solid #ffedd5',
               }}
             >
               <GraduationCap size={22} />
             </div>
             <div>
-              <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#0f172a', margin: 0 }}>
-                Internship Letter
-              </h3>
-              <p style={{ fontSize: '0.78rem', color: '#64748b', margin: '2px 0 0 0' }}>
-                Create and print an internship completion letter.
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <h2 style={{ fontSize: '1.15rem', fontWeight: 700, color: '#0f172a', margin: 0 }}>
+                  Conclusion of Internship Generator
+                </h2>
+                <span
+                  style={{
+                    fontSize: '0.7rem',
+                    fontWeight: 700,
+                    padding: '2px 8px',
+                    borderRadius: 6,
+                    backgroundColor: '#ffedd5',
+                    color: '#c2410c',
+                    border: '1px solid #fed7aa',
+                  }}
+                >
+                  TN/HR/INT Format
+                </span>
+              </div>
+              <p style={{ fontSize: '0.8125rem', color: '#64748b', margin: '2px 0 0 0' }}>
+                Official Tasknera Fixed-Term Internship Conclusion Letter &bull; 1-Page Dual Signatory Format
               </p>
             </div>
           </div>
 
-          {/* Action Toolbar */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            {step === 1 ? (
-              <Button
-                variant="primary"
-                onClick={() => setStep(2)}
-                icon={<ArrowRight size={15} />}
+          {/* Stepper & Close */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                backgroundColor: '#f1f5f9',
+                borderRadius: 8,
+                padding: '3px',
+              }}
+            >
+              <button
+                type="button"
+                onClick={() => setStep(1)}
                 style={{
-                  backgroundColor: '#c2410c',
-                  borderColor: '#c2410c',
+                  padding: '6px 14px',
+                  borderRadius: 6,
+                  fontSize: '0.8125rem',
+                  fontWeight: 600,
+                  border: 'none',
+                  cursor: 'pointer',
+                  backgroundColor: step === 1 ? '#ffffff' : 'transparent',
+                  color: step === 1 ? '#0f172a' : '#64748b',
+                  boxShadow: step === 1 ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                  transition: 'all 0.2s',
                 }}
               >
-                Preview Letter
-              </Button>
-            ) : (
-              <>
-                <Button
-                  variant="secondary"
-                  onClick={() => setStep(1)}
-                  icon={<ArrowLeft size={15} />}
-                  style={{ borderColor: '#cbd5e1' }}
-                >
-                  Edit Details
-                </Button>
-
-                <button
-                  onClick={() => setHighlightPlaceholders(!highlightPlaceholders)}
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: 6,
-                    padding: '6px 12px',
-                    fontSize: '0.78125rem',
-                    fontWeight: 500,
-                    borderRadius: 6,
-                    border: '1px solid',
-                    borderColor: highlightPlaceholders ? '#f59e0b' : '#cbd5e1',
-                    backgroundColor: highlightPlaceholders ? '#fef3c7' : '#ffffff',
-                    color: highlightPlaceholders ? '#92400e' : '#475569',
-                    cursor: 'pointer',
-                  }}
-                  title="Highlight editable fields"
-                >
-                  <Highlighter size={14} />
-                  Highlight Fields
-                </button>
-
-                <Button
-                  variant="secondary"
-                  onClick={handleDownloadPdf}
-                  icon={<Download size={15} />}
-                  style={{
-                    borderColor: '#cbd5e1',
-                    color: '#0f172a',
-                  }}
-                >
-                  Print PDF
-                </Button>
-
-                <Button
-                  variant="primary"
-                  onClick={handleSaveToDocuments}
-                  disabled={isSaving}
-                  icon={isSaving ? <RefreshCw size={15} className="spin" /> : <Save size={15} />}
-                  style={{
-                    backgroundColor: '#c2410c',
-                    borderColor: '#c2410c',
-                  }}
-                >
-                  {isSaving ? 'Saving...' : 'Save Document'}
-                </Button>
-              </>
-            )}
+                1. Edit Details &amp; Formalities
+              </button>
+              <button
+                type="button"
+                onClick={() => setStep(2)}
+                style={{
+                  padding: '6px 14px',
+                  borderRadius: 6,
+                  fontSize: '0.8125rem',
+                  fontWeight: 600,
+                  border: 'none',
+                  cursor: 'pointer',
+                  backgroundColor: step === 2 ? '#ffffff' : 'transparent',
+                  color: step === 2 ? '#0f172a' : '#64748b',
+                  boxShadow: step === 2 ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                  transition: 'all 0.2s',
+                }}
+              >
+                2. Live Official Preview
+              </button>
+            </div>
 
             <button
               onClick={onClose}
               style={{
                 background: 'none',
                 border: 'none',
-                color: '#94a3b8',
-                cursor: 'pointer',
                 padding: 6,
-                borderRadius: '50%',
+                cursor: 'pointer',
+                borderRadius: 6,
+                color: '#64748b',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
               }}
+              title="Close modal"
             >
               <X size={20} />
             </button>
           </div>
         </div>
 
-        {/* Scroll Progress Bar */}
-        <div
-          style={{
-            width: '100%',
-            height: 3,
-            backgroundColor: '#e2e8f0',
-            position: 'relative',
-            overflow: 'hidden',
-          }}
-        >
-          <div
-            style={{
-              height: '100%',
-              width: `${scrollProgress}%`,
-              backgroundColor: '#8f422b',
-              transition: 'width 0.12s ease-out',
-            }}
-          />
-        </div>
-
-        {/* Scrollable Body */}
+        {/* Modal Scrollable Body */}
         <div
           ref={scrollContainerRef}
-          onScroll={handleScroll}
           style={{
             flex: 1,
-            minHeight: 0,
             overflowY: 'auto',
-            padding: '24px 32px',
-            background: '#f8fafc',
-            scrollBehavior: 'smooth',
+            padding: '24px',
+            backgroundColor: step === 1 ? '#f8fafc' : '#475569',
           }}
         >
           {step === 1 ? (
-            /* ================================================================= */
-            /* STEP 1: INTERN SELECTION & FORM CONFIGURATION                     */
-            /* ================================================================= */
+            /* =========================================================================
+               STEP 1: CONFIGURATION & INTERNSHIP FORM
+               ========================================================================= */
             <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-              {/* Intern Selection Section */}
-              <div style={{ background: '#ffffff', borderRadius: 12, padding: 20, border: '1px solid #e2e8f0' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-                  <div>
-                    <h4 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 700, color: '#0f172a' }}>
-                      Step 1: Select Intern / Team Member
-                    </h4>
-                    <p style={{ margin: '2px 0 0', fontSize: '0.75rem', color: '#64748b' }}>
-                      Auto-populates intern identity, role title, department, and tenure timeline.
-                    </p>
+              {/* Intern Selection Quick Bar */}
+              <div
+                style={{
+                  backgroundColor: '#ffffff',
+                  borderRadius: 12,
+                  padding: '18px 20px',
+                  border: '1px solid #e2e8f0',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+                }}
+              >
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    marginBottom: 12,
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <Users size={18} style={{ color: '#ea580c' }} />
+                    <h3 style={{ fontSize: '0.95rem', fontWeight: 700, color: '#0f172a', margin: 0 }}>
+                      Quick Select Intern / Employee
+                    </h3>
+                    <span style={{ fontSize: '0.75rem', color: '#64748b' }}>
+                      ({filteredEmployees.length} registered profiles)
+                    </span>
                   </div>
 
-                  {/* Search and Dept Filter */}
-                  <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-                    <div style={{ position: 'relative', width: 220 }}>
-                      <Search size={14} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
+                  <div style={{ position: 'relative', width: 220 }}>
+                    <Search
+                      size={14}
+                      style={{
+                        position: 'absolute',
+                        left: 10,
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        color: '#94a3b8',
+                      }}
+                    />
+                    <input
+                      type="text"
+                      placeholder="Search name, ID, department..."
+                      value={employeeSearch}
+                      onChange={(e) => setEmployeeSearch(e.target.value)}
+                      style={{
+                        width: '100%',
+                        padding: '6px 10px 6px 30px',
+                        fontSize: '0.8125rem',
+                        borderRadius: 6,
+                        border: '1px solid #cbd5e1',
+                        outline: 'none',
+                      }}
+                    />
+                  </div>
+                </div>
+
+                {/* Horizontal scroll cards */}
+                <div
+                  style={{
+                    display: 'flex',
+                    gap: 10,
+                    overflowX: 'auto',
+                    paddingBottom: 6,
+                  }}
+                >
+                  {filteredEmployees.slice(0, 10).map((emp) => {
+                    const isSelected = selectedEmployeeId === emp.id;
+                    return (
+                      <button
+                        key={emp.id}
+                        type="button"
+                        onClick={() => handleSelectEmployee(emp)}
+                        style={{
+                          flexShrink: 0,
+                          padding: '10px 14px',
+                          borderRadius: 8,
+                          border: isSelected ? '2px solid #ea580c' : '1px solid #e2e8f0',
+                          backgroundColor: isSelected ? '#fff7ed' : '#ffffff',
+                          cursor: 'pointer',
+                          textAlign: 'left',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 10,
+                          transition: 'all 0.15s ease',
+                          minWidth: 200,
+                        }}
+                      >
+                        <div
+                          style={{
+                            width: 34,
+                            height: 34,
+                            borderRadius: '50%',
+                            backgroundColor: isSelected ? '#ffedd5' : '#f1f5f9',
+                            color: isSelected ? '#c2410c' : '#475569',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: '0.8125rem',
+                            fontWeight: 700,
+                          }}
+                        >
+                          {emp.fullName.slice(0, 2).toUpperCase()}
+                        </div>
+                        <div>
+                          <div style={{ fontSize: '0.8125rem', fontWeight: 700, color: '#0f172a' }}>
+                            {emp.fullName}
+                          </div>
+                          <div style={{ fontSize: '0.72rem', color: '#64748b' }}>
+                            {emp.employeeId} &bull; {emp.department}
+                          </div>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Grid: Reference & Intern Profile */}
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(480px, 1fr))',
+                  gap: 20,
+                }}
+              >
+                {/* Column 1: Reference & Dates */}
+                <div
+                  style={{
+                    backgroundColor: '#ffffff',
+                    borderRadius: 12,
+                    padding: '20px',
+                    border: '1px solid #e2e8f0',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 14,
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, borderBottom: '1px solid #f1f5f9', paddingBottom: 10 }}>
+                    <FileText size={17} style={{ color: '#ea580c' }} />
+                    <h4 style={{ fontSize: '0.9rem', fontWeight: 700, color: '#0f172a', margin: 0 }}>
+                      Letter Reference &amp; Dates
+                    </h4>
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#475569', marginBottom: 4 }}>
+                        Reference Number (Ref. No.)
+                      </label>
                       <input
                         type="text"
-                        placeholder="Search intern name or ID..."
-                        value={employeeSearch}
-                        onChange={(e) => setEmployeeSearch(e.target.value)}
+                        value={referenceNumber}
+                        onChange={(e) => setReferenceNumber(e.target.value)}
                         style={{
                           width: '100%',
-                          padding: '6px 10px 6px 30px',
-                          fontSize: '0.75rem',
-                          border: '1px solid #cbd5e1',
+                          padding: '8px 10px',
+                          fontSize: '0.8125rem',
                           borderRadius: 6,
-                          backgroundColor: '#ffffff',
+                          border: '1px solid #cbd5e1',
+                          fontWeight: 600,
+                          color: '#0f172a',
+                        }}
+                      />
+                    </div>
+
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#475569', marginBottom: 4 }}>
+                        Issue Date
+                      </label>
+                      <input
+                        type="text"
+                        value={letterDate}
+                        onChange={(e) => setLetterDate(e.target.value)}
+                        style={{
+                          width: '100%',
+                          padding: '8px 10px',
+                          fontSize: '0.8125rem',
+                          borderRadius: 6,
+                          border: '1px solid #cbd5e1',
+                          color: '#0f172a',
                         }}
                       />
                     </div>
                   </div>
-                </div>
 
-                {/* Intern Cards Row */}
-                {loadingEmployees ? (
-                  <div style={{ padding: '20px', textAlign: 'center', color: '#64748b', fontSize: '0.85rem' }}>
-                    <RefreshCw size={16} className="spin" style={{ display: 'inline', marginRight: 8 }} />
-                    Loading team members...
-                  </div>
-                ) : filteredEmployees.length === 0 ? (
-                  <div style={{ padding: '20px', textAlign: 'center', color: '#64748b', fontSize: '0.85rem' }}>
-                    No members match search query. You can fill details manually below.
-                  </div>
-                ) : (
-                  <div
-                    style={{
-                      display: 'grid',
-                      gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
-                      gap: 10,
-                      maxHeight: 180,
-                      overflowY: 'auto',
-                      padding: '4px',
-                    }}
-                  >
-                    {filteredEmployees.map((emp) => {
-                      const isSelected = emp.id === selectedEmployeeId;
-                      return (
-                        <div
-                          key={emp.id}
-                          onClick={() => handleSelectEmployee(emp)}
-                          style={{
-                            padding: '10px 14px',
-                            borderRadius: 8,
-                            border: isSelected ? '1.5px solid #8f422b' : '1px solid #e2e8f0',
-                            backgroundColor: isSelected ? '#fff7ed' : '#ffffff',
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'space-between',
-                            transition: 'all 0.15s ease',
-                          }}
-                        >
-                          <div>
-                            <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#0f172a' }}>
-                              {emp.fullName}
-                            </div>
-                            <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
-                              {emp.designation || 'Intern'} • {emp.department || 'Operations'}
-                            </div>
-                            <div style={{ fontSize: '0.7rem', color: '#94a3b8', marginTop: 2 }}>
-                              ID: {emp.employeeId || 'N/A'}
-                            </div>
-                          </div>
-                          {isSelected && <CheckCircle2 size={18} style={{ color: '#8f422b', flexShrink: 0 }} />}
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#475569', marginBottom: 4 }}>
+                        Commenced On (Start Date)
+                      </label>
+                      <input
+                        type="text"
+                        value={commencedDate}
+                        onChange={(e) => setCommencedDate(e.target.value)}
+                        style={{
+                          width: '100%',
+                          padding: '8px 10px',
+                          fontSize: '0.8125rem',
+                          borderRadius: 6,
+                          border: '1px solid #cbd5e1',
+                          color: '#0f172a',
+                        }}
+                      />
+                    </div>
 
-              {/* Concluding Details Form */}
-              <div style={{ background: '#ffffff', borderRadius: 12, padding: 20, border: '1px solid #e2e8f0' }}>
-                <h4 style={{ margin: '0 0 14px 0', fontSize: '0.95rem', fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <Award size={18} color="#8f422b" />
-                  Step 2: Letter Details & Formal Clauses
-                </h4>
-
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 16 }}>
-                  {/* Salutation */}
-                  <div>
-                    <label style={{ display: 'block', fontSize: '0.78125rem', fontWeight: 600, color: '#334155', marginBottom: 4 }}>
-                      Salutation
-                    </label>
-                    <div style={{ display: 'flex', gap: 8 }}>
-                      {(['Mr.', 'Ms.'] as const).map((s) => (
-                        <button
-                          key={s}
-                          type="button"
-                          onClick={() => setSalutation(s)}
-                          style={{
-                            flex: 1,
-                            padding: '7px 12px',
-                            fontSize: '0.8rem',
-                            fontWeight: 700,
-                            borderRadius: 6,
-                            border: salutation === s ? '1.5px solid #8f422b' : '1px solid #cbd5e1',
-                            backgroundColor: salutation === s ? '#fff7ed' : '#ffffff',
-                            color: salutation === s ? '#8f422b' : '#475569',
-                            cursor: 'pointer',
-                          }}
-                        >
-                          {s}
-                        </button>
-                      ))}
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#475569', marginBottom: 4 }}>
+                        Last Working Day (Conclusion Date)
+                      </label>
+                      <input
+                        type="text"
+                        value={lastWorkingDay}
+                        onChange={(e) => setLastWorkingDay(e.target.value)}
+                        style={{
+                          width: '100%',
+                          padding: '8px 10px',
+                          fontSize: '0.8125rem',
+                          borderRadius: 6,
+                          border: '1px solid #cbd5e1',
+                          fontWeight: 600,
+                          color: '#0f172a',
+                        }}
+                      />
                     </div>
                   </div>
 
-                  {/* Intern Full Name */}
                   <div>
-                    <label style={{ display: 'block', fontSize: '0.78125rem', fontWeight: 600, color: '#334155', marginBottom: 4 }}>
-                      Intern Full Name
+                    <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#475569', marginBottom: 4 }}>
+                      Internship Duration
                     </label>
                     <input
                       type="text"
-                      value={internName}
-                      onChange={(e) => setInternName(e.target.value)}
+                      value={duration}
+                      onChange={(e) => setDuration(e.target.value)}
+                      placeholder="e.g. 3 months / 6 months"
                       style={{
                         width: '100%',
-                        padding: '7px 10px',
+                        padding: '8px 10px',
                         fontSize: '0.8125rem',
-                        border: '1px solid #cbd5e1',
                         borderRadius: 6,
-                      }}
-                    />
-                  </div>
-
-                  {/* Internship Role / Title */}
-                  <div>
-                    <label style={{ display: 'block', fontSize: '0.78125rem', fontWeight: 600, color: '#334155', marginBottom: 4 }}>
-                      Designation / Role
-                    </label>
-                    <input
-                      type="text"
-                      value={internshipRole}
-                      onChange={(e) => setInternshipRole(e.target.value)}
-                      style={{
-                        width: '100%',
-                        padding: '7px 10px',
-                        fontSize: '0.8125rem',
                         border: '1px solid #cbd5e1',
-                        borderRadius: 6,
-                      }}
-                    />
-                  </div>
-
-                  {/* Department / Function */}
-                  <div>
-                    <label style={{ display: 'block', fontSize: '0.78125rem', fontWeight: 600, color: '#334155', marginBottom: 4 }}>
-                      Department / Function
-                    </label>
-                    <input
-                      type="text"
-                      value={department}
-                      onChange={(e) => setDepartment(e.target.value)}
-                      style={{
-                        width: '100%',
-                        padding: '7px 10px',
-                        fontSize: '0.8125rem',
-                        border: '1px solid #cbd5e1',
-                        borderRadius: 6,
-                      }}
-                    />
-                  </div>
-
-                  {/* Reference Number */}
-                  <div>
-                    <label style={{ display: 'block', fontSize: '0.78125rem', fontWeight: 600, color: '#334155', marginBottom: 4 }}>
-                      Letter Reference Number
-                    </label>
-                    <input
-                      type="text"
-                      value={referenceNumber}
-                      onChange={(e) => setReferenceNumber(e.target.value)}
-                      style={{
-                        width: '100%',
-                        padding: '7px 10px',
-                        fontSize: '0.8125rem',
-                        border: '1px solid #cbd5e1',
-                        borderRadius: 6,
-                        fontFamily: 'monospace',
-                      }}
-                    />
-                  </div>
-
-                  {/* Offer Letter Reference */}
-                  <div>
-                    <label style={{ display: 'block', fontSize: '0.78125rem', fontWeight: 600, color: '#334155', marginBottom: 4 }}>
-                      Original Offer Letter Reference
-                    </label>
-                    <input
-                      type="text"
-                      value={offerLetterRef}
-                      onChange={(e) => setOfferLetterRef(e.target.value)}
-                      style={{
-                        width: '100%',
-                        padding: '7px 10px',
-                        fontSize: '0.8125rem',
-                        border: '1px solid #cbd5e1',
-                        borderRadius: 6,
-                        fontFamily: 'monospace',
-                      }}
-                    />
-                  </div>
-
-                  {/* Commenced Date */}
-                  <div>
-                    <label style={{ display: 'block', fontSize: '0.78125rem', fontWeight: 600, color: '#334155', marginBottom: 4 }}>
-                      Commenced On (DD/MM/YYYY)
-                    </label>
-                    <input
-                      type="text"
-                      value={commencedDate}
-                      onChange={(e) => setCommencedDate(e.target.value)}
-                      placeholder="DD/MM/YYYY"
-                      style={{
-                        width: '100%',
-                        padding: '7px 10px',
-                        fontSize: '0.8125rem',
-                        border: '1px solid #cbd5e1',
-                        borderRadius: 6,
-                      }}
-                    />
-                  </div>
-
-                  {/* Concluded Date */}
-                  <div>
-                    <label style={{ display: 'block', fontSize: '0.78125rem', fontWeight: 600, color: '#334155', marginBottom: 4 }}>
-                      Concluded On (DD/MM/YYYY)
-                    </label>
-                    <input
-                      type="text"
-                      value={concludedDate}
-                      onChange={(e) => setConcludedDate(e.target.value)}
-                      placeholder="DD/MM/YYYY"
-                      style={{
-                        width: '100%',
-                        padding: '7px 10px',
-                        fontSize: '0.8125rem',
-                        border: '1px solid #cbd5e1',
-                        borderRadius: 6,
-                      }}
-                    />
-                  </div>
-
-                  {/* Issue Date */}
-                  <div>
-                    <label style={{ display: 'block', fontSize: '0.78125rem', fontWeight: 600, color: '#334155', marginBottom: 4 }}>
-                      Letter Issue Date (DD/MM/YYYY)
-                    </label>
-                    <input
-                      type="text"
-                      value={issueDate}
-                      onChange={(e) => setIssueDate(e.target.value)}
-                      placeholder="DD/MM/YYYY"
-                      style={{
-                        width: '100%',
-                        padding: '7px 10px',
-                        fontSize: '0.8125rem',
-                        border: '1px solid #cbd5e1',
-                        borderRadius: 6,
-                      }}
-                    />
-                  </div>
-
-                  {/* Signatory Name */}
-                  <div>
-                    <label style={{ display: 'block', fontSize: '0.78125rem', fontWeight: 600, color: '#334155', marginBottom: 4 }}>
-                      Signatory Name
-                    </label>
-                    <input
-                      type="text"
-                      value={signatoryName}
-                      onChange={(e) => setSignatoryName(e.target.value)}
-                      style={{
-                        width: '100%',
-                        padding: '7px 10px',
-                        fontSize: '0.8125rem',
-                        border: '1px solid #cbd5e1',
-                        borderRadius: 6,
-                      }}
-                    />
-                  </div>
-
-                  {/* Signatory Title */}
-                  <div>
-                    <label style={{ display: 'block', fontSize: '0.78125rem', fontWeight: 600, color: '#334155', marginBottom: 4 }}>
-                      Signatory Designation
-                    </label>
-                    <input
-                      type="text"
-                      value={signatoryTitle}
-                      onChange={(e) => setSignatoryTitle(e.target.value)}
-                      style={{
-                        width: '100%',
-                        padding: '7px 10px',
-                        fontSize: '0.8125rem',
-                        border: '1px solid #cbd5e1',
-                        borderRadius: 6,
+                        color: '#0f172a',
                       }}
                     />
                   </div>
                 </div>
 
-                {/* Bottom Step 1 Action */}
-                <div style={{ marginTop: 22, display: 'flex', justifyContent: 'flex-end' }}>
-                  <Button
-                    variant="primary"
-                    onClick={() => setStep(2)}
-                    icon={<ArrowRight size={15} />}
-                    style={{ backgroundColor: '#8f422b', borderColor: '#8f422b' }}
-                  >
-                    Continue to Preview
-                  </Button>
+                {/* Column 2: Intern Profile */}
+                <div
+                  style={{
+                    backgroundColor: '#ffffff',
+                    borderRadius: 12,
+                    padding: '20px',
+                    border: '1px solid #e2e8f0',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 14,
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, borderBottom: '1px solid #f1f5f9', paddingBottom: 10 }}>
+                    <User size={17} style={{ color: '#ea580c' }} />
+                    <h4 style={{ fontSize: '0.9rem', fontWeight: 700, color: '#0f172a', margin: 0 }}>
+                      Intern Recipient Profile
+                    </h4>
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 12 }}>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#475569', marginBottom: 4 }}>
+                        Intern Full Name
+                      </label>
+                      <input
+                        type="text"
+                        value={internFullName}
+                        onChange={(e) => setInternFullName(e.target.value)}
+                        style={{
+                          width: '100%',
+                          padding: '8px 10px',
+                          fontSize: '0.8125rem',
+                          borderRadius: 6,
+                          border: '1px solid #cbd5e1',
+                          fontWeight: 600,
+                          color: '#0f172a',
+                        }}
+                      />
+                    </div>
+
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#475569', marginBottom: 4 }}>
+                        Intern ID
+                      </label>
+                      <input
+                        type="text"
+                        value={internId}
+                        onChange={(e) => setInternId(e.target.value)}
+                        style={{
+                          width: '100%',
+                          padding: '8px 10px',
+                          fontSize: '0.8125rem',
+                          borderRadius: 6,
+                          border: '1px solid #cbd5e1',
+                          color: '#0f172a',
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#475569', marginBottom: 4 }}>
+                        Internship Role
+                      </label>
+                      <input
+                        type="text"
+                        value={internshipRole}
+                        onChange={(e) => setInternshipRole(e.target.value)}
+                        style={{
+                          width: '100%',
+                          padding: '8px 10px',
+                          fontSize: '0.8125rem',
+                          borderRadius: 6,
+                          border: '1px solid #cbd5e1',
+                          color: '#0f172a',
+                        }}
+                      />
+                    </div>
+
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#475569', marginBottom: 4 }}>
+                        Department Team
+                      </label>
+                      <input
+                        type="text"
+                        value={department}
+                        onChange={(e) => setDepartment(e.target.value)}
+                        style={{
+                          width: '100%',
+                          padding: '8px 10px',
+                          fontSize: '0.8125rem',
+                          borderRadius: 6,
+                          border: '1px solid #cbd5e1',
+                          color: '#0f172a',
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#475569', marginBottom: 4 }}>
+                      Address / Email Address
+                    </label>
+                    <input
+                      type="text"
+                      value={contactAddress}
+                      onChange={(e) => setContactAddress(e.target.value)}
+                      placeholder="Address / Email address"
+                      style={{
+                        width: '100%',
+                        padding: '8px 10px',
+                        fontSize: '0.8125rem',
+                        borderRadius: 6,
+                        border: '1px solid #cbd5e1',
+                        color: '#0f172a',
+                      }}
+                    />
+                  </div>
                 </div>
+              </div>
+
+              {/* Card 2: Engagement Scope & Performance Praise */}
+              <div
+                style={{
+                  backgroundColor: '#ffffff',
+                  borderRadius: 12,
+                  padding: '20px',
+                  border: '1px solid #e2e8f0',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 14,
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, borderBottom: '1px solid #f1f5f9', paddingBottom: 10 }}>
+                  <Briefcase size={17} style={{ color: '#ea580c' }} />
+                  <h4 style={{ fontSize: '0.9rem', fontWeight: 700, color: '#0f172a', margin: 0 }}>
+                    Work Engagement Scope &amp; Performance Note
+                  </h4>
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#475569', marginBottom: 4 }}>
+                    Brief Description of Work Engaged (e.g. sourcing, screening, coordination, HR operations)
+                  </label>
+                  <textarea
+                    rows={2}
+                    value={workDescription}
+                    onChange={(e) => setWorkDescription(e.target.value)}
+                    style={{
+                      width: '100%',
+                      padding: '8px 10px',
+                      fontSize: '0.8125rem',
+                      borderRadius: 6,
+                      border: '1px solid #cbd5e1',
+                      color: '#0f172a',
+                    }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#475569', marginBottom: 4 }}>
+                    Optional: Performance or Conduct Line
+                  </label>
+                  <input
+                    type="text"
+                    value={performanceConductNote}
+                    onChange={(e) => setPerformanceConductNote(e.target.value)}
+                    placeholder="e.g. Your dedication, proactive initiative, and consistent professionalism were appreciated."
+                    style={{
+                      width: '100%',
+                      padding: '8px 10px',
+                      fontSize: '0.8125rem',
+                      borderRadius: 6,
+                      border: '1px solid #cbd5e1',
+                      color: '#0f172a',
+                    }}
+                  />
+                </div>
+              </div>
+
+              {/* Card 3: Formalities (Handover, Stipend & Certificate) */}
+              <div
+                style={{
+                  backgroundColor: '#ffffff',
+                  borderRadius: 12,
+                  padding: '20px',
+                  border: '1px solid #fed7aa',
+                  boxShadow: '0 4px 12px rgba(234, 88, 12, 0.05)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 14,
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, borderBottom: '1px solid #f1f5f9', paddingBottom: 10 }}>
+                  <ShieldCheck size={18} style={{ color: '#ea580c' }} />
+                  <h4 style={{ fontSize: '0.95rem', fontWeight: 700, color: '#0f172a', margin: 0 }}>
+                    Conclusion Formalities (Points 1 to 5)
+                  </h4>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#475569', marginBottom: 4 }}>
+                      Point 1: Handover Recipient (Name / Designation)
+                    </label>
+                    <input
+                      type="text"
+                      value={handoverRecipient}
+                      onChange={(e) => setHandoverRecipient(e.target.value)}
+                      placeholder="e.g. Ms. Sheetal Bedi / Team Lead"
+                      style={{
+                        width: '100%',
+                        padding: '8px 10px',
+                        fontSize: '0.8125rem',
+                        borderRadius: 6,
+                        border: '1px solid #cbd5e1',
+                        color: '#0f172a',
+                      }}
+                    />
+                  </div>
+
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#475569', marginBottom: 4 }}>
+                      Point 4: Stipend Disbursal Date (If applicable)
+                    </label>
+                    <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                      <input
+                        type="text"
+                        disabled={!hasStipend}
+                        value={stipendPaymentDate}
+                        onChange={(e) => setStipendPaymentDate(e.target.value)}
+                        style={{
+                          flex: 1,
+                          padding: '8px 10px',
+                          fontSize: '0.8125rem',
+                          borderRadius: 6,
+                          border: '1px solid #cbd5e1',
+                          backgroundColor: hasStipend ? '#ffffff' : '#f1f5f9',
+                          color: '#0f172a',
+                        }}
+                      />
+                      <label style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: '0.75rem', fontWeight: 600, color: '#475569', cursor: 'pointer' }}>
+                        <input
+                          type="checkbox"
+                          checked={hasStipend}
+                          onChange={(e) => setHasStipend(e.target.checked)}
+                          style={{ accentColor: '#ea580c' }}
+                        />
+                        Applicable
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
+                  &bull; Point 2 enforces complete access withdrawal &amp; equipment return at close of business on the Last Working Day.
+                  <br />
+                  &bull; Point 5 promises the official Internship Completion Certificate upon clearance.
+                </div>
+              </div>
+
+              {/* Card 4: Signatories & Acknowledgement */}
+              <div
+                style={{
+                  backgroundColor: '#ffffff',
+                  borderRadius: 12,
+                  padding: '20px',
+                  border: '1px solid #e2e8f0',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 14,
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, borderBottom: '1px solid #f1f5f9', paddingBottom: 10 }}>
+                  <Building2 size={17} style={{ color: '#ea580c' }} />
+                  <h4 style={{ fontSize: '0.9rem', fontWeight: 700, color: '#0f172a', margin: 0 }}>
+                    Dual Signatory Details &amp; Acknowledgement
+                  </h4>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12 }}>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#475569', marginBottom: 4 }}>
+                      Tasknera Authorised Signatory
+                    </label>
+                    <input
+                      type="text"
+                      value={taskneraSignatoryName}
+                      onChange={(e) => setTaskneraSignatoryName(e.target.value)}
+                      style={{
+                        width: '100%',
+                        padding: '8px 10px',
+                        fontSize: '0.8125rem',
+                        borderRadius: 6,
+                        border: '1px solid #cbd5e1',
+                        color: '#0f172a',
+                      }}
+                    />
+                  </div>
+
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#475569', marginBottom: 4 }}>
+                      Designation
+                    </label>
+                    <input
+                      type="text"
+                      value={taskneraSignatoryTitle}
+                      onChange={(e) => setTaskneraSignatoryTitle(e.target.value)}
+                      style={{
+                        width: '100%',
+                        padding: '8px 10px',
+                        fontSize: '0.8125rem',
+                        borderRadius: 6,
+                        border: '1px solid #cbd5e1',
+                        color: '#0f172a',
+                      }}
+                    />
+                  </div>
+
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#475569', marginBottom: 4 }}>
+                      Signatory Place
+                    </label>
+                    <input
+                      type="text"
+                      value={taskneraSignatoryPlace}
+                      onChange={(e) => setTaskneraSignatoryPlace(e.target.value)}
+                      style={{
+                        width: '100%',
+                        padding: '8px 10px',
+                        fontSize: '0.8125rem',
+                        borderRadius: 6,
+                        border: '1px solid #cbd5e1',
+                        color: '#0f172a',
+                      }}
+                    />
+                  </div>
+
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#475569', marginBottom: 4 }}>
+                      Intern Acknowledgement Place
+                    </label>
+                    <input
+                      type="text"
+                      value={internSignPlace}
+                      onChange={(e) => setInternSignPlace(e.target.value)}
+                      style={{
+                        width: '100%',
+                        padding: '8px 10px',
+                        fontSize: '0.8125rem',
+                        borderRadius: 6,
+                        border: '1px solid #cbd5e1',
+                        color: '#0f172a',
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Step 1 Actions */}
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12, marginTop: 6 }}>
+                <Button variant="secondary" onClick={onClose}>
+                  Cancel
+                </Button>
+                <Button
+                  variant="primary"
+                  icon={<ArrowRight size={14} />}
+                  onClick={() => {
+                    setStep(2);
+                    if (scrollContainerRef.current) {
+                      scrollContainerRef.current.scrollTop = 0;
+                    }
+                  }}
+                  style={{ backgroundColor: '#ea580c', borderColor: '#ea580c' }}
+                >
+                  Proceed to Official 1-Page Preview
+                </Button>
               </div>
             </div>
           ) : (
-            /* ================================================================= */
-            /* STEP 2: HIGH-FIDELITY OFFICIAL TASKNERA LETTER PREVIEW (A4)       */
-            /* ================================================================= */
-            <div style={{ display: 'flex', justifyContent: 'center', padding: '10px 0 30px' }}>
+            /* =========================================================================
+               STEP 2: OFFICIAL 1-PAGE PREVIEW (MATCHING USER PDF)
+               ========================================================================= */
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 20 }}>
+              {/* Preview Bar */}
+              <div
+                style={{
+                  width: '100%',
+                  maxWidth: 820,
+                  backgroundColor: '#ffffff',
+                  borderRadius: 10,
+                  padding: '12px 18px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  flexWrap: 'wrap',
+                  gap: 12,
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                }}
+              >
+                <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+                  <Button
+                    variant="secondary"
+                    icon={<ArrowLeft size={14} />}
+                    onClick={() => setStep(1)}
+                    style={{ fontSize: '0.8125rem' }}
+                  >
+                    Back to Edit
+                  </Button>
+
+                  <button
+                    type="button"
+                    onClick={() => setHighlightPlaceholders(!highlightPlaceholders)}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 6,
+                      padding: '6px 12px',
+                      borderRadius: 6,
+                      fontSize: '0.8125rem',
+                      fontWeight: 600,
+                      border: highlightPlaceholders ? '1.5px solid #ca8a04' : '1px solid #cbd5e1',
+                      backgroundColor: highlightPlaceholders ? '#fef08a' : '#ffffff',
+                      color: highlightPlaceholders ? '#854d0e' : '#475569',
+                      cursor: 'pointer',
+                      transition: 'all 0.15s ease',
+                    }}
+                  >
+                    <Highlighter size={14} />
+                    {highlightPlaceholders ? 'Fields Highlighted' : 'Highlight Fields'}
+                  </button>
+                </div>
+
+                <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+                  <Button
+                    variant="primary"
+                    icon={<Download size={14} />}
+                    onClick={handleDownloadPdf}
+                    style={{ fontSize: '0.8125rem', background: '#ea580c', borderColor: '#ea580c' }}
+                  >
+                    Download Official PDF
+                  </Button>
+
+                  <Button
+                    variant="primary"
+                    icon={isSaving ? <RefreshCw size={14} className="spin" /> : <Save size={14} />}
+                    onClick={handleSaveToDocuments}
+                    disabled={isSaving}
+                    style={{ fontSize: '0.8125rem', background: '#2563eb', borderColor: '#2563eb' }}
+                  >
+                    {isSaving ? 'Saving...' : 'Save to Documents'}
+                  </Button>
+                </div>
+              </div>
+
+              {/* Printable Document Container (Exact 1-Page Tasknera Format) */}
               <div
                 id="printable-internship-concluding-letter"
                 style={{
                   width: '100%',
-                  maxWidth: '780px',
-                  backgroundColor: '#ffffff',
-                  boxShadow: '0 10px 30px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.05)',
-                  border: '1px solid #e2e8f0',
-                  padding: '42px 48px',
-                  color: '#0f172a',
-                  fontFamily: 'Arial, "Helvetica Neue", Helvetica, sans-serif',
-                  fontSize: '13.5px',
-                  lineHeight: '1.6',
-                  position: 'relative',
+                  maxWidth: 820,
                   display: 'flex',
                   flexDirection: 'column',
-                  justifyContent: 'space-between',
-                  minHeight: '1020px',
                 }}
               >
-                <div>
-                  {/* Top Header: TaskNera Logo Left + Contact Right */}
-                  <div
-                    style={{
-                      display: 'flex',
-                      alignItems: 'flex-start',
-                      justifyContent: 'space-between',
-                      marginBottom: 24,
-                    }}
-                  >
-                    <div>
-                      <img
-                        src="/logo.png"
-                        alt="TaskNera"
-                        style={{ width: 48, height: 48, objectFit: 'contain' }}
-                        onError={(e) => {
-                          (e.target as HTMLElement).style.display = 'none';
-                        }}
-                      />
-                    </div>
-                    <div style={{ textAlign: 'right', fontSize: '11px', color: '#334155', lineHeight: 1.45 }}>
-                      <div style={{ fontSize: '15px', fontWeight: 800, color: '#0f172a', letterSpacing: '-0.01em' }}>
-                        TaskNera
-                      </div>
-                      <div>D-57 F1 Dilshad Colony, Shahdara, Delhi – 110095</div>
-                      <div>Email: careers@tasknera.com</div>
-                    </div>
-                  </div>
-
-                  {/* Metadata Block (Left) */}
-                  <div
-                    style={{
-                      marginBottom: 24,
-                      fontSize: '13px',
-                      color: '#0f172a',
-                      lineHeight: 1.6,
-                    }}
-                  >
-                    <div>
-                      <strong>Reference:</strong> {hl(referenceNumber)}
-                    </div>
-                    <div>
-                      <strong>Date:</strong> {hl(issueDate)}
-                    </div>
-                    <div>
-                      <strong>Intern Name:</strong> {hl(internName)}
-                    </div>
-                    <div>
-                      <strong>Designation / Role:</strong> {hl(internshipRole)}
-                    </div>
-                  </div>
-
-                  {/* Centered Document Title */}
-                  <div style={{ textAlign: 'center', margin: '28px 0 24px 0' }}>
-                    <h1
-                      className="terracotta-title"
-                      style={{
-                        margin: 0,
-                        fontSize: '22px',
-                        fontWeight: 700,
-                        color: '#8f422b',
-                        fontFamily: 'Georgia, Cambria, "Times New Roman", Times, serif',
-                        letterSpacing: '-0.01em',
-                      }}
-                    >
-                      Internship Concluding Letter
-                    </h1>
-                  </div>
-
-                  {/* Salutation */}
-                  <div style={{ marginBottom: 14, fontWeight: 600 }}>
-                    Dear {hl(`${salutation} ${internName}`)},
-                  </div>
-
-                  {/* Subject Line */}
-                  <div style={{ marginBottom: 16, fontWeight: 700 }}>
-                    Subject: Conclusion of Internship with TaskNera
-                  </div>
-
-                  {/* Body Paragraph 1: Reference to Offer Letter */}
-                  <p style={{ margin: '0 0 14px 0', textAlign: 'justify', lineHeight: 1.6 }}>
-                    With reference to the Offer Letter bearing reference number {hl(offerLetterRef)}, issued to you by
-                    TaskNera, this letter formally confirms the conclusion of your internship engagement with the Company.
-                  </p>
-
-                  {/* Body Paragraph 2: Commencement and Role */}
-                  <p style={{ margin: '0 0 18px 0', textAlign: 'justify', lineHeight: 1.6 }}>
-                    As per the terms communicated in your Offer Letter, your internship commenced on {hl(commencedDate)} and
-                    concluded on {hl(concludedDate)}. Your internship was undertaken in the role of {hl(internshipRole)} with{' '}
-                    {hl(department)}.
-                  </p>
-
-                  {/* Section 1: Internship Completion */}
-                  <div style={{ marginBottom: 16 }}>
-                    <h3
-                      className="terracotta-title"
-                      style={{
-                        fontSize: '14px',
-                        fontWeight: 700,
-                        color: '#8f422b',
-                        margin: '0 0 6px 0',
-                        fontFamily: 'Georgia, Cambria, "Times New Roman", Times, serif',
-                      }}
-                    >
-                      Internship Completion
-                    </h3>
-                    <p style={{ margin: 0, textAlign: 'justify', lineHeight: 1.6 }}>
-                      This letter is issued to formally acknowledge that the above internship period has been completed and the
-                      engagement stands concluded with effect from {hl(concludedDate)}. Any applicable completion
-                      formalities, including the return of Company property and closure of access to Company systems and
-                      information, shall be completed in accordance with Company policy.
-                    </p>
-                  </div>
-
-                  {/* Section 2: Continuing Obligations */}
-                  <div style={{ marginBottom: 16 }}>
-                    <h3
-                      className="terracotta-title"
-                      style={{
-                        fontSize: '14px',
-                        fontWeight: 700,
-                        color: '#8f422b',
-                        margin: '0 0 6px 0',
-                        fontFamily: 'Georgia, Cambria, "Times New Roman", Times, serif',
-                      }}
-                    >
-                      Continuing Obligations
-                    </h3>
-                    <p style={{ margin: 0, textAlign: 'justify', lineHeight: 1.6 }}>
-                      The confidentiality, intellectual property, data protection, information security and other
-                      obligations that are expressly stated to survive the end of the engagement shall continue to apply in
-                      accordance with the Offer Letter, its annexures and applicable Company policies.
-                    </p>
-                  </div>
-
-                  {/* Section 3: Acknowledgement */}
-                  <div style={{ marginBottom: 28 }}>
-                    <h3
-                      className="terracotta-title"
-                      style={{
-                        fontSize: '14px',
-                        fontWeight: 700,
-                        color: '#8f422b',
-                        margin: '0 0 6px 0',
-                        fontFamily: 'Georgia, Cambria, "Times New Roman", Times, serif',
-                      }}
-                    >
-                      Acknowledgement
-                    </h3>
-                    <p style={{ margin: 0, textAlign: 'justify', lineHeight: 1.6 }}>
-                      We appreciate your time, efforts and contributions during your internship with TaskNera and thank you
-                      for your association with the Company. We wish you continued learning, growth and success in your
-                      future endeavours.
-                    </p>
-                  </div>
-
-                  {/* Signatory Block */}
-                  <div style={{ marginTop: 24, fontSize: '13px', lineHeight: 1.55 }}>
-                    <div style={{ fontWeight: 600, marginBottom: 20 }}>For TaskNera</div>
-                    <div style={{ width: 220, borderBottom: '1px solid #64748b', marginBottom: 8 }} />
-                    <div>
-                      <strong>Name:</strong> {signatoryName}
-                    </div>
-                    <div>
-                      <strong>Designation:</strong> {signatoryTitle}
-                    </div>
-                    <div>
-                      <strong>Date:</strong> {hl(issueDate)}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Footer: TaskNera | Page 1 of 1 */}
                 <div
+                  className="internship-page"
                   style={{
-                    marginTop: 36,
-                    paddingTop: 12,
-                    textAlign: 'center',
-                    fontSize: '11px',
-                    color: '#64748b',
-                    letterSpacing: '0.02em',
+                    backgroundColor: '#ffffff',
+                    padding: '44px 56px 36px 56px',
+                    boxShadow: '0 8px 30px rgba(0,0,0,0.18)',
+                    borderRadius: 4,
+                    minHeight: 1100,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'space-between',
+                    fontFamily:
+                      '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+                    color: '#1e293b',
+                    fontSize: '9.75pt',
+                    lineHeight: 1.48,
                   }}
                 >
-                  TaskNera | Page 1 of 1
+                  <div>
+                    {/* Centered Tasknera Brand Letterhead */}
+                    <div
+                      style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        paddingBottom: 16,
+                        marginBottom: 16,
+                        textAlign: 'center',
+                      }}
+                    >
+                      <img
+                        src="/logo.png"
+                        alt="Tasknera Logo"
+                        style={{ width: 44, height: 44, objectFit: 'contain', marginBottom: 6 }}
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                        }}
+                      />
+                      <div
+                        style={{
+                          fontWeight: 800,
+                          fontSize: '1.45rem',
+                          color: '#0f2744',
+                          letterSpacing: '0.32em',
+                          lineHeight: 1.2,
+                          textTransform: 'uppercase',
+                        }}
+                      >
+                        T A S K N E R A
+                      </div>
+                      <div
+                        style={{
+                          fontSize: '0.675rem',
+                          color: '#64748b',
+                          letterSpacing: '0.08em',
+                          fontWeight: 600,
+                          marginTop: 3,
+                          textTransform: 'uppercase',
+                        }}
+                      >
+                        GLOBAL HR SOLUTIONS &nbsp;|&nbsp; RECRUITMENT &nbsp;|&nbsp; WORKFORCE SUPPORT
+                      </div>
+                    </div>
+
+                    {/* Reference & Date Row */}
+                    <div
+                      style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'flex-start',
+                        marginTop: 6,
+                        marginBottom: 12,
+                        fontSize: '9.5pt',
+                      }}
+                    >
+                      <div>
+                        <strong>Ref. No.:</strong>{' '}
+                        {highlightPlaceholders ? <mark>{referenceNumber}</mark> : referenceNumber}
+                      </div>
+                      <div style={{ textAlign: 'right' }}>
+                        <strong>Date:</strong>{' '}
+                        {highlightPlaceholders ? <mark>{letterDate}</mark> : letterDate}
+                      </div>
+                    </div>
+
+                    {/* Recipient Block */}
+                    <div style={{ marginBottom: 14, lineHeight: 1.42 }}>
+                      <div style={{ fontWeight: 700, color: '#0f172a' }}>To,</div>
+                      <div style={{ fontWeight: 700, color: '#0f172a' }}>
+                        {highlightPlaceholders ? <mark>{internFullName}</mark> : internFullName}
+                      </div>
+                      <div style={{ color: '#0f172a', fontWeight: 600 }}>
+                        Intern ID: {highlightPlaceholders ? <mark>{internId}</mark> : internId} &nbsp;|&nbsp; [
+                        {highlightPlaceholders ? <mark>{internshipRole}</mark> : internshipRole} /{' '}
+                        {highlightPlaceholders ? <mark>{department}</mark> : department}]
+                      </div>
+                      <div style={{ color: '#334155', marginTop: 1 }}>
+                        {highlightPlaceholders ? <mark>{contactAddress}</mark> : contactAddress}
+                      </div>
+                    </div>
+
+                    {/* Subject */}
+                    <div
+                      style={{
+                        fontWeight: 700,
+                        color: '#0f172a',
+                        fontSize: '9.75pt',
+                        marginBottom: 12,
+                      }}
+                    >
+                      Subject: Conclusion of Internship
+                    </div>
+
+                    {/* Salutation */}
+                    <div style={{ marginBottom: 10, color: '#0f172a' }}>
+                      Dear {highlightPlaceholders ? <mark>{internSalutation}</mark> : internSalutation},
+                    </div>
+
+                    {/* Paragraph 1 */}
+                    <p style={{ textAlign: 'justify', marginBottom: 10 }}>
+                      This letter confirms that your internship with Tasknera as{' '}
+                      {highlightPlaceholders ? <mark>{internshipRole}</mark> : internshipRole} in the{' '}
+                      {highlightPlaceholders ? <mark>{department}</mark> : department} team, which commenced on{' '}
+                      {highlightPlaceholders ? <mark>{commencedDate}</mark> : commencedDate}, will conclude on{' '}
+                      {highlightPlaceholders ? <mark>{lastWorkingDay}</mark> : lastWorkingDay} (the “
+                      <strong>Last Working Day</strong>”), on completion of the internship period of{' '}
+                      {highlightPlaceholders ? <mark>{duration}</mark> : duration}.
+                    </p>
+
+                    {/* Paragraph 2 */}
+                    <p style={{ textAlign: 'justify', marginBottom: 10 }}>
+                      During this period you were engaged in{' '}
+                      {highlightPlaceholders ? <mark>{workDescription}</mark> : workDescription}.{' '}
+                      {performanceConductNote && (
+                        <span>
+                          {highlightPlaceholders ? (
+                            <mark>{performanceConductNote}</mark>
+                          ) : (
+                            performanceConductNote
+                          )}
+                        </span>
+                      )}
+                    </p>
+
+                    <p style={{ marginBottom: 6 }}>
+                      The following formalities apply on conclusion of your internship:
+                    </p>
+
+                    {/* Ordered Formalities (1 to 5) */}
+                    <ol style={{ margin: '0 0 12px 0', paddingLeft: 18 }}>
+                      <li style={{ textAlign: 'justify', marginBottom: 5 }}>
+                        <strong>Handover.</strong> Please hand over all work, files, trackers and responsibilities to{' '}
+                        {highlightPlaceholders ? <mark>{handoverRecipient}</mark> : handoverRecipient} on or before the
+                        Last Working Day.
+                      </li>
+                      <li style={{ textAlign: 'justify', marginBottom: 5 }}>
+                        <strong>Company property and access.</strong> Please return all Company property, and
+                        credentials, if any, issued to you. Your access to Company and Client systems, including the
+                        ATS, CRM, email and communication channels, will be withdrawn at the close of business on the
+                        Last Working Day.
+                      </li>
+                      <li style={{ textAlign: 'justify', marginBottom: 5 }}>
+                        <strong>Confidentiality and data.</strong> You are required to return or securely delete all
+                        Company, Client and Candidate information in your possession and to keep all such information
+                        confidential after the Last Working Day. Your confidentiality and data-protection obligations
+                        continue after your internship ends, as set out in your internship terms.
+                      </li>
+                      <li style={{ textAlign: 'justify', marginBottom: 5 }}>
+                        <strong>Stipend and dues.</strong>{' '}
+                        {hasStipend ? (
+                          <>
+                            Your stipend, if any, for the period up to the Last Working Day will be paid by{' '}
+                            {highlightPlaceholders ? <mark>{stipendPaymentDate}</mark> : stipendPaymentDate}, subject to
+                            completion of the above formalities and applicable deductions.
+                          </>
+                        ) : (
+                          <>
+                            [Retain if applicable:] Your stipend, if any, for the period up to the Last Working Day will
+                            be paid by [DD Month YYYY], subject to completion of the above formalities and applicable
+                            deductions.
+                          </>
+                        )}
+                      </li>
+                      <li style={{ textAlign: 'justify', marginBottom: 5 }}>
+                        <strong>Certificate.</strong> An Internship Completion Certificate will be issued to you once the
+                        above formalities are complete.
+                      </li>
+                    </ol>
+
+                    {/* Disclaimer paragraph */}
+                    <p style={{ textAlign: 'justify', marginBottom: 12 }}>
+                      This internship was for a fixed period and does not by itself create any right to employment or
+                      continued engagement with Tasknera. We thank you for your contribution to Tasknera and wish you
+                      every success in your academic and professional journey.
+                    </p>
+
+                    {/* Closing signoff */}
+                    <div style={{ marginBottom: 14 }}>
+                      <div>Yours sincerely,</div>
+                      <div style={{ fontWeight: 700, color: '#0f172a', marginTop: 2 }}>
+                        For and on behalf of TASKNERA
+                      </div>
+                    </div>
+
+                    {/* 3-column Signatures & Acknowledgement Block */}
+                    <div
+                      style={{
+                        display: 'grid',
+                        gridTemplateColumns: '1.2fr 130px 1.2fr',
+                        gap: 20,
+                        alignItems: 'flex-start',
+                        marginTop: 14,
+                        paddingTop: 6,
+                      }}
+                    >
+                      {/* Left: Authorised Signatory */}
+                      <div>
+                        <div style={{ fontSize: '8.5pt', color: '#64748b', fontStyle: 'italic', marginBottom: 28 }}>
+                          Signature of Authorised Signatory
+                        </div>
+                        <div style={{ fontWeight: 700, color: '#0f172a' }}>
+                          Name: {highlightPlaceholders ? <mark>{taskneraSignatoryName}</mark> : taskneraSignatoryName}
+                        </div>
+                        <div>
+                          Designation:{' '}
+                          {highlightPlaceholders ? <mark>{taskneraSignatoryTitle}</mark> : taskneraSignatoryTitle}
+                        </div>
+                        <div>
+                          Date: {highlightPlaceholders ? <mark>{taskneraSignDate}</mark> : taskneraSignDate}
+                        </div>
+                        <div>
+                          Place:{' '}
+                          {highlightPlaceholders ? <mark>{taskneraSignatoryPlace}</mark> : taskneraSignatoryPlace}
+                        </div>
+                      </div>
+
+                      {/* Center: Company Seal Box */}
+                      <div className="company-seal-box">
+                        Company Seal
+                      </div>
+
+                      {/* Right: ACKNOWLEDGEMENT OF RECEIPT */}
+                      <div>
+                        <div style={{ fontWeight: 700, color: '#0f172a', fontSize: '9pt', marginBottom: 4 }}>
+                          ACKNOWLEDGEMENT OF RECEIPT
+                        </div>
+                        <div style={{ fontSize: '9pt', color: '#334155', marginBottom: 18, lineHeight: 1.4 }}>
+                          I,{' '}
+                          {highlightPlaceholders ? (
+                            <mark>{internFullName}</mark>
+                          ) : (
+                            internFullName
+                          )}
+                          , acknowledge receipt of this letter.
+                        </div>
+
+                        <div style={{ fontSize: '8.5pt', color: '#64748b', fontStyle: 'italic', marginBottom: 26 }}>
+                          Signature of Intern
+                        </div>
+
+                        <div style={{ fontSize: '9pt' }}>
+                          <div>
+                            <strong>Date:</strong>{' '}
+                            {highlightPlaceholders ? <mark>{internSignDate}</mark> : internSignDate}
+                          </div>
+                          <div style={{ marginTop: 2 }}>
+                            <strong>Place:</strong>{' '}
+                            {highlightPlaceholders ? <mark>{internSignPlace}</mark> : internSignPlace}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Official 1-Page Footer */}
+                  <div
+                    style={{
+                      borderTop: '1px solid #cbd5e1',
+                      paddingTop: 10,
+                      marginTop: 18,
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      textAlign: 'center',
+                      fontSize: '7.5pt',
+                      color: '#64748b',
+                    }}
+                  >
+                    <div>TASKNERA | D-57, Dilshad Colony, Delhi – 110095, India | careers@tasknera.com</div>
+                    <div style={{ marginTop: 2 }}>Confidential | Page 1 of 1</div>
+                  </div>
                 </div>
               </div>
             </div>
           )}
         </div>
-
-        {/* Floating Back to Top Button */}
-        {showScrollTop && (
-          <button
-            onClick={scrollToTop}
-            title="Scroll back to top"
-            style={{
-              position: 'absolute',
-              bottom: 22,
-              right: 26,
-              zIndex: 60,
-              display: 'flex',
-              alignItems: 'center',
-              gap: 6,
-              padding: '8px 14px',
-              borderRadius: 24,
-              backgroundColor: '#0f172a',
-              color: '#ffffff',
-              fontSize: '0.75rem',
-              fontWeight: 700,
-              border: 'none',
-              boxShadow: '0 8px 24px rgba(0, 0, 0, 0.28)',
-              cursor: 'pointer',
-              transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-2px)';
-              e.currentTarget.style.backgroundColor = '#1e293b';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.backgroundColor = '#0f172a';
-            }}
-          >
-            <ArrowUp size={14} />
-            <span>Top ({Math.round(scrollProgress)}%)</span>
-          </button>
-        )}
       </div>
     </div>,
     document.body

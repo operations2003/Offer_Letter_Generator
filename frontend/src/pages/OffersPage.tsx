@@ -129,11 +129,12 @@ export const OffersPage: React.FC = () => {
   const [isRecruiterAgreementModalOpen, setIsRecruiterAgreementModalOpen] = useState(false);
   const [isTerminationModalOpen, setIsTerminationModalOpen] = useState(false);
   const [isEmployeeTerminationModalOpen, setIsEmployeeTerminationModalOpen] = useState(false);
-  const [activeDocumentTab, setActiveDocumentTab] = useState<'ALL' | 'TEMPLATES' | 'FREELANCER' | 'TERMINATION' | 'EMPLOYEE_TERMINATION' | 'CERTIFICATES' | 'POLICIES'>('ALL');
+  const [activeDocumentTab, setActiveDocumentTab] = useState<'ALL' | 'TEMPLATES' | 'FREELANCER' | 'TERMINATION' | 'EMPLOYEE_TERMINATION' | 'INTERNSHIP' | 'CERTIFICATES' | 'POLICIES'>('ALL');
   const [certificateSectionPulse, setCertificateSectionPulse] = useState(false);
   const [freelancerSectionPulse, setFreelancerSectionPulse] = useState(false);
   const [terminationSectionPulse, setTerminationSectionPulse] = useState(false);
   const [employeeTerminationSectionPulse, setEmployeeTerminationSectionPulse] = useState(false);
+  const [internshipSectionPulse, setInternshipSectionPulse] = useState(false);
   const [isWizardOpen, setIsWizardOpen] = useState(() => searchParams.get('create') === 'true');
   const [selectedOfferForDetail, setSelectedOfferForDetail] = useState<OfferItem | null>(null);
   const [detailModalTab, setDetailModalTab] = useState<'preview' | 'pdf' | 'versions' | 'status'>('preview');
@@ -550,13 +551,13 @@ export const OffersPage: React.FC = () => {
     },
     {
       id: 'internship_concluding',
-      title: 'Internship Letter',
-      description: 'Formal letter confirming completion of an internship program.',
-      icon: <GraduationCap size={22} style={{ color: '#c2410c' }} />,
-      badge: 'Available',
-      badgeColor: '#16a34a',
-      badgeBg: '#f0fdf4',
-      badgeBorder: '#bbf7d0',
+      title: 'Conclusion of Internship',
+      description: 'Official letter on internship conclusion, duties, equipment return, stipend & certificate.',
+      icon: <GraduationCap size={22} style={{ color: '#ea580c' }} />,
+      badge: 'TN/HR/INT Format',
+      badgeColor: '#ea580c',
+      badgeBg: '#fff7ed',
+      badgeBorder: '#fed7aa',
       active: true,
       onClick: () => setIsInternshipModalOpen(true),
     },
@@ -711,6 +712,7 @@ export const OffersPage: React.FC = () => {
             { key: 'FREELANCER', label: 'Freelancer Contracts', count: 2, icon: <Briefcase size={13} /> },
             { key: 'TERMINATION', label: 'Recruiter Termination', count: 1, icon: <AlertTriangle size={13} /> },
             { key: 'EMPLOYEE_TERMINATION', label: 'Employee Termination', count: 1, icon: <ShieldAlert size={13} /> },
+            { key: 'INTERNSHIP', label: 'Internship Conclusion', count: 1, icon: <GraduationCap size={13} /> },
             { key: 'CERTIFICATES', label: 'Certificates', count: certificateCards.length, icon: <Award size={13} /> },
             { key: 'POLICIES', label: 'Policies', count: allPoliciesList.length },
           ].map((tab) => {
@@ -741,6 +743,13 @@ export const OffersPage: React.FC = () => {
                       el.scrollIntoView({ behavior: 'smooth', block: 'start' });
                       setEmployeeTerminationSectionPulse(true);
                       setTimeout(() => setEmployeeTerminationSectionPulse(false), 2400);
+                    }
+                  } else if (tab.key === 'INTERNSHIP') {
+                    const el = document.getElementById('internship-conclusion-section');
+                    if (el) {
+                      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                      setInternshipSectionPulse(true);
+                      setTimeout(() => setInternshipSectionPulse(false), 2400);
                     }
                   } else if (tab.key === 'CERTIFICATES') {
                     const el = document.getElementById('certificates-section');
@@ -1681,7 +1690,203 @@ export const OffersPage: React.FC = () => {
       )}
 
       {/* ========================================================================= */}
-      {/* 5. CERTIFICATES SECTION                                                   */}
+      {/* 5. CONCLUSION OF INTERNSHIP SECTION (TN/HR/INT FORMAT)                    */}
+      {/* ========================================================================= */}
+      {(activeDocumentTab === 'ALL' || activeDocumentTab === 'INTERNSHIP') && (
+        <div
+          id="internship-conclusion-section"
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 16,
+            marginTop: 6,
+            paddingTop: 10,
+            scrollMarginTop: '80px',
+            borderRadius: 14,
+            padding: '16px',
+            backgroundColor: internshipSectionPulse ? 'rgba(234, 88, 12, 0.06)' : 'transparent',
+            boxShadow: internshipSectionPulse ? '0 0 0 2px rgba(234, 88, 12, 0.4)' : 'none',
+            transition: 'all 0.4s ease',
+          }}
+        >
+          {/* Section Header */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#0f172a', margin: 0 }}>
+                  Conclusion of Internship
+                </h3>
+                <span
+                  style={{
+                    fontSize: '0.72rem',
+                    fontWeight: 700,
+                    backgroundColor: '#fff7ed',
+                    color: '#c2410c',
+                    padding: '2px 9px',
+                    borderRadius: 12,
+                    border: '1px solid #fed7aa',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 4,
+                  }}
+                >
+                  <GraduationCap size={12} />
+                  TN/HR/INT Format &bull; 1-Page Letter
+                </span>
+              </div>
+              <p style={{ fontSize: '0.8125rem', color: '#64748b', margin: '2px 0 0 0' }}>
+                Formal conclusion of fixed-term internship program, work engagement summary, equipment return, stipend disbursal &amp; completion certificate.
+              </p>
+            </div>
+
+            <Button
+              variant="primary"
+              icon={<GraduationCap size={14} />}
+              onClick={() => setIsInternshipModalOpen(true)}
+              style={{
+                backgroundColor: '#ea580c',
+                borderColor: '#ea580c',
+                boxShadow: '0 2px 8px rgba(234, 88, 12, 0.25)',
+                fontSize: '0.8125rem',
+                padding: '8px 16px',
+              }}
+            >
+              Generate Internship Letter
+            </Button>
+          </div>
+
+          {/* Feature Showcase Card */}
+          <div
+            style={{
+              backgroundColor: '#ffffff',
+              borderRadius: 12,
+              padding: '22px 24px',
+              border: '1.5px solid #fed7aa',
+              boxShadow: '0 4px 20px rgba(234, 88, 12, 0.08)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 16,
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
+              <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start', maxWidth: 720 }}>
+                <div
+                  style={{
+                    width: 52,
+                    height: 52,
+                    borderRadius: 12,
+                    backgroundColor: '#fff7ed',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    border: '1px solid #fed7aa',
+                    color: '#ea580c',
+                    flexShrink: 0,
+                  }}
+                >
+                  <GraduationCap size={26} />
+                </div>
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                    <h4 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#0f172a', margin: 0 }}>
+                      Conclusion of Internship Letter
+                    </h4>
+                    <span
+                      style={{
+                        fontSize: '0.6875rem',
+                        fontWeight: 700,
+                        padding: '2px 7px',
+                        borderRadius: 6,
+                        backgroundColor: '#fff7ed',
+                        color: '#c2410c',
+                        border: '1px solid #fed7aa',
+                      }}
+                    >
+                      Ref: TN/HR/INT/YYYY/000
+                    </span>
+                  </div>
+                  <p style={{ fontSize: '0.84rem', color: '#475569', lineHeight: 1.5, margin: 0 }}>
+                    Official 1-page Tasknera letter confirming the conclusion of an internship with role, team department, commenced date, Last Working Day, brief description of duties, optional commendation line, and 5 standard exit formalities including work handover, property return, stipend dues, and Internship Completion Certificate issuance.
+                  </p>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: 10 }}>
+                <Button
+                  variant="primary"
+                  icon={<FileText size={14} />}
+                  onClick={() => setIsInternshipModalOpen(true)}
+                  style={{
+                    backgroundColor: '#ea580c',
+                    borderColor: '#ea580c',
+                    fontSize: '0.8125rem',
+                  }}
+                >
+                  Open Internship Generator
+                </Button>
+              </div>
+            </div>
+
+            {/* Quick Parameter Badges */}
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))',
+                gap: 12,
+                paddingTop: 14,
+                borderTop: '1px solid #f1f5f9',
+              }}
+            >
+              {[
+                {
+                  label: 'Role & Department',
+                  val: 'Internship role in dedicated team department',
+                  icon: <Briefcase size={14} style={{ color: '#ea580c' }} />,
+                },
+                {
+                  label: 'Tenure & Last Working Day',
+                  val: 'Commenced on date through Last Working Day completion',
+                  icon: <Calendar size={14} style={{ color: '#0284c7' }} />,
+                },
+                {
+                  label: 'Exit & Access Withdrawal',
+                  val: 'Points 1 & 2: Work handover & System access withdrawal on LWD',
+                  icon: <ShieldCheck size={14} style={{ color: '#7c3aed' }} />,
+                },
+                {
+                  label: 'Stipend & Certificate',
+                  val: 'Points 4 & 5: Stipend payment by date & Completion Certificate',
+                  icon: <Award size={14} style={{ color: '#059669' }} />,
+                },
+              ].map((item, idx) => (
+                <div
+                  key={idx}
+                  style={{
+                    padding: '10px 14px',
+                    borderRadius: 8,
+                    backgroundColor: '#f8fafc',
+                    border: '1px solid #e2e8f0',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 3,
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.72rem', color: '#64748b', fontWeight: 600 }}>
+                    {item.icon}
+                    <span>{item.label}</span>
+                  </div>
+                  <div style={{ fontSize: '0.8125rem', fontWeight: 700, color: '#0f172a' }}>
+                    {item.val}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* 6. CERTIFICATES SECTION                                                   */}
       {/* ========================================================================= */}
       {(activeDocumentTab === 'ALL' || activeDocumentTab === 'CERTIFICATES') && (
         <div

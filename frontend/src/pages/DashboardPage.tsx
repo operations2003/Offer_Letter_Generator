@@ -25,6 +25,7 @@ import {
   Scale,
   AlertTriangle,
   ShieldAlert,
+  GraduationCap,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.js';
 import { Button } from '../components/common/Button.js';
@@ -47,6 +48,7 @@ import { FreelancerOnboardingModal } from '../components/documents/FreelancerOnb
 import { FreelanceRecruiterAgreementModal } from '../components/documents/FreelanceRecruiterAgreementModal.js';
 import { FreelancerTerminationModal } from '../components/documents/FreelancerTerminationModal.js';
 import { EmployeeTerminationModal } from '../components/documents/EmployeeTerminationModal.js';
+import { InternshipConcludingModal } from '../components/documents/InternshipConcludingModal.js';
 import { useToast } from '../context/ToastContext.js';
 
 export const DashboardPage: React.FC = () => {
@@ -87,6 +89,7 @@ export const DashboardPage: React.FC = () => {
   const [isRecruiterAgreementModalOpen, setIsRecruiterAgreementModalOpen] = useState(false);
   const [isTerminationModalOpen, setIsTerminationModalOpen] = useState(false);
   const [isEmployeeTerminationModalOpen, setIsEmployeeTerminationModalOpen] = useState(false);
+  const [isInternshipModalOpen, setIsInternshipModalOpen] = useState(false);
 
   const [selectedOfferForDetail, setSelectedOfferForDetail] = useState<OfferListItem | null>(null);
   const [selectedOfferForEmail, setSelectedOfferForEmail] = useState<OfferListItem | null>(null);
@@ -950,6 +953,12 @@ export const DashboardPage: React.FC = () => {
                   action: () => setIsEmployeeTerminationModalOpen(true),
                 },
                 {
+                  label: 'Internship Conclusion',
+                  desc: 'Letter on internship conclusion',
+                  icon: <GraduationCap size={15} style={{ color: '#ea580c' }} />,
+                  action: () => setIsInternshipModalOpen(true),
+                },
+                {
                   label: 'Relieving Letter',
                   desc: 'Work completion and clearance',
                   icon: <ShieldCheck size={15} style={{ color: '#2563eb' }} />,
@@ -1180,6 +1189,12 @@ export const DashboardPage: React.FC = () => {
       <EmployeeTerminationModal
         isOpen={isEmployeeTerminationModalOpen}
         onClose={() => setIsEmployeeTerminationModalOpen(false)}
+        onSuccess={() => loadDashboardData()}
+      />
+
+      <InternshipConcludingModal
+        isOpen={isInternshipModalOpen}
+        onClose={() => setIsInternshipModalOpen(false)}
         onSuccess={() => loadDashboardData()}
       />
     </div>
