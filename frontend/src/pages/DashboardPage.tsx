@@ -27,6 +27,7 @@ import {
   ShieldAlert,
   GraduationCap,
   UserMinus,
+  MessageSquare,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.js';
 import { Button } from '../components/common/Button.js';
@@ -54,6 +55,12 @@ import { ResignationAcceptanceModal } from '../components/documents/ResignationA
 import { SalaryRevisionModal } from '../components/documents/SalaryRevisionModal.js';
 import { PromotionLetterModal } from '../components/documents/PromotionLetterModal.js';
 import { InternshipExtensionModal } from '../components/documents/InternshipExtensionModal.js';
+import { AttendanceWarningModal } from '../components/documents/AttendanceWarningModal.js';
+import { DisciplinaryOutcomeModal } from '../components/documents/DisciplinaryOutcomeModal.js';
+import { ShowCauseNoticeModal } from '../components/documents/ShowCauseNoticeModal.js';
+import { MisconductWarningModal } from '../components/documents/MisconductWarningModal.js';
+import { PerformanceImprovementPlanModal } from '../components/documents/PerformanceImprovementPlanModal.js';
+import { FeedbackDiscussionModal } from '../components/documents/FeedbackDiscussionModal.js';
 import { useToast } from '../context/ToastContext.js';
 
 export const DashboardPage: React.FC = () => {
@@ -99,6 +106,12 @@ export const DashboardPage: React.FC = () => {
   const [isSalaryRevisionModalOpen, setIsSalaryRevisionModalOpen] = useState(false);
   const [isPromotionModalOpen, setIsPromotionModalOpen] = useState(false);
   const [isInternshipExtensionModalOpen, setIsInternshipExtensionModalOpen] = useState(false);
+  const [isAttendanceWarningModalOpen, setIsAttendanceWarningModalOpen] = useState(false);
+  const [isDisciplinaryOutcomeModalOpen, setIsDisciplinaryOutcomeModalOpen] = useState(false);
+  const [isShowCauseNoticeModalOpen, setIsShowCauseNoticeModalOpen] = useState(false);
+  const [isMisconductWarningModalOpen, setIsMisconductWarningModalOpen] = useState(false);
+  const [isPipModalOpen, setIsPipModalOpen] = useState(false);
+  const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
 
   const [selectedOfferForDetail, setSelectedOfferForDetail] = useState<OfferListItem | null>(null);
   const [selectedOfferForEmail, setSelectedOfferForEmail] = useState<OfferListItem | null>(null);
@@ -986,6 +999,42 @@ export const DashboardPage: React.FC = () => {
                   action: () => setIsInternshipExtensionModalOpen(true),
                 },
                 {
+                  label: 'Warning – Irregular Attendance',
+                  desc: 'Absence & attendance policy breach letter',
+                  icon: <Clock size={15} style={{ color: '#e11d48' }} />,
+                  action: () => setIsAttendanceWarningModalOpen(true),
+                },
+                {
+                  label: 'Disciplinary Outcome Letter',
+                  desc: 'Inquiry findings & decision letter',
+                  icon: <Scale size={15} style={{ color: '#7c3aed' }} />,
+                  action: () => setIsDisciplinaryOutcomeModalOpen(true),
+                },
+                {
+                  label: 'Show-Cause Notice',
+                  desc: 'Misconduct allegations & response notice',
+                  icon: <AlertTriangle size={15} style={{ color: '#ea580c' }} />,
+                  action: () => setIsShowCauseNoticeModalOpen(true),
+                },
+                {
+                  label: 'Warning – Misconduct / Breach',
+                  desc: 'First / Second / Final written warning',
+                  icon: <ShieldAlert size={15} style={{ color: '#e11d48' }} />,
+                  action: () => setIsMisconductWarningModalOpen(true),
+                },
+                {
+                  label: 'Performance Improvement Plan (PIP)',
+                  desc: '2-Page coaching agreement & review schedule',
+                  icon: <TrendingUp size={15} style={{ color: '#2563eb' }} />,
+                  action: () => setIsPipModalOpen(true),
+                },
+                {
+                  label: 'Feedback Discussion Record',
+                  desc: '2-Page written record of feedback & agreed actions',
+                  icon: <MessageSquare size={15} style={{ color: '#0d9488' }} />,
+                  action: () => setIsFeedbackModalOpen(true),
+                },
+                {
                   label: 'Internship Conclusion',
                   desc: 'Letter on internship conclusion',
                   icon: <GraduationCap size={15} style={{ color: '#ea580c' }} />,
@@ -1252,6 +1301,42 @@ export const DashboardPage: React.FC = () => {
       <InternshipExtensionModal
         isOpen={isInternshipExtensionModalOpen}
         onClose={() => setIsInternshipExtensionModalOpen(false)}
+        onSuccess={() => loadDashboardData()}
+      />
+
+      <AttendanceWarningModal
+        isOpen={isAttendanceWarningModalOpen}
+        onClose={() => setIsAttendanceWarningModalOpen(false)}
+        onSuccess={() => loadDashboardData()}
+      />
+
+      <DisciplinaryOutcomeModal
+        isOpen={isDisciplinaryOutcomeModalOpen}
+        onClose={() => setIsDisciplinaryOutcomeModalOpen(false)}
+        onSuccess={() => loadDashboardData()}
+      />
+
+      <ShowCauseNoticeModal
+        isOpen={isShowCauseNoticeModalOpen}
+        onClose={() => setIsShowCauseNoticeModalOpen(false)}
+        onSuccess={() => loadDashboardData()}
+      />
+
+      <MisconductWarningModal
+        isOpen={isMisconductWarningModalOpen}
+        onClose={() => setIsMisconductWarningModalOpen(false)}
+        onSuccess={() => loadDashboardData()}
+      />
+
+      <PerformanceImprovementPlanModal
+        isOpen={isPipModalOpen}
+        onClose={() => setIsPipModalOpen(false)}
+        onSuccess={() => loadDashboardData()}
+      />
+
+      <FeedbackDiscussionModal
+        isOpen={isFeedbackModalOpen}
+        onClose={() => setIsFeedbackModalOpen(false)}
         onSuccess={() => loadDashboardData()}
       />
     </div>

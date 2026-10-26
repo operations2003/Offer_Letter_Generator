@@ -44,6 +44,7 @@ import {
   ShieldAlert,
   UserMinus,
   TrendingUp,
+  MessageSquare,
 } from 'lucide-react';
 import { Button } from '../components/common/Button.js';
 import { OfferStatusBadge, AiAdvisoryBadge } from '../components/common/Badge.js';
@@ -74,6 +75,12 @@ import { ResignationAcceptanceModal } from '../components/documents/ResignationA
 import { SalaryRevisionModal } from '../components/documents/SalaryRevisionModal.js';
 import { PromotionLetterModal } from '../components/documents/PromotionLetterModal.js';
 import { InternshipExtensionModal } from '../components/documents/InternshipExtensionModal.js';
+import { AttendanceWarningModal } from '../components/documents/AttendanceWarningModal.js';
+import { DisciplinaryOutcomeModal } from '../components/documents/DisciplinaryOutcomeModal.js';
+import { ShowCauseNoticeModal } from '../components/documents/ShowCauseNoticeModal.js';
+import { MisconductWarningModal } from '../components/documents/MisconductWarningModal.js';
+import { PerformanceImprovementPlanModal } from '../components/documents/PerformanceImprovementPlanModal.js';
+import { FeedbackDiscussionModal } from '../components/documents/FeedbackDiscussionModal.js';
 import { OFFICIAL_POLICIES } from '../services/policyCatalog.js';
 import {
   getAllPolicies,
@@ -139,7 +146,13 @@ export const OffersPage: React.FC = () => {
   const [isSalaryRevisionModalOpen, setIsSalaryRevisionModalOpen] = useState(false);
   const [isPromotionModalOpen, setIsPromotionModalOpen] = useState(false);
   const [isInternshipExtensionModalOpen, setIsInternshipExtensionModalOpen] = useState(false);
-  const [activeDocumentTab, setActiveDocumentTab] = useState<'ALL' | 'TEMPLATES' | 'INTERNSHIP_EXTENSION' | 'PROMOTION' | 'RELIEVING' | 'SALARY_REVISION' | 'EMPLOYEE_TERMINATION' | 'RESIGNATION' | 'INTERNSHIP' | 'CERTIFICATES' | 'POLICIES'>('ALL');
+  const [isAttendanceWarningModalOpen, setIsAttendanceWarningModalOpen] = useState(false);
+  const [isDisciplinaryOutcomeModalOpen, setIsDisciplinaryOutcomeModalOpen] = useState(false);
+  const [isShowCauseNoticeModalOpen, setIsShowCauseNoticeModalOpen] = useState(false);
+  const [isMisconductWarningModalOpen, setIsMisconductWarningModalOpen] = useState(false);
+  const [isPipModalOpen, setIsPipModalOpen] = useState(false);
+  const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
+  const [activeDocumentTab, setActiveDocumentTab] = useState<'ALL' | 'TEMPLATES' | 'DISCIPLINARY' | 'INTERNSHIP_EXTENSION' | 'PROMOTION' | 'RELIEVING' | 'SALARY_REVISION' | 'EMPLOYEE_TERMINATION' | 'RESIGNATION' | 'INTERNSHIP' | 'CERTIFICATES' | 'POLICIES'>('ALL');
   const [internshipExtensionSectionPulse, setInternshipExtensionSectionPulse] = useState(false);
   const [promotionSectionPulse, setPromotionSectionPulse] = useState(false);
   const [relievingSectionPulse, setRelievingSectionPulse] = useState(false);
@@ -549,6 +562,78 @@ export const OffersPage: React.FC = () => {
       badgeBorder: '#fecdd3',
       active: true,
       onClick: () => setIsEmployeeTerminationModalOpen(true),
+    },
+    {
+      id: 'attendance_warning',
+      title: 'Warning – Irregular Attendance',
+      description: 'Official letter documenting irregular attendance / absence, leave policy breach, loss of pay & disciplinary warning.',
+      icon: <Clock size={22} style={{ color: '#e11d48' }} />,
+      badge: 'TN/HR/ATT Format',
+      badgeColor: '#e11d48',
+      badgeBg: '#fff1f2',
+      badgeBorder: '#fecdd3',
+      active: true,
+      onClick: () => setIsAttendanceWarningModalOpen(true),
+    },
+    {
+      id: 'disciplinary_outcome',
+      title: 'Disciplinary Outcome Letter',
+      description: 'Official notice of inquiry findings & disciplinary decision (warning / suspension / withholding / termination).',
+      icon: <Scale size={22} style={{ color: '#7c3aed' }} />,
+      badge: 'TN/HR/DISC Format',
+      badgeColor: '#7c3aed',
+      badgeBg: '#ede9fe',
+      badgeBorder: '#ddd6fe',
+      active: true,
+      onClick: () => setIsDisciplinaryOutcomeModalOpen(true),
+    },
+    {
+      id: 'show_cause_notice',
+      title: 'Show-Cause Notice',
+      description: 'Official notice detailing alleged misconduct / policy breach, evidentiary material, response deadline & hearing.',
+      icon: <AlertTriangle size={22} style={{ color: '#ea580c' }} />,
+      badge: 'TN/HR/SCN Format',
+      badgeColor: '#ea580c',
+      badgeBg: '#fff7ed',
+      badgeBorder: '#fed7aa',
+      active: true,
+      onClick: () => setIsShowCauseNoticeModalOpen(true),
+    },
+    {
+      id: 'misconduct_warning',
+      title: 'Warning – Misconduct / Breach',
+      description: 'Official written warning (First / Second / Final) for policy non-compliance, corrective actions & consequences.',
+      icon: <ShieldAlert size={22} style={{ color: '#e11d48' }} />,
+      badge: 'TN/HR/WARN Format',
+      badgeColor: '#e11d48',
+      badgeBg: '#fff1f2',
+      badgeBorder: '#fecdd3',
+      active: true,
+      onClick: () => setIsMisconductWarningModalOpen(true),
+    },
+    {
+      id: 'pip_plan',
+      title: 'Performance Improvement Plan (PIP)',
+      description: 'Official 2-page performance coaching agreement with measurable goal metrics, support & review schedules.',
+      icon: <TrendingUp size={22} style={{ color: '#2563eb' }} />,
+      badge: 'TN/HR/PIP Format',
+      badgeColor: '#2563eb',
+      badgeBg: '#eff6ff',
+      badgeBorder: '#bfdbfe',
+      active: true,
+      onClick: () => setIsPipModalOpen(true),
+    },
+    {
+      id: 'feedback_discussion',
+      title: 'Feedback Discussion Record',
+      description: 'Official 2-page written record of feedback discussion, observations, expectations & agreed action items.',
+      icon: <MessageSquare size={22} style={{ color: '#0d9488' }} />,
+      badge: 'TN/HR/FBK Format',
+      badgeColor: '#0d9488',
+      badgeBg: '#f0fdfa',
+      badgeBorder: '#99f6e4',
+      active: true,
+      onClick: () => setIsFeedbackModalOpen(true),
     },
     {
       id: 'internship_extension',
@@ -3371,6 +3456,48 @@ export const OffersPage: React.FC = () => {
       <InternshipExtensionModal
         isOpen={isInternshipExtensionModalOpen}
         onClose={() => setIsInternshipExtensionModalOpen(false)}
+        onSuccess={() => fetchOffers()}
+      />
+
+      {/* Official Warning – Irregular Attendance (TN/HR/ATT) Modal */}
+      <AttendanceWarningModal
+        isOpen={isAttendanceWarningModalOpen}
+        onClose={() => setIsAttendanceWarningModalOpen(false)}
+        onSuccess={() => fetchOffers()}
+      />
+
+      {/* Official Outcome of Disciplinary Proceedings (TN/HR/DISC) Modal */}
+      <DisciplinaryOutcomeModal
+        isOpen={isDisciplinaryOutcomeModalOpen}
+        onClose={() => setIsDisciplinaryOutcomeModalOpen(false)}
+        onSuccess={() => fetchOffers()}
+      />
+
+      {/* Official Show-Cause Notice (TN/HR/SCN) Modal */}
+      <ShowCauseNoticeModal
+        isOpen={isShowCauseNoticeModalOpen}
+        onClose={() => setIsShowCauseNoticeModalOpen(false)}
+        onSuccess={() => fetchOffers()}
+      />
+
+      {/* Official Warning – Misconduct / Policy Breach (TN/HR/WARN) Modal */}
+      <MisconductWarningModal
+        isOpen={isMisconductWarningModalOpen}
+        onClose={() => setIsMisconductWarningModalOpen(false)}
+        onSuccess={() => fetchOffers()}
+      />
+
+      {/* Official Performance Improvement Plan (TN/HR/PIP) 2-Page Modal */}
+      <PerformanceImprovementPlanModal
+        isOpen={isPipModalOpen}
+        onClose={() => setIsPipModalOpen(false)}
+        onSuccess={() => fetchOffers()}
+      />
+
+      {/* Official Written Record of Feedback Discussion (TN/HR/FBK) 2-Page Modal */}
+      <FeedbackDiscussionModal
+        isOpen={isFeedbackModalOpen}
+        onClose={() => setIsFeedbackModalOpen(false)}
         onSuccess={() => fetchOffers()}
       />
     </div>

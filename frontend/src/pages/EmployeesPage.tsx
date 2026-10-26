@@ -43,6 +43,12 @@ import { ResignationAcceptanceModal } from '../components/documents/ResignationA
 import { SalaryRevisionModal } from '../components/documents/SalaryRevisionModal.js';
 import { PromotionLetterModal } from '../components/documents/PromotionLetterModal.js';
 import { InternshipExtensionModal } from '../components/documents/InternshipExtensionModal.js';
+import { AttendanceWarningModal } from '../components/documents/AttendanceWarningModal.js';
+import { DisciplinaryOutcomeModal } from '../components/documents/DisciplinaryOutcomeModal.js';
+import { ShowCauseNoticeModal } from '../components/documents/ShowCauseNoticeModal.js';
+import { MisconductWarningModal } from '../components/documents/MisconductWarningModal.js';
+import { PerformanceImprovementPlanModal } from '../components/documents/PerformanceImprovementPlanModal.js';
+import { FeedbackDiscussionModal } from '../components/documents/FeedbackDiscussionModal.js';
 import { useToast } from '../context/ToastContext.js';
 
 export const EmployeesPage: React.FC = () => {
@@ -85,6 +91,30 @@ export const EmployeesPage: React.FC = () => {
   // Extension of Internship Modal
   const [isInternshipExtensionModalOpen, setIsInternshipExtensionModalOpen] = useState(false);
   const [selectedEmployeeForInternshipExtension, setSelectedEmployeeForInternshipExtension] = useState<Employee | null>(null);
+
+  // Attendance Warning Modal
+  const [isAttendanceWarningModalOpen, setIsAttendanceWarningModalOpen] = useState(false);
+  const [selectedEmployeeForAttendanceWarning, setSelectedEmployeeForAttendanceWarning] = useState<Employee | null>(null);
+
+  // Disciplinary Outcome Modal
+  const [isDisciplinaryOutcomeModalOpen, setIsDisciplinaryOutcomeModalOpen] = useState(false);
+  const [selectedEmployeeForDisciplinaryOutcome, setSelectedEmployeeForDisciplinaryOutcome] = useState<Employee | null>(null);
+
+  // Show-Cause Notice Modal
+  const [isShowCauseNoticeModalOpen, setIsShowCauseNoticeModalOpen] = useState(false);
+  const [selectedEmployeeForShowCauseNotice, setSelectedEmployeeForShowCauseNotice] = useState<Employee | null>(null);
+
+  // Misconduct Warning Modal
+  const [isMisconductWarningModalOpen, setIsMisconductWarningModalOpen] = useState(false);
+  const [selectedEmployeeForMisconductWarning, setSelectedEmployeeForMisconductWarning] = useState<Employee | null>(null);
+
+  // PIP Modal
+  const [isPipModalOpen, setIsPipModalOpen] = useState(false);
+  const [selectedEmployeeForPip, setSelectedEmployeeForPip] = useState<Employee | null>(null);
+
+  // Feedback Discussion Modal
+  const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
+  const [selectedEmployeeForFeedback, setSelectedEmployeeForFeedback] = useState<Employee | null>(null);
 
   useEffect(() => {
     loadEmployees();
@@ -1097,6 +1127,84 @@ export const EmployeesPage: React.FC = () => {
           onClose={() => {
             setIsInternshipExtensionModalOpen(false);
             setSelectedEmployeeForInternshipExtension(null);
+          }}
+          onSuccess={() => loadEmployees()}
+        />
+      )}
+
+      {/* Warning – Irregular Attendance (TN/HR/ATT) Modal */}
+      {isAttendanceWarningModalOpen && (
+        <AttendanceWarningModal
+          isOpen={isAttendanceWarningModalOpen}
+          initialEmployee={selectedEmployeeForAttendanceWarning}
+          onClose={() => {
+            setIsAttendanceWarningModalOpen(false);
+            setSelectedEmployeeForAttendanceWarning(null);
+          }}
+          onSuccess={() => loadEmployees()}
+        />
+      )}
+
+      {/* Outcome of Disciplinary Proceedings (TN/HR/DISC) Modal */}
+      {isDisciplinaryOutcomeModalOpen && (
+        <DisciplinaryOutcomeModal
+          isOpen={isDisciplinaryOutcomeModalOpen}
+          initialEmployee={selectedEmployeeForDisciplinaryOutcome}
+          onClose={() => {
+            setIsDisciplinaryOutcomeModalOpen(false);
+            setSelectedEmployeeForDisciplinaryOutcome(null);
+          }}
+          onSuccess={() => loadEmployees()}
+        />
+      )}
+
+      {/* Show-Cause Notice (TN/HR/SCN) Modal */}
+      {isShowCauseNoticeModalOpen && (
+        <ShowCauseNoticeModal
+          isOpen={isShowCauseNoticeModalOpen}
+          initialEmployee={selectedEmployeeForShowCauseNotice}
+          onClose={() => {
+            setIsShowCauseNoticeModalOpen(false);
+            setSelectedEmployeeForShowCauseNotice(null);
+          }}
+          onSuccess={() => loadEmployees()}
+        />
+      )}
+
+      {/* Warning – Misconduct / Policy Breach (TN/HR/WARN) Modal */}
+      {isMisconductWarningModalOpen && (
+        <MisconductWarningModal
+          isOpen={isMisconductWarningModalOpen}
+          initialEmployee={selectedEmployeeForMisconductWarning}
+          onClose={() => {
+            setIsMisconductWarningModalOpen(false);
+            setSelectedEmployeeForMisconductWarning(null);
+          }}
+          onSuccess={() => loadEmployees()}
+        />
+      )}
+
+      {/* Performance Improvement Plan (TN/HR/PIP) Modal */}
+      {isPipModalOpen && (
+        <PerformanceImprovementPlanModal
+          isOpen={isPipModalOpen}
+          initialEmployee={selectedEmployeeForPip}
+          onClose={() => {
+            setIsPipModalOpen(false);
+            setSelectedEmployeeForPip(null);
+          }}
+          onSuccess={() => loadEmployees()}
+        />
+      )}
+
+      {/* Written Record of Feedback Discussion (TN/HR/FBK) Modal */}
+      {isFeedbackModalOpen && (
+        <FeedbackDiscussionModal
+          isOpen={isFeedbackModalOpen}
+          initialEmployee={selectedEmployeeForFeedback}
+          onClose={() => {
+            setIsFeedbackModalOpen(false);
+            setSelectedEmployeeForFeedback(null);
           }}
           onSuccess={() => loadEmployees()}
         />
