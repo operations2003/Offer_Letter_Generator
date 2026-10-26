@@ -43,6 +43,7 @@ import {
   Scale,
   ShieldAlert,
   UserMinus,
+  TrendingUp,
 } from 'lucide-react';
 import { Button } from '../components/common/Button.js';
 import { OfferStatusBadge, AiAdvisoryBadge } from '../components/common/Badge.js';
@@ -70,6 +71,7 @@ import { FreelanceRecruiterAgreementModal } from '../components/documents/Freela
 import { FreelancerTerminationModal } from '../components/documents/FreelancerTerminationModal.js';
 import { EmployeeTerminationModal } from '../components/documents/EmployeeTerminationModal.js';
 import { ResignationAcceptanceModal } from '../components/documents/ResignationAcceptanceModal.js';
+import { SalaryRevisionModal } from '../components/documents/SalaryRevisionModal.js';
 import { OFFICIAL_POLICIES } from '../services/policyCatalog.js';
 import {
   getAllPolicies,
@@ -132,7 +134,9 @@ export const OffersPage: React.FC = () => {
   const [isTerminationModalOpen, setIsTerminationModalOpen] = useState(false);
   const [isEmployeeTerminationModalOpen, setIsEmployeeTerminationModalOpen] = useState(false);
   const [isResignationModalOpen, setIsResignationModalOpen] = useState(false);
-  const [activeDocumentTab, setActiveDocumentTab] = useState<'ALL' | 'TEMPLATES' | 'EMPLOYEE_TERMINATION' | 'RESIGNATION' | 'INTERNSHIP' | 'CERTIFICATES' | 'POLICIES'>('ALL');
+  const [isSalaryRevisionModalOpen, setIsSalaryRevisionModalOpen] = useState(false);
+  const [activeDocumentTab, setActiveDocumentTab] = useState<'ALL' | 'TEMPLATES' | 'SALARY_REVISION' | 'EMPLOYEE_TERMINATION' | 'RESIGNATION' | 'INTERNSHIP' | 'CERTIFICATES' | 'POLICIES'>('ALL');
+  const [salaryRevisionSectionPulse, setSalaryRevisionSectionPulse] = useState(false);
   const [certificateSectionPulse, setCertificateSectionPulse] = useState(false);
   const [employeeTerminationSectionPulse, setEmployeeTerminationSectionPulse] = useState(false);
   const [resignationSectionPulse, setResignationSectionPulse] = useState(false);
@@ -540,6 +544,18 @@ export const OffersPage: React.FC = () => {
       onClick: () => setIsEmployeeTerminationModalOpen(true),
     },
     {
+      id: 'salary_revision',
+      title: 'Revision of Salary',
+      description: 'Official 2-page letter with previous vs. revised monthly salary breakdown, effective date & clauses.',
+      icon: <TrendingUp size={22} style={{ color: '#059669' }} />,
+      badge: 'TN/HR/SAL Format',
+      badgeColor: '#059669',
+      badgeBg: '#ecfdf5',
+      badgeBorder: '#a7f3d0',
+      active: true,
+      onClick: () => setIsSalaryRevisionModalOpen(true),
+    },
+    {
       id: 'resignation_acceptance',
       title: 'Acceptance of Resignation',
       description: 'Official 2-page letter acknowledging resignation, Last Working Day, notice period & FNF.',
@@ -723,6 +739,7 @@ export const OffersPage: React.FC = () => {
           {[
             { key: 'ALL', label: 'All', count: documentCards.length + certificateCards.length + allPoliciesList.length + 1 },
             { key: 'TEMPLATES', label: 'Templates', count: documentCards.length },
+            { key: 'SALARY_REVISION', label: 'Salary Revision', count: 1, icon: <TrendingUp size={13} /> },
             { key: 'RESIGNATION', label: 'Resignation Acceptance', count: 1, icon: <UserMinus size={13} /> },
             { key: 'EMPLOYEE_TERMINATION', label: 'Employee Termination', count: 1, icon: <ShieldAlert size={13} /> },
             { key: 'INTERNSHIP', label: 'Internship Conclusion', count: 1, icon: <GraduationCap size={13} /> },
@@ -736,7 +753,14 @@ export const OffersPage: React.FC = () => {
                 type="button"
                 onClick={() => {
                   setActiveDocumentTab(tab.key as any);
-                  if (tab.key === 'RESIGNATION') {
+                  if (tab.key === 'SALARY_REVISION') {
+                    const el = document.getElementById('salary-revision-section');
+                    if (el) {
+                      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                      setSalaryRevisionSectionPulse(true);
+                      setTimeout(() => setSalaryRevisionSectionPulse(false), 2400);
+                    }
+                  } else if (tab.key === 'RESIGNATION') {
                     const el = document.getElementById('resignation-acceptance-section');
                     if (el) {
                       el.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -1366,6 +1390,210 @@ export const OffersPage: React.FC = () => {
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* 3B. REVISION OF SALARY SECTION (TN/HR/SAL FORMAT)                         */}
+      {/* ========================================================================= */}
+      {(activeDocumentTab === 'ALL' || activeDocumentTab === 'SALARY_REVISION') && (
+        <div
+          id="salary-revision-section"
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 16,
+            marginTop: 6,
+            paddingTop: 10,
+            scrollMarginTop: '80px',
+            borderRadius: 14,
+            padding: '16px',
+            backgroundColor: salaryRevisionSectionPulse ? 'rgba(5, 150, 105, 0.06)' : 'transparent',
+            boxShadow: salaryRevisionSectionPulse ? '0 0 0 2px rgba(5, 150, 105, 0.4)' : 'none',
+            transition: 'all 0.4s ease',
+          }}
+        >
+          {/* Section Header */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#0f172a', margin: 0 }}>
+                  Revision of Salary
+                </h3>
+                <span
+                  style={{
+                    fontSize: '0.72rem',
+                    fontWeight: 700,
+                    backgroundColor: '#ecfdf5',
+                    color: '#047857',
+                    padding: '2px 9px',
+                    borderRadius: 12,
+                    border: '1px solid #a7f3d0',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 4,
+                  }}
+                >
+                  <TrendingUp size={12} />
+                  TN/HR/SAL Format &bull; Compensation Revision
+                </span>
+              </div>
+              <p style={{ fontSize: '0.8125rem', color: '#64748b', margin: '2px 0 0 0' }}>
+                Official 2-page Tasknera compensation revision letter with comparative side-by-side previous vs. revised monthly structure, annual CTC, statutory clauses &amp; dual acknowledgement.
+              </p>
+            </div>
+
+            <Button
+              variant="primary"
+              icon={<TrendingUp size={14} />}
+              onClick={() => setIsSalaryRevisionModalOpen(true)}
+              style={{
+                backgroundColor: '#059669',
+                borderColor: '#059669',
+                boxShadow: '0 2px 8px rgba(5, 150, 105, 0.25)',
+                fontSize: '0.8125rem',
+                padding: '8px 16px',
+              }}
+            >
+              Generate Salary Revision Letter
+            </Button>
+          </div>
+
+          {/* Feature Showcase Card */}
+          <div
+            style={{
+              backgroundColor: '#ffffff',
+              borderRadius: 12,
+              padding: '22px 24px',
+              border: '1.5px solid #a7f3d0',
+              boxShadow: '0 4px 20px rgba(5, 150, 105, 0.08)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 16,
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
+              <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start', maxWidth: 740 }}>
+                <div
+                  style={{
+                    width: 52,
+                    height: 52,
+                    borderRadius: 12,
+                    backgroundColor: '#ecfdf5',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    border: '1px solid #a7f3d0',
+                    color: '#059669',
+                    flexShrink: 0,
+                  }}
+                >
+                  <TrendingUp size={26} />
+                </div>
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                    <h4 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#0f172a', margin: 0 }}>
+                      Revision of Salary (Compensation Revision)
+                    </h4>
+                    <span
+                      style={{
+                        fontSize: '0.6875rem',
+                        fontWeight: 700,
+                        padding: '2px 7px',
+                        borderRadius: 6,
+                        backgroundColor: '#ecfdf5',
+                        color: '#047857',
+                        border: '1px solid #a7f3d0',
+                      }}
+                    >
+                      Ref: TN/HR/SAL/[YYYY]/[000]
+                    </span>
+                  </div>
+                  <p style={{ fontSize: '0.84rem', color: '#475569', lineHeight: 1.5, margin: 0 }}>
+                    Official 2-page Tasknera compensation revision letter detailing performance appraisal rationale, effective date, side-by-side previous vs. revised monthly earnings (Basic, HRA, Special Allowance, Gross), statutory deductions (PF, Gratuity, PT/TDS), Net Take-Home, Annual CTC, clauses on statutory deductions, unchanged employment terms, confidentiality, and Page 2 authorised signoff with Company Seal and employee acknowledgement of receipt.
+                  </p>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: 10 }}>
+                <Button
+                  variant="primary"
+                  icon={<TrendingUp size={14} />}
+                  onClick={() => setIsSalaryRevisionModalOpen(true)}
+                  style={{
+                    backgroundColor: '#059669',
+                    borderColor: '#059669',
+                    boxShadow: '0 2px 8px rgba(5, 150, 105, 0.25)',
+                    fontSize: '0.8125rem',
+                    padding: '8px 16px',
+                  }}
+                >
+                  Open Revision Generator
+                </Button>
+              </div>
+            </div>
+
+            {/* Quick parameter preview pills */}
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))',
+                gap: 12,
+                marginTop: 4,
+                paddingTop: 14,
+                borderTop: '1px solid #f1f5f9',
+              }}
+            >
+              <div
+                style={{
+                  backgroundColor: '#f8fafc',
+                  padding: '10px 14px',
+                  borderRadius: 8,
+                  border: '1px solid #e2e8f0',
+                  fontSize: '0.78rem',
+                }}
+              >
+                <div style={{ color: '#64748b', fontWeight: 600, marginBottom: 2 }}>Revision Reason</div>
+                <div style={{ color: '#0f172a', fontWeight: 700 }}>Annual Performance Review / Promotion</div>
+              </div>
+              <div
+                style={{
+                  backgroundColor: '#f8fafc',
+                  padding: '10px 14px',
+                  borderRadius: 8,
+                  border: '1px solid #e2e8f0',
+                  fontSize: '0.78rem',
+                }}
+              >
+                <div style={{ color: '#64748b', fontWeight: 600, marginBottom: 2 }}>Salary Structure Table</div>
+                <div style={{ color: '#0f172a', fontWeight: 700 }}>Comparative Previous vs. Revised / Month</div>
+              </div>
+              <div
+                style={{
+                  backgroundColor: '#f8fafc',
+                  padding: '10px 14px',
+                  borderRadius: 8,
+                  border: '1px solid #e2e8f0',
+                  fontSize: '0.78rem',
+                }}
+              >
+                <div style={{ color: '#64748b', fontWeight: 600, marginBottom: 2 }}>Signatory Authority</div>
+                <div style={{ color: '#0f172a', fontWeight: 700 }}>Ms. Sheetal Bedi &bull; CEO (Delhi, India)</div>
+              </div>
+              <div
+                style={{
+                  backgroundColor: '#f8fafc',
+                  padding: '10px 14px',
+                  borderRadius: 8,
+                  border: '1px solid #e2e8f0',
+                  fontSize: '0.78rem',
+                }}
+              >
+                <div style={{ color: '#64748b', fontWeight: 600, marginBottom: 2 }}>Employee Acknowledgement</div>
+                <div style={{ color: '#0f172a', fontWeight: 700 }}>Signature of Employee &amp; Receipt Date</div>
+              </div>
             </div>
           </div>
         </div>
@@ -2443,6 +2671,13 @@ export const OffersPage: React.FC = () => {
       <ResignationAcceptanceModal
         isOpen={isResignationModalOpen}
         onClose={() => setIsResignationModalOpen(false)}
+        onSuccess={() => fetchOffers()}
+      />
+
+      {/* Official Revision of Salary (TN/HR/SAL) Modal */}
+      <SalaryRevisionModal
+        isOpen={isSalaryRevisionModalOpen}
+        onClose={() => setIsSalaryRevisionModalOpen(false)}
         onSuccess={() => fetchOffers()}
       />
     </div>

@@ -40,6 +40,7 @@ import { FreelancerOnboardingModal } from '../components/documents/FreelancerOnb
 import { FreelanceRecruiterAgreementModal } from '../components/documents/FreelanceRecruiterAgreementModal.js';
 import { FreelancerTerminationModal } from '../components/documents/FreelancerTerminationModal.js';
 import { ResignationAcceptanceModal } from '../components/documents/ResignationAcceptanceModal.js';
+import { SalaryRevisionModal } from '../components/documents/SalaryRevisionModal.js';
 import { useToast } from '../context/ToastContext.js';
 
 export const EmployeesPage: React.FC = () => {
@@ -70,6 +71,10 @@ export const EmployeesPage: React.FC = () => {
   // Resignation Acceptance Modal
   const [isResignationModalOpen, setIsResignationModalOpen] = useState(false);
   const [selectedEmployeeForResignation, setSelectedEmployeeForResignation] = useState<Employee | null>(null);
+
+  // Salary Revision Modal
+  const [isSalaryRevisionModalOpen, setIsSalaryRevisionModalOpen] = useState(false);
+  const [selectedEmployeeForSalaryRevision, setSelectedEmployeeForSalaryRevision] = useState<Employee | null>(null);
 
   useEffect(() => {
     loadEmployees();
@@ -1043,6 +1048,19 @@ export const EmployeesPage: React.FC = () => {
           onClose={() => {
             setIsResignationModalOpen(false);
             setSelectedEmployeeForResignation(null);
+          }}
+          onSuccess={() => loadEmployees()}
+        />
+      )}
+
+      {/* Revision of Salary (TN/HR/SAL) Modal */}
+      {isSalaryRevisionModalOpen && (
+        <SalaryRevisionModal
+          isOpen={isSalaryRevisionModalOpen}
+          initialEmployee={selectedEmployeeForSalaryRevision}
+          onClose={() => {
+            setIsSalaryRevisionModalOpen(false);
+            setSelectedEmployeeForSalaryRevision(null);
           }}
           onSuccess={() => loadEmployees()}
         />

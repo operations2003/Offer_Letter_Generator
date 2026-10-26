@@ -51,6 +51,7 @@ import { FreelancerTerminationModal } from '../components/documents/FreelancerTe
 import { EmployeeTerminationModal } from '../components/documents/EmployeeTerminationModal.js';
 import { InternshipConcludingModal } from '../components/documents/InternshipConcludingModal.js';
 import { ResignationAcceptanceModal } from '../components/documents/ResignationAcceptanceModal.js';
+import { SalaryRevisionModal } from '../components/documents/SalaryRevisionModal.js';
 import { useToast } from '../context/ToastContext.js';
 
 export const DashboardPage: React.FC = () => {
@@ -93,6 +94,7 @@ export const DashboardPage: React.FC = () => {
   const [isEmployeeTerminationModalOpen, setIsEmployeeTerminationModalOpen] = useState(false);
   const [isInternshipModalOpen, setIsInternshipModalOpen] = useState(false);
   const [isResignationModalOpen, setIsResignationModalOpen] = useState(false);
+  const [isSalaryRevisionModalOpen, setIsSalaryRevisionModalOpen] = useState(false);
 
   const [selectedOfferForDetail, setSelectedOfferForDetail] = useState<OfferListItem | null>(null);
   const [selectedOfferForEmail, setSelectedOfferForEmail] = useState<OfferListItem | null>(null);
@@ -962,6 +964,12 @@ export const DashboardPage: React.FC = () => {
                   action: () => setIsResignationModalOpen(true),
                 },
                 {
+                  label: 'Revision of Salary',
+                  desc: 'Compensation revision & salary breakdown',
+                  icon: <TrendingUp size={15} style={{ color: '#059669' }} />,
+                  action: () => setIsSalaryRevisionModalOpen(true),
+                },
+                {
                   label: 'Internship Conclusion',
                   desc: 'Letter on internship conclusion',
                   icon: <GraduationCap size={15} style={{ color: '#ea580c' }} />,
@@ -1210,6 +1218,12 @@ export const DashboardPage: React.FC = () => {
       <ResignationAcceptanceModal
         isOpen={isResignationModalOpen}
         onClose={() => setIsResignationModalOpen(false)}
+        onSuccess={() => loadDashboardData()}
+      />
+
+      <SalaryRevisionModal
+        isOpen={isSalaryRevisionModalOpen}
+        onClose={() => setIsSalaryRevisionModalOpen(false)}
         onSuccess={() => loadDashboardData()}
       />
     </div>
