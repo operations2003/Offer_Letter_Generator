@@ -23,6 +23,7 @@ import {
   CheckCircle2,
   UserCheck,
   Scale,
+  AlertTriangle,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.js';
 import { Button } from '../components/common/Button.js';
@@ -43,6 +44,7 @@ import { SalarySlipModal } from '../components/documents/SalarySlipModal.js';
 import { RelievingCertificateModal } from '../components/documents/RelievingCertificateModal.js';
 import { FreelancerOnboardingModal } from '../components/documents/FreelancerOnboardingModal.js';
 import { FreelanceRecruiterAgreementModal } from '../components/documents/FreelanceRecruiterAgreementModal.js';
+import { FreelancerTerminationModal } from '../components/documents/FreelancerTerminationModal.js';
 import { useToast } from '../context/ToastContext.js';
 
 export const DashboardPage: React.FC = () => {
@@ -81,6 +83,7 @@ export const DashboardPage: React.FC = () => {
   const [isRelievingModalOpen, setIsRelievingModalOpen] = useState(false);
   const [isFreelancerModalOpen, setIsFreelancerModalOpen] = useState(false);
   const [isRecruiterAgreementModalOpen, setIsRecruiterAgreementModalOpen] = useState(false);
+  const [isTerminationModalOpen, setIsTerminationModalOpen] = useState(false);
 
   const [selectedOfferForDetail, setSelectedOfferForDetail] = useState<OfferListItem | null>(null);
   const [selectedOfferForEmail, setSelectedOfferForEmail] = useState<OfferListItem | null>(null);
@@ -932,6 +935,12 @@ export const DashboardPage: React.FC = () => {
                   action: () => setIsRecruiterAgreementModalOpen(true),
                 },
                 {
+                  label: 'Termination Notice',
+                  desc: 'Notice of contract termination',
+                  icon: <AlertTriangle size={15} style={{ color: '#dc2626' }} />,
+                  action: () => setIsTerminationModalOpen(true),
+                },
+                {
                   label: 'Relieving Letter',
                   desc: 'Work completion and clearance',
                   icon: <ShieldCheck size={15} style={{ color: '#2563eb' }} />,
@@ -1150,6 +1159,12 @@ export const DashboardPage: React.FC = () => {
       <FreelanceRecruiterAgreementModal
         isOpen={isRecruiterAgreementModalOpen}
         onClose={() => setIsRecruiterAgreementModalOpen(false)}
+        onSuccess={() => loadDashboardData()}
+      />
+
+      <FreelancerTerminationModal
+        isOpen={isTerminationModalOpen}
+        onClose={() => setIsTerminationModalOpen(false)}
         onSuccess={() => loadDashboardData()}
       />
     </div>
