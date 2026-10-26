@@ -39,6 +39,7 @@ import {
   RotateCcw,
   Percent,
   Clock,
+  Scale,
 } from 'lucide-react';
 import { Button } from '../components/common/Button.js';
 import { OfferStatusBadge, AiAdvisoryBadge } from '../components/common/Badge.js';
@@ -62,6 +63,7 @@ import { BonafideCertificateModal } from '../components/documents/BonafideCertif
 import { PolicyViewerModal, PolicyDefinition } from '../components/policies/PolicyViewerModal.js';
 import { MasterRecruitmentAgreementModal } from '../components/documents/MasterRecruitmentAgreementModal.js';
 import { FreelancerOnboardingModal } from '../components/documents/FreelancerOnboardingModal.js';
+import { FreelanceRecruiterAgreementModal } from '../components/documents/FreelanceRecruiterAgreementModal.js';
 import { OFFICIAL_POLICIES } from '../services/policyCatalog.js';
 import {
   getAllPolicies,
@@ -120,6 +122,7 @@ export const OffersPage: React.FC = () => {
   const [isBonafideModalOpen, setIsBonafideModalOpen] = useState(false);
   const [isMrsModalOpen, setIsMrsModalOpen] = useState(false);
   const [isFreelancerModalOpen, setIsFreelancerModalOpen] = useState(false);
+  const [isRecruiterAgreementModalOpen, setIsRecruiterAgreementModalOpen] = useState(false);
   const [activeDocumentTab, setActiveDocumentTab] = useState<'ALL' | 'TEMPLATES' | 'FREELANCER' | 'CERTIFICATES' | 'POLICIES'>('ALL');
   const [certificateSectionPulse, setCertificateSectionPulse] = useState(false);
   const [freelancerSectionPulse, setFreelancerSectionPulse] = useState(false);
@@ -488,6 +491,18 @@ export const OffersPage: React.FC = () => {
       badgeBorder: '#bbf7d0',
       active: true,
       onClick: () => setIsFreelancerModalOpen(true),
+    },
+    {
+      id: 'recruiter_agreement',
+      title: 'Recruiter Services Agreement',
+      description: 'Master 14-page independent contractor agreement, Schedule 1 & Annexure A.',
+      icon: <Scale size={22} style={{ color: '#2563eb' }} />,
+      badge: 'Available',
+      badgeColor: '#2563eb',
+      badgeBg: '#eff6ff',
+      badgeBorder: '#bfdbfe',
+      active: true,
+      onClick: () => setIsRecruiterAgreementModalOpen(true),
     },
     {
       id: 'experience_letter',
@@ -1069,6 +1084,134 @@ export const OffersPage: React.FC = () => {
                   label: 'Opportunity Attribution',
                   val: '12-Month CRM Attribution & Dual Signing',
                   icon: <Clock size={14} style={{ color: '#7c3aed' }} />,
+                },
+              ].map((item, idx) => (
+                <div
+                  key={idx}
+                  style={{
+                    padding: '10px 14px',
+                    borderRadius: 8,
+                    backgroundColor: '#f8fafc',
+                    border: '1px solid #e2e8f0',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 3,
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.72rem', color: '#64748b', fontWeight: 600 }}>
+                    {item.icon}
+                    <span>{item.label}</span>
+                  </div>
+                  <div style={{ fontSize: '0.8125rem', fontWeight: 700, color: '#0f172a' }}>
+                    {item.val}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Feature Showcase Banner / Card 2: Freelance Recruiter Services Agreement */}
+          <div
+            style={{
+              backgroundColor: '#ffffff',
+              borderRadius: 12,
+              padding: '22px 24px',
+              border: '1.5px solid #bfdbfe',
+              boxShadow: '0 4px 20px rgba(37, 99, 235, 0.08)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 16,
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
+              <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start', maxWidth: 720 }}>
+                <div
+                  style={{
+                    width: 52,
+                    height: 52,
+                    borderRadius: 12,
+                    backgroundColor: '#eff6ff',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    border: '1px solid #93c5fd',
+                    color: '#2563eb',
+                    flexShrink: 0,
+                  }}
+                >
+                  <Scale size={26} />
+                </div>
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                    <h4 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#0f172a', margin: 0 }}>
+                      Freelance Recruiter Services Agreement (Master Engagement)
+                    </h4>
+                    <span
+                      style={{
+                        fontSize: '0.6875rem',
+                        fontWeight: 700,
+                        padding: '2px 7px',
+                        borderRadius: 6,
+                        backgroundColor: '#eff6ff',
+                        color: '#1d4ed8',
+                        border: '1px solid #bfdbfe',
+                      }}
+                    >
+                      Master 14-Page Contract
+                    </span>
+                  </div>
+                  <p style={{ fontSize: '0.84rem', color: '#475569', lineHeight: 1.5, margin: 0 }}>
+                    Comprehensive 14-page master agreement for independent recruiters with 17 legal clauses, Particulars of Parties table, Schedule 1 Commercial Terms, and Annexure A Information Security Undertaking.
+                  </p>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: 10 }}>
+                <Button
+                  variant="primary"
+                  icon={<FileCheck2 size={14} />}
+                  onClick={() => setIsRecruiterAgreementModalOpen(true)}
+                  style={{
+                    backgroundColor: '#2563eb',
+                    borderColor: '#2563eb',
+                    fontSize: '0.8125rem',
+                  }}
+                >
+                  Open Agreement Generator
+                </Button>
+              </div>
+            </div>
+
+            {/* Quick Parameter Badges */}
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))',
+                gap: 12,
+                paddingTop: 14,
+                borderTop: '1px solid #f1f5f9',
+              }}
+            >
+              {[
+                {
+                  label: 'Contract Structure',
+                  val: '17 Clauses + Schedule 1 + Annexure A',
+                  icon: <Scale size={14} style={{ color: '#2563eb' }} />,
+                },
+                {
+                  label: 'Compensation Model',
+                  val: 'Fixed Assignment Payout (No percentage CTC)',
+                  icon: <DollarSign size={14} style={{ color: '#16a34a' }} />,
+                },
+                {
+                  label: 'Client Cycle & Timeline',
+                  val: '14-Day Payout post Client Cleared Funds',
+                  icon: <Clock size={14} style={{ color: '#0284c7' }} />,
+                },
+                {
+                  label: 'Compliance & Witnesses',
+                  val: 'DPDP Act 2023, Dual Witnesses & Seal',
+                  icon: <ShieldCheck size={14} style={{ color: '#7c3aed' }} />,
                 },
               ].map((item, idx) => (
                 <div
@@ -1945,6 +2088,13 @@ export const OffersPage: React.FC = () => {
       <FreelancerOnboardingModal
         isOpen={isFreelancerModalOpen}
         onClose={() => setIsFreelancerModalOpen(false)}
+        onSuccess={() => fetchOffers()}
+      />
+
+      {/* Official Freelance Recruiter Services Agreement (14-page master) Modal */}
+      <FreelanceRecruiterAgreementModal
+        isOpen={isRecruiterAgreementModalOpen}
+        onClose={() => setIsRecruiterAgreementModalOpen(false)}
         onSuccess={() => fetchOffers()}
       />
     </div>

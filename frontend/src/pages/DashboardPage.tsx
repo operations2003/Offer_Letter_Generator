@@ -22,6 +22,7 @@ import {
   Search,
   CheckCircle2,
   UserCheck,
+  Scale,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.js';
 import { Button } from '../components/common/Button.js';
@@ -41,6 +42,7 @@ import { ExperienceLetterModal } from '../components/documents/ExperienceLetterM
 import { SalarySlipModal } from '../components/documents/SalarySlipModal.js';
 import { RelievingCertificateModal } from '../components/documents/RelievingCertificateModal.js';
 import { FreelancerOnboardingModal } from '../components/documents/FreelancerOnboardingModal.js';
+import { FreelanceRecruiterAgreementModal } from '../components/documents/FreelanceRecruiterAgreementModal.js';
 import { useToast } from '../context/ToastContext.js';
 
 export const DashboardPage: React.FC = () => {
@@ -78,6 +80,7 @@ export const DashboardPage: React.FC = () => {
   const [isSalarySlipModalOpen, setIsSalarySlipModalOpen] = useState(false);
   const [isRelievingModalOpen, setIsRelievingModalOpen] = useState(false);
   const [isFreelancerModalOpen, setIsFreelancerModalOpen] = useState(false);
+  const [isRecruiterAgreementModalOpen, setIsRecruiterAgreementModalOpen] = useState(false);
 
   const [selectedOfferForDetail, setSelectedOfferForDetail] = useState<OfferListItem | null>(null);
   const [selectedOfferForEmail, setSelectedOfferForEmail] = useState<OfferListItem | null>(null);
@@ -923,6 +926,12 @@ export const DashboardPage: React.FC = () => {
                   action: () => setIsFreelancerModalOpen(true),
                 },
                 {
+                  label: 'Recruiter Agreement',
+                  desc: 'Master 14-page recruiter contract',
+                  icon: <Scale size={15} style={{ color: '#2563eb' }} />,
+                  action: () => setIsRecruiterAgreementModalOpen(true),
+                },
+                {
                   label: 'Relieving Letter',
                   desc: 'Work completion and clearance',
                   icon: <ShieldCheck size={15} style={{ color: '#2563eb' }} />,
@@ -1135,6 +1144,12 @@ export const DashboardPage: React.FC = () => {
       <FreelancerOnboardingModal
         isOpen={isFreelancerModalOpen}
         onClose={() => setIsFreelancerModalOpen(false)}
+        onSuccess={() => loadDashboardData()}
+      />
+
+      <FreelanceRecruiterAgreementModal
+        isOpen={isRecruiterAgreementModalOpen}
+        onClose={() => setIsRecruiterAgreementModalOpen(false)}
         onSuccess={() => loadDashboardData()}
       />
     </div>
