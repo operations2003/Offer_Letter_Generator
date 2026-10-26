@@ -135,7 +135,8 @@ export const OffersPage: React.FC = () => {
   const [isEmployeeTerminationModalOpen, setIsEmployeeTerminationModalOpen] = useState(false);
   const [isResignationModalOpen, setIsResignationModalOpen] = useState(false);
   const [isSalaryRevisionModalOpen, setIsSalaryRevisionModalOpen] = useState(false);
-  const [activeDocumentTab, setActiveDocumentTab] = useState<'ALL' | 'TEMPLATES' | 'SALARY_REVISION' | 'EMPLOYEE_TERMINATION' | 'RESIGNATION' | 'INTERNSHIP' | 'CERTIFICATES' | 'POLICIES'>('ALL');
+  const [activeDocumentTab, setActiveDocumentTab] = useState<'ALL' | 'TEMPLATES' | 'RELIEVING' | 'SALARY_REVISION' | 'EMPLOYEE_TERMINATION' | 'RESIGNATION' | 'INTERNSHIP' | 'CERTIFICATES' | 'POLICIES'>('ALL');
+  const [relievingSectionPulse, setRelievingSectionPulse] = useState(false);
   const [salaryRevisionSectionPulse, setSalaryRevisionSectionPulse] = useState(false);
   const [certificateSectionPulse, setCertificateSectionPulse] = useState(false);
   const [employeeTerminationSectionPulse, setEmployeeTerminationSectionPulse] = useState(false);
@@ -544,6 +545,18 @@ export const OffersPage: React.FC = () => {
       onClick: () => setIsEmployeeTerminationModalOpen(true),
     },
     {
+      id: 'relieving_letter',
+      title: 'Relieving Letter',
+      description: 'Official letter confirming resignation acceptance, Last Working Day, exit clearance & dues settlement.',
+      icon: <FileCheck2 size={22} style={{ color: '#2563eb' }} />,
+      badge: 'TN/HR/REL Format',
+      badgeColor: '#2563eb',
+      badgeBg: '#eff6ff',
+      badgeBorder: '#bfdbfe',
+      active: true,
+      onClick: () => setIsRelievingModalOpen(true),
+    },
+    {
       id: 'salary_revision',
       title: 'Revision of Salary',
       description: 'Official 2-page letter with previous vs. revised monthly salary breakdown, effective date & clauses.',
@@ -739,6 +752,7 @@ export const OffersPage: React.FC = () => {
           {[
             { key: 'ALL', label: 'All', count: documentCards.length + certificateCards.length + allPoliciesList.length + 1 },
             { key: 'TEMPLATES', label: 'Templates', count: documentCards.length },
+            { key: 'RELIEVING', label: 'Relieving Letter', count: 1, icon: <FileCheck2 size={13} /> },
             { key: 'SALARY_REVISION', label: 'Salary Revision', count: 1, icon: <TrendingUp size={13} /> },
             { key: 'RESIGNATION', label: 'Resignation Acceptance', count: 1, icon: <UserMinus size={13} /> },
             { key: 'EMPLOYEE_TERMINATION', label: 'Employee Termination', count: 1, icon: <ShieldAlert size={13} /> },
@@ -753,7 +767,14 @@ export const OffersPage: React.FC = () => {
                 type="button"
                 onClick={() => {
                   setActiveDocumentTab(tab.key as any);
-                  if (tab.key === 'SALARY_REVISION') {
+                  if (tab.key === 'RELIEVING') {
+                    const el = document.getElementById('relieving-letter-section');
+                    if (el) {
+                      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                      setRelievingSectionPulse(true);
+                      setTimeout(() => setRelievingSectionPulse(false), 2400);
+                    }
+                  } else if (tab.key === 'SALARY_REVISION') {
                     const el = document.getElementById('salary-revision-section');
                     if (el) {
                       el.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -1593,6 +1614,210 @@ export const OffersPage: React.FC = () => {
               >
                 <div style={{ color: '#64748b', fontWeight: 600, marginBottom: 2 }}>Employee Acknowledgement</div>
                 <div style={{ color: '#0f172a', fontWeight: 700 }}>Signature of Employee &amp; Receipt Date</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* 3C. RELIEVING LETTER SECTION (TN/HR/REL FORMAT)                           */}
+      {/* ========================================================================= */}
+      {(activeDocumentTab === 'ALL' || activeDocumentTab === 'RELIEVING') && (
+        <div
+          id="relieving-letter-section"
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 16,
+            marginTop: 6,
+            paddingTop: 10,
+            scrollMarginTop: '80px',
+            borderRadius: 14,
+            padding: '16px',
+            backgroundColor: relievingSectionPulse ? 'rgba(37, 99, 235, 0.06)' : 'transparent',
+            boxShadow: relievingSectionPulse ? '0 0 0 2px rgba(37, 99, 235, 0.4)' : 'none',
+            transition: 'all 0.4s ease',
+          }}
+        >
+          {/* Section Header */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#0f172a', margin: 0 }}>
+                  Relieving Letter
+                </h3>
+                <span
+                  style={{
+                    fontSize: '0.72rem',
+                    fontWeight: 700,
+                    backgroundColor: '#eff6ff',
+                    color: '#1d4ed8',
+                    padding: '2px 9px',
+                    borderRadius: 12,
+                    border: '1px solid #bfdbfe',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 4,
+                  }}
+                >
+                  <FileCheck2 size={12} />
+                  TN/HR/REL Format &bull; Official Separation Letter
+                </span>
+              </div>
+              <p style={{ fontSize: '0.8125rem', color: '#64748b', margin: '2px 0 0 0' }}>
+                Official 1-page Tasknera separation and relieving letter referencing resignation acceptance, Last Working Day, company property handover, FNF dues settlement &amp; confidentiality obligations.
+              </p>
+            </div>
+
+            <Button
+              variant="primary"
+              icon={<FileCheck2 size={14} />}
+              onClick={() => setIsRelievingModalOpen(true)}
+              style={{
+                backgroundColor: '#2563eb',
+                borderColor: '#2563eb',
+                boxShadow: '0 2px 8px rgba(37, 99, 235, 0.25)',
+                fontSize: '0.8125rem',
+                padding: '8px 16px',
+              }}
+            >
+              Generate Relieving Letter
+            </Button>
+          </div>
+
+          {/* Feature Showcase Card */}
+          <div
+            style={{
+              backgroundColor: '#ffffff',
+              borderRadius: 12,
+              padding: '22px 24px',
+              border: '1.5px solid #bfdbfe',
+              boxShadow: '0 4px 20px rgba(37, 99, 235, 0.08)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 16,
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
+              <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start', maxWidth: 740 }}>
+                <div
+                  style={{
+                    width: 52,
+                    height: 52,
+                    borderRadius: 12,
+                    backgroundColor: '#eff6ff',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    border: '1px solid #bfdbfe',
+                    color: '#2563eb',
+                    flexShrink: 0,
+                  }}
+                >
+                  <FileCheck2 size={26} />
+                </div>
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                    <h4 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#0f172a', margin: 0 }}>
+                      Relieving Letter (Service Relief &amp; Clearance)
+                    </h4>
+                    <span
+                      style={{
+                        fontSize: '0.6875rem',
+                        fontWeight: 700,
+                        padding: '2px 7px',
+                        borderRadius: 6,
+                        backgroundColor: '#eff6ff',
+                        color: '#1d4ed8',
+                        border: '1px solid #bfdbfe',
+                      }}
+                    >
+                      Ref: TN/HR/REL/[YYYY]/[000]
+                    </span>
+                  </div>
+                  <p style={{ fontSize: '0.84rem', color: '#475569', lineHeight: 1.5, margin: 0 }}>
+                    Official 1-page Tasknera relieving letter confirming employee relief from services at close of business on Last Working Day. Certifies completion of work handover, return of company assets, full and final dues reconciliation (or adjustments), ongoing post-employment confidentiality &amp; data protection, optional performance rating, and authorized CEO signature with Company Seal.
+                  </p>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: 10 }}>
+                <Button
+                  variant="primary"
+                  icon={<FileCheck2 size={14} />}
+                  onClick={() => setIsRelievingModalOpen(true)}
+                  style={{
+                    backgroundColor: '#2563eb',
+                    borderColor: '#2563eb',
+                    boxShadow: '0 2px 8px rgba(37, 99, 235, 0.25)',
+                    fontSize: '0.8125rem',
+                    padding: '8px 16px',
+                  }}
+                >
+                  Open Relieving Generator
+                </Button>
+              </div>
+            </div>
+
+            {/* Quick parameter preview pills */}
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))',
+                gap: 12,
+                marginTop: 4,
+                paddingTop: 14,
+                borderTop: '1px solid #f1f5f9',
+              }}
+            >
+              <div
+                style={{
+                  backgroundColor: '#f8fafc',
+                  padding: '10px 14px',
+                  borderRadius: 8,
+                  border: '1px solid #e2e8f0',
+                  fontSize: '0.78rem',
+                }}
+              >
+                <div style={{ color: '#64748b', fontWeight: 600, marginBottom: 2 }}>Resignation &amp; Last Working Day</div>
+                <div style={{ color: '#0f172a', fontWeight: 700 }}>Resignation Acceptance &amp; LWD Date</div>
+              </div>
+              <div
+                style={{
+                  backgroundColor: '#f8fafc',
+                  padding: '10px 14px',
+                  borderRadius: 8,
+                  border: '1px solid #e2e8f0',
+                  fontSize: '0.78rem',
+                }}
+              >
+                <div style={{ color: '#64748b', fontWeight: 600, marginBottom: 2 }}>Exit Handover &amp; Settlement</div>
+                <div style={{ color: '#0f172a', fontWeight: 700 }}>No Dues / Adjusted in Full &amp; Final</div>
+              </div>
+              <div
+                style={{
+                  backgroundColor: '#f8fafc',
+                  padding: '10px 14px',
+                  borderRadius: 8,
+                  border: '1px solid #e2e8f0',
+                  fontSize: '0.78rem',
+                }}
+              >
+                <div style={{ color: '#64748b', fontWeight: 600, marginBottom: 2 }}>Post-Employment Obligations</div>
+                <div style={{ color: '#0f172a', fontWeight: 700 }}>Confidentiality &amp; Data Protection</div>
+              </div>
+              <div
+                style={{
+                  backgroundColor: '#f8fafc',
+                  padding: '10px 14px',
+                  borderRadius: 8,
+                  border: '1px solid #e2e8f0',
+                  fontSize: '0.78rem',
+                }}
+              >
+                <div style={{ color: '#64748b', fontWeight: 600, marginBottom: 2 }}>Signatory Authority &amp; Seal</div>
+                <div style={{ color: '#0f172a', fontWeight: 700 }}>Ms. Sheetal Bedi &bull; CEO (Delhi, India)</div>
               </div>
             </div>
           </div>

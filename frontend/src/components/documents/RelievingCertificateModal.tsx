@@ -5,21 +5,13 @@ import {
   Download,
   Save,
   Highlighter,
-  User,
   Users,
   Search,
-  CheckCircle2,
-  RefreshCw,
-  Sparkles,
-  Building2,
-  Calendar,
-  Briefcase,
   FileCheck2,
   ArrowRight,
   ArrowLeft,
+  Calendar,
   ShieldCheck,
-  Award,
-  ChevronUp,
 } from 'lucide-react';
 import { Button } from '../common/Button.js';
 import { Employee, EmployeeService } from '../../services/employeeService.js';
@@ -42,13 +34,11 @@ export const RelievingCertificateModal: React.FC<RelievingCertificateModalProps>
 }) => {
   const { success, error } = useToast();
 
-  // Navigation steps: 1 = Employee & Configuration, 2 = Official Certificate Preview
+  // Navigation steps: 1 = Edit Details, 2 = Official Letter Preview
   const [step, setStep] = useState<1 | 2>(1);
 
   // Scroll Container Ref
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const [showScrollTop, setShowScrollTop] = useState(false);
-  const [scrollProgress, setScrollProgress] = useState(0);
 
   // Employee Selection State
   const [employees, setEmployees] = useState<Employee[]>([]);
@@ -61,34 +51,47 @@ export const RelievingCertificateModal: React.FC<RelievingCertificateModalProps>
   const [highlightPlaceholders, setHighlightPlaceholders] = useState<boolean>(false);
   const [isSaving, setIsSaving] = useState<boolean>(false);
 
+  // Helper date format
+  const formatDateString = (d: Date) => {
+    return d.toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' });
+  };
+
   // Form Fields State
-  const [salutation, setSalutation] = useState<'Mr.' | 'Ms.' | 'Dr.'>('Mr.');
-  const [fullName, setFullName] = useState<string>('Vikramaditya Roy');
-  const [employeeCode, setEmployeeCode] = useState<string>('TN-2041');
+  const [letterDate, setLetterDate] = useState<string>(() => formatDateString(new Date()));
+  const [referenceNumber, setReferenceNumber] = useState<string>(() => {
+    const yyyy = new Date().getFullYear();
+    const rand = Math.floor(10 + Math.random() * 90);
+    return `TN/HR/REL/${yyyy}/${rand.toString().padStart(3, '0')}`;
+  });
+
+  // Employee Details
+  const [employeeFullName, setEmployeeFullName] = useState<string>('Vikramaditya Roy');
+  const [employeeSalutation, setEmployeeSalutation] = useState<string>('Vikramaditya');
+  const [employeeId, setEmployeeId] = useState<string>('EMP-2041');
   const [designation, setDesignation] = useState<string>('Senior Product Operations Lead');
   const [department, setDepartment] = useState<string>('Product Experience');
-  const [genderPronoun, setGenderPronoun] = useState<'male' | 'female'>('male');
+  const [residentialAddress, setResidentialAddress] = useState<string>(
+    'Flat 402, Signature Residency, Mayur Vihar Phase 1, New Delhi – 110091'
+  );
 
-  // Dates & Reference
-  const [startDate, setStartDate] = useState<string>('August 1, 2023');
-  const [resignationDate, setResignationDate] = useState<string>('August 15, 2026');
-  const [relievingDate, setRelievingDate] = useState<string>('September 30, 2026');
-  const [issueDate, setIssueDate] = useState<string>(() => {
-    return new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
-  });
-  const [referenceNumber, setReferenceNumber] = useState<string>(() => {
-    return `TASK/${new Date().getFullYear()}/RLV-${Math.floor(100 + Math.random() * 900)}`;
-  });
-  const [place, setPlace] = useState<string>('Delhi');
+  // Relieving Details
+  const [resignationDate, setResignationDate] = useState<string>('15 October 2026');
+  const [lastWorkingDay, setLastWorkingDay] = useState<string>('31 October 2026');
+  const [joiningDate, setJoiningDate] = useState<string>('1 August 2023');
 
-  // Clearance status flags
-  const [assetsReturned, setAssetsReturned] = useState<boolean>(true);
-  const [accountsSettled, setAccountsSettled] = useState<boolean>(true);
-  const [ndaReaffirmed, setNdaReaffirmed] = useState<boolean>(true);
+  // Dues & Settlement Options
+  const [duesType, setDuesType] = useState<'NO_DUES' | 'ADJUSTED'>('NO_DUES');
+  const [duesDetails, setDuesDetails] = useState<string>('₹14,500 towards notice shortfall adjustment');
 
-  // Signatory
-  const [signatoryName, setSignatoryName] = useState<string>('Sheetal Bedi');
-  const [signatoryTitle, setSignatoryTitle] = useState<string>('Chief Executive Officer');
+  // Performance Clause
+  const [includePerformanceClause, setIncludePerformanceClause] = useState<boolean>(true);
+  const [performanceRating, setPerformanceRating] = useState<'satisfactory' | 'commendable'>('commendable');
+
+  // Signatory & Location
+  const [signatoryName, setSignatoryName] = useState<string>('Ms. Sheetal Bedi');
+  const [signatoryDesignation, setSignatoryDesignation] = useState<string>('Chief Executive Officer (CEO)');
+  const [signatoryPlace, setSignatoryPlace] = useState<string>('Delhi, India');
+  const [signatoryDate, setSignatoryDate] = useState<string>(() => formatDateString(new Date()));
 
   // Load employees
   useEffect(() => {
@@ -110,7 +113,7 @@ export const RelievingCertificateModal: React.FC<RelievingCertificateModalProps>
         applyEmployee(list[0]);
       }
     } catch (err) {
-      console.warn('Could not load employees for relieving certificate:', err);
+      console.warn('Could not load employees for relieving letter:', err);
     } finally {
       setLoadingEmployees(false);
     }
@@ -118,34 +121,23 @@ export const RelievingCertificateModal: React.FC<RelievingCertificateModalProps>
 
   const applyEmployee = (emp: Employee) => {
     setSelectedEmployeeId(emp.id);
-    setFullName(emp.fullName || 'Employee');
-    if (emp.employeeId) setEmployeeCode(emp.employeeId);
+    const name = emp.fullName || 'Employee';
+    setEmployeeFullName(name);
+    setEmployeeSalutation(name.split(' ')[0] || name);
+    if (emp.employeeId) setEmployeeId(emp.employeeId);
     if (emp.designation) setDesignation(emp.designation);
     if (emp.department) setDepartment(emp.department);
+    if ((emp as any).address) setResidentialAddress((emp as any).address);
 
     if (emp.joiningDate) {
       try {
         const d = new Date(emp.joiningDate);
-        setStartDate(d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }));
+        setJoiningDate(formatDateString(d));
       } catch {
-        setStartDate(emp.joiningDate);
+        setJoiningDate(emp.joiningDate);
       }
     }
-
-    if (emp.title === 'Ms.' || emp.title === 'Mrs.') {
-      setSalutation('Ms.');
-      setGenderPronoun('female');
-    } else {
-      setSalutation('Mr.');
-      setGenderPronoun('male');
-    }
   };
-
-  const pronounHeShe = genderPronoun === 'female' ? 'she' : 'he';
-  const pronounHisHer = genderPronoun === 'female' ? 'her' : 'his';
-  const pronounHimHer = genderPronoun === 'female' ? 'her' : 'him';
-  const pronounHeSheCap = genderPronoun === 'female' ? 'She' : 'He';
-  const pronounHisHerCap = genderPronoun === 'female' ? 'Her' : 'His';
 
   // Lock body scroll
   useEffect(() => {
@@ -167,20 +159,6 @@ export const RelievingCertificateModal: React.FC<RelievingCertificateModalProps>
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onClose]);
 
-  const handleScroll = () => {
-    const el = scrollContainerRef.current;
-    if (!el) return;
-    const total = el.scrollHeight - el.clientHeight;
-    if (total > 0) {
-      setScrollProgress(Math.min(100, Math.max(0, (el.scrollTop / total) * 100)));
-    }
-    setShowScrollTop(el.scrollTop > 180);
-  };
-
-  const scrollToTop = () => {
-    scrollContainerRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
   // Departments list for filter
   const departments = useMemo(() => {
     const depts = new Set<string>();
@@ -198,21 +176,18 @@ export const RelievingCertificateModal: React.FC<RelievingCertificateModalProps>
       const matchSearch =
         !q ||
         emp.fullName?.toLowerCase().includes(q) ||
-        (emp.officialEmail || emp.personalEmail)?.toLowerCase().includes(q) ||
-        emp.designation?.toLowerCase().includes(q) ||
-        emp.employeeId?.toLowerCase().includes(q);
+        emp.employeeId?.toLowerCase().includes(q) ||
+        emp.designation?.toLowerCase().includes(q);
       return matchDept && matchSearch;
     });
   }, [employees, selectedDeptFilter, employeeSearch]);
 
   const handleDownloadPdf = () => {
-    const certElement = document.getElementById('printable-relieving-certificate');
-    if (!certElement) {
+    const el = document.getElementById('printable-relieving-sheet');
+    if (!el) {
       window.print();
       return;
     }
-
-    const docTitle = `TaskNera_Relieving_Certificate_${fullName.replace(/\s+/g, '_')}_${referenceNumber.replace(/[\/\\]/g, '_')}`;
 
     const iframe = document.createElement('iframe');
     iframe.style.position = 'fixed';
@@ -224,85 +199,72 @@ export const RelievingCertificateModal: React.FC<RelievingCertificateModalProps>
     document.body.appendChild(iframe);
 
     const doc = iframe.contentWindow?.document;
-    if (!doc) {
-      window.print();
-      return;
-    }
+    if (!doc) return;
 
     doc.open();
     doc.write(`
       <!DOCTYPE html>
       <html>
         <head>
-          <title>${docTitle}</title>
-          <meta charset="utf-8" />
+          <title>Relieving_Letter_${employeeFullName.replace(/\\s+/g, '_')}</title>
           <style>
             @page {
               size: A4 portrait;
-              margin: 10mm 15mm 10mm 15mm;
+              margin: 12mm 16mm 14mm 16mm;
             }
-            * {
-              box-sizing: border-box;
-              -webkit-print-color-adjust: exact !important;
-              print-color-adjust: exact !important;
-            }
-            html, body {
+            body {
+              font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
+              color: #1e293b;
               margin: 0;
               padding: 0;
               background: #ffffff;
-              color: #1e293b;
-              font-family: "Times New Roman", Times, Georgia, serif;
-              font-size: 10.5pt;
-              line-height: 1.5;
-            }
-            #printable-relieving-certificate {
-              border: none !important;
-              box-shadow: none !important;
-              padding: 0 !important;
-              margin: 0 !important;
-              width: 100% !important;
-              min-height: auto !important;
-              height: auto !important;
-              page-break-after: avoid !important;
-              break-after: avoid !important;
-              page-break-inside: avoid !important;
-              break-inside: avoid !important;
-            }
-            p {
-              margin: 0;
-              text-align: justify;
-              line-height: 1.55;
+              -webkit-print-color-adjust: exact;
+              print-color-adjust: exact;
             }
             mark {
-              background-color: #fef08a !important;
-              color: #854d0e !important;
-              padding: 1px 3px;
-              border-radius: 2px;
-              font-weight: 600;
+              background: transparent !important;
+              color: inherit !important;
+            }
+            .page-container {
+              page-break-after: avoid;
+              box-sizing: border-box;
+              min-height: 100vh;
+              display: flex;
+              flex-direction: column;
+              justify-content: space-between;
+            }
+            .company-seal-box {
+              border: 1.5px solid #0f172a;
+              width: 120px;
+              height: 70px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              color: #64748b;
+              font-size: 11px;
+              font-weight: 500;
+              font-family: Arial, sans-serif;
+              background-color: #ffffff;
             }
           </style>
         </head>
         <body>
-          ${certElement.outerHTML}
+          <div class="page-container">
+            ${el.innerHTML}
+          </div>
         </body>
       </html>
     `);
     doc.close();
 
     setTimeout(() => {
-      try {
-        iframe.contentWindow?.focus();
-        iframe.contentWindow?.print();
-      } catch (err) {
-        console.warn('Iframe print failed, falling back:', err);
-        window.print();
-      } finally {
-        setTimeout(() => {
-          if (document.body.contains(iframe)) {
-            document.body.removeChild(iframe);
-          }
-        }, 2000);
-      }
+      iframe.contentWindow?.focus();
+      iframe.contentWindow?.print();
+      setTimeout(() => {
+        if (document.body.contains(iframe)) {
+          document.body.removeChild(iframe);
+        }
+      }, 2000);
     }, 250);
   };
 
@@ -313,35 +275,39 @@ export const RelievingCertificateModal: React.FC<RelievingCertificateModalProps>
       const recipientEmail =
         selectedEmp?.personalEmail ||
         selectedEmp?.officialEmail ||
-        `${fullName.toLowerCase().replace(/[^a-z0-9]/g, '')}@tasknera.com`;
+        `${employeeFullName.toLowerCase().replace(/[^a-z0-9]/g, '')}@tasknera.com`;
 
       let createdDoc: HrDocument | null = null;
       try {
         createdDoc = await DocumentEngineService.createDocument({
           documentTypeCode: 'RELIEVING_LETTER',
-          title: `Relieving Certificate — ${fullName}`,
-          recipientName: fullName,
+          title: `Relieving Letter — ${employeeFullName}`,
+          recipientName: employeeFullName,
           recipientEmail: recipientEmail,
           signatoryName,
-          signatoryTitle,
-          effectiveDate: issueDate,
+          signatoryTitle: signatoryDesignation,
+          effectiveDate: lastWorkingDay,
         });
 
         if (createdDoc && createdDoc.id) {
           await DocumentEngineService.confirmTerms(createdDoc.id, {
-            salutation,
-            fullName,
-            employeeCode,
+            employeeFullName,
+            employeeId,
             designation,
             department,
-            startDate,
+            residentialAddress,
             resignationDate,
-            relievingDate,
+            lastWorkingDay,
+            joiningDate,
+            duesType,
+            duesDetails,
+            performanceRating: includePerformanceClause ? performanceRating : 'N/A',
             referenceNumber,
-            issueDate,
-            place,
+            letterDate,
             signatoryName,
-            signatoryTitle,
+            signatoryDesignation,
+            signatoryPlace,
+            signatoryDate,
           });
         }
       } catch (backendErr) {
@@ -349,20 +315,20 @@ export const RelievingCertificateModal: React.FC<RelievingCertificateModalProps>
       }
 
       const localDoc: HrDocument = {
-        id: createdDoc?.id || `doc_rlv_${Date.now()}`,
+        id: createdDoc?.id || `doc_rel_${Date.now()}`,
         companyId: 'company_default',
         documentTypeCode: 'RELIEVING_LETTER',
         referenceNumber: createdDoc?.referenceNumber || referenceNumber,
-        title: `Relieving Certificate — ${fullName}`,
-        templateId: 'tpl_relieving_certificate_official',
+        title: `Relieving Letter — ${employeeFullName}`,
+        templateId: 'tpl_relieving_letter_official',
         templateVersionId: 'v1.0',
-        recipientName: fullName,
+        recipientName: employeeFullName,
         recipientEmail: recipientEmail,
         currentStatus: 'APPROVED',
         aiReviewStatus: 'VERIFIED_BY_HR',
         signatoryName,
-        signatoryTitle,
-        effectiveDate: issueDate,
+        signatoryTitle: signatoryDesignation,
+        effectiveDate: lastWorkingDay,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       } as any as HrDocument;
@@ -376,11 +342,11 @@ export const RelievingCertificateModal: React.FC<RelievingCertificateModalProps>
         console.warn('LocalStorage save failed:', storageErr);
       }
 
-      success(`Relieving Certificate saved successfully with Ref: ${localDoc.referenceNumber}!`);
+      success(`Relieving Letter saved successfully with Ref: ${localDoc.referenceNumber}!`);
       if (onSuccess) onSuccess(localDoc);
       onClose();
     } catch (err: any) {
-      error(err?.message || 'Failed to save relieving certificate.');
+      error(err?.message || 'Failed to save relieving letter.');
     } finally {
       setIsSaving(false);
     }
@@ -455,12 +421,12 @@ export const RelievingCertificateModal: React.FC<RelievingCertificateModalProps>
                 width: 40,
                 height: 40,
                 borderRadius: 10,
-                backgroundColor: '#ecfdf5',
-                border: '1px solid #a7f3d0',
+                backgroundColor: '#eff6ff',
+                border: '1px solid #bfdbfe',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                color: '#059669',
+                color: '#2563eb',
               }}
             >
               <FileCheck2 size={22} />
@@ -468,7 +434,7 @@ export const RelievingCertificateModal: React.FC<RelievingCertificateModalProps>
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <h3 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 700, color: '#0f172a' }}>
-                  Relieving Letter
+                  Relieving Letter Generator
                 </h3>
                 <span
                   style={{
@@ -476,16 +442,16 @@ export const RelievingCertificateModal: React.FC<RelievingCertificateModalProps>
                     fontWeight: 700,
                     padding: '2px 8px',
                     borderRadius: 12,
-                    backgroundColor: '#ecfdf5',
-                    color: '#047857',
-                    border: '1px solid #a7f3d0',
+                    backgroundColor: '#eff6ff',
+                    color: '#1d4ed8',
+                    border: '1px solid #bfdbfe',
                   }}
                 >
-                  Certificate
+                  TN/HR/REL Format
                 </span>
               </div>
               <p style={{ margin: '2px 0 0', fontSize: '0.8rem', color: '#64748b' }}>
-                Step {step} of 2 — {step === 1 ? 'Employee & Separation Details' : 'Preview & Print'}
+                Step {step} of 2 — {step === 1 ? 'Separation & Exit Clearance Configuration' : 'Official Letter Preview & Print'}
               </p>
             </div>
           </div>
@@ -511,7 +477,7 @@ export const RelievingCertificateModal: React.FC<RelievingCertificateModalProps>
                   fontSize: '0.75rem',
                   fontWeight: step === 1 ? 700 : 500,
                   backgroundColor: step === 1 ? '#ffffff' : 'transparent',
-                  color: step === 1 ? '#059669' : '#64748b',
+                  color: step === 1 ? '#2563eb' : '#64748b',
                   boxShadow: step === 1 ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
                   cursor: 'pointer',
                 }}
@@ -528,7 +494,7 @@ export const RelievingCertificateModal: React.FC<RelievingCertificateModalProps>
                   fontSize: '0.75rem',
                   fontWeight: step === 2 ? 700 : 500,
                   backgroundColor: step === 2 ? '#ffffff' : 'transparent',
-                  color: step === 2 ? '#059669' : '#64748b',
+                  color: step === 2 ? '#2563eb' : '#64748b',
                   boxShadow: step === 2 ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
                   cursor: 'pointer',
                 }}
@@ -560,7 +526,6 @@ export const RelievingCertificateModal: React.FC<RelievingCertificateModalProps>
         {/* Modal Body Container */}
         <div
           ref={scrollContainerRef}
-          onScroll={handleScroll}
           style={{
             flex: 1,
             overflowY: 'auto',
@@ -574,11 +539,11 @@ export const RelievingCertificateModal: React.FC<RelievingCertificateModalProps>
               <div style={{ background: '#ffffff', padding: '20px', borderRadius: 12, border: '1px solid #e2e8f0' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
                   <h4 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <Users size={16} color="#059669" />
-                    1. Select Relieving Employee
+                    <Users size={16} color="#2563eb" />
+                    1. Select Relieved Employee
                   </h4>
                   <span style={{ fontSize: '0.75rem', color: '#64748b' }}>
-                    {employees.length} records available
+                    {employees.length} records in roster
                   </span>
                 </div>
 
@@ -589,7 +554,7 @@ export const RelievingCertificateModal: React.FC<RelievingCertificateModalProps>
                     <input
                       type="text"
                       className="form-input"
-                      placeholder="Search by name, employee code, or title..."
+                      placeholder="Search by name, employee ID, or role..."
                       value={employeeSearch}
                       onChange={(e) => setEmployeeSearch(e.target.value)}
                       style={{ paddingLeft: 32, fontSize: '0.8125rem' }}
@@ -615,7 +580,7 @@ export const RelievingCertificateModal: React.FC<RelievingCertificateModalProps>
                     display: 'grid',
                     gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
                     gap: 10,
-                    maxHeight: 160,
+                    maxHeight: 140,
                     overflowY: 'auto',
                     padding: 4,
                   }}
@@ -629,8 +594,8 @@ export const RelievingCertificateModal: React.FC<RelievingCertificateModalProps>
                         style={{
                           padding: '8px 12px',
                           borderRadius: 8,
-                          border: isSel ? '1.5px solid #059669' : '1px solid #e2e8f0',
-                          backgroundColor: isSel ? '#ecfdf5' : '#ffffff',
+                          border: isSel ? '1.5px solid #2563eb' : '1px solid #e2e8f0',
+                          backgroundColor: isSel ? '#eff6ff' : '#ffffff',
                           cursor: 'pointer',
                           display: 'flex',
                           alignItems: 'center',
@@ -643,23 +608,24 @@ export const RelievingCertificateModal: React.FC<RelievingCertificateModalProps>
                             width: 28,
                             height: 28,
                             borderRadius: '50%',
-                            backgroundColor: isSel ? '#059669' : '#e2e8f0',
+                            backgroundColor: isSel ? '#2563eb' : '#e2e8f0',
                             color: isSel ? '#ffffff' : '#475569',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
                             fontSize: '0.75rem',
                             fontWeight: 700,
+                            flexShrink: 0,
                           }}
                         >
-                          {emp.fullName?.[0] || 'E'}
+                          {emp.fullName?.charAt(0) || 'E'}
                         </div>
-                        <div style={{ overflow: 'hidden', flex: 1 }}>
+                        <div style={{ overflow: 'hidden' }}>
                           <div style={{ fontSize: '0.8125rem', fontWeight: 600, color: '#0f172a', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>
                             {emp.fullName}
                           </div>
                           <div style={{ fontSize: '0.7rem', color: '#64748b', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>
-                            {emp.designation || 'Staff'}
+                            {emp.employeeId || 'No ID'} &bull; {emp.designation || 'Staff'}
                           </div>
                         </div>
                       </div>
@@ -668,56 +634,56 @@ export const RelievingCertificateModal: React.FC<RelievingCertificateModalProps>
                 </div>
               </div>
 
-              {/* Certificate Parameters Section */}
+              {/* Reference & Employee Fields */}
               <div style={{ background: '#ffffff', padding: '20px', borderRadius: 12, border: '1px solid #e2e8f0' }}>
-                <h4 style={{ margin: '0 0 14px', fontSize: '0.95rem', fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <Briefcase size={16} color="#059669" />
-                  2. Relieving & Separation Parameters
+                <h4 style={{ margin: '0 0 16px', fontSize: '0.95rem', fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <FileCheck2 size={16} color="#2563eb" />
+                  2. Reference &amp; Employee Details
                 </h4>
 
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 14 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 14 }}>
                   <div>
-                    <label className="form-label" style={{ fontSize: '0.78rem', fontWeight: 700 }}>Salutation</label>
-                    <select
+                    <label className="form-label" style={{ fontSize: '0.78rem', fontWeight: 700 }}>Ref. No.</label>
+                    <input
+                      type="text"
                       className="form-input"
-                      value={salutation}
-                      onChange={(e) => {
-                        const val = e.target.value as any;
-                        setSalutation(val);
-                        setGenderPronoun(val === 'Ms.' ? 'female' : 'male');
-                      }}
+                      value={referenceNumber}
+                      onChange={(e) => setReferenceNumber(e.target.value)}
                       style={{ fontSize: '0.8125rem' }}
-                    >
-                      <option value="Mr.">Mr.</option>
-                      <option value="Ms.">Ms.</option>
-                      <option value="Dr.">Dr.</option>
-                    </select>
+                    />
                   </div>
-
+                  <div>
+                    <label className="form-label" style={{ fontSize: '0.78rem', fontWeight: 700 }}>Date of Letter</label>
+                    <input
+                      type="text"
+                      className="form-input"
+                      value={letterDate}
+                      onChange={(e) => setLetterDate(e.target.value)}
+                      style={{ fontSize: '0.8125rem' }}
+                    />
+                  </div>
                   <div>
                     <label className="form-label" style={{ fontSize: '0.78rem', fontWeight: 700 }}>Employee Full Name</label>
                     <input
                       type="text"
                       className="form-input"
-                      value={fullName}
-                      onChange={(e) => setFullName(e.target.value)}
+                      value={employeeFullName}
+                      onChange={(e) => setEmployeeFullName(e.target.value)}
                       style={{ fontSize: '0.8125rem' }}
                     />
                   </div>
-
                   <div>
-                    <label className="form-label" style={{ fontSize: '0.78rem', fontWeight: 700 }}>Employee ID / Code</label>
+                    <label className="form-label" style={{ fontSize: '0.78rem', fontWeight: 700 }}>Employee ID</label>
                     <input
                       type="text"
                       className="form-input"
-                      value={employeeCode}
-                      onChange={(e) => setEmployeeCode(e.target.value)}
+                      value={employeeId}
+                      onChange={(e) => setEmployeeId(e.target.value)}
                       style={{ fontSize: '0.8125rem' }}
                     />
                   </div>
-
                   <div>
-                    <label className="form-label" style={{ fontSize: '0.78rem', fontWeight: 700 }}>Designation Held</label>
+                    <label className="form-label" style={{ fontSize: '0.78rem', fontWeight: 700 }}>Designation</label>
                     <input
                       type="text"
                       className="form-input"
@@ -726,7 +692,6 @@ export const RelievingCertificateModal: React.FC<RelievingCertificateModalProps>
                       style={{ fontSize: '0.8125rem' }}
                     />
                   </div>
-
                   <div>
                     <label className="form-label" style={{ fontSize: '0.78rem', fontWeight: 700 }}>Department</label>
                     <input
@@ -737,18 +702,28 @@ export const RelievingCertificateModal: React.FC<RelievingCertificateModalProps>
                       style={{ fontSize: '0.8125rem' }}
                     />
                   </div>
+                </div>
 
-                  <div>
-                    <label className="form-label" style={{ fontSize: '0.78rem', fontWeight: 700 }}>Joining Date</label>
-                    <input
-                      type="text"
-                      className="form-input"
-                      value={startDate}
-                      onChange={(e) => setStartDate(e.target.value)}
-                      style={{ fontSize: '0.8125rem' }}
-                    />
-                  </div>
+                <div style={{ marginTop: 14 }}>
+                  <label className="form-label" style={{ fontSize: '0.78rem', fontWeight: 700 }}>Residential Address</label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    value={residentialAddress}
+                    onChange={(e) => setResidentialAddress(e.target.value)}
+                    style={{ fontSize: '0.8125rem' }}
+                  />
+                </div>
+              </div>
 
+              {/* Separation & Dues Details */}
+              <div style={{ background: '#ffffff', padding: '20px', borderRadius: 12, border: '1px solid #e2e8f0' }}>
+                <h4 style={{ margin: '0 0 16px', fontSize: '0.95rem', fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <Calendar size={16} color="#2563eb" />
+                  3. Separation Dates &amp; Exit Clearance
+                </h4>
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 14, marginBottom: 16 }}>
                   <div>
                     <label className="form-label" style={{ fontSize: '0.78rem', fontWeight: 700 }}>Resignation Submission Date</label>
                     <input
@@ -759,58 +734,140 @@ export const RelievingCertificateModal: React.FC<RelievingCertificateModalProps>
                       style={{ fontSize: '0.8125rem' }}
                     />
                   </div>
-
                   <div>
-                    <label className="form-label" style={{ fontSize: '0.78rem', fontWeight: 700 }}>Official Relieving Date (LWD)</label>
+                    <label className="form-label" style={{ fontSize: '0.78rem', fontWeight: 700 }}>Relieving Date (Last Working Day)</label>
                     <input
                       type="text"
                       className="form-input"
-                      value={relievingDate}
-                      onChange={(e) => setRelievingDate(e.target.value)}
+                      value={lastWorkingDay}
+                      onChange={(e) => setLastWorkingDay(e.target.value)}
+                      style={{ fontSize: '0.8125rem' }}
+                    />
+                  </div>
+                  <div>
+                    <label className="form-label" style={{ fontSize: '0.78rem', fontWeight: 700 }}>Original Joining Date</label>
+                    <input
+                      type="text"
+                      className="form-input"
+                      value={joiningDate}
+                      onChange={(e) => setJoiningDate(e.target.value)}
                       style={{ fontSize: '0.8125rem' }}
                     />
                   </div>
                 </div>
 
-                {/* Clearance Checklist */}
-                <div style={{ marginTop: 18, paddingTop: 14, borderTop: '1px solid #f1f5f9' }}>
-                  <div style={{ fontSize: '0.8125rem', fontWeight: 700, color: '#0f172a', marginBottom: 10 }}>
-                    Operational & Financial Clearance Checklist
-                  </div>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 10 }}>
-                    <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.8125rem', color: '#334155', cursor: 'pointer' }}>
+                {/* Dues Status Radio Options */}
+                <div style={{ marginTop: 12, paddingTop: 14, borderTop: '1px solid #f1f5f9' }}>
+                  <label className="form-label" style={{ fontSize: '0.78rem', fontWeight: 700, marginBottom: 8 }}>
+                    Full &amp; Final Dues Status (Select One)
+                  </label>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                    <label
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 10,
+                        padding: '10px 14px',
+                        borderRadius: 8,
+                        border: duesType === 'NO_DUES' ? '1.5px solid #2563eb' : '1px solid #e2e8f0',
+                        backgroundColor: duesType === 'NO_DUES' ? '#eff6ff' : '#ffffff',
+                        cursor: 'pointer',
+                        fontSize: '0.8125rem',
+                      }}
+                    >
                       <input
-                        type="checkbox"
-                        checked={assetsReturned}
-                        onChange={(e) => setAssetsReturned(e.target.checked)}
+                        type="radio"
+                        name="duesType"
+                        checked={duesType === 'NO_DUES'}
+                        onChange={() => setDuesType('NO_DUES')}
                       />
-                      <span>All company assets & IT hardware returned</span>
+                      <span><strong>No outstanding dues</strong> — "you have no outstanding dues to the Company"</span>
                     </label>
 
-                    <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.8125rem', color: '#334155', cursor: 'pointer' }}>
+                    <label
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 10,
+                        padding: '10px 14px',
+                        borderRadius: 8,
+                        border: duesType === 'ADJUSTED' ? '1.5px solid #2563eb' : '1px solid #e2e8f0',
+                        backgroundColor: duesType === 'ADJUSTED' ? '#eff6ff' : '#ffffff',
+                        cursor: 'pointer',
+                        fontSize: '0.8125rem',
+                      }}
+                    >
                       <input
-                        type="checkbox"
-                        checked={accountsSettled}
-                        onChange={(e) => setAccountsSettled(e.target.checked)}
+                        type="radio"
+                        name="duesType"
+                        checked={duesType === 'ADJUSTED'}
+                        onChange={() => setDuesType('ADJUSTED')}
                       />
-                      <span>Full and final settlement accounts reconciled</span>
+                      <span><strong>Dues adjusted</strong> — "the following dues were adjusted in your full and final settlement: [details]"</span>
                     </label>
 
-                    <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.8125rem', color: '#334155', cursor: 'pointer' }}>
-                      <input
-                        type="checkbox"
-                        checked={ndaReaffirmed}
-                        onChange={(e) => setNdaReaffirmed(e.target.checked)}
-                      />
-                      <span>Non-disclosure & IP obligations reaffirmed</span>
-                    </label>
+                    {duesType === 'ADJUSTED' && (
+                      <div style={{ marginTop: 4, marginLeft: 26 }}>
+                        <input
+                          type="text"
+                          className="form-input"
+                          placeholder="e.g. ₹14,500 towards notice shortfall adjustment"
+                          value={duesDetails}
+                          onChange={(e) => setDuesDetails(e.target.value)}
+                          style={{ fontSize: '0.8125rem' }}
+                        />
+                      </div>
+                    )}
                   </div>
                 </div>
 
-                {/* Signatory and Location */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 14, marginTop: 16, paddingTop: 14, borderTop: '1px solid #f1f5f9' }}>
+                {/* Conduct & Performance Rating Clause */}
+                <div style={{ marginTop: 16, paddingTop: 14, borderTop: '1px solid #f1f5f9' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: '0.8125rem', fontWeight: 600 }}>
+                    <input
+                      type="checkbox"
+                      checked={includePerformanceClause}
+                      onChange={(e) => setIncludePerformanceClause(e.target.checked)}
+                    />
+                    <span>Include optional Conduct &amp; Performance Clause</span>
+                  </label>
+
+                  {includePerformanceClause && (
+                    <div style={{ marginTop: 10, marginLeft: 24, display: 'flex', alignItems: 'center', gap: 16 }}>
+                      <span style={{ fontSize: '0.78rem', color: '#64748b' }}>Rating:</span>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.8125rem', cursor: 'pointer' }}>
+                        <input
+                          type="radio"
+                          name="performanceRating"
+                          checked={performanceRating === 'satisfactory'}
+                          onChange={() => setPerformanceRating('satisfactory')}
+                        />
+                        <span>Satisfactory</span>
+                      </label>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.8125rem', cursor: 'pointer' }}>
+                        <input
+                          type="radio"
+                          name="performanceRating"
+                          checked={performanceRating === 'commendable'}
+                          onChange={() => setPerformanceRating('commendable')}
+                        />
+                        <span>Commendable</span>
+                      </label>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Signatory Details */}
+              <div style={{ background: '#ffffff', padding: '20px', borderRadius: 12, border: '1px solid #e2e8f0' }}>
+                <h4 style={{ margin: '0 0 16px', fontSize: '0.95rem', fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <ShieldCheck size={16} color="#2563eb" />
+                  4. Signatory Authority
+                </h4>
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 14 }}>
                   <div>
-                    <label className="form-label" style={{ fontSize: '0.78rem', fontWeight: 700 }}>Authorized Signatory Name</label>
+                    <label className="form-label" style={{ fontSize: '0.78rem', fontWeight: 700 }}>Authorised Signatory Name</label>
                     <input
                       type="text"
                       className="form-input"
@@ -820,45 +877,51 @@ export const RelievingCertificateModal: React.FC<RelievingCertificateModalProps>
                     />
                   </div>
                   <div>
-                    <label className="form-label" style={{ fontSize: '0.78rem', fontWeight: 700 }}>Signatory Designation</label>
+                    <label className="form-label" style={{ fontSize: '0.78rem', fontWeight: 700 }}>Designation</label>
                     <input
                       type="text"
                       className="form-input"
-                      value={signatoryTitle}
-                      onChange={(e) => setSignatoryTitle(e.target.value)}
+                      value={signatoryDesignation}
+                      onChange={(e) => setSignatoryDesignation(e.target.value)}
                       style={{ fontSize: '0.8125rem' }}
                     />
                   </div>
                   <div>
-                    <label className="form-label" style={{ fontSize: '0.78rem', fontWeight: 700 }}>Issue Date</label>
+                    <label className="form-label" style={{ fontSize: '0.78rem', fontWeight: 700 }}>Place</label>
                     <input
                       type="text"
                       className="form-input"
-                      value={issueDate}
-                      onChange={(e) => setIssueDate(e.target.value)}
+                      value={signatoryPlace}
+                      onChange={(e) => setSignatoryPlace(e.target.value)}
                       style={{ fontSize: '0.8125rem' }}
                     />
                   </div>
                   <div>
-                    <label className="form-label" style={{ fontSize: '0.78rem', fontWeight: 700 }}>Reference Number</label>
+                    <label className="form-label" style={{ fontSize: '0.78rem', fontWeight: 700 }}>Signatory Date</label>
                     <input
                       type="text"
                       className="form-input"
-                      value={referenceNumber}
-                      onChange={(e) => setReferenceNumber(e.target.value)}
+                      value={signatoryDate}
+                      onChange={(e) => setSignatoryDate(e.target.value)}
                       style={{ fontSize: '0.8125rem' }}
                     />
                   </div>
                 </div>
               </div>
 
-              {/* Proceed to Preview Button */}
-              <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+              {/* Proceed Button */}
+              <div style={{ display: 'flex', justifyContent: 'flex-end', paddingTop: 8 }}>
                 <Button
                   variant="primary"
                   icon={<ArrowRight size={16} />}
                   onClick={() => setStep(2)}
-                  style={{ padding: '10px 24px', fontSize: '0.875rem', backgroundColor: '#059669', borderColor: '#059669' }}
+                  style={{
+                    padding: '10px 24px',
+                    fontSize: '0.875rem',
+                    backgroundColor: '#2563eb',
+                    borderColor: '#2563eb',
+                    boxShadow: '0 2px 8px rgba(37, 99, 235, 0.25)',
+                  }}
                 >
                   Preview Relieving Letter
                 </Button>
@@ -929,168 +992,249 @@ export const RelievingCertificateModal: React.FC<RelievingCertificateModalProps>
                     variant="primary"
                     icon={<Download size={14} />}
                     onClick={handleDownloadPdf}
-                    style={{ padding: '6px 16px', fontSize: '0.8125rem', backgroundColor: '#059669', borderColor: '#059669' }}
+                    style={{
+                      padding: '6px 16px',
+                      fontSize: '0.8125rem',
+                      backgroundColor: '#2563eb',
+                      borderColor: '#2563eb',
+                      boxShadow: '0 2px 8px rgba(37, 99, 235, 0.25)',
+                    }}
                   >
                     Print PDF
                   </Button>
                 </div>
               </div>
 
-              {/* Printable Relieving Certificate Sheet */}
+              {/* Printable Relieving Letter Sheet (Single A4 Page matching PDF) */}
               <div
-                id="printable-relieving-certificate"
+                id="printable-relieving-sheet"
                 style={{
                   backgroundColor: '#ffffff',
                   boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
                   borderRadius: 4,
-                  padding: '50px 60px',
+                  padding: '44px 52px 32px 52px',
                   maxWidth: '820px',
                   margin: '0 auto',
-                  fontFamily: '"Times New Roman", Times, Georgia, serif',
+                  fontFamily: 'Arial, "Helvetica Neue", Helvetica, sans-serif',
                   color: '#1e293b',
-                  fontSize: '11pt',
-                  lineHeight: 1.6,
+                  fontSize: '10pt',
+                  lineHeight: 1.55,
                   border: '1px solid #e2e8f0',
                   boxSizing: 'border-box',
                   width: '100%',
+                  minHeight: '1050px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'space-between',
                 }}
               >
-                {/* Header with Logo & Reference */}
-                <div style={{ borderBottom: '2px solid #059669', paddingBottom: 16, marginBottom: 24, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                    <img
-                      src="/logo.png"
-                      alt="TaskNera Logo"
-                      style={{ width: 44, height: 44, objectFit: 'contain' }}
-                      onError={(e) => {
-                        (e.target as HTMLElement).style.display = 'none';
+                <div>
+                  {/* Official Header */}
+                  <div style={{ textAlign: 'center', marginBottom: 20 }}>
+                    {/* Official Tasknera Logo Mark */}
+                    <div style={{ display: 'inline-flex', justifyContent: 'center', marginBottom: 6 }}>
+                      <svg width="42" height="42" viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                          d="M12 18C12 15.7909 13.7909 14 16 14H56C58.2091 14 60 15.7909 60 18V24C60 26.2091 58.2091 28 56 28H42V56C42 58.2091 40.2091 60 38 60H30C27.7909 60 26 58.2091 26 56V28H16C13.7909 28 12 26.2091 12 24V18Z"
+                          fill="url(#tn_grad_rel)"
+                        />
+                        <path
+                          d="M26 28L46 48M46 28L26 48"
+                          stroke="#ffffff"
+                          strokeWidth="4"
+                          strokeLinecap="round"
+                          opacity="0.3"
+                        />
+                        <defs>
+                          <linearGradient id="tn_grad_rel" x1="12" y1="14" x2="60" y2="60" gradientUnits="userSpaceOnUse">
+                            <stop stopColor="#F97316" />
+                            <stop offset="0.5" stopColor="#FB923C" />
+                            <stop offset="1" stopColor="#94A3B8" />
+                          </linearGradient>
+                        </defs>
+                      </svg>
+                    </div>
+
+                    <div
+                      style={{
+                        fontSize: '1.28rem',
+                        fontWeight: 800,
+                        letterSpacing: '0.35em',
+                        color: '#0f172a',
+                        textTransform: 'uppercase',
+                        marginBottom: 4,
+                        fontFamily: 'Arial, sans-serif',
                       }}
-                    />
-                    <div>
-                      <div style={{ fontSize: '1.45rem', fontWeight: 800, color: '#0f172a', letterSpacing: '-0.02em', fontFamily: 'Arial, sans-serif' }}>
-                        TaskNera HR Solutions Private Limited
-                      </div>
-                      <div style={{ fontSize: '0.75rem', color: '#64748b', fontFamily: 'Arial, sans-serif', marginTop: 2 }}>
-                        Corporate Identity No (CIN): U74999DL2024PTC123456 | ISO 9001:2015 Certified
-                      </div>
-                      <div style={{ fontSize: '0.72rem', color: '#64748b', fontFamily: 'Arial, sans-serif' }}>
-                        Regd. Office: Level 7, DLF Cyber City, Sector 24, Gurugram, Delhi-NCR, India
-                      </div>
+                    >
+                      T A S K N E R A
+                    </div>
+                    <div
+                      style={{
+                        fontSize: '0.62rem',
+                        letterSpacing: '0.12em',
+                        color: '#64748b',
+                        fontWeight: 600,
+                        textTransform: 'uppercase',
+                      }}
+                    >
+                      GLOBAL HR SOLUTIONS | RECRUITMENT | WORKFORCE SUPPORT
                     </div>
                   </div>
-                </div>
 
-                {/* Reference Number & Issue Date */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 26, fontSize: '10pt', fontFamily: 'Arial, sans-serif' }}>
-                  <div>
-                    <strong>Ref No:</strong> {renderHighlighted(referenceNumber)}
-                  </div>
-                  <div>
-                    <strong>Date:</strong> {renderHighlighted(issueDate)}
-                  </div>
-                </div>
-
-                {/* Certificate Title */}
-                <div style={{ textAlign: 'center', margin: '16px 0 28px' }}>
+                  {/* Ref & Date Row */}
                   <div
                     style={{
-                      display: 'inline-block',
-                      borderBottom: '2px solid #059669',
-                      paddingBottom: 4,
-                      fontSize: '14pt',
-                      fontWeight: 800,
-                      letterSpacing: '0.08em',
-                      textTransform: 'uppercase',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      fontSize: '9.5pt',
+                      fontWeight: 600,
+                      marginBottom: 18,
                       color: '#0f172a',
                     }}
                   >
-                    RELIEVING &amp; SERVICE CLEARANCE CERTIFICATE
+                    <div>
+                      <strong>Ref. No.:</strong> {renderHighlighted(referenceNumber)}
+                    </div>
+                    <div>
+                      <strong>Date:</strong> {renderHighlighted(letterDate)}
+                    </div>
+                  </div>
+
+                  {/* Recipient Block */}
+                  <div style={{ fontSize: '9.5pt', lineHeight: 1.45, marginBottom: 18, color: '#0f172a' }}>
+                    <div style={{ fontWeight: 700 }}>To,</div>
+                    <div style={{ fontWeight: 700 }}>{renderHighlighted(employeeFullName)}</div>
+                    <div>
+                      Employee ID: {renderHighlighted(employeeId)} | {renderHighlighted(designation)}, {renderHighlighted(department)}
+                    </div>
+                    <div style={{ color: '#475569' }}>
+                      {renderHighlighted(residentialAddress)}
+                    </div>
+                  </div>
+
+                  {/* Subject */}
+                  <div style={{ fontSize: '10pt', fontWeight: 700, color: '#0f172a', marginBottom: 14 }}>
+                    Subject: Relieving Letter
+                  </div>
+
+                  {/* Salutation */}
+                  <div style={{ fontSize: '9.5pt', marginBottom: 12, color: '#0f172a' }}>
+                    Dear {renderHighlighted(employeeSalutation || employeeFullName)},
+                  </div>
+
+                  {/* Body Paragraphs */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 12, fontSize: '9.5pt', color: '#1e293b', textAlign: 'justify' }}>
+                    <p style={{ margin: 0 }}>
+                      This is with reference to your resignation dated {renderHighlighted(resignationDate)}, which was accepted by the Company. You have been relieved from the services of Tasknera at the close of business on {renderHighlighted(lastWorkingDay)} (the &ldquo;<strong>Last Working Day</strong>&rdquo;).
+                    </p>
+
+                    <p style={{ margin: 0 }}>
+                      You joined the Company on {renderHighlighted(joiningDate)} and last held the position of {renderHighlighted(designation)} in the {renderHighlighted(department)} team.
+                    </p>
+
+                    <p style={{ margin: 0 }}>
+                      The Company confirms that you have completed the exit formalities, including handover of your work and return of Company property, and that, as on the date of this letter,{' '}
+                      {duesType === 'NO_DUES' ? (
+                        <span>you have no outstanding dues to the Company.</span>
+                      ) : (
+                        <span>the following dues were adjusted in your full and final settlement: {renderHighlighted(duesDetails || 'None')}.</span>
+                      )}
+                    </p>
+
+                    <p style={{ margin: 0 }}>
+                      Your confidentiality, data-protection and other post-employment obligations under your appointment letter and Company policies continue to apply after your relief.
+                    </p>
+
+                    {includePerformanceClause && (
+                      <p style={{ margin: 0 }}>
+                        During your tenure, your conduct and performance were {renderHighlighted(performanceRating)}.
+                      </p>
+                    )}
+
+                    <p style={{ margin: 0 }}>
+                      We thank you for your contribution to Tasknera and wish you every success in your future endeavours.
+                    </p>
+                  </div>
+
+                  {/* Signatory Block & Company Seal */}
+                  <div style={{ marginTop: 24 }}>
+                    <div style={{ fontSize: '9.5pt', color: '#0f172a', marginBottom: 4 }}>
+                      Yours faithfully,
+                    </div>
+                    <div style={{ fontSize: '9.5pt', fontWeight: 700, color: '#0f172a', marginBottom: 12 }}>
+                      For and on behalf of TASKNERA
+                    </div>
+
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 20 }}>
+                      {/* Left: Authorised Signatory */}
+                      <div style={{ minWidth: 260 }}>
+                        <div
+                          style={{
+                            borderBottom: '1px solid #94a3b8',
+                            width: 220,
+                            paddingBottom: 2,
+                            marginBottom: 6,
+                            fontSize: '8pt',
+                            color: '#94a3b8',
+                          }}
+                        >
+                          Signature of Authorised Signatory
+                        </div>
+                        <div style={{ fontSize: '9.5pt', fontWeight: 700, color: '#0f172a' }}>
+                          Name: {renderHighlighted(signatoryName)}
+                        </div>
+                        <div style={{ fontSize: '9pt', color: '#0f172a' }}>
+                          Designation: {renderHighlighted(signatoryDesignation)}
+                        </div>
+                        <div style={{ fontSize: '9pt', color: '#0f172a' }}>
+                          Date: {renderHighlighted(signatoryDate)}
+                        </div>
+                        <div style={{ fontSize: '9pt', color: '#0f172a' }}>
+                          Place: {renderHighlighted(signatoryPlace)}
+                        </div>
+                      </div>
+
+                      {/* Center/Right: Company Seal Box */}
+                      <div
+                        style={{
+                          border: '1.5px solid #0f172a',
+                          width: 140,
+                          height: 76,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          color: '#64748b',
+                          fontSize: '0.78rem',
+                          fontWeight: 500,
+                          fontFamily: 'Arial, sans-serif',
+                          backgroundColor: '#ffffff',
+                          flexShrink: 0,
+                        }}
+                      >
+                        Company Seal
+                      </div>
+                    </div>
                   </div>
                 </div>
 
-                {/* Certificate Salutation & Narrative */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 16, textAlign: 'justify' }}>
-                  <p>
-                    <strong>To Whom It May Concern,</strong>
-                  </p>
-
-                  <p>
-                    This is to certify that{' '}
-                    <strong>
-                      {renderHighlighted(salutation)} {renderHighlighted(fullName)}
-                    </strong>{' '}
-                    (Employee ID: <strong>{renderHighlighted(employeeCode)}</strong>) was formally employed with{' '}
-                    <strong>TaskNera HR Solutions Private Limited</strong> from{' '}
-                    <strong>{renderHighlighted(startDate)}</strong> to{' '}
-                    <strong>{renderHighlighted(relievingDate)}</strong>. During {pronounHisHer} tenure with the
-                    organization, {pronounHeShe} held the position of{' '}
-                    <strong>{renderHighlighted(designation)}</strong> within the{' '}
-                    <strong>{renderHighlighted(department)}</strong> department.
-                  </p>
-
-                  <p>
-                    Following the submission of {pronounHisHer} formal resignation dated{' '}
-                    <strong>{renderHighlighted(resignationDate)}</strong>, {pronounHisHer} resignation was accepted by
-                    the management. Consequently, {pronounHeShe} has been formally relieved of all duties, operational
-                    responsibilities, and employment obligations with effect from the close of business hours on{' '}
-                    <strong>{renderHighlighted(relievingDate)}</strong>.
-                  </p>
-
-                  <p>
-                    We confirm that {renderHighlighted(fullName)} has completed all formal exit handover procedures. All
-                    company-owned assets, hardware, proprietary credentials, and documentation have been returned in
-                    satisfactory order. Furthermore, {pronounHisHer} full and final settlement of accounts has been
-                    duly reconciled with no outstanding financial dues or contractual claims pending against {pronounHimHer}.
-                  </p>
-
-                  <p>
-                    During {pronounHisHer} tenure with TaskNera HR Solutions, {pronounHisHer} conduct and character were
-                    found to be professional and satisfactory. We take this opportunity to thank {pronounHimHer} for
-                    {pronounHisHer} valuable contributions to our organization and wish {pronounHimHer} every success in
-                    all {pronounHisHer} future endeavors.
-                  </p>
-                </div>
-
-                {/* Signatory & Corporate Seal Block */}
+                {/* Footer */}
                 <div
                   style={{
-                    marginTop: 48,
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'flex-end',
-                    fontFamily: 'Arial, sans-serif',
+                    borderTop: '1px solid #e2e8f0',
+                    paddingTop: 10,
+                    marginTop: 20,
+                    textAlign: 'center',
+                    fontSize: '7.5pt',
+                    color: '#64748b',
+                    lineHeight: 1.4,
                   }}
                 >
-                  <div style={{ fontSize: '9.5pt', color: '#64748b' }}>
-                    <div><strong>Place:</strong> {renderHighlighted(place)}</div>
-                    <div><strong>Issuance Status:</strong> Official Verified Credential</div>
-                    <div><strong>Verification Portal:</strong> tasknera.com/verify-credentials</div>
+                  <div>
+                    TASKNERA | D-57, Dilshad Colony, Delhi &ndash; 110095, India | careers@tasknera.com
                   </div>
-
-                  <div style={{ textAlign: 'right', minWidth: 220 }}>
-                    <div style={{ fontSize: '9pt', color: '#475569', marginBottom: 28 }}>
-                      For <strong>TaskNera HR Solutions Private Limited</strong>
-                    </div>
-                    {/* Authorized Signature Line */}
-                    <div
-                      style={{
-                        borderTop: '1px solid #0f172a',
-                        paddingTop: 6,
-                        display: 'inline-block',
-                        minWidth: 180,
-                        textAlign: 'center',
-                      }}
-                    >
-                      <div style={{ fontWeight: 800, fontSize: '10.5pt', color: '#0f172a' }}>
-                        {renderHighlighted(signatoryName)}
-                      </div>
-                      <div style={{ fontSize: '8.5pt', color: '#475569', textTransform: 'uppercase' }}>
-                        {renderHighlighted(signatoryTitle)}
-                      </div>
-                      <div style={{ fontSize: '7.5pt', color: '#059669', fontWeight: 700, marginTop: 2 }}>
-                        [OFFICIALLY SEALED &amp; SIGNED]
-                      </div>
-                    </div>
+                  <div style={{ fontSize: '7pt', color: '#94a3b8', marginTop: 2 }}>
+                    Confidential | Page 1 of 1
                   </div>
                 </div>
               </div>
