@@ -21,6 +21,7 @@ import {
   Plus,
   Search,
   CheckCircle2,
+  UserCheck,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.js';
 import { Button } from '../components/common/Button.js';
@@ -39,6 +40,7 @@ import { CharacterCertificateModal } from '../components/documents/CharacterCert
 import { ExperienceLetterModal } from '../components/documents/ExperienceLetterModal.js';
 import { SalarySlipModal } from '../components/documents/SalarySlipModal.js';
 import { RelievingCertificateModal } from '../components/documents/RelievingCertificateModal.js';
+import { FreelancerOnboardingModal } from '../components/documents/FreelancerOnboardingModal.js';
 import { useToast } from '../context/ToastContext.js';
 
 export const DashboardPage: React.FC = () => {
@@ -75,6 +77,7 @@ export const DashboardPage: React.FC = () => {
   const [isExperienceModalOpen, setIsExperienceModalOpen] = useState(false);
   const [isSalarySlipModalOpen, setIsSalarySlipModalOpen] = useState(false);
   const [isRelievingModalOpen, setIsRelievingModalOpen] = useState(false);
+  const [isFreelancerModalOpen, setIsFreelancerModalOpen] = useState(false);
 
   const [selectedOfferForDetail, setSelectedOfferForDetail] = useState<OfferListItem | null>(null);
   const [selectedOfferForEmail, setSelectedOfferForEmail] = useState<OfferListItem | null>(null);
@@ -914,6 +917,12 @@ export const DashboardPage: React.FC = () => {
                   action: () => setIsCharacterModalOpen(true),
                 },
                 {
+                  label: 'Freelancer Onboarding',
+                  desc: 'Revenue-based engagement letter',
+                  icon: <UserCheck size={15} style={{ color: '#059669' }} />,
+                  action: () => setIsFreelancerModalOpen(true),
+                },
+                {
                   label: 'Relieving Letter',
                   desc: 'Work completion and clearance',
                   icon: <ShieldCheck size={15} style={{ color: '#2563eb' }} />,
@@ -1120,6 +1129,12 @@ export const DashboardPage: React.FC = () => {
       <RelievingCertificateModal
         isOpen={isRelievingModalOpen}
         onClose={() => setIsRelievingModalOpen(false)}
+        onSuccess={() => loadDashboardData()}
+      />
+
+      <FreelancerOnboardingModal
+        isOpen={isFreelancerModalOpen}
+        onClose={() => setIsFreelancerModalOpen(false)}
         onSuccess={() => loadDashboardData()}
       />
     </div>

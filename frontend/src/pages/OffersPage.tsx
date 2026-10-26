@@ -37,6 +37,8 @@ import {
   Award,
   Trash2,
   RotateCcw,
+  Percent,
+  Clock,
 } from 'lucide-react';
 import { Button } from '../components/common/Button.js';
 import { OfferStatusBadge, AiAdvisoryBadge } from '../components/common/Badge.js';
@@ -59,6 +61,7 @@ import { RelievingCertificateModal } from '../components/documents/RelievingCert
 import { BonafideCertificateModal } from '../components/documents/BonafideCertificateModal.js';
 import { PolicyViewerModal, PolicyDefinition } from '../components/policies/PolicyViewerModal.js';
 import { MasterRecruitmentAgreementModal } from '../components/documents/MasterRecruitmentAgreementModal.js';
+import { FreelancerOnboardingModal } from '../components/documents/FreelancerOnboardingModal.js';
 import { OFFICIAL_POLICIES } from '../services/policyCatalog.js';
 import {
   getAllPolicies,
@@ -116,8 +119,10 @@ export const OffersPage: React.FC = () => {
   const [isRelievingModalOpen, setIsRelievingModalOpen] = useState(false);
   const [isBonafideModalOpen, setIsBonafideModalOpen] = useState(false);
   const [isMrsModalOpen, setIsMrsModalOpen] = useState(false);
-  const [activeDocumentTab, setActiveDocumentTab] = useState<'ALL' | 'TEMPLATES' | 'CERTIFICATES' | 'POLICIES'>('ALL');
+  const [isFreelancerModalOpen, setIsFreelancerModalOpen] = useState(false);
+  const [activeDocumentTab, setActiveDocumentTab] = useState<'ALL' | 'TEMPLATES' | 'FREELANCER' | 'CERTIFICATES' | 'POLICIES'>('ALL');
   const [certificateSectionPulse, setCertificateSectionPulse] = useState(false);
+  const [freelancerSectionPulse, setFreelancerSectionPulse] = useState(false);
   const [isWizardOpen, setIsWizardOpen] = useState(() => searchParams.get('create') === 'true');
   const [selectedOfferForDetail, setSelectedOfferForDetail] = useState<OfferItem | null>(null);
   const [detailModalTab, setDetailModalTab] = useState<'preview' | 'pdf' | 'versions' | 'status'>('preview');
@@ -473,16 +478,16 @@ export const OffersPage: React.FC = () => {
       onClick: () => setIsCharacterModalOpen(true),
     },
     {
-      id: 'onboarding_letter',
-      title: 'Onboarding Letter',
-      description: 'Welcome document and joining details for new team members.',
-      icon: <UserCheck size={22} style={{ color: '#0284c7' }} />,
-      badge: 'Coming Soon',
-      badgeColor: '#64748b',
-      badgeBg: '#f8fafc',
-      badgeBorder: '#e2e8f0',
-      active: false,
-      onClick: () => info('Onboarding Letter template will be available soon.'),
+      id: 'freelancer_onboarding',
+      title: 'Freelancer Onboarding',
+      description: 'Official revenue-based engagement letter for independent contractors.',
+      icon: <UserCheck size={22} style={{ color: '#059669' }} />,
+      badge: 'Available',
+      badgeColor: '#16a34a',
+      badgeBg: '#f0fdf4',
+      badgeBorder: '#bbf7d0',
+      active: true,
+      onClick: () => setIsFreelancerModalOpen(true),
     },
     {
       id: 'experience_letter',
@@ -654,8 +659,9 @@ export const OffersPage: React.FC = () => {
       >
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
           {[
-            { key: 'ALL', label: 'All', count: documentCards.length + certificateCards.length + allPoliciesList.length },
+            { key: 'ALL', label: 'All', count: documentCards.length + certificateCards.length + allPoliciesList.length + 1 },
             { key: 'TEMPLATES', label: 'Templates', count: documentCards.length },
+            { key: 'FREELANCER', label: 'Freelancer Onboarding', count: 1, icon: <Briefcase size={13} /> },
             { key: 'CERTIFICATES', label: 'Certificates', count: certificateCards.length, icon: <Award size={13} /> },
             { key: 'POLICIES', label: 'Policies', count: allPoliciesList.length },
           ].map((tab) => {
@@ -666,7 +672,14 @@ export const OffersPage: React.FC = () => {
                 type="button"
                 onClick={() => {
                   setActiveDocumentTab(tab.key as any);
-                  if (tab.key === 'CERTIFICATES') {
+                  if (tab.key === 'FREELANCER') {
+                    const el = document.getElementById('freelancer-onboarding-section');
+                    if (el) {
+                      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                      setFreelancerSectionPulse(true);
+                      setTimeout(() => setFreelancerSectionPulse(false), 2400);
+                    }
+                  } else if (tab.key === 'CERTIFICATES') {
                     const el = document.getElementById('certificates-section');
                     if (el) {
                       el.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -889,7 +902,203 @@ export const OffersPage: React.FC = () => {
       )}
 
       {/* ========================================================================= */}
-      {/* 2. CERTIFICATES SECTION                                                   */}
+      {/* 2. FREELANCER ONBOARDING LETTER SECTION                                   */}
+      {/* ========================================================================= */}
+      {(activeDocumentTab === 'ALL' || activeDocumentTab === 'FREELANCER') && (
+        <div
+          id="freelancer-onboarding-section"
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 16,
+            marginTop: 6,
+            paddingTop: 10,
+            scrollMarginTop: '80px',
+            borderRadius: 14,
+            padding: '16px',
+            backgroundColor: freelancerSectionPulse ? 'rgba(5, 150, 105, 0.06)' : 'transparent',
+            boxShadow: freelancerSectionPulse ? '0 0 0 2px rgba(5, 150, 105, 0.4)' : 'none',
+            transition: 'all 0.4s ease',
+          }}
+        >
+          {/* Section Header */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#0f172a', margin: 0 }}>
+                  Freelancer Onboarding Letter
+                </h3>
+                <span
+                  style={{
+                    fontSize: '0.72rem',
+                    fontWeight: 700,
+                    backgroundColor: '#ecfdf5',
+                    color: '#059669',
+                    padding: '2px 9px',
+                    borderRadius: 12,
+                    border: '1px solid #a7f3d0',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 4,
+                  }}
+                >
+                  <Briefcase size={12} />
+                  Revenue-Based Engagement
+                </span>
+              </div>
+              <p style={{ fontSize: '0.8125rem', color: '#64748b', margin: '2px 0 0 0' }}>
+                Onboard independent contractors and Strategic Growth Managers with formal 2-page revenue share terms and dual signatory execution.
+              </p>
+            </div>
+
+            <Button
+              variant="primary"
+              icon={<UserCheck size={14} />}
+              onClick={() => setIsFreelancerModalOpen(true)}
+              style={{
+                backgroundColor: '#059669',
+                borderColor: '#059669',
+                boxShadow: '0 2px 8px rgba(5, 150, 105, 0.25)',
+                fontSize: '0.8125rem',
+                padding: '8px 16px',
+              }}
+            >
+              Generate Freelancer Letter
+            </Button>
+          </div>
+
+          {/* Feature Showcase Banner / Card */}
+          <div
+            style={{
+              backgroundColor: '#ffffff',
+              borderRadius: 12,
+              padding: '22px 24px',
+              border: '1.5px solid #a7f3d0',
+              boxShadow: '0 4px 20px rgba(5, 150, 105, 0.08)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 16,
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
+              <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start', maxWidth: 720 }}>
+                <div
+                  style={{
+                    width: 52,
+                    height: 52,
+                    borderRadius: 12,
+                    backgroundColor: '#ecfdf5',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    border: '1px solid #6ee7b7',
+                    color: '#059669',
+                    flexShrink: 0,
+                  }}
+                >
+                  <Briefcase size={26} />
+                </div>
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                    <h4 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#0f172a', margin: 0 }}>
+                      Strategic Growth Manager Onboarding (Revenue-Based)
+                    </h4>
+                    <span
+                      style={{
+                        fontSize: '0.6875rem',
+                        fontWeight: 700,
+                        padding: '2px 7px',
+                        borderRadius: 6,
+                        backgroundColor: '#f0fdf4',
+                        color: '#15803d',
+                        border: '1px solid #bbf7d0',
+                      }}
+                    >
+                      Ref: TSK/ONB/YYYY/000
+                    </span>
+                  </div>
+                  <p style={{ fontSize: '0.84rem', color: '#475569', lineHeight: 1.5, margin: 0 }}>
+                    Official 2-page Tasknera letter confirming independent contractor status, percentage revenue share on Net Revenue received in cleared funds, 14-day payment timelines, 12-month client opportunity attribution, and formal acceptance signing.
+                  </p>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: 10 }}>
+                <Button
+                  variant="primary"
+                  icon={<FileText size={14} />}
+                  onClick={() => setIsFreelancerModalOpen(true)}
+                  style={{
+                    backgroundColor: '#059669',
+                    borderColor: '#059669',
+                    fontSize: '0.8125rem',
+                  }}
+                >
+                  Open Generator Modal
+                </Button>
+              </div>
+            </div>
+
+            {/* Quick Parameter Badges */}
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))',
+                gap: 12,
+                paddingTop: 14,
+                borderTop: '1px solid #f1f5f9',
+              }}
+            >
+              {[
+                {
+                  label: 'Engagement Nature',
+                  val: 'Independent Contractor (No employment relationship)',
+                  icon: <UserCheck size={14} style={{ color: '#059669' }} />,
+                },
+                {
+                  label: 'Compensation Model',
+                  val: 'Revenue-Based % Share (No fixed salary/retainer)',
+                  icon: <Percent size={14} style={{ color: '#0284c7' }} />,
+                },
+                {
+                  label: 'Payment Trigger',
+                  val: 'Cleared Client Funds received by Tasknera',
+                  icon: <DollarSign size={14} style={{ color: '#16a34a' }} />,
+                },
+                {
+                  label: 'Opportunity Attribution',
+                  val: '12-Month CRM Attribution & Dual Signing',
+                  icon: <Clock size={14} style={{ color: '#7c3aed' }} />,
+                },
+              ].map((item, idx) => (
+                <div
+                  key={idx}
+                  style={{
+                    padding: '10px 14px',
+                    borderRadius: 8,
+                    backgroundColor: '#f8fafc',
+                    border: '1px solid #e2e8f0',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 3,
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.72rem', color: '#64748b', fontWeight: 600 }}>
+                    {item.icon}
+                    <span>{item.label}</span>
+                  </div>
+                  <div style={{ fontSize: '0.8125rem', fontWeight: 700, color: '#0f172a' }}>
+                    {item.val}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* 3. CERTIFICATES SECTION                                                   */}
       {/* ========================================================================= */}
       {(activeDocumentTab === 'ALL' || activeDocumentTab === 'CERTIFICATES') && (
         <div
@@ -1729,6 +1938,13 @@ export const OffersPage: React.FC = () => {
       <MasterRecruitmentAgreementModal
         isOpen={isMrsModalOpen}
         onClose={() => setIsMrsModalOpen(false)}
+        onSuccess={() => fetchOffers()}
+      />
+
+      {/* Official Freelancer Onboarding Letter Modal */}
+      <FreelancerOnboardingModal
+        isOpen={isFreelancerModalOpen}
+        onClose={() => setIsFreelancerModalOpen(false)}
         onSuccess={() => fetchOffers()}
       />
     </div>
