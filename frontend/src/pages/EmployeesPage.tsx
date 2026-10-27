@@ -50,6 +50,7 @@ import { MisconductWarningModal } from '../components/documents/MisconductWarnin
 import { PerformanceImprovementPlanModal } from '../components/documents/PerformanceImprovementPlanModal.js';
 import { FeedbackDiscussionModal } from '../components/documents/FeedbackDiscussionModal.js';
 import { OnboardingChecklistModal } from '../components/documents/OnboardingChecklistModal.js';
+import { AssetHandoverModal } from '../components/documents/AssetHandoverModal.js';
 import { useToast } from '../context/ToastContext.js';
 
 export const EmployeesPage: React.FC = () => {
@@ -120,6 +121,10 @@ export const EmployeesPage: React.FC = () => {
   // Onboarding Checklist Modal
   const [isOnboardingModalOpen, setIsOnboardingModalOpen] = useState(false);
   const [selectedEmployeeForOnboarding, setSelectedEmployeeForOnboarding] = useState<Employee | null>(null);
+
+  // Asset Handover Form Modal
+  const [isAssetHandoverModalOpen, setIsAssetHandoverModalOpen] = useState(false);
+  const [selectedEmployeeForAssetHandover, setSelectedEmployeeForAssetHandover] = useState<Employee | null>(null);
 
   useEffect(() => {
     loadEmployees();
@@ -1223,6 +1228,19 @@ export const EmployeesPage: React.FC = () => {
           onClose={() => {
             setIsOnboardingModalOpen(false);
             setSelectedEmployeeForOnboarding(null);
+          }}
+          onSuccess={() => loadEmployees()}
+        />
+      )}
+
+      {/* Asset Handover Form (TN/HR/AST) Modal */}
+      {isAssetHandoverModalOpen && (
+        <AssetHandoverModal
+          isOpen={isAssetHandoverModalOpen}
+          initialEmployee={selectedEmployeeForAssetHandover}
+          onClose={() => {
+            setIsAssetHandoverModalOpen(false);
+            setSelectedEmployeeForAssetHandover(null);
           }}
           onSuccess={() => loadEmployees()}
         />

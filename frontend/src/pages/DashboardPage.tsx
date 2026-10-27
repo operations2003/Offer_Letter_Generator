@@ -29,6 +29,11 @@ import {
   UserMinus,
   MessageSquare,
   CheckSquare,
+  Laptop,
+  CalendarCheck,
+  Receipt,
+  ClipboardCheck,
+  UserPlus,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.js';
 import { Button } from '../components/common/Button.js';
@@ -63,6 +68,11 @@ import { MisconductWarningModal } from '../components/documents/MisconductWarnin
 import { PerformanceImprovementPlanModal } from '../components/documents/PerformanceImprovementPlanModal.js';
 import { FeedbackDiscussionModal } from '../components/documents/FeedbackDiscussionModal.js';
 import { OnboardingChecklistModal } from '../components/documents/OnboardingChecklistModal.js';
+import { AssetHandoverModal } from '../components/documents/AssetHandoverModal.js';
+import { LeaveApprovalModal } from '../components/documents/LeaveApprovalModal.js';
+import { FnfSettlementModal } from '../components/documents/FnfSettlementModal.js';
+import { ExitChecklistModal } from '../components/documents/ExitChecklistModal.js';
+import { EmployeeInformationModal } from '../components/documents/EmployeeInformationModal.js';
 import { useToast } from '../context/ToastContext.js';
 
 export const DashboardPage: React.FC = () => {
@@ -115,6 +125,11 @@ export const DashboardPage: React.FC = () => {
   const [isPipModalOpen, setIsPipModalOpen] = useState(false);
   const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
   const [isOnboardingModalOpen, setIsOnboardingModalOpen] = useState(false);
+  const [isAssetHandoverModalOpen, setIsAssetHandoverModalOpen] = useState(false);
+  const [isLeaveApprovalModalOpen, setIsLeaveApprovalModalOpen] = useState(false);
+  const [isFnfModalOpen, setIsFnfModalOpen] = useState(false);
+  const [isExitChecklistModalOpen, setIsExitChecklistModalOpen] = useState(false);
+  const [isEmployeeInfoModalOpen, setIsEmployeeInfoModalOpen] = useState(false);
 
   const [selectedOfferForDetail, setSelectedOfferForDetail] = useState<OfferListItem | null>(null);
   const [selectedOfferForEmail, setSelectedOfferForEmail] = useState<OfferListItem | null>(null);
@@ -1044,6 +1059,36 @@ export const DashboardPage: React.FC = () => {
                   action: () => setIsOnboardingModalOpen(true),
                 },
                 {
+                  label: 'Asset Handover Form',
+                  desc: '2-Page hardware issuance, IT return clearance & sign-off',
+                  icon: <Laptop size={15} style={{ color: '#0891b2' }} />,
+                  action: () => setIsAssetHandoverModalOpen(true),
+                },
+                {
+                  label: 'Employee Information Form',
+                  desc: '2-Page new joiner intake dossier & KYC',
+                  icon: <UserPlus size={15} style={{ color: '#4338ca' }} />,
+                  action: () => setIsEmployeeInfoModalOpen(true),
+                },
+                {
+                  label: 'Approval of Leave',
+                  desc: 'Formal leave duration & balance sanction',
+                  icon: <CalendarCheck size={15} style={{ color: '#059669' }} />,
+                  action: () => setIsLeaveApprovalModalOpen(true),
+                },
+                {
+                  label: 'Exit Checklist',
+                  desc: '2-Page 18-point cross-department clearance',
+                  icon: <ClipboardCheck size={15} style={{ color: '#dc2626' }} />,
+                  action: () => setIsExitChecklistModalOpen(true),
+                },
+                {
+                  label: 'Full & Final Settlement',
+                  desc: '2-Page financial settlement & employee receipt',
+                  icon: <Receipt size={15} style={{ color: '#7c3aed' }} />,
+                  action: () => setIsFnfModalOpen(true),
+                },
+                {
                   label: 'Internship Conclusion',
                   desc: 'Letter on internship conclusion',
                   icon: <GraduationCap size={15} style={{ color: '#ea580c' }} />,
@@ -1352,6 +1397,36 @@ export const DashboardPage: React.FC = () => {
       <OnboardingChecklistModal
         isOpen={isOnboardingModalOpen}
         onClose={() => setIsOnboardingModalOpen(false)}
+        onSuccess={() => loadDashboardData()}
+      />
+
+      <AssetHandoverModal
+        isOpen={isAssetHandoverModalOpen}
+        onClose={() => setIsAssetHandoverModalOpen(false)}
+        onSuccess={() => loadDashboardData()}
+      />
+
+      <LeaveApprovalModal
+        isOpen={isLeaveApprovalModalOpen}
+        onClose={() => setIsLeaveApprovalModalOpen(false)}
+        onSuccess={() => loadDashboardData()}
+      />
+
+      <FnfSettlementModal
+        isOpen={isFnfModalOpen}
+        onClose={() => setIsFnfModalOpen(false)}
+        onSuccess={() => loadDashboardData()}
+      />
+
+      <ExitChecklistModal
+        isOpen={isExitChecklistModalOpen}
+        onClose={() => setIsExitChecklistModalOpen(false)}
+        onSuccess={() => loadDashboardData()}
+      />
+
+      <EmployeeInformationModal
+        isOpen={isEmployeeInfoModalOpen}
+        onClose={() => setIsEmployeeInfoModalOpen(false)}
         onSuccess={() => loadDashboardData()}
       />
     </div>

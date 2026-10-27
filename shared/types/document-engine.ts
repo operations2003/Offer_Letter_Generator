@@ -22,7 +22,11 @@ export type FutureDocumentTypeCode =
   | 'LD_COURSE'
   | 'CERTIFICATE'
   | 'APTITUDE_TEST'
-  | 'QUIZ';
+  | 'QUIZ'
+  | 'ASSET_HANDOVER'
+  | 'LEAVE_APPROVAL'
+  | 'EXIT_CHECKLIST'
+  | 'EMPLOYEE_INFO_FORM';
 
 export type DocumentTypeCode = CoreDocumentTypeCode | FutureDocumentTypeCode;
 

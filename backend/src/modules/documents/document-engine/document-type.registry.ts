@@ -895,6 +895,121 @@ export const DOCUMENT_TYPE_REGISTRY: Record<DocumentTypeCode, DocumentTypeDefini
     aiCapabilities: { supportsResumeExtraction: false, supportsDocumentExtraction: false, extractionTasks: [], draftingAssistanceTasks: [], confidenceThreshold: 0.9 },
     qualityChecks: [],
   },
+
+  ASSET_HANDOVER: {
+    code: 'ASSET_HANDOVER',
+    name: 'Asset Handover Form',
+    category: 'EMPLOYMENT',
+    description: 'Hardware equipment allocation and return clearance tracking form (TN/HR/AST) with tripartite sign-off.',
+    iconName: 'Laptop',
+    isImplemented: true,
+    version: 1,
+    sections: [
+      { key: 'details', title: 'Employee & Handover Details', description: 'Employee info & transaction type', displayOrder: 1 },
+      { key: 'assets', title: 'Hardware Asset Particulars', description: 'Laptops, chargers, SIM, ID cards & peripherals', displayOrder: 2 },
+      { key: 'clearance', title: 'IT Clearance & Acknowledgement', description: 'IT return checklist & employee sign-off', displayOrder: 3 },
+    ],
+    requiredFields: [
+      { key: 'employeeName', label: 'Employee Name', dataType: 'STRING', description: 'Name of recipient/returnee', sectionKey: 'details' },
+      { key: 'employeeId', label: 'Employee ID', dataType: 'STRING', description: 'Employee identifier', sectionKey: 'details' },
+    ],
+    optionalFields: [],
+    placeholders: [
+      { tag: '{{employee_name}}', fieldKey: 'employeeName', description: 'Employee Name', sampleValue: 'Aarav Sharma', isRequired: true },
+    ],
+    validationRules: [],
+    statusFlow: {
+      initialStatus: 'DRAFT_AI',
+      terminalStatuses: ['ISSUED'],
+      steps: [
+        { status: 'DRAFT_AI', label: 'Draft', description: 'Asset form initialized', order: 1 },
+        { status: 'ISSUED', label: 'Completed', description: 'Signed and confirmed', order: 2 },
+      ],
+    },
+    aiCapabilities: { supportsResumeExtraction: false, supportsDocumentExtraction: false, extractionTasks: [], draftingAssistanceTasks: [], confidenceThreshold: 0.9 },
+    qualityChecks: [],
+  },
+
+  LEAVE_APPROVAL: {
+    code: 'LEAVE_APPROVAL',
+    name: 'Approval of Leave',
+    category: 'EMPLOYMENT',
+    description: 'Official leave approval letter (TN/HR/LVA) confirming approved tenure, dates, balance & acting point of contact.',
+    iconName: 'CalendarCheck',
+    isImplemented: true,
+    version: 1,
+    sections: [{ key: 'leave', title: 'Leave Particulars', description: 'Dates and coverage', displayOrder: 1 }],
+    requiredFields: [
+      { key: 'employeeName', label: 'Employee Name', dataType: 'STRING', description: 'Name of applicant', sectionKey: 'leave' },
+    ],
+    optionalFields: [],
+    placeholders: [{ tag: '{{employee_name}}', fieldKey: 'employeeName', description: 'Name', sampleValue: 'Aarav Sharma', isRequired: true }],
+    validationRules: [],
+    statusFlow: {
+      initialStatus: 'DRAFT_AI',
+      terminalStatuses: ['APPROVED'],
+      steps: [
+        { status: 'DRAFT_AI', label: 'Draft', description: 'Initialized', order: 1 },
+        { status: 'APPROVED', label: 'Approved', description: 'Signed and approved', order: 2 },
+      ],
+    },
+    aiCapabilities: { supportsResumeExtraction: false, supportsDocumentExtraction: false, extractionTasks: [], draftingAssistanceTasks: [], confidenceThreshold: 0.9 },
+    qualityChecks: [],
+  },
+
+  EXIT_CHECKLIST: {
+    code: 'EXIT_CHECKLIST',
+    name: 'Exit Checklist',
+    category: 'EXIT',
+    description: 'Multi-department separation clearance form (TN/HR/EXC) covering HR, Manager, IT, Admin, Finance, and Final Clearance.',
+    iconName: 'UserCheck',
+    isImplemented: true,
+    version: 1,
+    sections: [{ key: 'clearance', title: 'Clearance Items', description: '18 checklist tasks', displayOrder: 1 }],
+    requiredFields: [
+      { key: 'employeeName', label: 'Employee Name', dataType: 'STRING', description: 'Name of departing employee', sectionKey: 'clearance' },
+    ],
+    optionalFields: [],
+    placeholders: [{ tag: '{{employee_name}}', fieldKey: 'employeeName', description: 'Name', sampleValue: 'Aarav Sharma', isRequired: true }],
+    validationRules: [],
+    statusFlow: {
+      initialStatus: 'DRAFT_AI',
+      terminalStatuses: ['APPROVED'],
+      steps: [
+        { status: 'DRAFT_AI', label: 'Pending Clearance', description: 'Department sign-offs pending', order: 1 },
+        { status: 'APPROVED', label: 'Fully Cleared', description: 'All departments completed', order: 2 },
+      ],
+    },
+    aiCapabilities: { supportsResumeExtraction: false, supportsDocumentExtraction: false, extractionTasks: [], draftingAssistanceTasks: [], confidenceThreshold: 0.9 },
+    qualityChecks: [],
+  },
+
+  EMPLOYEE_INFO_FORM: {
+    code: 'EMPLOYEE_INFO_FORM',
+    name: 'Employee Information Form',
+    category: 'EMPLOYMENT',
+    description: 'Official comprehensive employee intake form (TN/HR/EIF) covering personal, address, employment, emergency, bank/statutory, education & previous employment.',
+    iconName: 'UserPlus',
+    isImplemented: true,
+    version: 1,
+    sections: [{ key: 'intake', title: 'Intake Details', description: 'Full personal & employment record', displayOrder: 1 }],
+    requiredFields: [
+      { key: 'employeeName', label: 'Employee Name', dataType: 'STRING', description: 'Full legal name', sectionKey: 'intake' },
+    ],
+    optionalFields: [],
+    placeholders: [{ tag: '{{employee_name}}', fieldKey: 'employeeName', description: 'Name', sampleValue: 'Aarav Sharma', isRequired: true }],
+    validationRules: [],
+    statusFlow: {
+      initialStatus: 'DRAFT_AI',
+      terminalStatuses: ['APPROVED'],
+      steps: [
+        { status: 'DRAFT_AI', label: 'Intake Submitted', description: 'Pending HR verification', order: 1 },
+        { status: 'APPROVED', label: 'Verified by HR', description: 'Saved to personnel record', order: 2 },
+      ],
+    },
+    aiCapabilities: { supportsResumeExtraction: false, supportsDocumentExtraction: false, extractionTasks: [], draftingAssistanceTasks: [], confidenceThreshold: 0.9 },
+    qualityChecks: [],
+  },
 };
 
 export class DocumentTypeRegistry {

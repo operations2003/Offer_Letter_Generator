@@ -84,6 +84,10 @@ export class HrDocumentService {
       CERTIFICATE: 'CRT',
       APTITUDE_TEST: 'APT',
       QUIZ: 'QZ',
+      ASSET_HANDOVER: 'AST',
+      LEAVE_APPROVAL: 'LVA',
+      EXIT_CHECKLIST: 'EXC',
+      EMPLOYEE_INFO_FORM: 'EIF',
     };
 
     const prefix = prefixMap[typeCode] || 'DOC';

@@ -46,6 +46,11 @@ import {
   TrendingUp,
   MessageSquare,
   CheckSquare,
+  Laptop,
+  CalendarCheck,
+  Receipt,
+  ClipboardCheck,
+  UserPlus,
 } from 'lucide-react';
 import { Button } from '../components/common/Button.js';
 import { OfferStatusBadge, AiAdvisoryBadge } from '../components/common/Badge.js';
@@ -83,6 +88,11 @@ import { MisconductWarningModal } from '../components/documents/MisconductWarnin
 import { PerformanceImprovementPlanModal } from '../components/documents/PerformanceImprovementPlanModal.js';
 import { FeedbackDiscussionModal } from '../components/documents/FeedbackDiscussionModal.js';
 import { OnboardingChecklistModal } from '../components/documents/OnboardingChecklistModal.js';
+import { AssetHandoverModal } from '../components/documents/AssetHandoverModal.js';
+import { LeaveApprovalModal } from '../components/documents/LeaveApprovalModal.js';
+import { FnfSettlementModal } from '../components/documents/FnfSettlementModal.js';
+import { ExitChecklistModal } from '../components/documents/ExitChecklistModal.js';
+import { EmployeeInformationModal } from '../components/documents/EmployeeInformationModal.js';
 import { OFFICIAL_POLICIES } from '../services/policyCatalog.js';
 import {
   getAllPolicies,
@@ -155,8 +165,18 @@ export const OffersPage: React.FC = () => {
   const [isPipModalOpen, setIsPipModalOpen] = useState(false);
   const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
   const [isOnboardingModalOpen, setIsOnboardingModalOpen] = useState(false);
-  const [activeDocumentTab, setActiveDocumentTab] = useState<'ALL' | 'TEMPLATES' | 'ONBOARDING' | 'DISCIPLINARY' | 'INTERNSHIP_EXTENSION' | 'PROMOTION' | 'RELIEVING' | 'SALARY_REVISION' | 'EMPLOYEE_TERMINATION' | 'RESIGNATION' | 'INTERNSHIP' | 'CERTIFICATES' | 'POLICIES'>('ALL');
+  const [isAssetHandoverModalOpen, setIsAssetHandoverModalOpen] = useState(false);
+  const [isLeaveApprovalModalOpen, setIsLeaveApprovalModalOpen] = useState(false);
+  const [isFnfModalOpen, setIsFnfModalOpen] = useState(false);
+  const [isExitChecklistModalOpen, setIsExitChecklistModalOpen] = useState(false);
+  const [isEmployeeInfoModalOpen, setIsEmployeeInfoModalOpen] = useState(false);
+  const [activeDocumentTab, setActiveDocumentTab] = useState<'ALL' | 'TEMPLATES' | 'EMPLOYEE_INFO_FORM' | 'ONBOARDING' | 'ASSET_HANDOVER' | 'LEAVE_APPROVAL' | 'EXIT_CHECKLIST' | 'FNF_SETTLEMENT' | 'DISCIPLINARY' | 'INTERNSHIP_EXTENSION' | 'PROMOTION' | 'RELIEVING' | 'SALARY_REVISION' | 'EMPLOYEE_TERMINATION' | 'RESIGNATION' | 'INTERNSHIP' | 'CERTIFICATES' | 'POLICIES'>('ALL');
   const [onboardingSectionPulse, setOnboardingSectionPulse] = useState(false);
+  const [assetHandoverSectionPulse, setAssetHandoverSectionPulse] = useState(false);
+  const [leaveApprovalSectionPulse, setLeaveApprovalSectionPulse] = useState(false);
+  const [fnfSectionPulse, setFnfSectionPulse] = useState(false);
+  const [exitChecklistSectionPulse, setExitChecklistSectionPulse] = useState(false);
+  const [employeeInfoSectionPulse, setEmployeeInfoSectionPulse] = useState(false);
   const [internshipExtensionSectionPulse, setInternshipExtensionSectionPulse] = useState(false);
   const [promotionSectionPulse, setPromotionSectionPulse] = useState(false);
   const [relievingSectionPulse, setRelievingSectionPulse] = useState(false);
@@ -652,6 +672,66 @@ export const OffersPage: React.FC = () => {
       onClick: () => setIsOnboardingModalOpen(true),
     },
     {
+      id: 'asset_handover',
+      title: 'Asset Handover Form',
+      description: 'Official 2-page asset issuance & return clearance form with hardware particulars, IT clearance & tripartite sign-off.',
+      icon: <Laptop size={22} style={{ color: '#0891b2' }} />,
+      badge: 'TN/HR/AST Format',
+      badgeColor: '#0891b2',
+      badgeBg: '#ecfeff',
+      badgeBorder: '#a5f3fc',
+      active: true,
+      onClick: () => setIsAssetHandoverModalOpen(true),
+    },
+    {
+      id: 'employee_info_form',
+      title: 'Employee Information Form',
+      description: 'Official 2-page new joiner dossier covering personal, address, bank, statutory & education details.',
+      icon: <UserPlus size={22} style={{ color: '#4338ca' }} />,
+      badge: 'TN/HR/EIF Format',
+      badgeColor: '#4338ca',
+      badgeBg: '#eef2ff',
+      badgeBorder: '#c7d2fe',
+      active: true,
+      onClick: () => setIsEmployeeInfoModalOpen(true),
+    },
+    {
+      id: 'leave_approval',
+      title: 'Approval of Leave',
+      description: 'Official 1-page formal leave sanction letter with category breakdown, leave balance & CEO sign-off.',
+      icon: <CalendarCheck size={22} style={{ color: '#059669' }} />,
+      badge: 'TN/HR/LVA Format',
+      badgeColor: '#059669',
+      badgeBg: '#ecfdf5',
+      badgeBorder: '#a7f3d0',
+      active: true,
+      onClick: () => setIsLeaveApprovalModalOpen(true),
+    },
+    {
+      id: 'exit_checklist',
+      title: 'Exit Checklist',
+      description: 'Official 2-page 18-point clearance form across HR, Manager, IT, Admin, Finance & Final sign-offs.',
+      icon: <ClipboardCheck size={22} style={{ color: '#dc2626' }} />,
+      badge: 'TN/HR/EXC Format',
+      badgeColor: '#dc2626',
+      badgeBg: '#fef2f2',
+      badgeBorder: '#fecaca',
+      active: true,
+      onClick: () => setIsExitChecklistModalOpen(true),
+    },
+    {
+      id: 'fnf_settlement',
+      title: 'Full & Final Settlement',
+      description: 'Official 2-page financial settlement statement with Part A Earnings, Part B Deductions, net words & employee receipt.',
+      icon: <Receipt size={22} style={{ color: '#7c3aed' }} />,
+      badge: 'TN/HR/FNF Format',
+      badgeColor: '#7c3aed',
+      badgeBg: '#f5f3ff',
+      badgeBorder: '#ddd6fe',
+      active: true,
+      onClick: () => setIsFnfModalOpen(true),
+    },
+    {
       id: 'internship_extension',
       title: 'Extension of Internship',
       description: 'Official 1-page letter extending internship tenure, stipend details, reporting manager & acceptance.',
@@ -883,12 +963,17 @@ export const OffersPage: React.FC = () => {
           {[
             { key: 'ALL', label: 'All', count: documentCards.length + certificateCards.length + allPoliciesList.length + 1 },
             { key: 'TEMPLATES', label: 'Templates', count: documentCards.length },
+            { key: 'EMPLOYEE_INFO_FORM', label: 'Employee Info Form', count: 1, icon: <UserPlus size={13} /> },
             { key: 'ONBOARDING', label: 'Onboarding Checklist', count: 1, icon: <CheckSquare size={13} /> },
+            { key: 'ASSET_HANDOVER', label: 'Asset Handover', count: 1, icon: <Laptop size={13} /> },
+            { key: 'LEAVE_APPROVAL', label: 'Leave Approval', count: 1, icon: <CalendarCheck size={13} /> },
             { key: 'INTERNSHIP_EXTENSION', label: 'Internship Extension', count: 1, icon: <GraduationCap size={13} /> },
             { key: 'PROMOTION', label: 'Promotion Letter', count: 1, icon: <Award size={13} /> },
             { key: 'RELIEVING', label: 'Relieving Letter', count: 1, icon: <FileCheck2 size={13} /> },
             { key: 'SALARY_REVISION', label: 'Salary Revision', count: 1, icon: <TrendingUp size={13} /> },
             { key: 'RESIGNATION', label: 'Resignation Acceptance', count: 1, icon: <UserMinus size={13} /> },
+            { key: 'EXIT_CHECKLIST', label: 'Exit Checklist', count: 1, icon: <ClipboardCheck size={13} /> },
+            { key: 'FNF_SETTLEMENT', label: 'FNF Settlement', count: 1, icon: <Receipt size={13} /> },
             { key: 'EMPLOYEE_TERMINATION', label: 'Employee Termination', count: 1, icon: <ShieldAlert size={13} /> },
             { key: 'INTERNSHIP', label: 'Internship Conclusion', count: 1, icon: <GraduationCap size={13} /> },
             { key: 'CERTIFICATES', label: 'Certificates', count: certificateCards.length, icon: <Award size={13} /> },
@@ -901,12 +986,33 @@ export const OffersPage: React.FC = () => {
                 type="button"
                 onClick={() => {
                   setActiveDocumentTab(tab.key as any);
-                  if (tab.key === 'ONBOARDING') {
+                  if (tab.key === 'EMPLOYEE_INFO_FORM') {
+                    const el = document.getElementById('employee-info-section');
+                    if (el) {
+                      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                      setEmployeeInfoSectionPulse(true);
+                      setTimeout(() => setEmployeeInfoSectionPulse(false), 2400);
+                    }
+                  } else if (tab.key === 'ONBOARDING') {
                     const el = document.getElementById('onboarding-checklist-section');
                     if (el) {
                       el.scrollIntoView({ behavior: 'smooth', block: 'start' });
                       setOnboardingSectionPulse(true);
                       setTimeout(() => setOnboardingSectionPulse(false), 2400);
+                    }
+                  } else if (tab.key === 'ASSET_HANDOVER') {
+                    const el = document.getElementById('asset-handover-section');
+                    if (el) {
+                      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                      setAssetHandoverSectionPulse(true);
+                      setTimeout(() => setAssetHandoverSectionPulse(false), 2400);
+                    }
+                  } else if (tab.key === 'LEAVE_APPROVAL') {
+                    const el = document.getElementById('leave-approval-section');
+                    if (el) {
+                      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                      setLeaveApprovalSectionPulse(true);
+                      setTimeout(() => setLeaveApprovalSectionPulse(false), 2400);
                     }
                   } else if (tab.key === 'INTERNSHIP_EXTENSION') {
                     const el = document.getElementById('internship-extension-section');
@@ -942,6 +1048,20 @@ export const OffersPage: React.FC = () => {
                       el.scrollIntoView({ behavior: 'smooth', block: 'start' });
                       setResignationSectionPulse(true);
                       setTimeout(() => setResignationSectionPulse(false), 2400);
+                    }
+                  } else if (tab.key === 'EXIT_CHECKLIST') {
+                    const el = document.getElementById('exit-checklist-section');
+                    if (el) {
+                      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                      setExitChecklistSectionPulse(true);
+                      setTimeout(() => setExitChecklistSectionPulse(false), 2400);
+                    }
+                  } else if (tab.key === 'FNF_SETTLEMENT') {
+                    const el = document.getElementById('fnf-settlement-section');
+                    if (el) {
+                      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                      setFnfSectionPulse(true);
+                      setTimeout(() => setFnfSectionPulse(false), 2400);
                     }
                   } else if (tab.key === 'EMPLOYEE_TERMINATION') {
                     const el = document.getElementById('employee-termination-section');
@@ -1395,6 +1515,1261 @@ export const OffersPage: React.FC = () => {
                 </span>
                 <span style={{ color: '#64748b' }}>
                   3 tasks: Compliance training, Probation objectives &amp; 30-day feedback check-in.
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* 2B. ASSET HANDOVER FORM SECTION (TN/HR/AST 2-PAGE ISSUE & RETURN)         */}
+      {/* ========================================================================= */}
+      {(activeDocumentTab === 'ALL' || activeDocumentTab === 'ASSET_HANDOVER') && (
+        <div
+          id="asset-handover-section"
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 16,
+            marginTop: 6,
+            paddingTop: 10,
+            scrollMarginTop: '80px',
+            borderRadius: 14,
+            padding: '16px',
+            backgroundColor: assetHandoverSectionPulse ? 'rgba(8, 145, 178, 0.06)' : 'transparent',
+            boxShadow: assetHandoverSectionPulse ? '0 0 0 2px rgba(8, 145, 178, 0.4)' : 'none',
+            transition: 'all 0.4s ease',
+          }}
+        >
+          {/* Section Header */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#0f172a', margin: 0 }}>
+                  Asset Handover Form
+                </h3>
+                <span
+                  style={{
+                    fontSize: '0.72rem',
+                    fontWeight: 700,
+                    backgroundColor: '#ecfeff',
+                    color: '#0891b2',
+                    padding: '2px 9px',
+                    borderRadius: 12,
+                    border: '1px solid #a5f3fc',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 4,
+                  }}
+                >
+                  <Laptop size={12} />
+                  TN/HR/AST Format &bull; 2-Page Official Form
+                </span>
+              </div>
+              <p style={{ fontSize: '0.8125rem', color: '#64748b', margin: '2px 0 0 0' }}>
+                Official 2-page Tasknera asset handover and exit return clearance form covering laptops, power adapters, corporate SIM cards, RFID cards, peripherals, IT security clearance &amp; tripartite sign-off.
+              </p>
+            </div>
+
+            <Button
+              variant="primary"
+              icon={<Laptop size={14} />}
+              onClick={() => setIsAssetHandoverModalOpen(true)}
+              style={{
+                backgroundColor: '#0891b2',
+                borderColor: '#0891b2',
+                boxShadow: '0 2px 8px rgba(8, 145, 178, 0.25)',
+                fontSize: '0.8125rem',
+                padding: '8px 16px',
+              }}
+            >
+              Generate Asset Handover Form
+            </Button>
+          </div>
+
+          {/* Feature Showcase Card */}
+          <div
+            style={{
+              backgroundColor: '#ffffff',
+              borderRadius: 12,
+              padding: '22px 24px',
+              border: '1.5px solid #a5f3fc',
+              boxShadow: '0 4px 20px rgba(8, 145, 178, 0.08)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 16,
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
+              <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start', maxWidth: 740 }}>
+                <div
+                  style={{
+                    width: 52,
+                    height: 52,
+                    borderRadius: 12,
+                    backgroundColor: '#ecfeff',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    border: '1px solid #a5f3fc',
+                    color: '#0891b2',
+                    flexShrink: 0,
+                  }}
+                >
+                  <Laptop size={26} />
+                </div>
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                    <h4 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#0f172a', margin: 0 }}>
+                      Asset Handover &amp; IT Return Clearance (Lifecycle Hardware Tracking)
+                    </h4>
+                    <span
+                      style={{
+                        fontSize: '0.6875rem',
+                        fontWeight: 700,
+                        padding: '2px 7px',
+                        borderRadius: 6,
+                        backgroundColor: '#ecfeff',
+                        color: '#0891b2',
+                        border: '1px solid #a5f3fc',
+                      }}
+                    >
+                      Ref: TN/HR/AST/[YYYY]/[000]
+                    </span>
+                  </div>
+                  <p style={{ fontSize: '0.84rem', color: '#475569', lineHeight: 1.5, margin: 0 }}>
+                    Dual-purpose equipment tracking document supporting both onboarding issuance (new joiners / replacements) and separation clearance (exit / transfer). Itemizes serial numbers, hardware condition, data wipe compliance, software access revocation, and tripartite sign-off across Employee, IT / Admin, and HR.
+                  </p>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: 10 }}>
+                <Button
+                  variant="primary"
+                  icon={<Laptop size={14} />}
+                  onClick={() => setIsAssetHandoverModalOpen(true)}
+                  style={{
+                    backgroundColor: '#0891b2',
+                    borderColor: '#0891b2',
+                    boxShadow: '0 2px 8px rgba(8, 145, 178, 0.25)',
+                    fontSize: '0.8125rem',
+                    padding: '8px 16px',
+                  }}
+                >
+                  Open Handover Form Generator
+                </Button>
+              </div>
+            </div>
+
+            {/* Quick parameter preview pills */}
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))',
+                gap: 12,
+                marginTop: 4,
+                paddingTop: 14,
+                borderTop: '1px solid #f1f5f9',
+              }}
+            >
+              <div
+                style={{
+                  backgroundColor: '#f8fafc',
+                  padding: '10px 14px',
+                  borderRadius: 8,
+                  border: '1px solid #e2e8f0',
+                  fontSize: '0.78rem',
+                }}
+              >
+                <span style={{ fontWeight: 700, color: '#0891b2', display: 'block', marginBottom: 2 }}>
+                  1. Dual Transaction Modes
+                </span>
+                <span style={{ color: '#64748b' }}>
+                  Toggle between Issue (new joiner / replacement) and Return (exit / department transfer).
+                </span>
+              </div>
+
+              <div
+                style={{
+                  backgroundColor: '#f8fafc',
+                  padding: '10px 14px',
+                  borderRadius: 8,
+                  border: '1px solid #e2e8f0',
+                  fontSize: '0.78rem',
+                }}
+              >
+                <span style={{ fontWeight: 700, color: '#0891b2', display: 'block', marginBottom: 2 }}>
+                  2. 7-Point Hardware Table
+                </span>
+                <span style={{ color: '#64748b' }}>
+                  Laptops, chargers, SIM cards, RFID cards, peripherals, bag &amp; custom accessory tags.
+                </span>
+              </div>
+
+              <div
+                style={{
+                  backgroundColor: '#f8fafc',
+                  padding: '10px 14px',
+                  borderRadius: 8,
+                  border: '1px solid #e2e8f0',
+                  fontSize: '0.78rem',
+                }}
+              >
+                <span style={{ fontWeight: 700, color: '#0891b2', display: 'block', marginBottom: 2 }}>
+                  3. IT Security Clearance
+                </span>
+                <span style={{ color: '#64748b' }}>
+                  Verification of policy data wipe, VPN / licence revocation &amp; physical inspection.
+                </span>
+              </div>
+
+              <div
+                style={{
+                  backgroundColor: '#f8fafc',
+                  padding: '10px 14px',
+                  borderRadius: 8,
+                  border: '1px solid #e2e8f0',
+                  fontSize: '0.78rem',
+                }}
+              >
+                <span style={{ fontWeight: 700, color: '#0891b2', display: 'block', marginBottom: 2 }}>
+                  4. Tripartite Execution
+                </span>
+                <span style={{ color: '#64748b' }}>
+                  Formal 3-column sign-off for Employee, IT / Admin Representative &amp; HR Representative.
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* 2C. EMPLOYEE INFORMATION FORM SECTION (TN/HR/EIF 2-PAGE INTAKE DOSSIER)   */}
+      {/* ========================================================================= */}
+      {(activeDocumentTab === 'ALL' || activeDocumentTab === 'EMPLOYEE_INFO_FORM') && (
+        <div
+          id="employee-info-section"
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 16,
+            marginTop: 6,
+            paddingTop: 10,
+            scrollMarginTop: '80px',
+            borderRadius: 14,
+            padding: '16px',
+            backgroundColor: employeeInfoSectionPulse ? 'rgba(67, 56, 202, 0.06)' : 'transparent',
+            boxShadow: employeeInfoSectionPulse ? '0 0 0 2px rgba(67, 56, 202, 0.4)' : 'none',
+            transition: 'all 0.4s ease',
+          }}
+        >
+          {/* Section Header */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#0f172a', margin: 0 }}>
+                  Employee Information Form
+                </h3>
+                <span
+                  style={{
+                    fontSize: '0.72rem',
+                    fontWeight: 700,
+                    backgroundColor: '#eef2ff',
+                    color: '#4338ca',
+                    padding: '2px 9px',
+                    borderRadius: 12,
+                    border: '1px solid #c7d2fe',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 4,
+                  }}
+                >
+                  <UserPlus size={12} />
+                  TN/HR/EIF Format &bull; 2-Page Official Dossier
+                </span>
+              </div>
+              <p style={{ fontSize: '0.8125rem', color: '#64748b', margin: '2px 0 0 0' }}>
+                Official 2-page new joiner intake dossier covering Personal Particulars, Residential Address, Employment Details, Emergency Contacts, Bank &amp; Statutory KYC, Education, Past Employers &amp; Declaration.
+              </p>
+            </div>
+
+            <Button
+              variant="primary"
+              icon={<UserPlus size={14} />}
+              onClick={() => setIsEmployeeInfoModalOpen(true)}
+              style={{
+                backgroundColor: '#4338ca',
+                borderColor: '#4338ca',
+                boxShadow: '0 2px 8px rgba(67, 56, 202, 0.25)',
+                fontSize: '0.8125rem',
+                padding: '8px 16px',
+              }}
+            >
+              Generate Employee Info Form
+            </Button>
+          </div>
+
+          {/* Feature Showcase Card */}
+          <div
+            style={{
+              backgroundColor: '#ffffff',
+              borderRadius: 12,
+              padding: '22px 24px',
+              border: '1.5px solid #c7d2fe',
+              boxShadow: '0 4px 20px rgba(67, 56, 202, 0.08)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 16,
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
+              <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start', maxWidth: 740 }}>
+                <div
+                  style={{
+                    width: 52,
+                    height: 52,
+                    borderRadius: 12,
+                    backgroundColor: '#eef2ff',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    border: '1px solid #c7d2fe',
+                    color: '#4338ca',
+                    flexShrink: 0,
+                  }}
+                >
+                  <UserPlus size={26} />
+                </div>
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                    <h4 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#0f172a', margin: 0 }}>
+                      Employee Information Form (New Joiner Dossier &amp; KYC Verification)
+                    </h4>
+                    <span
+                      style={{
+                        fontSize: '0.6875rem',
+                        fontWeight: 700,
+                        padding: '2px 7px',
+                        borderRadius: 6,
+                        backgroundColor: '#eef2ff',
+                        color: '#4338ca',
+                        border: '1px solid #c7d2fe',
+                      }}
+                    >
+                      Ref: TN/HR/EIF/[YYYY]/[000]
+                    </span>
+                  </div>
+                  <p style={{ fontSize: '0.8125rem', color: '#475569', margin: '0 0 10px 0', lineHeight: 1.5 }}>
+                    Comprehensive onboarding intake form completed in block letters by employees on or before day of joining. Captures statutory requirements (PAN, Aadhaar, UAN, ESI), bank details, educational qualifications, previous employment record, and formal signed employee declaration.
+                  </p>
+                  <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                    <span style={{ fontSize: '0.72rem', backgroundColor: '#f1f5f9', color: '#334155', padding: '3px 8px', borderRadius: 4, fontWeight: 500 }}>
+                      ✓ Sections A-F Structured Layout
+                    </span>
+                    <span style={{ fontSize: '0.72rem', backgroundColor: '#f1f5f9', color: '#334155', padding: '3px 8px', borderRadius: 4, fontWeight: 500 }}>
+                      ✓ Bank &amp; Statutory KYC Verification
+                    </span>
+                    <span style={{ fontSize: '0.72rem', backgroundColor: '#f1f5f9', color: '#334155', padding: '3px 8px', borderRadius: 4, fontWeight: 500 }}>
+                      ✓ Education &amp; Past Experience Grids
+                    </span>
+                    <span style={{ fontSize: '0.72rem', backgroundColor: '#f1f5f9', color: '#334155', padding: '3px 8px', borderRadius: 4, fontWeight: 500 }}>
+                      ✓ Employee Declaration &amp; HR Verification
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8, minWidth: 200 }}>
+                <Button
+                  variant="primary"
+                  icon={<UserPlus size={14} />}
+                  onClick={() => setIsEmployeeInfoModalOpen(true)}
+                  style={{
+                    backgroundColor: '#4338ca',
+                    borderColor: '#4338ca',
+                    fontSize: '0.8125rem',
+                    width: '100%',
+                    justifyContent: 'center',
+                  }}
+                >
+                  Create Form
+                </Button>
+                <button
+                  type="button"
+                  onClick={() => setIsEmployeeInfoModalOpen(true)}
+                  style={{
+                    backgroundColor: '#f8fafc',
+                    border: '1px solid #e2e8f0',
+                    color: '#475569',
+                    fontSize: '0.75rem',
+                    fontWeight: 600,
+                    padding: '6px 12px',
+                    borderRadius: 6,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 6,
+                  }}
+                >
+                  <Eye size={12} />
+                  Preview Dossier PDF
+                </button>
+              </div>
+            </div>
+
+            {/* 4 Feature Cards */}
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))',
+                gap: 12,
+                marginTop: 4,
+                paddingTop: 14,
+                borderTop: '1px solid #f1f5f9',
+              }}
+            >
+              <div
+                style={{
+                  backgroundColor: '#f8fafc',
+                  padding: '10px 14px',
+                  borderRadius: 8,
+                  border: '1px solid #e2e8f0',
+                  fontSize: '0.78rem',
+                }}
+              >
+                <span style={{ fontWeight: 700, color: '#4338ca', display: 'block', marginBottom: 2 }}>
+                  Sections A &amp; B &bull; Personal &amp; Address
+                </span>
+                <span style={{ color: '#64748b' }}>
+                  Full name, DOB, gender, blood group, nationality, mobile, emails, current &amp; permanent addresses.
+                </span>
+              </div>
+
+              <div
+                style={{
+                  backgroundColor: '#f8fafc',
+                  padding: '10px 14px',
+                  borderRadius: 8,
+                  border: '1px solid #e2e8f0',
+                  fontSize: '0.78rem',
+                }}
+              >
+                <span style={{ fontWeight: 700, color: '#4338ca', display: 'block', marginBottom: 2 }}>
+                  Sections C &amp; D &bull; Employment &amp; Emergency
+                </span>
+                <span style={{ color: '#64748b' }}>
+                  Employee ID, designation, department, manager, official email, and emergency contact details.
+                </span>
+              </div>
+
+              <div
+                style={{
+                  backgroundColor: '#f8fafc',
+                  padding: '10px 14px',
+                  borderRadius: 8,
+                  border: '1px solid #e2e8f0',
+                  fontSize: '0.78rem',
+                }}
+              >
+                <span style={{ fontWeight: 700, color: '#4338ca', display: 'block', marginBottom: 2 }}>
+                  Section E &bull; Bank &amp; Statutory KYC
+                </span>
+                <span style={{ color: '#64748b' }}>
+                  Bank account, IFSC code, PAN card, Aadhaar number, UAN (Provident Fund) and ESI registration.
+                </span>
+              </div>
+
+              <div
+                style={{
+                  backgroundColor: '#f8fafc',
+                  padding: '10px 14px',
+                  borderRadius: 8,
+                  border: '1px solid #e2e8f0',
+                  fontSize: '0.78rem',
+                }}
+              >
+                <span style={{ fontWeight: 700, color: '#4338ca', display: 'block', marginBottom: 2 }}>
+                  Section F &bull; Education, Past Jobs &amp; Declaration
+                </span>
+                <span style={{ color: '#64748b' }}>
+                  Degree table, certifications, previous employer history with tenure, and signed legal declaration.
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* 2D. APPROVAL OF LEAVE SECTION (TN/HR/LVA 1-PAGE FORMAL SANCTION)          */}
+      {/* ========================================================================= */}
+      {(activeDocumentTab === 'ALL' || activeDocumentTab === 'LEAVE_APPROVAL') && (
+        <div
+          id="leave-approval-section"
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 16,
+            marginTop: 6,
+            paddingTop: 10,
+            scrollMarginTop: '80px',
+            borderRadius: 14,
+            padding: '16px',
+            backgroundColor: leaveApprovalSectionPulse ? 'rgba(5, 150, 105, 0.06)' : 'transparent',
+            boxShadow: leaveApprovalSectionPulse ? '0 0 0 2px rgba(5, 150, 105, 0.4)' : 'none',
+            transition: 'all 0.4s ease',
+          }}
+        >
+          {/* Section Header */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#0f172a', margin: 0 }}>
+                  Approval of Leave Letter
+                </h3>
+                <span
+                  style={{
+                    fontSize: '0.72rem',
+                    fontWeight: 700,
+                    backgroundColor: '#ecfdf5',
+                    color: '#059669',
+                    padding: '2px 9px',
+                    borderRadius: 12,
+                    border: '1px solid #a7f3d0',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 4,
+                  }}
+                >
+                  <CalendarCheck size={12} />
+                  TN/HR/LVA Format &bull; 1-Page Official Letter
+                </span>
+              </div>
+              <p style={{ fontSize: '0.8125rem', color: '#64748b', margin: '2px 0 0 0' }}>
+                Official 1-page formal leave sanction letter documenting approved category, leave period, resumption date, remaining balance, responsibilities handover, salary status &amp; CEO sign-off.
+              </p>
+            </div>
+
+            <Button
+              variant="primary"
+              icon={<CalendarCheck size={14} />}
+              onClick={() => setIsLeaveApprovalModalOpen(true)}
+              style={{
+                backgroundColor: '#059669',
+                borderColor: '#059669',
+                boxShadow: '0 2px 8px rgba(5, 150, 105, 0.25)',
+                fontSize: '0.8125rem',
+                padding: '8px 16px',
+              }}
+            >
+              Generate Leave Approval
+            </Button>
+          </div>
+
+          {/* Feature Showcase Card */}
+          <div
+            style={{
+              backgroundColor: '#ffffff',
+              borderRadius: 12,
+              padding: '22px 24px',
+              border: '1.5px solid #a7f3d0',
+              boxShadow: '0 4px 20px rgba(5, 150, 105, 0.08)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 16,
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
+              <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start', maxWidth: 740 }}>
+                <div
+                  style={{
+                    width: 52,
+                    height: 52,
+                    borderRadius: 12,
+                    backgroundColor: '#ecfdf5',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    border: '1px solid #a7f3d0',
+                    color: '#059669',
+                    flexShrink: 0,
+                  }}
+                >
+                  <CalendarCheck size={26} />
+                </div>
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                    <h4 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#0f172a', margin: 0 }}>
+                      Approval of Leave (Formal Employee Leave Sanction Letter)
+                    </h4>
+                    <span
+                      style={{
+                        fontSize: '0.6875rem',
+                        fontWeight: 700,
+                        padding: '2px 7px',
+                        borderRadius: 6,
+                        backgroundColor: '#ecfdf5',
+                        color: '#059669',
+                        border: '1px solid #a7f3d0',
+                      }}
+                    >
+                      Ref: TN/HR/LVA/[YYYY]/[000]
+                    </span>
+                  </div>
+                  <p style={{ fontSize: '0.8125rem', color: '#475569', margin: '0 0 10px 0', lineHeight: 1.5 }}>
+                    Standardized formal corporate leave approval for all employee categories (Casual, Earned, Sick, Maternity, Paternity, Unpaid). Features structured leave parameter schedule, handover person designation, paid vs. unpaid salary adjustment clause, and official CEO authorization.
+                  </p>
+                  <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                    <span style={{ fontSize: '0.72rem', backgroundColor: '#f1f5f9', color: '#334155', padding: '3px 8px', borderRadius: 4, fontWeight: 500 }}>
+                      ✓ Structured Parameter Schedule
+                    </span>
+                    <span style={{ fontSize: '0.72rem', backgroundColor: '#f1f5f9', color: '#334155', padding: '3px 8px', borderRadius: 4, fontWeight: 500 }}>
+                      ✓ Leave Balance Reconciliation
+                    </span>
+                    <span style={{ fontSize: '0.72rem', backgroundColor: '#f1f5f9', color: '#334155', padding: '3px 8px', borderRadius: 4, fontWeight: 500 }}>
+                      ✓ Paid / Unpaid Salary Adjustment
+                    </span>
+                    <span style={{ fontSize: '0.72rem', backgroundColor: '#f1f5f9', color: '#334155', padding: '3px 8px', borderRadius: 4, fontWeight: 500 }}>
+                      ✓ CEO Ms. Sheetal Bedi Signature &amp; Seal
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8, minWidth: 200 }}>
+                <Button
+                  variant="primary"
+                  icon={<CalendarCheck size={14} />}
+                  onClick={() => setIsLeaveApprovalModalOpen(true)}
+                  style={{
+                    backgroundColor: '#059669',
+                    borderColor: '#059669',
+                    fontSize: '0.8125rem',
+                    width: '100%',
+                    justifyContent: 'center',
+                  }}
+                >
+                  Create Letter
+                </Button>
+                <button
+                  type="button"
+                  onClick={() => setIsLeaveApprovalModalOpen(true)}
+                  style={{
+                    backgroundColor: '#f8fafc',
+                    border: '1px solid #e2e8f0',
+                    color: '#475569',
+                    fontSize: '0.75rem',
+                    fontWeight: 600,
+                    padding: '6px 12px',
+                    borderRadius: 6,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 6,
+                  }}
+                >
+                  <Eye size={12} />
+                  Preview Leave PDF
+                </button>
+              </div>
+            </div>
+
+            {/* 4 Feature Cards */}
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))',
+                gap: 12,
+                marginTop: 4,
+                paddingTop: 14,
+                borderTop: '1px solid #f1f5f9',
+              }}
+            >
+              <div
+                style={{
+                  backgroundColor: '#f8fafc',
+                  padding: '10px 14px',
+                  borderRadius: 8,
+                  border: '1px solid #e2e8f0',
+                  fontSize: '0.78rem',
+                }}
+              >
+                <span style={{ fontWeight: 700, color: '#059669', display: 'block', marginBottom: 2 }}>
+                  Leave Type &amp; Duration
+                </span>
+                <span style={{ color: '#64748b' }}>
+                  Casual, Earned, Sick, Maternity, Paternity, Unpaid with start, end &amp; total calculated calendar days.
+                </span>
+              </div>
+
+              <div
+                style={{
+                  backgroundColor: '#f8fafc',
+                  padding: '10px 14px',
+                  borderRadius: 8,
+                  border: '1px solid #e2e8f0',
+                  fontSize: '0.78rem',
+                }}
+              >
+                <span style={{ fontWeight: 700, color: '#059669', display: 'block', marginBottom: 2 }}>
+                  Resumption &amp; Balance
+                </span>
+                <span style={{ color: '#64748b' }}>
+                  Exact resumption date, remaining leave days after approval, and reporting manager authorization.
+                </span>
+              </div>
+
+              <div
+                style={{
+                  backgroundColor: '#f8fafc',
+                  padding: '10px 14px',
+                  borderRadius: 8,
+                  border: '1px solid #e2e8f0',
+                  fontSize: '0.78rem',
+                }}
+              >
+                <span style={{ fontWeight: 700, color: '#059669', display: 'block', marginBottom: 2 }}>
+                  Handover &amp; Reachability
+                </span>
+                <span style={{ color: '#64748b' }}>
+                  Nomination of colleague covering duties, handover protocols, and urgent emergency reachability.
+                </span>
+              </div>
+
+              <div
+                style={{
+                  backgroundColor: '#f8fafc',
+                  padding: '10px 14px',
+                  borderRadius: 8,
+                  border: '1px solid #e2e8f0',
+                  fontSize: '0.78rem',
+                }}
+              >
+                <span style={{ fontWeight: 700, color: '#059669', display: 'block', marginBottom: 2 }}>
+                  Salary Treatment Clause
+                </span>
+                <span style={{ color: '#64748b' }}>
+                  Clear selection of Paid Leave vs. Unpaid Leave adjusted against monthly salary with CEO seal.
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* 2E. EXIT CHECKLIST SECTION (TN/HR/EXC 2-PAGE 18-POINT CLEARANCE FORM)       */}
+      {/* ========================================================================= */}
+      {(activeDocumentTab === 'ALL' || activeDocumentTab === 'EXIT_CHECKLIST') && (
+        <div
+          id="exit-checklist-section"
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 16,
+            marginTop: 6,
+            paddingTop: 10,
+            scrollMarginTop: '80px',
+            borderRadius: 14,
+            padding: '16px',
+            backgroundColor: exitChecklistSectionPulse ? 'rgba(220, 38, 38, 0.06)' : 'transparent',
+            boxShadow: exitChecklistSectionPulse ? '0 0 0 2px rgba(220, 38, 38, 0.4)' : 'none',
+            transition: 'all 0.4s ease',
+          }}
+        >
+          {/* Section Header */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#0f172a', margin: 0 }}>
+                  Exit Checklist
+                </h3>
+                <span
+                  style={{
+                    fontSize: '0.72rem',
+                    fontWeight: 700,
+                    backgroundColor: '#fef2f2',
+                    color: '#dc2626',
+                    padding: '2px 9px',
+                    borderRadius: 12,
+                    border: '1px solid #fecaca',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 4,
+                  }}
+                >
+                  <ClipboardCheck size={12} />
+                  TN/HR/EXC Format &bull; 2-Page 18-Point Clearance
+                </span>
+              </div>
+              <p style={{ fontSize: '0.8125rem', color: '#64748b', margin: '2px 0 0 0' }}>
+                Official 2-page Tasknera exit clearance checklist covering 18 milestone items across HR, Reporting Manager, IT, Admin, Finance / Payroll, and Final Relieving clearance.
+              </p>
+            </div>
+
+            <Button
+              variant="primary"
+              icon={<ClipboardCheck size={14} />}
+              onClick={() => setIsExitChecklistModalOpen(true)}
+              style={{
+                backgroundColor: '#dc2626',
+                borderColor: '#dc2626',
+                boxShadow: '0 2px 8px rgba(220, 38, 38, 0.25)',
+                fontSize: '0.8125rem',
+                padding: '8px 16px',
+              }}
+            >
+              Generate Exit Checklist
+            </Button>
+          </div>
+
+          {/* Feature Showcase Card */}
+          <div
+            style={{
+              backgroundColor: '#ffffff',
+              borderRadius: 12,
+              padding: '22px 24px',
+              border: '1.5px solid #fecaca',
+              boxShadow: '0 4px 20px rgba(220, 38, 38, 0.08)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 16,
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
+              <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start', maxWidth: 740 }}>
+                <div
+                  style={{
+                    width: 52,
+                    height: 52,
+                    borderRadius: 12,
+                    backgroundColor: '#fef2f2',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    border: '1px solid #fecaca',
+                    color: '#dc2626',
+                    flexShrink: 0,
+                  }}
+                >
+                  <ClipboardCheck size={26} />
+                </div>
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                    <h4 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#0f172a', margin: 0 }}>
+                      Exit Checklist (Multi-Department Offboarding Clearance Form)
+                    </h4>
+                    <span
+                      style={{
+                        fontSize: '0.6875rem',
+                        fontWeight: 700,
+                        padding: '2px 7px',
+                        borderRadius: 6,
+                        backgroundColor: '#fef2f2',
+                        color: '#dc2626',
+                        border: '1px solid #fecaca',
+                      }}
+                    >
+                      Ref: TN/HR/EXC/[YYYY]/[000]
+                    </span>
+                  </div>
+                  <p style={{ fontSize: '0.8125rem', color: '#475569', margin: '0 0 10px 0', lineHeight: 1.5 }}>
+                    Comprehensive 18-point clearance record verifying complete handover of employee duties, return of company equipment, deprovisioning of accounts, payroll reconciliations, and release of statutory exit documents.
+                  </p>
+                  <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                    <span style={{ fontSize: '0.72rem', backgroundColor: '#f1f5f9', color: '#334155', padding: '3px 8px', borderRadius: 4, fontWeight: 500 }}>
+                      ✓ 18 Clearance Milestones
+                    </span>
+                    <span style={{ fontSize: '0.72rem', backgroundColor: '#f1f5f9', color: '#334155', padding: '3px 8px', borderRadius: 4, fontWeight: 500 }}>
+                      ✓ 6 Cross-Functional Departments
+                    </span>
+                    <span style={{ fontSize: '0.72rem', backgroundColor: '#f1f5f9', color: '#334155', padding: '3px 8px', borderRadius: 4, fontWeight: 500 }}>
+                      ✓ Service &amp; Notice Particulars
+                    </span>
+                    <span style={{ fontSize: '0.72rem', backgroundColor: '#f1f5f9', color: '#334155', padding: '3px 8px', borderRadius: 4, fontWeight: 500 }}>
+                      ✓ Tripartite Signatures
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8, minWidth: 200 }}>
+                <Button
+                  variant="primary"
+                  icon={<ClipboardCheck size={14} />}
+                  onClick={() => setIsExitChecklistModalOpen(true)}
+                  style={{
+                    backgroundColor: '#dc2626',
+                    borderColor: '#dc2626',
+                    fontSize: '0.8125rem',
+                    width: '100%',
+                    justifyContent: 'center',
+                  }}
+                >
+                  Create Checklist
+                </Button>
+                <button
+                  type="button"
+                  onClick={() => setIsExitChecklistModalOpen(true)}
+                  style={{
+                    backgroundColor: '#f8fafc',
+                    border: '1px solid #e2e8f0',
+                    color: '#475569',
+                    fontSize: '0.75rem',
+                    fontWeight: 600,
+                    padding: '6px 12px',
+                    borderRadius: 6,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 6,
+                  }}
+                >
+                  <Eye size={12} />
+                  Preview Checklist PDF
+                </button>
+              </div>
+            </div>
+
+            {/* 4 Feature Cards */}
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))',
+                gap: 12,
+                marginTop: 4,
+                paddingTop: 14,
+                borderTop: '1px solid #f1f5f9',
+              }}
+            >
+              <div
+                style={{
+                  backgroundColor: '#f8fafc',
+                  padding: '10px 14px',
+                  borderRadius: 8,
+                  border: '1px solid #e2e8f0',
+                  fontSize: '0.78rem',
+                }}
+              >
+                <span style={{ fontWeight: 700, color: '#dc2626', display: 'block', marginBottom: 2 }}>
+                  Part A &bull; Human Resources (5 items)
+                </span>
+                <span style={{ color: '#64748b' }}>
+                  Resignation letter, LWD confirmation, exit interview, leave balance reconciliation, PF/UAN exit date.
+                </span>
+              </div>
+
+              <div
+                style={{
+                  backgroundColor: '#f8fafc',
+                  padding: '10px 14px',
+                  borderRadius: 8,
+                  border: '1px solid #e2e8f0',
+                  fontSize: '0.78rem',
+                }}
+              >
+                <span style={{ fontWeight: 700, color: '#dc2626', display: 'block', marginBottom: 2 }}>
+                  Part B &bull; Reporting Manager (3 items)
+                </span>
+                <span style={{ color: '#64748b' }}>
+                  Knowledge-transfer document, project files handover to designated colleague, client communication.
+                </span>
+              </div>
+
+              <div
+                style={{
+                  backgroundColor: '#f8fafc',
+                  padding: '10px 14px',
+                  borderRadius: 8,
+                  border: '1px solid #e2e8f0',
+                  fontSize: '0.78rem',
+                }}
+              >
+                <span style={{ fontWeight: 700, color: '#dc2626', display: 'block', marginBottom: 2 }}>
+                  Parts C &amp; D &bull; IT &amp; Admin (5 items)
+                </span>
+                <span style={{ color: '#64748b' }}>
+                  Email/VPN revocation, laptop wipe/return, licenses reclaimed, ID card returned, desk/locker keys.
+                </span>
+              </div>
+
+              <div
+                style={{
+                  backgroundColor: '#f8fafc',
+                  padding: '10px 14px',
+                  borderRadius: 8,
+                  border: '1px solid #e2e8f0',
+                  fontSize: '0.78rem',
+                }}
+              >
+                <span style={{ fontWeight: 700, color: '#dc2626', display: 'block', marginBottom: 2 }}>
+                  Parts E &amp; F &bull; Finance &amp; Final Clearance
+                </span>
+                <span style={{ color: '#64748b' }}>
+                  Loan reconciliation, FNF statement issued, tax details updated, departmental sign-offs &amp; Relieving letter.
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* 2F. FULL & FINAL SETTLEMENT STATEMENT (TN/HR/FNF 2-PAGE FINANCIAL RECORD) */}
+      {/* ========================================================================= */}
+      {(activeDocumentTab === 'ALL' || activeDocumentTab === 'FNF_SETTLEMENT') && (
+        <div
+          id="fnf-settlement-section"
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 16,
+            marginTop: 6,
+            paddingTop: 10,
+            scrollMarginTop: '80px',
+            borderRadius: 14,
+            padding: '16px',
+            backgroundColor: fnfSectionPulse ? 'rgba(124, 58, 237, 0.06)' : 'transparent',
+            boxShadow: fnfSectionPulse ? '0 0 0 2px rgba(124, 58, 237, 0.4)' : 'none',
+            transition: 'all 0.4s ease',
+          }}
+        >
+          {/* Section Header */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#0f172a', margin: 0 }}>
+                  Full &amp; Final Settlement Statement
+                </h3>
+                <span
+                  style={{
+                    fontSize: '0.72rem',
+                    fontWeight: 700,
+                    backgroundColor: '#f5f3ff',
+                    color: '#7c3aed',
+                    padding: '2px 9px',
+                    borderRadius: 12,
+                    border: '1px solid #ddd6fe',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 4,
+                  }}
+                >
+                  <Receipt size={12} />
+                  TN/HR/FNF Format &bull; 2-Page Financial Statement
+                </span>
+              </div>
+              <p style={{ fontSize: '0.8125rem', color: '#64748b', margin: '2px 0 0 0' }}>
+                Official 2-page Tasknera full and final financial settlement statement itemizing Part A Earnings, Part B Deductions, Net Amount in Words, Mode of Payment, CEO sign-off &amp; signed Employee Acknowledgement.
+              </p>
+            </div>
+
+            <Button
+              variant="primary"
+              icon={<Receipt size={14} />}
+              onClick={() => setIsFnfModalOpen(true)}
+              style={{
+                backgroundColor: '#7c3aed',
+                borderColor: '#7c3aed',
+                boxShadow: '0 2px 8px rgba(124, 58, 237, 0.25)',
+                fontSize: '0.8125rem',
+                padding: '8px 16px',
+              }}
+            >
+              Generate FNF Statement
+            </Button>
+          </div>
+
+          {/* Feature Showcase Card */}
+          <div
+            style={{
+              backgroundColor: '#ffffff',
+              borderRadius: 12,
+              padding: '22px 24px',
+              border: '1.5px solid #ddd6fe',
+              boxShadow: '0 4px 20px rgba(124, 58, 237, 0.08)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 16,
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
+              <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start', maxWidth: 740 }}>
+                <div
+                  style={{
+                    width: 52,
+                    height: 52,
+                    borderRadius: 12,
+                    backgroundColor: '#f5f3ff',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    border: '1px solid #ddd6fe',
+                    color: '#7c3aed',
+                    flexShrink: 0,
+                  }}
+                >
+                  <Receipt size={26} />
+                </div>
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                    <h4 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#0f172a', margin: 0 }}>
+                      Full &amp; Final Settlement Statement (Financial Dues &amp; Receipt)
+                    </h4>
+                    <span
+                      style={{
+                        fontSize: '0.6875rem',
+                        fontWeight: 700,
+                        padding: '2px 7px',
+                        borderRadius: 6,
+                        backgroundColor: '#f5f3ff',
+                        color: '#7c3aed',
+                        border: '1px solid #ddd6fe',
+                      }}
+                    >
+                      Ref: TN/HR/FNF/[YYYY]/[000]
+                    </span>
+                  </div>
+                  <p style={{ fontSize: '0.8125rem', color: '#475569', margin: '0 0 10px 0', lineHeight: 1.5 }}>
+                    Legally binding financial clearance statement issued upon separation of service. Computes earnings (salary, leave encashment, bonus, gratuity, reimbursements), deducts notice shortfall, advances, assets and taxes, states net amount in words, and captures employee receipt acknowledging full settlement without further claims.
+                  </p>
+                  <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                    <span style={{ fontSize: '0.72rem', backgroundColor: '#f1f5f9', color: '#334155', padding: '3px 8px', borderRadius: 4, fontWeight: 500 }}>
+                      ✓ Service &amp; Notice Timeline
+                    </span>
+                    <span style={{ fontSize: '0.72rem', backgroundColor: '#f1f5f9', color: '#334155', padding: '3px 8px', borderRadius: 4, fontWeight: 500 }}>
+                      ✓ Part A Earnings &amp; Part B Deductions
+                    </span>
+                    <span style={{ fontSize: '0.72rem', backgroundColor: '#f1f5f9', color: '#334155', padding: '3px 8px', borderRadius: 4, fontWeight: 500 }}>
+                      ✓ Net In Words &amp; Bank Transfer Record
+                    </span>
+                    <span style={{ fontSize: '0.72rem', backgroundColor: '#f1f5f9', color: '#334155', padding: '3px 8px', borderRadius: 4, fontWeight: 500 }}>
+                      ✓ Employee No-Claims Acknowledgement
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8, minWidth: 200 }}>
+                <Button
+                  variant="primary"
+                  icon={<Receipt size={14} />}
+                  onClick={() => setIsFnfModalOpen(true)}
+                  style={{
+                    backgroundColor: '#7c3aed',
+                    borderColor: '#7c3aed',
+                    fontSize: '0.8125rem',
+                    width: '100%',
+                    justifyContent: 'center',
+                  }}
+                >
+                  Create FNF Statement
+                </Button>
+                <button
+                  type="button"
+                  onClick={() => setIsFnfModalOpen(true)}
+                  style={{
+                    backgroundColor: '#f8fafc',
+                    border: '1px solid #e2e8f0',
+                    color: '#475569',
+                    fontSize: '0.75rem',
+                    fontWeight: 600,
+                    padding: '6px 12px',
+                    borderRadius: 6,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 6,
+                  }}
+                >
+                  <Eye size={12} />
+                  Preview FNF PDF
+                </button>
+              </div>
+            </div>
+
+            {/* 4 Feature Cards */}
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))',
+                gap: 12,
+                marginTop: 4,
+                paddingTop: 14,
+                borderTop: '1px solid #f1f5f9',
+              }}
+            >
+              <div
+                style={{
+                  backgroundColor: '#f8fafc',
+                  padding: '10px 14px',
+                  borderRadius: 8,
+                  border: '1px solid #e2e8f0',
+                  fontSize: '0.78rem',
+                }}
+              >
+                <span style={{ fontWeight: 700, color: '#7c3aed', display: 'block', marginBottom: 2 }}>
+                  Service Details Table
+                </span>
+                <span style={{ color: '#64748b' }}>
+                  Date of joining, Last Working Day, notice period required vs. served, total tenure &amp; monthly gross salary.
+                </span>
+              </div>
+
+              <div
+                style={{
+                  backgroundColor: '#f8fafc',
+                  padding: '10px 14px',
+                  borderRadius: 8,
+                  border: '1px solid #e2e8f0',
+                  fontSize: '0.78rem',
+                }}
+              >
+                <span style={{ fontWeight: 700, color: '#7c3aed', display: 'block', marginBottom: 2 }}>
+                  Part A &bull; Earnings (6 items)
+                </span>
+                <span style={{ color: '#64748b' }}>
+                  Salary for days worked, leave encashment, bonus/incentive, gratuity (if eligible), claims &amp; other earnings.
+                </span>
+              </div>
+
+              <div
+                style={{
+                  backgroundColor: '#f8fafc',
+                  padding: '10px 14px',
+                  borderRadius: 8,
+                  border: '1px solid #e2e8f0',
+                  fontSize: '0.78rem',
+                }}
+              >
+                <span style={{ fontWeight: 700, color: '#7c3aed', display: 'block', marginBottom: 2 }}>
+                  Part B &bull; Deductions (6 items)
+                </span>
+                <span style={{ color: '#64748b' }}>
+                  Notice shortfall recovery, loan advances, unreturned assets, PF/ESI/PT statutory deductions &amp; TDS.
+                </span>
+              </div>
+
+              <div
+                style={{
+                  backgroundColor: '#f8fafc',
+                  padding: '10px 14px',
+                  borderRadius: 8,
+                  border: '1px solid #e2e8f0',
+                  fontSize: '0.78rem',
+                }}
+              >
+                <span style={{ fontWeight: 700, color: '#7c3aed', display: 'block', marginBottom: 2 }}>
+                  Net Payable &amp; Employee Receipt
+                </span>
+                <span style={{ color: '#64748b' }}>
+                  Net amount (A - B), amount in words, NEFT bank details, CEO sign-off &amp; signed employee receipt.
                 </span>
               </div>
             </div>
@@ -3752,6 +5127,41 @@ export const OffersPage: React.FC = () => {
       <OnboardingChecklistModal
         isOpen={isOnboardingModalOpen}
         onClose={() => setIsOnboardingModalOpen(false)}
+        onSuccess={() => fetchOffers()}
+      />
+
+      {/* Official Asset Handover Form (TN/HR/AST) 2-Page Modal */}
+      <AssetHandoverModal
+        isOpen={isAssetHandoverModalOpen}
+        onClose={() => setIsAssetHandoverModalOpen(false)}
+        onSuccess={() => fetchOffers()}
+      />
+
+      {/* Official Leave Approval Letter (TN/HR/LVA) Modal */}
+      <LeaveApprovalModal
+        isOpen={isLeaveApprovalModalOpen}
+        onClose={() => setIsLeaveApprovalModalOpen(false)}
+        onSuccess={() => fetchOffers()}
+      />
+
+      {/* Official Full & Final Settlement Statement (TN/HR/FNF) 2-Page Modal */}
+      <FnfSettlementModal
+        isOpen={isFnfModalOpen}
+        onClose={() => setIsFnfModalOpen(false)}
+        onSuccess={() => fetchOffers()}
+      />
+
+      {/* Official Exit Checklist (TN/HR/EXC) 2-Page Modal */}
+      <ExitChecklistModal
+        isOpen={isExitChecklistModalOpen}
+        onClose={() => setIsExitChecklistModalOpen(false)}
+        onSuccess={() => fetchOffers()}
+      />
+
+      {/* Official Employee Information Form (TN/HR/EIF) 2-Page Modal */}
+      <EmployeeInformationModal
+        isOpen={isEmployeeInfoModalOpen}
+        onClose={() => setIsEmployeeInfoModalOpen(false)}
         onSuccess={() => fetchOffers()}
       />
     </div>
