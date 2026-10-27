@@ -1010,6 +1010,141 @@ export const DOCUMENT_TYPE_REGISTRY: Record<DocumentTypeCode, DocumentTypeDefini
     aiCapabilities: { supportsResumeExtraction: false, supportsDocumentExtraction: false, extractionTasks: [], draftingAssistanceTasks: [], confidenceThreshold: 0.9 },
     qualityChecks: [],
   },
+
+  SUBSCRIPTION_PLANS: {
+    code: 'SUBSCRIPTION_PLANS',
+    name: 'Subscription Plans and Pricing',
+    category: 'COMMERCIAL_BILLING',
+    description: 'Official 2-page SaaS/services pricing breakdown (TN/BD/SUB) with starter/pro/enterprise plans, add-ons, billing terms & customer confirmation.',
+    iconName: 'PackageCheck',
+    isImplemented: true,
+    version: 1,
+    sections: [{ key: 'pricing', title: 'Plan Details', description: 'Tiers & options', displayOrder: 1 }],
+    requiredFields: [
+      { key: 'clientCompanyName', label: 'Client Company Name', dataType: 'STRING', description: 'Client company name', sectionKey: 'pricing' },
+    ],
+    optionalFields: [],
+    placeholders: [{ tag: '{{client_company}}', fieldKey: 'clientCompanyName', description: 'Client Company', sampleValue: 'Acme Corp', isRequired: true }],
+    validationRules: [],
+    statusFlow: {
+      initialStatus: 'DRAFT_AI',
+      terminalStatuses: ['APPROVED'],
+      steps: [
+        { status: 'DRAFT_AI', label: 'Draft Prepared', description: 'Pricing generated', order: 1 },
+        { status: 'APPROVED', label: 'Issued / Accepted', description: 'Confirmed by client', order: 2 },
+      ],
+    },
+    aiCapabilities: { supportsResumeExtraction: false, supportsDocumentExtraction: false, extractionTasks: [], draftingAssistanceTasks: [], confidenceThreshold: 0.9 },
+    qualityChecks: [],
+  },
+
+  COMMERCIAL_QUOTATION: {
+    code: 'COMMERCIAL_QUOTATION',
+    name: 'Commercial Quotation',
+    category: 'COMMERCIAL_BILLING',
+    description: 'Official 2-page formal quotation (TN/BD/QTN) with itemized SAC codes, rates, discount, GST computation, terms & acceptance.',
+    iconName: 'ReceiptText',
+    isImplemented: true,
+    version: 1,
+    sections: [{ key: 'quote', title: 'Quotation Details', description: 'Line items and tax', displayOrder: 1 }],
+    requiredFields: [
+      { key: 'clientCompanyName', label: 'Client Company Name', dataType: 'STRING', description: 'Client company name', sectionKey: 'quote' },
+    ],
+    optionalFields: [],
+    placeholders: [{ tag: '{{client_company}}', fieldKey: 'clientCompanyName', description: 'Client Company', sampleValue: 'Globex Ltd', isRequired: true }],
+    validationRules: [],
+    statusFlow: {
+      initialStatus: 'DRAFT_AI',
+      terminalStatuses: ['APPROVED'],
+      steps: [
+        { status: 'DRAFT_AI', label: 'Quote Drafted', description: 'Pending client acceptance', order: 1 },
+        { status: 'APPROVED', label: 'Accepted', description: 'PO received', order: 2 },
+      ],
+    },
+    aiCapabilities: { supportsResumeExtraction: false, supportsDocumentExtraction: false, extractionTasks: [], draftingAssistanceTasks: [], confidenceThreshold: 0.9 },
+    qualityChecks: [],
+  },
+
+  PAYMENT_REMINDER_NOTICE: {
+    code: 'PAYMENT_REMINDER_NOTICE',
+    name: 'Payment Follow-up Notice',
+    category: 'COMMERCIAL_BILLING',
+    description: 'Official 2-page multi-stage payment notice (TN/FIN/PRN) covering Stage 1 Friendly, Stage 2 Overdue & Stage 3 Final Notice with overdue invoice schedule.',
+    iconName: 'ClockAlert',
+    isImplemented: true,
+    version: 1,
+    sections: [{ key: 'reminder', title: 'Overdue Summary', description: 'Invoices and late fee', displayOrder: 1 }],
+    requiredFields: [
+      { key: 'clientCompanyName', label: 'Client Company Name', dataType: 'STRING', description: 'Client company name', sectionKey: 'reminder' },
+    ],
+    optionalFields: [],
+    placeholders: [{ tag: '{{client_company}}', fieldKey: 'clientCompanyName', description: 'Client Company', sampleValue: 'Starlight Tech', isRequired: true }],
+    validationRules: [],
+    statusFlow: {
+      initialStatus: 'DRAFT_AI',
+      terminalStatuses: ['APPROVED'],
+      steps: [
+        { status: 'DRAFT_AI', label: 'Reminder Dispatched', description: 'Notice sent to client', order: 1 },
+        { status: 'APPROVED', label: 'Payment Acknowledged', description: 'UTR received', order: 2 },
+      ],
+    },
+    aiCapabilities: { supportsResumeExtraction: false, supportsDocumentExtraction: false, extractionTasks: [], draftingAssistanceTasks: [], confidenceThreshold: 0.9 },
+    qualityChecks: [],
+  },
+
+  TAX_INVOICE: {
+    code: 'TAX_INVOICE',
+    name: 'Tax Invoice',
+    category: 'COMMERCIAL_BILLING',
+    description: 'Official 2-page GST Tax Invoice (TN/INV) with Billed By/To GSTIN/PAN, SAC breakdown, CGST/SGST/IGST, payment details & CEO sign-off.',
+    iconName: 'FileSpreadsheet',
+    isImplemented: true,
+    version: 1,
+    sections: [{ key: 'invoice', title: 'Invoice Details', description: 'Line items and tax', displayOrder: 1 }],
+    requiredFields: [
+      { key: 'clientLegalName', label: 'Client Legal Name', dataType: 'STRING', description: 'Billed party name', sectionKey: 'invoice' },
+    ],
+    optionalFields: [],
+    placeholders: [{ tag: '{{client_legal_name}}', fieldKey: 'clientLegalName', description: 'Client Name', sampleValue: 'Nexus Enterprises', isRequired: true }],
+    validationRules: [],
+    statusFlow: {
+      initialStatus: 'DRAFT_AI',
+      terminalStatuses: ['APPROVED'],
+      steps: [
+        { status: 'DRAFT_AI', label: 'Invoice Generated', description: 'Awaiting payment', order: 1 },
+        { status: 'APPROVED', label: 'Paid', description: 'Settled in full', order: 2 },
+      ],
+    },
+    aiCapabilities: { supportsResumeExtraction: false, supportsDocumentExtraction: false, extractionTasks: [], draftingAssistanceTasks: [], confidenceThreshold: 0.9 },
+    qualityChecks: [],
+  },
+
+  CLIENT_ORDER_FORM: {
+    code: 'CLIENT_ORDER_FORM',
+    name: 'Client Order Form',
+    category: 'COMMERCIAL_BILLING',
+    description: 'Official 2-page binding Order Form (TN/BD/ORD) with Section A Customer Details, Section B Order Particulars, Section C Commercial Terms & bilateral signatures.',
+    iconName: 'FileCheck',
+    isImplemented: true,
+    version: 1,
+    sections: [{ key: 'order', title: 'Order Details', description: 'SOW, terms & execution', displayOrder: 1 }],
+    requiredFields: [
+      { key: 'customerLegalName', label: 'Customer Legal Name', dataType: 'STRING', description: 'Customer legal name', sectionKey: 'order' },
+    ],
+    optionalFields: [],
+    placeholders: [{ tag: '{{customer_legal_name}}', fieldKey: 'customerLegalName', description: 'Customer Name', sampleValue: 'BluePeak Capital', isRequired: true }],
+    validationRules: [],
+    statusFlow: {
+      initialStatus: 'DRAFT_AI',
+      terminalStatuses: ['APPROVED'],
+      steps: [
+        { status: 'DRAFT_AI', label: 'Order Drafted', description: 'Commercial terms set', order: 1 },
+        { status: 'APPROVED', label: 'Executed', description: 'Signed bilaterally', order: 2 },
+      ],
+    },
+    aiCapabilities: { supportsResumeExtraction: false, supportsDocumentExtraction: false, extractionTasks: [], draftingAssistanceTasks: [], confidenceThreshold: 0.9 },
+    qualityChecks: [],
+  },
 };
 
 export class DocumentTypeRegistry {

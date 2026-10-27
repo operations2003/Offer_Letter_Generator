@@ -88,6 +88,11 @@ export class HrDocumentService {
       LEAVE_APPROVAL: 'LVA',
       EXIT_CHECKLIST: 'EXC',
       EMPLOYEE_INFO_FORM: 'EIF',
+      SUBSCRIPTION_PLANS: 'SUB',
+      COMMERCIAL_QUOTATION: 'QTN',
+      PAYMENT_REMINDER_NOTICE: 'PRN',
+      TAX_INVOICE: 'INV',
+      CLIENT_ORDER_FORM: 'ORD',
     };
 
     const prefix = prefixMap[typeCode] || 'DOC';

@@ -34,6 +34,11 @@ import {
   Receipt,
   ClipboardCheck,
   UserPlus,
+  PackageCheck,
+  ReceiptText,
+  ClockAlert,
+  FileSpreadsheet,
+  FileCheck,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.js';
 import { Button } from '../components/common/Button.js';
@@ -73,6 +78,11 @@ import { LeaveApprovalModal } from '../components/documents/LeaveApprovalModal.j
 import { FnfSettlementModal } from '../components/documents/FnfSettlementModal.js';
 import { ExitChecklistModal } from '../components/documents/ExitChecklistModal.js';
 import { EmployeeInformationModal } from '../components/documents/EmployeeInformationModal.js';
+import { SubscriptionPlansModal } from '../components/documents/SubscriptionPlansModal.js';
+import { CommercialQuotationModal } from '../components/documents/CommercialQuotationModal.js';
+import { PaymentReminderModal } from '../components/documents/PaymentReminderModal.js';
+import { TaxInvoiceModal } from '../components/documents/TaxInvoiceModal.js';
+import { ClientOrderFormModal } from '../components/documents/ClientOrderFormModal.js';
 import { useToast } from '../context/ToastContext.js';
 
 export const DashboardPage: React.FC = () => {
@@ -130,6 +140,11 @@ export const DashboardPage: React.FC = () => {
   const [isFnfModalOpen, setIsFnfModalOpen] = useState(false);
   const [isExitChecklistModalOpen, setIsExitChecklistModalOpen] = useState(false);
   const [isEmployeeInfoModalOpen, setIsEmployeeInfoModalOpen] = useState(false);
+  const [isSubscriptionPlansModalOpen, setIsSubscriptionPlansModalOpen] = useState(false);
+  const [isCommercialQuotationModalOpen, setIsCommercialQuotationModalOpen] = useState(false);
+  const [isPaymentReminderModalOpen, setIsPaymentReminderModalOpen] = useState(false);
+  const [isTaxInvoiceModalOpen, setIsTaxInvoiceModalOpen] = useState(false);
+  const [isClientOrderModalOpen, setIsClientOrderModalOpen] = useState(false);
 
   const [selectedOfferForDetail, setSelectedOfferForDetail] = useState<OfferListItem | null>(null);
   const [selectedOfferForEmail, setSelectedOfferForEmail] = useState<OfferListItem | null>(null);
@@ -951,6 +966,36 @@ export const DashboardPage: React.FC = () => {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {[
                 {
+                  label: 'Subscription Plans & Pricing',
+                  desc: '2-page SaaS/services plan comparison & selection',
+                  icon: <PackageCheck size={15} style={{ color: '#2563eb' }} />,
+                  action: () => setIsSubscriptionPlansModalOpen(true),
+                },
+                {
+                  label: 'Commercial Quotation',
+                  desc: '2-page itemized quote with SAC codes & GST',
+                  icon: <ReceiptText size={15} style={{ color: '#059669' }} />,
+                  action: () => setIsCommercialQuotationModalOpen(true),
+                },
+                {
+                  label: 'Client Order Form',
+                  desc: '2-page binding order form with Sections A–D',
+                  icon: <FileCheck size={15} style={{ color: '#7c3aed' }} />,
+                  action: () => setIsClientOrderModalOpen(true),
+                },
+                {
+                  label: 'GST Tax Invoice',
+                  desc: '2-page GST invoice with SAC & bank remittance',
+                  icon: <FileSpreadsheet size={15} style={{ color: '#0891b2' }} />,
+                  action: () => setIsTaxInvoiceModalOpen(true),
+                },
+                {
+                  label: 'Payment Follow-up Notice',
+                  desc: '2-page multi-stage overdue invoice reminder',
+                  icon: <ClockAlert size={15} style={{ color: '#dc2626' }} />,
+                  action: () => setIsPaymentReminderModalOpen(true),
+                },
+                {
                   label: 'Experience Letter',
                   desc: 'Service and role confirmation',
                   icon: <Briefcase size={15} style={{ color: '#ea580c' }} />,
@@ -1427,6 +1472,36 @@ export const DashboardPage: React.FC = () => {
       <EmployeeInformationModal
         isOpen={isEmployeeInfoModalOpen}
         onClose={() => setIsEmployeeInfoModalOpen(false)}
+        onSuccess={() => loadDashboardData()}
+      />
+
+      <SubscriptionPlansModal
+        isOpen={isSubscriptionPlansModalOpen}
+        onClose={() => setIsSubscriptionPlansModalOpen(false)}
+        onSuccess={() => loadDashboardData()}
+      />
+
+      <CommercialQuotationModal
+        isOpen={isCommercialQuotationModalOpen}
+        onClose={() => setIsCommercialQuotationModalOpen(false)}
+        onSuccess={() => loadDashboardData()}
+      />
+
+      <PaymentReminderModal
+        isOpen={isPaymentReminderModalOpen}
+        onClose={() => setIsPaymentReminderModalOpen(false)}
+        onSuccess={() => loadDashboardData()}
+      />
+
+      <TaxInvoiceModal
+        isOpen={isTaxInvoiceModalOpen}
+        onClose={() => setIsTaxInvoiceModalOpen(false)}
+        onSuccess={() => loadDashboardData()}
+      />
+
+      <ClientOrderFormModal
+        isOpen={isClientOrderModalOpen}
+        onClose={() => setIsClientOrderModalOpen(false)}
         onSuccess={() => loadDashboardData()}
       />
     </div>

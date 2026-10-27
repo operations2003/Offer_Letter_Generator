@@ -51,6 +51,11 @@ import {
   Receipt,
   ClipboardCheck,
   UserPlus,
+  PackageCheck,
+  ReceiptText,
+  ClockAlert,
+  FileSpreadsheet,
+  FileCheck,
 } from 'lucide-react';
 import { Button } from '../components/common/Button.js';
 import { OfferStatusBadge, AiAdvisoryBadge } from '../components/common/Badge.js';
@@ -93,6 +98,11 @@ import { LeaveApprovalModal } from '../components/documents/LeaveApprovalModal.j
 import { FnfSettlementModal } from '../components/documents/FnfSettlementModal.js';
 import { ExitChecklistModal } from '../components/documents/ExitChecklistModal.js';
 import { EmployeeInformationModal } from '../components/documents/EmployeeInformationModal.js';
+import { SubscriptionPlansModal } from '../components/documents/SubscriptionPlansModal.js';
+import { CommercialQuotationModal } from '../components/documents/CommercialQuotationModal.js';
+import { PaymentReminderModal } from '../components/documents/PaymentReminderModal.js';
+import { TaxInvoiceModal } from '../components/documents/TaxInvoiceModal.js';
+import { ClientOrderFormModal } from '../components/documents/ClientOrderFormModal.js';
 import { OFFICIAL_POLICIES } from '../services/policyCatalog.js';
 import {
   getAllPolicies,
@@ -170,7 +180,18 @@ export const OffersPage: React.FC = () => {
   const [isFnfModalOpen, setIsFnfModalOpen] = useState(false);
   const [isExitChecklistModalOpen, setIsExitChecklistModalOpen] = useState(false);
   const [isEmployeeInfoModalOpen, setIsEmployeeInfoModalOpen] = useState(false);
-  const [activeDocumentTab, setActiveDocumentTab] = useState<'ALL' | 'TEMPLATES' | 'EMPLOYEE_INFO_FORM' | 'ONBOARDING' | 'ASSET_HANDOVER' | 'LEAVE_APPROVAL' | 'EXIT_CHECKLIST' | 'FNF_SETTLEMENT' | 'DISCIPLINARY' | 'INTERNSHIP_EXTENSION' | 'PROMOTION' | 'RELIEVING' | 'SALARY_REVISION' | 'EMPLOYEE_TERMINATION' | 'RESIGNATION' | 'INTERNSHIP' | 'CERTIFICATES' | 'POLICIES'>('ALL');
+  const [isSubscriptionPlansModalOpen, setIsSubscriptionPlansModalOpen] = useState(false);
+  const [isCommercialQuotationModalOpen, setIsCommercialQuotationModalOpen] = useState(false);
+  const [isPaymentReminderModalOpen, setIsPaymentReminderModalOpen] = useState(false);
+  const [isTaxInvoiceModalOpen, setIsTaxInvoiceModalOpen] = useState(false);
+  const [isClientOrderModalOpen, setIsClientOrderModalOpen] = useState(false);
+  const [activeDocumentTab, setActiveDocumentTab] = useState<'ALL' | 'TEMPLATES' | 'COMMERCIAL_BILLING' | 'SUBSCRIPTION_PLANS' | 'COMMERCIAL_QUOTATION' | 'TAX_INVOICE' | 'CLIENT_ORDER_FORM' | 'PAYMENT_REMINDER' | 'EMPLOYEE_INFO_FORM' | 'ONBOARDING' | 'ASSET_HANDOVER' | 'LEAVE_APPROVAL' | 'EXIT_CHECKLIST' | 'FNF_SETTLEMENT' | 'DISCIPLINARY' | 'INTERNSHIP_EXTENSION' | 'PROMOTION' | 'RELIEVING' | 'SALARY_REVISION' | 'EMPLOYEE_TERMINATION' | 'RESIGNATION' | 'INTERNSHIP' | 'CERTIFICATES' | 'POLICIES'>('ALL');
+  const [commercialSectionPulse, setCommercialSectionPulse] = useState(false);
+  const [subscriptionPlansSectionPulse, setSubscriptionPlansSectionPulse] = useState(false);
+  const [quotationSectionPulse, setQuotationSectionPulse] = useState(false);
+  const [paymentReminderSectionPulse, setPaymentReminderSectionPulse] = useState(false);
+  const [taxInvoiceSectionPulse, setTaxInvoiceSectionPulse] = useState(false);
+  const [orderFormSectionPulse, setOrderFormSectionPulse] = useState(false);
   const [onboardingSectionPulse, setOnboardingSectionPulse] = useState(false);
   const [assetHandoverSectionPulse, setAssetHandoverSectionPulse] = useState(false);
   const [leaveApprovalSectionPulse, setLeaveApprovalSectionPulse] = useState(false);
@@ -503,6 +524,66 @@ export const OffersPage: React.FC = () => {
   };
 
   const documentCards = [
+    {
+      id: 'subscription_plans',
+      title: 'Subscription Plans & Pricing',
+      description: 'Official 2-page SaaS/services pricing breakdown with Starter/Pro/Enterprise plans, add-ons & confirmation.',
+      icon: <PackageCheck size={22} style={{ color: '#2563eb' }} />,
+      badge: 'TN/BD/SUB Format',
+      badgeColor: '#2563eb',
+      badgeBg: '#eff6ff',
+      badgeBorder: '#bfdbfe',
+      active: true,
+      onClick: () => setIsSubscriptionPlansModalOpen(true),
+    },
+    {
+      id: 'commercial_quotation',
+      title: 'Commercial Quotation',
+      description: 'Official 2-page quotation with SAC codes, rates, discount, GST computation, terms & client PO acceptance.',
+      icon: <ReceiptText size={22} style={{ color: '#059669' }} />,
+      badge: 'TN/BD/QTN Format',
+      badgeColor: '#059669',
+      badgeBg: '#ecfdf5',
+      badgeBorder: '#a7f3d0',
+      active: true,
+      onClick: () => setIsCommercialQuotationModalOpen(true),
+    },
+    {
+      id: 'client_order_form',
+      title: 'Client Order Form',
+      description: 'Official 2-page binding Order Form with Sections A-D, commercial parameters, SOW & bilateral execution.',
+      icon: <FileCheck size={22} style={{ color: '#7c3aed' }} />,
+      badge: 'TN/BD/ORD Format',
+      badgeColor: '#7c3aed',
+      badgeBg: '#f5f3ff',
+      badgeBorder: '#ddd6fe',
+      active: true,
+      onClick: () => setIsClientOrderModalOpen(true),
+    },
+    {
+      id: 'tax_invoice',
+      title: 'GST Tax Invoice',
+      description: 'Official 2-page GST Tax Invoice with Billed By/To GSTIN/PAN, SAC line items, bank details & CEO sign-off.',
+      icon: <FileSpreadsheet size={22} style={{ color: '#0891b2' }} />,
+      badge: 'TN/INV Format',
+      badgeColor: '#0891b2',
+      badgeBg: '#ecfeff',
+      badgeBorder: '#a5f3fc',
+      active: true,
+      onClick: () => setIsTaxInvoiceModalOpen(true),
+    },
+    {
+      id: 'payment_reminder',
+      title: 'Payment Follow-up Notice',
+      description: 'Official 2-page payment notice with Stage 1 Friendly, Stage 2 Overdue & Stage 3 Final Notice with invoice schedule.',
+      icon: <ClockAlert size={22} style={{ color: '#dc2626' }} />,
+      badge: 'TN/FIN/PRN Format',
+      badgeColor: '#dc2626',
+      badgeBg: '#fef2f2',
+      badgeBorder: '#fecaca',
+      active: true,
+      onClick: () => setIsPaymentReminderModalOpen(true),
+    },
     {
       id: 'mrsa_agreement',
       title: 'Recruitment Agreement',
@@ -962,6 +1043,7 @@ export const OffersPage: React.FC = () => {
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
           {[
             { key: 'ALL', label: 'All', count: documentCards.length + certificateCards.length + allPoliciesList.length + 1 },
+            { key: 'COMMERCIAL_BILLING', label: 'Commercial & Billing', count: 5, icon: <ReceiptText size={13} /> },
             { key: 'TEMPLATES', label: 'Templates', count: documentCards.length },
             { key: 'EMPLOYEE_INFO_FORM', label: 'Employee Info Form', count: 1, icon: <UserPlus size={13} /> },
             { key: 'ONBOARDING', label: 'Onboarding Checklist', count: 1, icon: <CheckSquare size={13} /> },
@@ -986,7 +1068,14 @@ export const OffersPage: React.FC = () => {
                 type="button"
                 onClick={() => {
                   setActiveDocumentTab(tab.key as any);
-                  if (tab.key === 'EMPLOYEE_INFO_FORM') {
+                  if (tab.key === 'COMMERCIAL_BILLING') {
+                    const el = document.getElementById('commercial-billing-section');
+                    if (el) {
+                      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                      setCommercialSectionPulse(true);
+                      setTimeout(() => setCommercialSectionPulse(false), 2400);
+                    }
+                  } else if (tab.key === 'EMPLOYEE_INFO_FORM') {
                     const el = document.getElementById('employee-info-section');
                     if (el) {
                       el.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -1295,6 +1384,479 @@ export const OffersPage: React.FC = () => {
                 </div>
               );
             })}
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* COMMERCIAL & CLIENT BILLING SECTION (TN/BD & TN/FIN 5-DOCUMENT SUITE)     */}
+      {/* ========================================================================= */}
+      {(activeDocumentTab === 'ALL' ||
+        activeDocumentTab === 'COMMERCIAL_BILLING' ||
+        activeDocumentTab === 'SUBSCRIPTION_PLANS' ||
+        activeDocumentTab === 'COMMERCIAL_QUOTATION' ||
+        activeDocumentTab === 'TAX_INVOICE' ||
+        activeDocumentTab === 'CLIENT_ORDER_FORM' ||
+        activeDocumentTab === 'PAYMENT_REMINDER') && (
+        <div
+          id="commercial-billing-section"
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 16,
+            marginTop: 6,
+            paddingTop: 10,
+            scrollMarginTop: '80px',
+            borderRadius: 14,
+            padding: '16px',
+            backgroundColor: commercialSectionPulse ? 'rgba(37, 99, 235, 0.06)' : 'transparent',
+            boxShadow: commercialSectionPulse ? '0 0 0 2px rgba(37, 99, 235, 0.4)' : 'none',
+            transition: 'all 0.4s ease',
+          }}
+        >
+          {/* Section Header */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#0f172a', margin: 0 }}>
+                  Commercial &amp; Client Billing
+                </h3>
+                <span
+                  style={{
+                    fontSize: '0.72rem',
+                    fontWeight: 700,
+                    backgroundColor: '#eff6ff',
+                    color: '#1d4ed8',
+                    padding: '2px 9px',
+                    borderRadius: 12,
+                    border: '1px solid #bfdbfe',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 4,
+                  }}
+                >
+                  <ReceiptText size={12} />
+                  TN/BD &amp; TN/FIN Formats &bull; 5 Official Documents
+                </span>
+              </div>
+              <p style={{ fontSize: '0.8125rem', color: '#64748b', margin: '2px 0 0 0' }}>
+                Complete Tasknera commercial suite: Subscription Plans &amp; Pricing, Quotations, Client Order Forms, GST Tax Invoices, and Multi-Stage Payment Follow-up Notices with bilateral signatures and PO execution.
+              </p>
+            </div>
+          </div>
+
+          {/* 5 Commercial Document Showcase Cards */}
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
+              gap: 16,
+            }}
+          >
+            {/* 1. Subscription Plans and Pricing */}
+            <div
+              style={{
+                backgroundColor: '#ffffff',
+                borderRadius: 12,
+                padding: '20px',
+                border: '1.5px solid #bfdbfe',
+                boxShadow: '0 4px 16px rgba(37, 99, 235, 0.08)',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+                gap: 14,
+              }}
+            >
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+                  <div
+                    style={{
+                      width: 44,
+                      height: 44,
+                      borderRadius: 10,
+                      backgroundColor: '#eff6ff',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      border: '1px solid #bfdbfe',
+                    }}
+                  >
+                    <PackageCheck size={22} style={{ color: '#2563eb' }} />
+                  </div>
+                  <span
+                    style={{
+                      fontSize: '0.72rem',
+                      fontWeight: 700,
+                      padding: '3px 8px',
+                      borderRadius: 20,
+                      color: '#2563eb',
+                      backgroundColor: '#eff6ff',
+                      border: '1px solid #bfdbfe',
+                    }}
+                  >
+                    TN/BD/SUB Format
+                  </span>
+                </div>
+                <h4 style={{ fontSize: '1rem', fontWeight: 700, color: '#0f172a', margin: '0 0 6px 0' }}>
+                  Subscription Plans and Pricing
+                </h4>
+                <p style={{ fontSize: '0.8125rem', color: '#64748b', lineHeight: 1.45, margin: 0 }}>
+                  2-page pricing schedule with Starter, Pro &amp; Enterprise comparison matrix, optional add-ons, 8 billing clauses, confirmed plan selection table &amp; bilateral execution.
+                </p>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 10 }}>
+                  <span style={{ fontSize: '0.6875rem', fontWeight: 600, padding: '2px 7px', borderRadius: 6, background: '#f1f5f9', color: '#475569' }}>
+                    Plan Matrix
+                  </span>
+                  <span style={{ fontSize: '0.6875rem', fontWeight: 600, padding: '2px 7px', borderRadius: 6, background: '#f1f5f9', color: '#475569' }}>
+                    Add-ons Table
+                  </span>
+                  <span style={{ fontSize: '0.6875rem', fontWeight: 600, padding: '2px 7px', borderRadius: 6, background: '#f1f5f9', color: '#475569' }}>
+                    Customer Sign-off
+                  </span>
+                </div>
+              </div>
+
+              <div style={{ paddingTop: 12, borderTop: '1px solid #f1f5f9' }}>
+                <Button
+                  variant="primary"
+                  icon={<PackageCheck size={14} />}
+                  onClick={() => setIsSubscriptionPlansModalOpen(true)}
+                  style={{
+                    width: '100%',
+                    backgroundColor: '#2563eb',
+                    borderColor: '#2563eb',
+                    fontSize: '0.8125rem',
+                    justifyContent: 'center',
+                  }}
+                >
+                  Create Subscription Proposal
+                </Button>
+              </div>
+            </div>
+
+            {/* 2. Commercial Quotation */}
+            <div
+              style={{
+                backgroundColor: '#ffffff',
+                borderRadius: 12,
+                padding: '20px',
+                border: '1.5px solid #a7f3d0',
+                boxShadow: '0 4px 16px rgba(5, 150, 105, 0.08)',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+                gap: 14,
+              }}
+            >
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+                  <div
+                    style={{
+                      width: 44,
+                      height: 44,
+                      borderRadius: 10,
+                      backgroundColor: '#ecfdf5',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      border: '1px solid #a7f3d0',
+                    }}
+                  >
+                    <ReceiptText size={22} style={{ color: '#059669' }} />
+                  </div>
+                  <span
+                    style={{
+                      fontSize: '0.72rem',
+                      fontWeight: 700,
+                      padding: '3px 8px',
+                      borderRadius: 20,
+                      color: '#059669',
+                      backgroundColor: '#ecfdf5',
+                      border: '1px solid #a7f3d0',
+                    }}
+                  >
+                    TN/BD/QTN Format
+                  </span>
+                </div>
+                <h4 style={{ fontSize: '1rem', fontWeight: 700, color: '#0f172a', margin: '0 0 6px 0' }}>
+                  Commercial Quotation
+                </h4>
+                <p style={{ fontSize: '0.8125rem', color: '#64748b', lineHeight: 1.45, margin: 0 }}>
+                  2-page formal price quotation with SAC codes, itemized quantity &amp; rate breakdown, sub-total, discount, CGST/SGST/IGST computation, amount in words, and customer PO acceptance.
+                </p>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 10 }}>
+                  <span style={{ fontSize: '0.6875rem', fontWeight: 600, padding: '2px 7px', borderRadius: 6, background: '#f1f5f9', color: '#475569' }}>
+                    SAC 998311 / 998512
+                  </span>
+                  <span style={{ fontSize: '0.6875rem', fontWeight: 600, padding: '2px 7px', borderRadius: 6, background: '#f1f5f9', color: '#475569' }}>
+                    GST Auto-calc
+                  </span>
+                  <span style={{ fontSize: '0.6875rem', fontWeight: 600, padding: '2px 7px', borderRadius: 6, background: '#f1f5f9', color: '#475569' }}>
+                    PO Acceptance Block
+                  </span>
+                </div>
+              </div>
+
+              <div style={{ paddingTop: 12, borderTop: '1px solid #f1f5f9' }}>
+                <Button
+                  variant="primary"
+                  icon={<ReceiptText size={14} />}
+                  onClick={() => setIsCommercialQuotationModalOpen(true)}
+                  style={{
+                    width: '100%',
+                    backgroundColor: '#059669',
+                    borderColor: '#059669',
+                    fontSize: '0.8125rem',
+                    justifyContent: 'center',
+                  }}
+                >
+                  Create Quotation
+                </Button>
+              </div>
+            </div>
+
+            {/* 3. Client Order Form */}
+            <div
+              style={{
+                backgroundColor: '#ffffff',
+                borderRadius: 12,
+                padding: '20px',
+                border: '1.5px solid #ddd6fe',
+                boxShadow: '0 4px 16px rgba(124, 58, 237, 0.08)',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+                gap: 14,
+              }}
+            >
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+                  <div
+                    style={{
+                      width: 44,
+                      height: 44,
+                      borderRadius: 10,
+                      backgroundColor: '#f5f3ff',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      border: '1px solid #ddd6fe',
+                    }}
+                  >
+                    <FileCheck size={22} style={{ color: '#7c3aed' }} />
+                  </div>
+                  <span
+                    style={{
+                      fontSize: '0.72rem',
+                      fontWeight: 700,
+                      padding: '3px 8px',
+                      borderRadius: 20,
+                      color: '#7c3aed',
+                      backgroundColor: '#f5f3ff',
+                      border: '1px solid #ddd6fe',
+                    }}
+                  >
+                    TN/BD/ORD Format
+                  </span>
+                </div>
+                <h4 style={{ fontSize: '1rem', fontWeight: 700, color: '#0f172a', margin: '0 0 6px 0' }}>
+                  Client Order Form
+                </h4>
+                <p style={{ fontSize: '0.8125rem', color: '#64748b', lineHeight: 1.45, margin: 0 }}>
+                  2-page binding order document under MSA with Section A (Customer Details), Section B (Order Line Items &amp; GST), Section C (Commercial Terms), Section D (Governing Terms) &amp; dual execution.
+                </p>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 10 }}>
+                  <span style={{ fontSize: '0.6875rem', fontWeight: 600, padding: '2px 7px', borderRadius: 6, background: '#f1f5f9', color: '#475569' }}>
+                    Section A–D
+                  </span>
+                  <span style={{ fontSize: '0.6875rem', fontWeight: 600, padding: '2px 7px', borderRadius: 6, background: '#f1f5f9', color: '#475569' }}>
+                    Contract SOW
+                  </span>
+                  <span style={{ fontSize: '0.6875rem', fontWeight: 600, padding: '2px 7px', borderRadius: 6, background: '#f1f5f9', color: '#475569' }}>
+                    Bilateral Signing
+                  </span>
+                </div>
+              </div>
+
+              <div style={{ paddingTop: 12, borderTop: '1px solid #f1f5f9' }}>
+                <Button
+                  variant="primary"
+                  icon={<FileCheck size={14} />}
+                  onClick={() => setIsClientOrderModalOpen(true)}
+                  style={{
+                    width: '100%',
+                    backgroundColor: '#7c3aed',
+                    borderColor: '#7c3aed',
+                    fontSize: '0.8125rem',
+                    justifyContent: 'center',
+                  }}
+                >
+                  Create Order Form
+                </Button>
+              </div>
+            </div>
+
+            {/* 4. GST Tax Invoice */}
+            <div
+              style={{
+                backgroundColor: '#ffffff',
+                borderRadius: 12,
+                padding: '20px',
+                border: '1.5px solid #a5f3fc',
+                boxShadow: '0 4px 16px rgba(8, 145, 178, 0.08)',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+                gap: 14,
+              }}
+            >
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+                  <div
+                    style={{
+                      width: 44,
+                      height: 44,
+                      borderRadius: 10,
+                      backgroundColor: '#ecfeff',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      border: '1px solid #a5f3fc',
+                    }}
+                  >
+                    <FileSpreadsheet size={22} style={{ color: '#0891b2' }} />
+                  </div>
+                  <span
+                    style={{
+                      fontSize: '0.72rem',
+                      fontWeight: 700,
+                      padding: '3px 8px',
+                      borderRadius: 20,
+                      color: '#0891b2',
+                      backgroundColor: '#ecfeff',
+                      border: '1px solid #a5f3fc',
+                    }}
+                  >
+                    TN/INV Format
+                  </span>
+                </div>
+                <h4 style={{ fontSize: '1rem', fontWeight: 700, color: '#0f172a', margin: '0 0 6px 0' }}>
+                  GST Tax Invoice
+                </h4>
+                <p style={{ fontSize: '0.8125rem', color: '#64748b', lineHeight: 1.45, margin: 0 }}>
+                  2-page statutory GST Tax Invoice with Billed By/Billed To GSTIN &amp; PAN, Place of Supply, itemized SAC descriptions, tax computation, complete Tasknera bank remittance details &amp; CEO sign-off.
+                </p>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 10 }}>
+                  <span style={{ fontSize: '0.6875rem', fontWeight: 600, padding: '2px 7px', borderRadius: 6, background: '#f1f5f9', color: '#475569' }}>
+                    GST Compliant
+                  </span>
+                  <span style={{ fontSize: '0.6875rem', fontWeight: 600, padding: '2px 7px', borderRadius: 6, background: '#f1f5f9', color: '#475569' }}>
+                    Bank &amp; UPI
+                  </span>
+                  <span style={{ fontSize: '0.6875rem', fontWeight: 600, padding: '2px 7px', borderRadius: 6, background: '#f1f5f9', color: '#475569' }}>
+                    TDS &amp; Late Fee Clauses
+                  </span>
+                </div>
+              </div>
+
+              <div style={{ paddingTop: 12, borderTop: '1px solid #f1f5f9' }}>
+                <Button
+                  variant="primary"
+                  icon={<FileSpreadsheet size={14} />}
+                  onClick={() => setIsTaxInvoiceModalOpen(true)}
+                  style={{
+                    width: '100%',
+                    backgroundColor: '#0891b2',
+                    borderColor: '#0891b2',
+                    fontSize: '0.8125rem',
+                    justifyContent: 'center',
+                  }}
+                >
+                  Generate Tax Invoice
+                </Button>
+              </div>
+            </div>
+
+            {/* 5. Payment Follow-up Notice */}
+            <div
+              style={{
+                backgroundColor: '#ffffff',
+                borderRadius: 12,
+                padding: '20px',
+                border: '1.5px solid #fecaca',
+                boxShadow: '0 4px 16px rgba(220, 38, 38, 0.08)',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+                gap: 14,
+              }}
+            >
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+                  <div
+                    style={{
+                      width: 44,
+                      height: 44,
+                      borderRadius: 10,
+                      backgroundColor: '#fef2f2',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      border: '1px solid #fecaca',
+                    }}
+                  >
+                    <ClockAlert size={22} style={{ color: '#dc2626' }} />
+                  </div>
+                  <span
+                    style={{
+                      fontSize: '0.72rem',
+                      fontWeight: 700,
+                      padding: '3px 8px',
+                      borderRadius: 20,
+                      color: '#dc2626',
+                      backgroundColor: '#fef2f2',
+                      border: '1px solid #fecaca',
+                    }}
+                  >
+                    TN/FIN/PRN Format
+                  </span>
+                </div>
+                <h4 style={{ fontSize: '1rem', fontWeight: 700, color: '#0f172a', margin: '0 0 6px 0' }}>
+                  Payment Follow-up Notice
+                </h4>
+                <p style={{ fontSize: '0.8125rem', color: '#64748b', lineHeight: 1.45, margin: 0 }}>
+                  2-page multi-stage payment notice for Stage 1 (Friendly reminder), Stage 2 (Second reminder with late interest), and Stage 3 (Final Notice with legal warning), including overdue invoice schedule &amp; signed acknowledgement.
+                </p>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 10 }}>
+                  <span style={{ fontSize: '0.6875rem', fontWeight: 600, padding: '2px 7px', borderRadius: 6, background: '#f1f5f9', color: '#475569' }}>
+                    Stages 1 &bull; 2 &bull; 3
+                  </span>
+                  <span style={{ fontSize: '0.6875rem', fontWeight: 600, padding: '2px 7px', borderRadius: 6, background: '#f1f5f9', color: '#475569' }}>
+                    Overdue Schedule
+                  </span>
+                  <span style={{ fontSize: '0.6875rem', fontWeight: 600, padding: '2px 7px', borderRadius: 6, background: '#f1f5f9', color: '#475569' }}>
+                    Client Acknowledgement
+                  </span>
+                </div>
+              </div>
+
+              <div style={{ paddingTop: 12, borderTop: '1px solid #f1f5f9' }}>
+                <Button
+                  variant="primary"
+                  icon={<ClockAlert size={14} />}
+                  onClick={() => setIsPaymentReminderModalOpen(true)}
+                  style={{
+                    width: '100%',
+                    backgroundColor: '#dc2626',
+                    borderColor: '#dc2626',
+                    fontSize: '0.8125rem',
+                    justifyContent: 'center',
+                  }}
+                >
+                  Create Payment Reminder
+                </Button>
+              </div>
+            </div>
           </div>
         </div>
       )}
@@ -5162,6 +5724,41 @@ export const OffersPage: React.FC = () => {
       <EmployeeInformationModal
         isOpen={isEmployeeInfoModalOpen}
         onClose={() => setIsEmployeeInfoModalOpen(false)}
+        onSuccess={() => fetchOffers()}
+      />
+
+      {/* Official Subscription Plans and Pricing (TN/BD/SUB) 2-Page Modal */}
+      <SubscriptionPlansModal
+        isOpen={isSubscriptionPlansModalOpen}
+        onClose={() => setIsSubscriptionPlansModalOpen(false)}
+        onSuccess={() => fetchOffers()}
+      />
+
+      {/* Official Commercial Quotation (TN/BD/QTN) 2-Page Modal */}
+      <CommercialQuotationModal
+        isOpen={isCommercialQuotationModalOpen}
+        onClose={() => setIsCommercialQuotationModalOpen(false)}
+        onSuccess={() => fetchOffers()}
+      />
+
+      {/* Official Payment Follow-up Notice (TN/FIN/PRN) 2-Page Modal */}
+      <PaymentReminderModal
+        isOpen={isPaymentReminderModalOpen}
+        onClose={() => setIsPaymentReminderModalOpen(false)}
+        onSuccess={() => fetchOffers()}
+      />
+
+      {/* Official GST Tax Invoice (TN/INV) 2-Page Modal */}
+      <TaxInvoiceModal
+        isOpen={isTaxInvoiceModalOpen}
+        onClose={() => setIsTaxInvoiceModalOpen(false)}
+        onSuccess={() => fetchOffers()}
+      />
+
+      {/* Official Client Order Form (TN/BD/ORD) 2-Page Modal */}
+      <ClientOrderFormModal
+        isOpen={isClientOrderModalOpen}
+        onClose={() => setIsClientOrderModalOpen(false)}
         onSuccess={() => fetchOffers()}
       />
     </div>

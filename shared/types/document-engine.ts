@@ -26,7 +26,12 @@ export type FutureDocumentTypeCode =
   | 'ASSET_HANDOVER'
   | 'LEAVE_APPROVAL'
   | 'EXIT_CHECKLIST'
-  | 'EMPLOYEE_INFO_FORM';
+  | 'EMPLOYEE_INFO_FORM'
+  | 'SUBSCRIPTION_PLANS'
+  | 'COMMERCIAL_QUOTATION'
+  | 'PAYMENT_REMINDER_NOTICE'
+  | 'TAX_INVOICE'
+  | 'CLIENT_ORDER_FORM';
 
 export type DocumentTypeCode = CoreDocumentTypeCode | FutureDocumentTypeCode;
 
@@ -36,7 +41,8 @@ export type DocumentCategory =
   | 'LEGAL'
   | 'EXIT'
   | 'COMPENSATION'
-  | 'POLICY_LEARNING';
+  | 'POLICY_LEARNING'
+  | 'COMMERCIAL_BILLING';
 
 export type DocumentLifecycleStatus =
   | 'DRAFT_AI'           // Initial draft populated with AI extraction/assistance
