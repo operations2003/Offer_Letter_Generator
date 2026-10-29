@@ -279,19 +279,6 @@ export const EmployeeTerminationModal: React.FC<EmployeeTerminationModalProps> =
               border-radius: 2px;
               font-weight: 600;
             }
-            .company-seal-box {
-              width: 130px;
-              height: 120px;
-              border: 1.5px solid #475569;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              color: #64748b;
-              font-size: 8.5pt;
-              font-weight: 600;
-              text-align: center;
-              background-color: #ffffff;
-            }
           </style>
         </head>
         <body>
@@ -1808,12 +1795,12 @@ export const EmployeeTerminationModal: React.FC<EmployeeTerminationModalProps> =
                       </div>
                     </div>
 
-                    {/* Side-by-side: Authorised Signatory | Company Seal | Acknowledgement of Receipt */}
+                    {/* Side-by-side: Authorised Signatory | Acknowledgement of Receipt */}
                     <div
                       style={{
                         display: 'grid',
-                        gridTemplateColumns: '1.2fr 130px 1.2fr',
-                        gap: 20,
+                        gridTemplateColumns: '1fr 1fr',
+                        gap: 32,
                         alignItems: 'flex-start',
                         marginTop: 18,
                         paddingTop: 8,
@@ -1838,11 +1825,6 @@ export const EmployeeTerminationModal: React.FC<EmployeeTerminationModalProps> =
                           Place:{' '}
                           {highlightPlaceholders ? <mark>{taskneraSignatoryPlace}</mark> : taskneraSignatoryPlace}
                         </div>
-                      </div>
-
-                      {/* Center: Company Seal Box */}
-                      <div className="company-seal-box">
-                        Company Seal
                       </div>
 
                       {/* Right: ACKNOWLEDGEMENT OF RECEIPT */}

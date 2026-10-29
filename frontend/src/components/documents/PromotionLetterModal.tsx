@@ -244,19 +244,6 @@ export const PromotionLetterModal: React.FC<PromotionLetterModalProps> = ({
               border: 1px solid #0f172a;
               padding: 6px 12px;
             }
-            .company-seal-box {
-              border: 1.5px solid #0f172a;
-              width: 130px;
-              height: 74px;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              color: #64748b;
-              font-size: 11px;
-              font-weight: 500;
-              font-family: Arial, sans-serif;
-              background-color: #ffffff;
-            }
           </style>
         </head>
         <body>
@@ -1284,7 +1271,7 @@ export const PromotionLetterModal: React.FC<PromotionLetterModalProps> = ({
                     Congratulations on your promotion. We wish you continued success. Please sign and return a copy of this letter as acknowledgement.
                   </p>
 
-                  {/* Signatory, Company Seal & Employee Acknowledgement */}
+                  {/* Signatory & Employee Acknowledgement */}
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16 }}>
                     {/* Left: Authorised Signatory */}
                     <div style={{ flex: 1, maxWidth: 250 }}>
@@ -1318,27 +1305,6 @@ export const PromotionLetterModal: React.FC<PromotionLetterModalProps> = ({
                       <div style={{ fontSize: '8.5pt', color: '#0f172a' }}>
                         Place: {renderHighlighted(signatoryPlace)}
                       </div>
-                    </div>
-
-                    {/* Center: Company Seal Box */}
-                    <div
-                      style={{
-                        border: '1.5px solid #0f172a',
-                        width: 125,
-                        height: 72,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        color: '#64748b',
-                        fontSize: '0.75rem',
-                        fontWeight: 500,
-                        fontFamily: 'Arial, sans-serif',
-                        backgroundColor: '#ffffff',
-                        flexShrink: 0,
-                        alignSelf: 'center',
-                      }}
-                    >
-                      Company Seal
                     </div>
 
                     {/* Right: Acknowledgement of Receipt */}

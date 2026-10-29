@@ -1180,22 +1180,6 @@ export const LeaveApprovalModal: React.FC<LeaveApprovalModalProps> = ({
                         <div>Date: {renderHighlighted(signDate)}</div>
                         <div>Place: {signPlace}</div>
                       </div>
-
-                      {/* Company Seal Box */}
-                      <div
-                        style={{
-                          border: '1.5px solid #0f172a',
-                          width: 120,
-                          height: 70,
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          color: '#64748b',
-                          fontSize: '8.5pt',
-                        }}
-                      >
-                        Company Seal
-                      </div>
                     </div>
                   </div>
                 </div>

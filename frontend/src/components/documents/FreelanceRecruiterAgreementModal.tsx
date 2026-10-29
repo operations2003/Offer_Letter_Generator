@@ -1590,13 +1590,6 @@ export const FreelanceRecruiterAgreementModal: React.FC<FreelanceRecruiterAgreem
                       <div style={{ color: '#475569' }}><strong>Place:</strong> {data.company.place || 'Delhi, India'}</div>
                       <div style={{ color: '#475569' }}><strong>Date:</strong> {data.effectiveDate}</div>
                     </div>
-
-                    {/* Company Seal Box */}
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-                      <div style={{ width: 140, height: 90, border: '1.5px dashed #94a3b8', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', fontSize: '8pt', textAlign: 'center', padding: 8 }}>
-                        Company Seal / Stamp
-                      </div>
-                    </div>
                   </div>
 
                   {/* Freelancer & Witnesses */}

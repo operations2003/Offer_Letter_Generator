@@ -270,19 +270,6 @@ export const MisconductWarningModal: React.FC<MisconductWarningModalProps> = ({
               flex-direction: column;
               justify-content: space-between;
             }
-            .company-seal-box {
-              border: 1.5px solid #0f172a;
-              width: 125px;
-              height: 72px;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              color: #64748b;
-              font-size: 11px;
-              font-weight: 500;
-              font-family: Arial, sans-serif;
-              background-color: #ffffff;
-            }
           </style>
         </head>
         <body>
@@ -1121,7 +1108,7 @@ export const MisconductWarningModal: React.FC<MisconductWarningModalProps> = ({
                     If you believe that any fact stated in this letter is incorrect, you may submit a written representation to HR within {renderHighlighted(representationDays)} days of receiving it. Please sign and return a copy of this letter as acknowledgement of receipt. Your signature does not mean that you accept the contents.
                   </p>
 
-                  {/* Signatory, Company Seal & Employee Acknowledgement */}
+                  {/* Signatory & Employee Acknowledgement */}
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 14 }}>
                     {/* Left: Authorised Signatory */}
                     <div style={{ flex: 1, maxWidth: 240 }}>
@@ -1162,28 +1149,6 @@ export const MisconductWarningModal: React.FC<MisconductWarningModalProps> = ({
                       <div style={{ fontSize: '8.5pt', color: '#0f172a' }}>
                         Place: {renderHighlighted(signatoryPlace)}
                       </div>
-                    </div>
-
-                    {/* Center: Company Seal Box */}
-                    <div
-                      className="company-seal-box"
-                      style={{
-                        border: '1.5px solid #0f172a',
-                        width: 125,
-                        height: 72,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        color: '#64748b',
-                        fontSize: '0.75rem',
-                        fontWeight: 500,
-                        fontFamily: 'Arial, sans-serif',
-                        backgroundColor: '#ffffff',
-                        flexShrink: 0,
-                        alignSelf: 'center',
-                      }}
-                    >
-                      Company Seal
                     </div>
 
                     {/* Right: Acknowledgement of Receipt */}

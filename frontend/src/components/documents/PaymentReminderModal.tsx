@@ -899,26 +899,6 @@ Payment Deadline: ${paymentDeadlineDate}`;
                             Place: {ceoPlace}
                           </div>
                         </div>
-
-                        {/* Company Seal Box */}
-                        <div
-                          style={{
-                            width: 88,
-                            height: 88,
-                            border: '1.5px solid #64748b',
-                            borderRadius: 6,
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            fontSize: '0.6875rem',
-                            color: '#64748b',
-                            textAlign: 'center',
-                            padding: 6,
-                            fontStyle: 'italic',
-                          }}
-                        >
-                          Company Seal
-                        </div>
                       </div>
                     </div>
 

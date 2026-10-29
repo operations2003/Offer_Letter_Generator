@@ -303,19 +303,6 @@ export const FreelancerTerminationModal: React.FC<FreelancerTerminationModalProp
               border-radius: 2px;
               font-weight: 600;
             }
-            .company-seal-box {
-              width: 130px;
-              height: 130px;
-              border: 1.5px solid #475569;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              color: #64748b;
-              font-size: 8.5pt;
-              font-weight: 600;
-              text-align: center;
-              background-color: #ffffff;
-            }
           </style>
         </head>
         <body>
@@ -1855,11 +1842,6 @@ export const FreelancerTerminationModal: React.FC<FreelancerTerminationModalProp
                           <div>
                             Place: {highlightPlaceholders ? <mark>{taskneraSignatoryPlace}</mark> : taskneraSignatoryPlace}
                           </div>
-                        </div>
-
-                        {/* Company Seal Box */}
-                        <div className="company-seal-box">
-                          Company Seal
                         </div>
                       </div>
                     </div>

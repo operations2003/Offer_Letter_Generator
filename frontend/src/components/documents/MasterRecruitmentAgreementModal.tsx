@@ -3121,10 +3121,6 @@ export const MasterRecruitmentAgreementModal: React.FC<MasterRecruitmentAgreemen
                             <div><span style={{ fontWeight: 700 }}>Signature: </span>____________________</div>
                             <div><span style={{ fontWeight: 700 }}>Date: </span>{data.clientSignatoryDate || '____________________'}</div>
                             <div><span style={{ fontWeight: 700 }}>Place: </span>{data.clientSignatoryPlace || '____________________'}</div>
-                            <div>
-                              <span style={{ fontWeight: 700 }}>Company Seal, if applicable: </span>
-                              <div style={{ width: 50, height: 50, border: '1px dashed #94a3b8', borderRadius: '50%', marginTop: 4 }} />
-                            </div>
                           </div>
                         </td>
                         <td style={{ padding: '10px 12px', border: '1px solid #1e293b', verticalAlign: 'top' }}>
@@ -3134,10 +3130,6 @@ export const MasterRecruitmentAgreementModal: React.FC<MasterRecruitmentAgreemen
                             <div><span style={{ fontWeight: 700 }}>Signature: </span>____________________</div>
                             <div><span style={{ fontWeight: 700 }}>Date: </span>{data.taskneraSignatoryDate || '____________________'}</div>
                             <div><span style={{ fontWeight: 700 }}>Place: </span>{data.taskneraSignatoryPlace || 'Delhi, India'}</div>
-                            <div>
-                              <span style={{ fontWeight: 700 }}>Business Stamp / Seal, if applicable: </span>
-                              <div style={{ width: 50, height: 50, border: '1px dashed #94a3b8', borderRadius: '50%', marginTop: 4 }} />
-                            </div>
                           </div>
                         </td>
                       </tr>

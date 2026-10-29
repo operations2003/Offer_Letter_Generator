@@ -1796,12 +1796,12 @@ export const SalaryRevisionModal: React.FC<SalaryRevisionModalProps> = ({
                       </div>
                     </div>
 
-                    {/* Side-by-side: Authorised Signatory | Company Seal | Acknowledgement of Receipt */}
+                    {/* Side-by-side: Authorised Signatory | Acknowledgement of Receipt */}
                     <div
                       style={{
                         display: 'grid',
-                        gridTemplateColumns: '1.2fr 130px 1.2fr',
-                        gap: 20,
+                        gridTemplateColumns: '1fr 1fr',
+                        gap: 32,
                         alignItems: 'flex-start',
                         marginTop: 20,
                         paddingTop: 8,
@@ -1831,25 +1831,6 @@ export const SalaryRevisionModal: React.FC<SalaryRevisionModalProps> = ({
                         <div style={{ color: '#475569', marginTop: 2 }}>
                           Place: {taskneraSignatoryPlace}
                         </div>
-                      </div>
-
-                      {/* Middle: Company Seal Box */}
-                      <div
-                        style={{
-                          height: 104,
-                          border: '1.5px solid #cbd5e1',
-                          borderRadius: 6,
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          color: '#94a3b8',
-                          fontSize: '8.5pt',
-                          fontStyle: 'italic',
-                          textAlign: 'center',
-                          padding: 8,
-                        }}
-                      >
-                        Company Seal
                       </div>
 
                       {/* Right: Acknowledgement of Receipt */}

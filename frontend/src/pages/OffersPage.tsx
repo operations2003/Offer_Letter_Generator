@@ -3848,7 +3848,7 @@ export const OffersPage: React.FC = () => {
                     </span>
                   </div>
                   <p style={{ fontSize: '0.84rem', color: '#475569', lineHeight: 1.5, margin: 0 }}>
-                    Official 2-page Tasknera compensation revision letter detailing performance appraisal rationale, effective date, side-by-side previous vs. revised monthly earnings (Basic, HRA, Special Allowance, Gross), statutory deductions (PF, Gratuity, PT/TDS), Net Take-Home, Annual CTC, clauses on statutory deductions, unchanged employment terms, confidentiality, and Page 2 authorised signoff with Company Seal and employee acknowledgement of receipt.
+                    Official 2-page Tasknera compensation revision letter detailing performance appraisal rationale, effective date, side-by-side previous vs. revised monthly earnings (Basic, HRA, Special Allowance, Gross), statutory deductions (PF, Gratuity, PT/TDS), Net Take-Home, Annual CTC, clauses on statutory deductions, unchanged employment terms, confidentiality, and Page 2 authorised signoff and employee acknowledgement of receipt.
                   </p>
                 </div>
               </div>
@@ -4052,7 +4052,7 @@ export const OffersPage: React.FC = () => {
                     </span>
                   </div>
                   <p style={{ fontSize: '0.84rem', color: '#475569', lineHeight: 1.5, margin: 0 }}>
-                    Official 1-page Tasknera relieving letter confirming employee relief from services at close of business on Last Working Day. Certifies completion of work handover, return of company assets, full and final dues reconciliation (or adjustments), ongoing post-employment confidentiality &amp; data protection, optional performance rating, and authorized CEO signature with Company Seal.
+                    Official 1-page Tasknera relieving letter confirming employee relief from services at close of business on Last Working Day. Certifies completion of work handover, return of company assets, full and final dues reconciliation (or adjustments), ongoing post-employment confidentiality &amp; data protection, optional performance rating, and authorized CEO signature.
                   </p>
                 </div>
               </div>
@@ -4256,7 +4256,7 @@ export const OffersPage: React.FC = () => {
                     </span>
                   </div>
                   <p style={{ fontSize: '0.84rem', color: '#475569', lineHeight: 1.5, margin: 0 }}>
-                    Official 1-page Tasknera promotion letter recognizing employee performance and contributions. Formulates the Promotion Particulars Table (Current Designation, New Designation, Department/Team, Reporting To, Effective Date, Revised Compensation), 3 statutory clauses on role responsibilities, compensation deductions, and unchanged terms of employment, followed by CEO authorization with Company Seal and employee acknowledgement receipt.
+                    Official 1-page Tasknera promotion letter recognizing employee performance and contributions. Formulates the Promotion Particulars Table (Current Designation, New Designation, Department/Team, Reporting To, Effective Date, Revised Compensation), 3 statutory clauses on role responsibilities, compensation deductions, and unchanged terms of employment, followed by CEO authorization and employee acknowledgement receipt.
                   </p>
                 </div>
               </div>
@@ -4460,7 +4460,7 @@ export const OffersPage: React.FC = () => {
                     </span>
                   </div>
                   <p style={{ fontSize: '0.84rem', color: '#475569', lineHeight: 1.5, margin: 0 }}>
-                    Official 1-page Tasknera letter extending the internship period based on intern performance and project requirements. Outlines the extended start and end dates, further duration, 4 core terms (Stipend, Role and reporting line, Confidentiality &amp; Company policies, Fixed-period nature of internship), CEO authorization with Company Seal, and formal intern receipt &amp; acceptance acknowledgement.
+                    Official 1-page Tasknera letter extending the internship period based on intern performance and project requirements. Outlines the extended start and end dates, further duration, 4 core terms (Stipend, Role and reporting line, Confidentiality &amp; Company policies, Fixed-period nature of internship), CEO authorization, and formal intern receipt &amp; acceptance acknowledgement.
                   </p>
                 </div>
               </div>

@@ -1752,22 +1752,6 @@ export const FnfSettlementModal: React.FC<FnfSettlementModalProps> = ({
                           <div>Date: {renderHighlighted(paymentDate)}</div>
                           <div>Place: Delhi, India</div>
                         </div>
-
-                        {/* Company Seal Box */}
-                        <div
-                          style={{
-                            border: '1.5px solid #0f172a',
-                            width: 120,
-                            height: 68,
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            color: '#64748b',
-                            fontSize: '8pt',
-                          }}
-                        >
-                          Company Seal
-                        </div>
                       </div>
                     </div>
 

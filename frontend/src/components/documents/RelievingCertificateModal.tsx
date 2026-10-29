@@ -233,19 +233,6 @@ export const RelievingCertificateModal: React.FC<RelievingCertificateModalProps>
               flex-direction: column;
               justify-content: space-between;
             }
-            .company-seal-box {
-              border: 1.5px solid #0f172a;
-              width: 120px;
-              height: 70px;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              color: #64748b;
-              font-size: 11px;
-              font-weight: 500;
-              font-family: Arial, sans-serif;
-              background-color: #ffffff;
-            }
           </style>
         </head>
         <body>
@@ -1157,7 +1144,7 @@ export const RelievingCertificateModal: React.FC<RelievingCertificateModalProps>
                     </p>
                   </div>
 
-                  {/* Signatory Block & Company Seal */}
+                  {/* Signatory Block */}
                   <div style={{ marginTop: 24 }}>
                     <div style={{ fontSize: '9.5pt', color: '#0f172a', marginBottom: 4 }}>
                       Yours faithfully,
@@ -1193,26 +1180,6 @@ export const RelievingCertificateModal: React.FC<RelievingCertificateModalProps>
                         <div style={{ fontSize: '9pt', color: '#0f172a' }}>
                           Place: {renderHighlighted(signatoryPlace)}
                         </div>
-                      </div>
-
-                      {/* Center/Right: Company Seal Box */}
-                      <div
-                        style={{
-                          border: '1.5px solid #0f172a',
-                          width: 140,
-                          height: 76,
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          color: '#64748b',
-                          fontSize: '0.78rem',
-                          fontWeight: 500,
-                          fontFamily: 'Arial, sans-serif',
-                          backgroundColor: '#ffffff',
-                          flexShrink: 0,
-                        }}
-                      >
-                        Company Seal
                       </div>
                     </div>
                   </div>

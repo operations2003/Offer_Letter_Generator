@@ -238,19 +238,6 @@ export const InternshipExtensionModal: React.FC<InternshipExtensionModalProps> =
               flex-direction: column;
               justify-content: space-between;
             }
-            .company-seal-box {
-              border: 1.5px solid #0f172a;
-              width: 130px;
-              height: 74px;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              color: #64748b;
-              font-size: 11px;
-              font-weight: 500;
-              font-family: Arial, sans-serif;
-              background-color: #ffffff;
-            }
           </style>
         </head>
         <body>
@@ -1207,7 +1194,7 @@ export const InternshipExtensionModal: React.FC<InternshipExtensionModalProps> =
                     </p>
                   </div>
 
-                  {/* Signatory, Company Seal & Intern Acknowledgement */}
+                  {/* Signatory & Intern Acknowledgement */}
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16, marginTop: 22 }}>
                     {/* Left: Authorised Signatory */}
                     <div style={{ flex: 1, maxWidth: 250 }}>
@@ -1241,27 +1228,6 @@ export const InternshipExtensionModal: React.FC<InternshipExtensionModalProps> =
                       <div style={{ fontSize: '8.5pt', color: '#0f172a' }}>
                         Place: {renderHighlighted(signatoryPlace)}
                       </div>
-                    </div>
-
-                    {/* Center: Company Seal Box */}
-                    <div
-                      style={{
-                        border: '1.5px solid #0f172a',
-                        width: 125,
-                        height: 72,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        color: '#64748b',
-                        fontSize: '0.75rem',
-                        fontWeight: 500,
-                        fontFamily: 'Arial, sans-serif',
-                        backgroundColor: '#ffffff',
-                        flexShrink: 0,
-                        alignSelf: 'center',
-                      }}
-                    >
-                      Company Seal
                     </div>
 
                     {/* Right: Acknowledgement of Receipt */}
