@@ -69,6 +69,7 @@ export const PromotionLetterModal: React.FC<PromotionLetterModalProps> = ({
 
   // Employee Details
   const [employeeFullName, setEmployeeFullName] = useState<string>('Rohan Mehra');
+  const [salutationPrefix, setSalutationPrefix] = useState<string>('Dear');
   const [employeeSalutation, setEmployeeSalutation] = useState<string>('Rohan');
   const [employeeId, setEmployeeId] = useState<string>('EMP-1048');
   const [residentialAddress, setResidentialAddress] = useState<string>(
@@ -684,7 +685,14 @@ export const PromotionLetterModal: React.FC<PromotionLetterModalProps> = ({
                       type="text"
                       className="form-input"
                       value={employeeFullName}
-                      onChange={(e) => setEmployeeFullName(e.target.value)}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setEmployeeFullName(val);
+                        const prevFirst = employeeFullName.trim().split(' ')[0] || employeeFullName;
+                        if (!employeeSalutation || employeeSalutation === prevFirst || employeeSalutation === 'Rohan') {
+                          setEmployeeSalutation(val.trim().split(' ')[0] || val);
+                        }
+                      }}
                       style={{ fontSize: '0.8125rem' }}
                     />
                   </div>
@@ -695,6 +703,34 @@ export const PromotionLetterModal: React.FC<PromotionLetterModalProps> = ({
                       className="form-input"
                       value={employeeId}
                       onChange={(e) => setEmployeeId(e.target.value)}
+                      style={{ fontSize: '0.8125rem' }}
+                    />
+                  </div>
+                </div>
+
+                {/* Greeting / Salutation (Dear [Name]) */}
+                <div style={{ display: 'grid', gridTemplateColumns: '130px 1fr', gap: 12, marginTop: 12 }}>
+                  <div>
+                    <label className="form-label" style={{ fontSize: '0.78rem', fontWeight: 700 }}>Salutation Prefix</label>
+                    <input
+                      type="text"
+                      className="form-input"
+                      value={salutationPrefix}
+                      onChange={(e) => setSalutationPrefix(e.target.value)}
+                      placeholder="e.g. Dear"
+                      style={{ fontSize: '0.8125rem' }}
+                    />
+                  </div>
+                  <div>
+                    <label className="form-label" style={{ fontSize: '0.78rem', fontWeight: 700 }}>
+                      Greeting / Salutation Name ({salutationPrefix || 'Dear'} [Name])
+                    </label>
+                    <input
+                      type="text"
+                      className="form-input"
+                      value={employeeSalutation}
+                      onChange={(e) => setEmployeeSalutation(e.target.value)}
+                      placeholder="e.g. Rohan or Mr. Mehra"
                       style={{ fontSize: '0.8125rem' }}
                     />
                   </div>
@@ -1138,7 +1174,8 @@ export const PromotionLetterModal: React.FC<PromotionLetterModalProps> = ({
 
                   {/* Salutation */}
                   <div style={{ fontSize: '9.5pt', marginBottom: 10, color: '#0f172a' }}>
-                    Dear {renderHighlighted(employeeSalutation || employeeFullName)},
+                    {salutationPrefix ? `${salutationPrefix} ` : 'Dear '}
+                    {renderHighlighted(employeeSalutation || employeeFullName)},
                   </div>
 
                   {/* Opening Statement */}

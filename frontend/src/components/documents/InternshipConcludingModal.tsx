@@ -83,6 +83,7 @@ export const InternshipConcludingModal: React.FC<InternshipConcludingModalProps>
 
   // Intern Personal & Role Details
   const [internFullName, setInternFullName] = useState<string>('Rohan Verma');
+  const [salutationPrefix, setSalutationPrefix] = useState<string>('Dear');
   const [internSalutation, setInternSalutation] = useState<string>('Rohan');
   const [internId, setInternId] = useState<string>('INT-2026-042');
   const [internshipRole, setInternshipRole] = useState<string>('Talent Acquisition & Sourcing Intern');
@@ -770,7 +771,14 @@ export const InternshipConcludingModal: React.FC<InternshipConcludingModalProps>
                       <input
                         type="text"
                         value={internFullName}
-                        onChange={(e) => setInternFullName(e.target.value)}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setInternFullName(val);
+                          const prevFirst = internFullName.trim().split(' ')[0] || internFullName;
+                          if (!internSalutation || internSalutation === prevFirst || internSalutation === 'Rohan') {
+                            setInternSalutation(val.trim().split(' ')[0] || val);
+                          }
+                        }}
                         style={{
                           width: '100%',
                           padding: '8px 10px',
@@ -797,6 +805,51 @@ export const InternshipConcludingModal: React.FC<InternshipConcludingModalProps>
                           fontSize: '0.8125rem',
                           borderRadius: 6,
                           border: '1px solid #cbd5e1',
+                          color: '#0f172a',
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Greeting / Salutation (Dear [Name]) */}
+                  <div style={{ display: 'grid', gridTemplateColumns: '130px 1fr', gap: 12 }}>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#475569', marginBottom: 4 }}>
+                        Salutation Prefix
+                      </label>
+                      <input
+                        type="text"
+                        value={salutationPrefix}
+                        onChange={(e) => setSalutationPrefix(e.target.value)}
+                        placeholder="e.g. Dear"
+                        style={{
+                          width: '100%',
+                          padding: '8px 10px',
+                          fontSize: '0.8125rem',
+                          borderRadius: 6,
+                          border: '1px solid #cbd5e1',
+                          fontWeight: 600,
+                          color: '#0f172a',
+                        }}
+                      />
+                    </div>
+
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#475569', marginBottom: 4 }}>
+                        Greeting / Salutation Name ({salutationPrefix || 'Dear'} [Name])
+                      </label>
+                      <input
+                        type="text"
+                        value={internSalutation}
+                        onChange={(e) => setInternSalutation(e.target.value)}
+                        placeholder="e.g. Rohan or Mr. Verma"
+                        style={{
+                          width: '100%',
+                          padding: '8px 10px',
+                          fontSize: '0.8125rem',
+                          borderRadius: 6,
+                          border: '1px solid #cbd5e1',
+                          fontWeight: 600,
                           color: '#0f172a',
                         }}
                       />
@@ -1325,7 +1378,8 @@ export const InternshipConcludingModal: React.FC<InternshipConcludingModalProps>
 
                     {/* Salutation */}
                     <div style={{ marginBottom: 10, color: '#0f172a' }}>
-                      Dear {highlightPlaceholders ? <mark>{internSalutation}</mark> : internSalutation},
+                      {salutationPrefix ? `${salutationPrefix} ` : 'Dear '}
+                      {highlightPlaceholders ? <mark>{internSalutation}</mark> : internSalutation},
                     </div>
 
                     {/* Paragraph 1 */}

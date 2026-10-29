@@ -95,6 +95,7 @@ export const SalaryRevisionModal: React.FC<SalaryRevisionModalProps> = ({
 
   // Employee Details
   const [employeeFullName, setEmployeeFullName] = useState<string>('Ananya Sharma');
+  const [salutationPrefix, setSalutationPrefix] = useState<string>('Dear');
   const [employeeSalutation, setEmployeeSalutation] = useState<string>('Ananya');
   const [employeeId, setEmployeeId] = useState<string>('EMP-1025');
   const [designation, setDesignation] = useState<string>('Senior Talent Acquisition Specialist');
@@ -927,6 +928,50 @@ export const SalaryRevisionModal: React.FC<SalaryRevisionModalProps> = ({
                     </div>
                   </div>
 
+                  {/* Greeting / Salutation (Dear [Name]) */}
+                  <div style={{ display: 'grid', gridTemplateColumns: '130px 1fr', gap: 12 }}>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#475569', marginBottom: 4 }}>
+                        Salutation Prefix
+                      </label>
+                      <input
+                        type="text"
+                        value={salutationPrefix}
+                        onChange={(e) => setSalutationPrefix(e.target.value)}
+                        placeholder="e.g. Dear"
+                        style={{
+                          width: '100%',
+                          padding: '8px 10px',
+                          fontSize: '0.8125rem',
+                          borderRadius: 6,
+                          border: '1px solid #cbd5e1',
+                          color: '#0f172a',
+                          fontWeight: 600,
+                        }}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#475569', marginBottom: 4 }}>
+                        Greeting / Salutation Name ({salutationPrefix || 'Dear'} [Name])
+                      </label>
+                      <input
+                        type="text"
+                        value={employeeSalutation}
+                        onChange={(e) => setEmployeeSalutation(e.target.value)}
+                        placeholder="e.g. Ananya or Ms. Sharma"
+                        style={{
+                          width: '100%',
+                          padding: '8px 10px',
+                          fontSize: '0.8125rem',
+                          borderRadius: 6,
+                          border: '1px solid #cbd5e1',
+                          color: '#0f172a',
+                          fontWeight: 600,
+                        }}
+                      />
+                    </div>
+                  </div>
+
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                     <div>
                       <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#475569', marginBottom: 4 }}>
@@ -1517,7 +1562,8 @@ export const SalaryRevisionModal: React.FC<SalaryRevisionModalProps> = ({
 
                     {/* Salutation */}
                     <div style={{ marginBottom: 10, color: '#0f172a' }}>
-                      Dear {highlightPlaceholders ? <mark>{employeeSalutation}</mark> : employeeSalutation},
+                      {salutationPrefix ? `${salutationPrefix} ` : 'Dear '}
+                      {highlightPlaceholders ? <mark>{employeeSalutation}</mark> : employeeSalutation},
                     </div>
 
                     {/* Opening Revision Paragraph */}
