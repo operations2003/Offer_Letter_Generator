@@ -95,6 +95,23 @@ export const InternshipExtensionModal: React.FC<InternshipExtensionModalProps> =
   const [reportingTo, setReportingTo] = useState<string>('Sheetal Bedi / Chief Executive Officer');
   const [responsibilitiesChange, setResponsibilitiesChange] = useState<string>('');
 
+  // Inner Content Paragraphs (Fully Editable)
+  const [customOpeningPara, setCustomOpeningPara] = useState<string>('');
+  const [customTermsIntro, setCustomTermsIntro] = useState<string>('');
+  const [customStipendClause, setCustomStipendClause] = useState<string>('');
+  const [customRoleClause, setCustomRoleClause] = useState<string>('');
+  const [customOtherTermsClause, setCustomOtherTermsClause] = useState<string>('');
+  const [customNatureClause, setCustomNatureClause] = useState<string>('');
+  const [customClosingPara, setCustomClosingPara] = useState<string>('');
+
+  const defaultOpeningPara = `We are pleased to inform you that, ${extensionReason}, your internship has been extended. The extended internship period will run from ${extendedStartDate} to ${extendedEndDate} (a further period of ${extensionDuration}).`;
+  const defaultTermsIntro = 'The following terms apply to the extended period:';
+  const defaultStipendClause = `Stipend. Your stipend for the extended period will be INR ${stipendAmount} per ${stipendFrequency}, payable as per Company policy, subject to applicable deductions.`;
+  const defaultRoleClause = `Role and reporting. Your role will remain ${internshipRole}, reporting to ${reportingTo}.${responsibilitiesChange ? ` Responsibilities: ${responsibilitiesChange}.` : ''}`;
+  const defaultOtherTermsClause = 'Other terms. All other terms and conditions of your internship, including your confidentiality and data-protection obligations and Company policies, remain unchanged and continue to apply.';
+  const defaultNatureClause = 'Nature of internship. This extension is for a fixed period and does not by itself create any right to employment or continued engagement with Tasknera.';
+  const defaultClosingPara = 'We appreciate your contribution so far and look forward to your continued efforts. Please sign and return a copy of this letter to confirm your acceptance.';
+
   // Signatory & Location (Ms. Sheetal Bedi, CEO, Delhi)
   const [signatoryName, setSignatoryName] = useState<string>('Ms. Sheetal Bedi');
   const [signatoryDesignation, setSignatoryDesignation] = useState<string>('Chief Executive Officer (CEO)');
@@ -225,6 +242,12 @@ export const InternshipExtensionModal: React.FC<InternshipExtensionModalProps> =
               background: #ffffff;
               -webkit-print-color-adjust: exact;
               print-color-adjust: exact;
+            }
+            [contenteditable] {
+              outline: none !important;
+              border: none !important;
+              background: transparent !important;
+              box-shadow: none !important;
             }
             mark {
               background: transparent !important;
@@ -1145,12 +1168,28 @@ export const InternshipExtensionModal: React.FC<InternshipExtensionModalProps> =
                       We refer to your internship with Tasknera as {renderHighlighted(internshipRole)} in the {renderHighlighted(department)} team, which commenced on {renderHighlighted(originalCommencedDate)} and was due to conclude on {renderHighlighted(originalConcludeDate)}.
                     </p>
 
-                    <p style={{ margin: 0 }}>
-                      We are pleased to inform you that, {renderHighlighted(extensionReason)}, your internship has been extended. The extended internship period will run from {renderHighlighted(extendedStartDate)} to {renderHighlighted(extendedEndDate)} (a further period of {renderHighlighted(extensionDuration)}).
+                    <p
+                      contentEditable={true}
+                      suppressContentEditableWarning={true}
+                      onBlur={(e) => setCustomOpeningPara(e.currentTarget.innerText)}
+                      title="Click to edit this paragraph directly"
+                      style={{ margin: 0, padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}
+                    >
+                      {customOpeningPara !== '' ? customOpeningPara : (
+                        <>
+                          We are pleased to inform you that, {renderHighlighted(extensionReason)}, your internship has been extended. The extended internship period will run from {renderHighlighted(extendedStartDate)} to {renderHighlighted(extendedEndDate)} (a further period of {renderHighlighted(extensionDuration)}).
+                        </>
+                      )}
                     </p>
 
-                    <p style={{ margin: 0 }}>
-                      The following terms apply to the extended period:
+                    <p
+                      contentEditable={true}
+                      suppressContentEditableWarning={true}
+                      onBlur={(e) => setCustomTermsIntro(e.currentTarget.innerText)}
+                      title="Click to edit this text directly"
+                      style={{ margin: 0, padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}
+                    >
+                      {customTermsIntro !== '' ? customTermsIntro : 'The following terms apply to the extended period:'}
                     </p>
 
                     {/* Numbered Terms */}
@@ -1158,39 +1197,89 @@ export const InternshipExtensionModal: React.FC<InternshipExtensionModalProps> =
                       {includeStipend && (
                         <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
                           <span style={{ fontWeight: 700, flexShrink: 0 }}>1.</span>
-                          <div>
-                            <strong>Stipend.</strong> Your stipend for the extended period will be INR {renderHighlighted(stipendAmount)} per {renderHighlighted(stipendFrequency)}, payable as per Company policy, subject to applicable deductions.
+                          <div
+                            contentEditable={true}
+                            suppressContentEditableWarning={true}
+                            onBlur={(e) => setCustomStipendClause(e.currentTarget.innerText)}
+                            title="Click to edit this clause directly"
+                            style={{ padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text', flex: 1 }}
+                          >
+                            {customStipendClause !== '' ? customStipendClause : (
+                              <>
+                                <strong>Stipend.</strong> Your stipend for the extended period will be INR {renderHighlighted(stipendAmount)} per {renderHighlighted(stipendFrequency)}, payable as per Company policy, subject to applicable deductions.
+                              </>
+                            )}
                           </div>
                         </div>
                       )}
 
                       <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
                         <span style={{ fontWeight: 700, flexShrink: 0 }}>{includeStipend ? '2.' : '1.'}</span>
-                        <div>
-                          <strong>Role and reporting.</strong> Your role will remain {renderHighlighted(internshipRole)}, reporting to {renderHighlighted(reportingTo)}.
-                          {responsibilitiesChange && (
-                            <span> Responsibilities: {renderHighlighted(responsibilitiesChange)}.</span>
+                        <div
+                          contentEditable={true}
+                          suppressContentEditableWarning={true}
+                          onBlur={(e) => setCustomRoleClause(e.currentTarget.innerText)}
+                          title="Click to edit this clause directly"
+                          style={{ padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text', flex: 1 }}
+                        >
+                          {customRoleClause !== '' ? customRoleClause : (
+                            <>
+                              <strong>Role and reporting.</strong> Your role will remain {renderHighlighted(internshipRole)}, reporting to {renderHighlighted(reportingTo)}.
+                              {responsibilitiesChange && (
+                                <span> Responsibilities: {renderHighlighted(responsibilitiesChange)}.</span>
+                              )}
+                            </>
                           )}
                         </div>
                       </div>
 
                       <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
                         <span style={{ fontWeight: 700, flexShrink: 0 }}>{includeStipend ? '3.' : '2.'}</span>
-                        <div>
-                          <strong>Other terms.</strong> All other terms and conditions of your internship, including your confidentiality and data-protection obligations and Company policies, remain unchanged and continue to apply.
+                        <div
+                          contentEditable={true}
+                          suppressContentEditableWarning={true}
+                          onBlur={(e) => setCustomOtherTermsClause(e.currentTarget.innerText)}
+                          title="Click to edit this clause directly"
+                          style={{ padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text', flex: 1 }}
+                        >
+                          {customOtherTermsClause !== '' ? customOtherTermsClause : (
+                            <>
+                              <strong>Other terms.</strong> All other terms and conditions of your internship, including your confidentiality and data-protection obligations and Company policies, remain unchanged and continue to apply.
+                            </>
+                          )}
                         </div>
                       </div>
 
                       <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
                         <span style={{ fontWeight: 700, flexShrink: 0 }}>{includeStipend ? '4.' : '3.'}</span>
-                        <div>
-                          <strong>Nature of internship.</strong> This extension is for a fixed period and does not by itself create any right to employment or continued engagement with Tasknera.
+                        <div
+                          contentEditable={true}
+                          suppressContentEditableWarning={true}
+                          onBlur={(e) => setCustomNatureClause(e.currentTarget.innerText)}
+                          title="Click to edit this clause directly"
+                          style={{ padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text', flex: 1 }}
+                        >
+                          {customNatureClause !== '' ? customNatureClause : (
+                            <>
+                              <strong>Nature of internship.</strong> This extension is for a fixed period and does not by itself create any right to employment or continued engagement with Tasknera.
+                            </>
+                          )}
                         </div>
                       </div>
                     </div>
 
-                    <p style={{ margin: '4px 0 0 0' }}>
-                      We appreciate your contribution so far and look forward to your continued efforts. Please sign and return a copy of this letter to confirm your acceptance.
+                    <p
+                      contentEditable={true}
+                      suppressContentEditableWarning={true}
+                      onBlur={(e) => setCustomClosingPara(e.currentTarget.innerText)}
+                      title="Click to edit this paragraph directly"
+                      style={{ margin: '4px 0 0 0', padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}
+                    >
+                      {customClosingPara !== '' ? customClosingPara : (
+                        <>
+                          We appreciate your contribution so far and look forward to your continued efforts. Please sign and return a copy of this letter to confirm your acceptance.
+                        </>
+                      )}
                     </p>
                   </div>
 

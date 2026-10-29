@@ -224,6 +224,12 @@ export const FreelanceRecruiterAgreementModal: React.FC<FreelanceRecruiterAgreem
           <title>${docTitle}</title>
           <meta charset="utf-8" />
           <style>
+            [contenteditable] {
+              outline: none !important;
+              border: none !important;
+              background: transparent !important;
+              box-shadow: none !important;
+            }
             @page {
               size: A4 portrait;
               margin: 14mm 16mm 14mm 16mm;

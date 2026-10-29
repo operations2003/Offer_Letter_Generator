@@ -245,6 +245,12 @@ export const FreelancerOnboardingModal: React.FC<FreelancerOnboardingModalProps>
           <title>${docTitle}</title>
           <meta charset="utf-8" />
           <style>
+            [contenteditable] {
+              outline: none !important;
+              border: none !important;
+              background: transparent !important;
+              box-shadow: none !important;
+            }
             @page {
               size: A4 portrait;
               margin: 12mm 15mm 12mm 15mm;
@@ -1126,6 +1132,22 @@ export const FreelancerOnboardingModal: React.FC<FreelancerOnboardingModalProps>
                     Edit Details
                   </Button>
 
+                  <div
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 6,
+                      padding: '4px 10px',
+                      backgroundColor: '#eff6ff',
+                      borderRadius: 6,
+                      border: '1px solid #bfdbfe',
+                      fontSize: '0.75rem',
+                      color: '#1e40af',
+                    }}
+                  >
+                    <span>✏️</span>
+                    <span><strong>Tip:</strong> All paragraphs are editable — click any text to edit directly.</span>
+                  </div>
                   <button
                     type="button"
                     onClick={() => setHighlightPlaceholders(!highlightPlaceholders)}
@@ -1304,7 +1326,7 @@ export const FreelancerOnboardingModal: React.FC<FreelancerOnboardingModalProps>
                     </div>
 
                     {/* Intro paragraph */}
-                    <p style={{ color: '#334155', textAlign: 'justify', marginBottom: 16 }}>
+                    <p contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this paragraph directly" style={{ color: '#334155', textAlign: 'justify', marginBottom: 16, padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}>
                       Welcome to Tasknera. We are pleased to onboard you as an independent freelancer, and we look
                       forward to working with you. This letter confirms the key terms of your engagement and the steps
                       to get you started.
@@ -1407,7 +1429,7 @@ export const FreelancerOnboardingModal: React.FC<FreelancerOnboardingModalProps>
                     <div style={{ fontWeight: 700, color: '#0f172a', fontSize: '10pt', marginBottom: 4 }}>
                       Revenue-based compensation
                     </div>
-                    <p style={{ color: '#334155', marginBottom: 10, fontSize: '9.25pt' }}>
+                    <p contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this paragraph directly" style={{ color: '#334155', marginBottom: 10, fontSize: '9.25pt', padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}>
                       You will be compensated on a revenue basis, as set out below. You will not receive a salary, retainer
                       or minimum guaranteed earnings.
                     </p>

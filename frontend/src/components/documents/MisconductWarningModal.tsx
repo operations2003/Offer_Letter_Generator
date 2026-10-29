@@ -259,6 +259,12 @@ export const MisconductWarningModal: React.FC<MisconductWarningModalProps> = ({
               -webkit-print-color-adjust: exact;
               print-color-adjust: exact;
             }
+            [contenteditable] {
+              outline: none !important;
+              border: none !important;
+              background: transparent !important;
+              box-shadow: none !important;
+            }
             mark {
               background: transparent !important;
               color: inherit !important;
@@ -1058,21 +1064,21 @@ export const MisconductWarningModal: React.FC<MisconductWarningModalProps> = ({
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 8, fontSize: '9pt', color: '#1e293b', textAlign: 'justify' }}>
                     <div style={{ display: 'flex', gap: 6, alignItems: 'flex-start' }}>
                       <span style={{ fontWeight: 700, flexShrink: 0 }}>1.</span>
-                      <div>
+                      <div contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this clause directly" style={{ padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text', flex: 1 }}>
                         <strong>Reference.</strong> We refer to {renderHighlighted(referenceType)} regarding your conduct at work, and to your reply dated {renderHighlighted(replyDate)}, if any.
                       </div>
                     </div>
 
                     <div style={{ display: 'flex', gap: 6, alignItems: 'flex-start' }}>
                       <span style={{ fontWeight: 700, flexShrink: 0 }}>2.</span>
-                      <div>
+                      <div contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this clause directly" style={{ padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text', flex: 1 }}>
                         <strong>Finding.</strong> On or about {renderHighlighted(incidentDates)}, you {renderHighlighted(findingDescription)}. This is a breach of {renderHighlighted(policyBreached)}, and of Clause {renderHighlighted(appointmentClause)} of your appointment letter.
                       </div>
                     </div>
 
                     <div style={{ display: 'flex', gap: 6, alignItems: 'flex-start' }}>
                       <span style={{ fontWeight: 700, flexShrink: 0 }}>3.</span>
-                      <div>
+                      <div contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this clause directly" style={{ padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text', flex: 1 }}>
                         <strong>Consideration of your explanation.</strong>{' '}
                         {explanationConsideration === 'SATISFACTORY_FAIL' ? (
                           renderHighlighted('We have considered your explanation, but it does not satisfactorily address the conduct described above.')
@@ -1084,27 +1090,27 @@ export const MisconductWarningModal: React.FC<MisconductWarningModalProps> = ({
 
                     <div style={{ display: 'flex', gap: 6, alignItems: 'flex-start' }}>
                       <span style={{ fontWeight: 700, flexShrink: 0 }}>4.</span>
-                      <div>
+                      <div contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this clause directly" style={{ padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text', flex: 1 }}>
                         <strong>Warning.</strong> The Company hereby issues you a {renderHighlighted(warningLevel)} written warning. This letter will be placed on your personnel file for {renderHighlighted(personnelFileMonths)} months.
                       </div>
                     </div>
 
                     <div style={{ display: 'flex', gap: 6, alignItems: 'flex-start' }}>
                       <span style={{ fontWeight: 700, flexShrink: 0 }}>5.</span>
-                      <div>
+                      <div contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this clause directly" style={{ padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text', flex: 1 }}>
                         <strong>Expected conduct.</strong> You are required to {renderHighlighted(expectedConduct)} with immediate effect.
                       </div>
                     </div>
 
                     <div style={{ display: 'flex', gap: 6, alignItems: 'flex-start' }}>
                       <span style={{ fontWeight: 700, flexShrink: 0 }}>6.</span>
-                      <div>
+                      <div contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this clause directly" style={{ padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text', flex: 1 }}>
                         <strong>Consequences.</strong> Any repetition of this conduct or any further breach of Company policy may lead to further disciplinary action, which may extend to termination of employment, in accordance with Company policy and applicable law.
                       </div>
                     </div>
                   </div>
 
-                  <p style={{ margin: '10px 0 14px 0', fontSize: '9pt', textAlign: 'justify' }}>
+                  <p contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this paragraph directly" style={{ margin: '10px 0 14px 0', fontSize: '9pt', textAlign: 'justify', padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}>
                     If you believe that any fact stated in this letter is incorrect, you may submit a written representation to HR within {renderHighlighted(representationDays)} days of receiving it. Please sign and return a copy of this letter as acknowledgement of receipt. Your signature does not mean that you accept the contents.
                   </p>
 

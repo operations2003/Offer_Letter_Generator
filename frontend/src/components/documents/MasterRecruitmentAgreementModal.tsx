@@ -490,6 +490,12 @@ export const MasterRecruitmentAgreementModal: React.FC<MasterRecruitmentAgreemen
           <title></title>
           <meta charset="utf-8" />
           <style>
+            [contenteditable] {
+              outline: none !important;
+              border: none !important;
+              background: transparent !important;
+              box-shadow: none !important;
+            }
             @page {
               size: A4 portrait;
               margin: 0 !important;

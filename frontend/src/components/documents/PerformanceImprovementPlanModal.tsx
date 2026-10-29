@@ -312,6 +312,12 @@ export const PerformanceImprovementPlanModal: React.FC<PerformanceImprovementPla
               -webkit-print-color-adjust: exact;
               print-color-adjust: exact;
             }
+            [contenteditable] {
+              outline: none !important;
+              border: none !important;
+              background: transparent !important;
+              box-shadow: none !important;
+            }
             mark {
               background: transparent !important;
               color: inherit !important;
@@ -1476,7 +1482,7 @@ export const PerformanceImprovementPlanModal: React.FC<PerformanceImprovementPla
                       </span>
                     </div>
 
-                    <p style={{ margin: '0 0 28px 0', fontSize: '9.5pt', textAlign: 'justify', lineHeight: 1.6 }}>
+                    <p contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this text directly" style={{ margin: '0 0 28px 0', fontSize: '9.5pt', textAlign: 'justify', lineHeight: 1.6, padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}>
                       Please sign and return a copy of this letter. Your signature confirms that the Plan has been explained to you and does not mean that you agree with every assessment in it. You may add written comments within {renderHighlighted(commentDays)} days.
                     </p>
 

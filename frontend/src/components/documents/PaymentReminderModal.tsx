@@ -164,6 +164,17 @@ Payment Deadline: ${paymentDeadlineDate}`;
   };
 
   return (
+    <>
+      <style>{`
+        @media print {
+          [contenteditable] {
+            outline: none !important;
+            border: none !important;
+            background: transparent !important;
+            box-shadow: none !important;
+          }
+        }
+      `}</style>
     <div
       style={{
         position: 'fixed',
@@ -733,7 +744,7 @@ Payment Deadline: ${paymentDeadlineDate}`;
                     Dear {clientContactName},
                   </div>
 
-                  <p style={{ fontSize: '0.8125rem', lineHeight: 1.55, color: '#334155', margin: '0 0 16px 0' }}>
+                  <p contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this paragraph directly" style={{ fontSize: '0.8125rem', lineHeight: 1.55, color: '#334155', margin: '0 0 16px 0', padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}>
                     {getStageSalutationText()}
                   </p>
 
@@ -810,7 +821,7 @@ Payment Deadline: ${paymentDeadlineDate}`;
                     </li>
                   </ol>
 
-                  <p style={{ fontSize: '0.8125rem', color: '#1e293b', margin: '10px 0 0 0' }}>
+                  <p contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this paragraph directly" style={{ fontSize: '0.8125rem', color: '#1e293b', margin: '10px 0 0 0', padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}>
                     We value our relationship with {clientCompanyName} and appreciate your prompt attention to this matter.
                   </p>
                 </div>
@@ -942,5 +953,6 @@ Payment Deadline: ${paymentDeadlineDate}`;
         </div>
       </div>
     </div>
+  </>
   );
 };

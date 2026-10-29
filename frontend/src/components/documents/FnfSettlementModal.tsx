@@ -322,6 +322,12 @@ export const FnfSettlementModal: React.FC<FnfSettlementModalProps> = ({
               -webkit-print-color-adjust: exact;
               print-color-adjust: exact;
             }
+            [contenteditable] {
+              outline: none !important;
+              border: none !important;
+              background: transparent !important;
+              box-shadow: none !important;
+            }
             .page-container {
               box-sizing: border-box;
               min-height: 100vh;
@@ -1383,7 +1389,7 @@ export const FnfSettlementModal: React.FC<FnfSettlementModalProps> = ({
                       Dear {renderHighlighted(employeeFullName.split(' ')[0] || employeeFullName)},
                     </div>
 
-                    <p style={{ margin: '0 0 10px 0', textAlign: 'justify', lineHeight: 1.4 }}>
+                    <p contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this paragraph directly" style={{ margin: '0 0 10px 0', textAlign: 'justify', lineHeight: 1.4, padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}>
                       Further to your resignation dated {renderHighlighted(resignationDate)} and your relief from the services of Tasknera at the close of business on {renderHighlighted(lastWorkingDay)} (the “<strong>Last Working Day</strong>”), please find below the statement of your full and final settlement, computed in accordance with your appointment letter and Company policies.
                     </p>
 
@@ -1715,11 +1721,11 @@ export const FnfSettlementModal: React.FC<FnfSettlementModalProps> = ({
                     </table>
 
                     {/* Clauses */}
-                    <p style={{ margin: '0 0 10px 0', textAlign: 'justify', lineHeight: 1.45 }}>
+                    <p contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this paragraph directly" style={{ margin: '0 0 10px 0', textAlign: 'justify', lineHeight: 1.45, padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}>
                       Your confidentiality, data-protection and other post-employment obligations under your appointment letter and Company policies continue to apply. Any statutory documents, including Form 16, will be issued as per applicable timelines.
                     </p>
 
-                    <p style={{ margin: '0 0 16px 0', textAlign: 'justify', lineHeight: 1.45 }}>
+                    <p contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this paragraph directly" style={{ margin: '0 0 16px 0', textAlign: 'justify', lineHeight: 1.45, padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}>
                       We thank you for your contribution to Tasknera and wish you every success in your future endeavours.
                     </p>
 

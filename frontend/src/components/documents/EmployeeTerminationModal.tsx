@@ -233,6 +233,12 @@ export const EmployeeTerminationModal: React.FC<EmployeeTerminationModalProps> =
           <title>${docTitle}</title>
           <meta charset="utf-8" />
           <style>
+            [contenteditable] {
+              outline: none !important;
+              border: none !important;
+              background: transparent !important;
+              box-shadow: none !important;
+            }
             @page {
               size: A4 portrait;
               margin: 12mm 16mm 12mm 16mm;
@@ -1414,6 +1420,22 @@ export const EmployeeTerminationModal: React.FC<EmployeeTerminationModalProps> =
                     Back to Edit
                   </Button>
 
+                  <div
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 6,
+                      padding: '4px 10px',
+                      backgroundColor: '#eff6ff',
+                      borderRadius: 6,
+                      border: '1px solid #bfdbfe',
+                      fontSize: '0.75rem',
+                      color: '#1e40af',
+                    }}
+                  >
+                    <span>✏️</span>
+                    <span><strong>Tip:</strong> All paragraphs are editable — click any text to edit directly.</span>
+                  </div>
                   <button
                     type="button"
                     onClick={() => setHighlightPlaceholders(!highlightPlaceholders)}
@@ -1599,7 +1621,7 @@ export const EmployeeTerminationModal: React.FC<EmployeeTerminationModalProps> =
                     </div>
 
                     {/* Clause 1: Reference */}
-                    <p style={{ textAlign: 'justify', marginBottom: 10 }}>
+                    <p contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this paragraph directly" style={{ textAlign: 'justify', marginBottom: 10, padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}>
                       <strong>1. Reference.</strong> We refer to your appointment letter dated{' '}
                       {highlightPlaceholders ? <mark>{appointmentLetterDate}</mark> : appointmentLetterDate} under which you
                       were employed with Tasknera (the “Company”) as{' '}
@@ -1609,7 +1631,7 @@ export const EmployeeTerminationModal: React.FC<EmployeeTerminationModalProps> =
                     </p>
 
                     {/* Clause 2: Allegations */}
-                    <p style={{ textAlign: 'justify', marginBottom: 10 }}>
+                    <p contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this paragraph directly" style={{ textAlign: 'justify', marginBottom: 10, padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}>
                       <strong>2. Allegations.</strong> It was found that on or about{' '}
                       {highlightPlaceholders ? <mark>{incidentDate}</mark> : incidentDate} you{' '}
                       {highlightPlaceholders ? <mark>{factualDescription}</mark> : factualDescription}. This conduct
@@ -1617,7 +1639,7 @@ export const EmployeeTerminationModal: React.FC<EmployeeTerminationModalProps> =
                     </p>
 
                     {/* Clause 3: Process followed */}
-                    <p style={{ textAlign: 'justify', marginBottom: 10 }}>
+                    <p contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this paragraph directly" style={{ textAlign: 'justify', marginBottom: 10, padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}>
                       <strong>3. Process followed.</strong> A show-cause notice dated{' '}
                       {highlightPlaceholders ? <mark>{showCauseDate}</mark> : showCauseDate} was issued to you, calling
                       for your written explanation by{' '}
@@ -1641,7 +1663,7 @@ export const EmployeeTerminationModal: React.FC<EmployeeTerminationModalProps> =
                     </p>
 
                     {/* Clause 4: Decision */}
-                    <p style={{ textAlign: 'justify', marginBottom: 10 }}>
+                    <p contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this paragraph directly" style={{ textAlign: 'justify', marginBottom: 10, padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}>
                       <strong>4. Decision.</strong> After considering the material on record, the Company has found that
                       the charge of violating the ZTP and Code of Conduct is established. Having regard to the
                       seriousness of the misconduct, which the ZTP does not tolerate, the Company has decided to
@@ -1664,7 +1686,7 @@ export const EmployeeTerminationModal: React.FC<EmployeeTerminationModalProps> =
                     </p>
 
                     {/* Clause 5: Full and final settlement */}
-                    <p style={{ textAlign: 'justify', marginBottom: 10 }}>
+                    <p contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this paragraph directly" style={{ textAlign: 'justify', marginBottom: 10, padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}>
                       <strong>5. Full and final settlement.</strong> Your full and final settlement will be processed
                       within {highlightPlaceholders ? <mark>{settlementWorkingDays}</mark> : settlementWorkingDays}{' '}
                       working days of the Termination Date, covering salary for the days worked up to the Termination
@@ -1675,7 +1697,7 @@ export const EmployeeTerminationModal: React.FC<EmployeeTerminationModalProps> =
                     </p>
 
                     {/* Clause 6: Handover and return of property */}
-                    <p style={{ textAlign: 'justify', marginBottom: 10 }}>
+                    <p contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this paragraph directly" style={{ textAlign: 'justify', marginBottom: 10, padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}>
                       <strong>6. Handover and return of property.</strong> You are required to hand over all work, files
                       and responsibilities to{' '}
                       {highlightPlaceholders ? <mark>{handoverRecipient}</mark> : handoverRecipient}, return all Company
@@ -1686,7 +1708,7 @@ export const EmployeeTerminationModal: React.FC<EmployeeTerminationModalProps> =
                     </p>
 
                     {/* Clause 7: Confidentiality and continuing obligations */}
-                    <p style={{ textAlign: 'justify', marginBottom: 10 }}>
+                    <p contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this paragraph directly" style={{ textAlign: 'justify', marginBottom: 10, padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}>
                       <strong>7. Confidentiality and continuing obligations.</strong> You must return or securely
                       delete all Company, Client and Candidate information in your possession. Your confidentiality,
                       data-protection, non-solicitation and other post-employment obligations under your appointment
@@ -1770,7 +1792,7 @@ export const EmployeeTerminationModal: React.FC<EmployeeTerminationModalProps> =
                     </div>
 
                     {/* Clause 8: Reservation of rights */}
-                    <p style={{ textAlign: 'justify', marginBottom: 12 }}>
+                    <p contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this paragraph directly" style={{ textAlign: 'justify', marginBottom: 12, padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}>
                       <strong>8. Reservation of rights.</strong> This letter does not waive any right or remedy
                       available to the Company under your appointment letter, Company policies or applicable law,
                       including the right to recover losses and to take legal action where warranted, all of which are
@@ -1778,7 +1800,7 @@ export const EmployeeTerminationModal: React.FC<EmployeeTerminationModalProps> =
                     </p>
 
                     {/* Clause 9: Documents */}
-                    <p style={{ textAlign: 'justify', marginBottom: 14 }}>
+                    <p contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this paragraph directly" style={{ textAlign: 'justify', marginBottom: 14, padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}>
                       <strong>9. Documents.</strong> Any experience or relieving documentation will be issued in
                       accordance with Company policy after completion of the exit formalities.
                     </p>

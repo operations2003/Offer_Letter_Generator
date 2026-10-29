@@ -310,6 +310,12 @@ export const AttendanceWarningModal: React.FC<AttendanceWarningModalProps> = ({
               -webkit-print-color-adjust: exact;
               print-color-adjust: exact;
             }
+            [contenteditable] {
+              outline: none !important;
+              border: none !important;
+              background: transparent !important;
+              box-shadow: none !important;
+            }
             mark {
               background: transparent !important;
               color: inherit !important;
@@ -1232,7 +1238,7 @@ export const AttendanceWarningModal: React.FC<AttendanceWarningModalProps> = ({
                   </div>
 
                   {/* Opening Statement */}
-                  <p style={{ margin: '0 0 10px 0', textAlign: 'justify', fontSize: '9.5pt' }}>
+                  <p contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this paragraph directly" style={{ margin: '0 0 10px 0', textAlign: 'justify', fontSize: '9.5pt', padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}>
                     Our attendance records show that, during the period {renderHighlighted(periodStartDate)} to {renderHighlighted(periodEndDate)}, you were {renderHighlighted(computedSummaryPhrases)}, as follows:
                   </p>
 
@@ -1281,14 +1287,14 @@ export const AttendanceWarningModal: React.FC<AttendanceWarningModalProps> = ({
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 7, fontSize: '9pt', color: '#1e293b', textAlign: 'justify' }}>
                     <div style={{ display: 'flex', gap: 6, alignItems: 'flex-start' }}>
                       <span style={{ fontWeight: 700, flexShrink: 0 }}>1.</span>
-                      <div>
+                      <div contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this clause directly" style={{ padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text', flex: 1 }}>
                         <strong>Policy.</strong> Under Clause {renderHighlighted(appointmentClause)} of your appointment letter and the Company&rsquo;s Attendance and Leave Policy, you are required to {renderHighlighted(policyRequirement)}.
                       </div>
                     </div>
 
                     <div style={{ display: 'flex', gap: 6, alignItems: 'flex-start' }}>
                       <span style={{ fontWeight: 700, flexShrink: 0 }}>2.</span>
-                      <div>
+                      <div contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this clause directly" style={{ padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text', flex: 1 }}>
                         <strong>Explanation.</strong>{' '}
                         {explanationType === 'NOT_PROVIDED' ? (
                           renderHighlighted('You have not provided a satisfactory explanation for the above.')
@@ -1302,7 +1308,7 @@ export const AttendanceWarningModal: React.FC<AttendanceWarningModalProps> = ({
 
                     <div style={{ display: 'flex', gap: 6, alignItems: 'flex-start' }}>
                       <span style={{ fontWeight: 700, flexShrink: 0 }}>3.</span>
-                      <div>
+                      <div contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this clause directly" style={{ padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text', flex: 1 }}>
                         <strong>Warning.</strong> You are hereby warned to maintain regular and punctual attendance.{' '}
                         {includeLossOfPay && (
                           <span>
@@ -1314,13 +1320,13 @@ export const AttendanceWarningModal: React.FC<AttendanceWarningModalProps> = ({
 
                     <div style={{ display: 'flex', gap: 6, alignItems: 'flex-start' }}>
                       <span style={{ fontWeight: 700, flexShrink: 0 }}>4.</span>
-                      <div>
+                      <div contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this clause directly" style={{ padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text', flex: 1 }}>
                         <strong>Consequences.</strong> Continued irregular attendance or unauthorised absence may lead to further disciplinary action, which may extend to termination of employment, in accordance with Company policy and applicable law.
                       </div>
                     </div>
                   </div>
 
-                  <p style={{ margin: '10px 0 14px 0', fontSize: '9pt', textAlign: 'justify' }}>
+                  <p contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this paragraph directly" style={{ margin: '10px 0 14px 0', fontSize: '9pt', textAlign: 'justify', padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}>
                     Please sign and return a copy of this letter as acknowledgement of receipt. If any of the above records is incorrect, please inform HR in writing within {renderHighlighted(contestDays)} days.
                   </p>
 

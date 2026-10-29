@@ -234,6 +234,12 @@ export const ExperienceLetterModal: React.FC<ExperienceLetterModalProps> = ({
           <title>${docTitle}</title>
           <meta charset="utf-8" />
           <style>
+            [contenteditable] {
+              outline: none !important;
+              border: none !important;
+              background: transparent !important;
+              box-shadow: none !important;
+            }
             @page {
               size: A4 portrait;
               margin: 10mm 15mm 10mm 15mm;
@@ -1146,31 +1152,31 @@ export const ExperienceLetterModal: React.FC<ExperienceLetterModalProps> = ({
 
                   {/* Body Paragraphs matching PDF template exactly */}
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 14, textAlign: 'justify' }}>
-                    <p style={{ margin: 0 }}>
+                    <p contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this paragraph directly" style={{ margin: 0, padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}>
                       This is to certify that {hl(`${salutation} ${fullName}`)} was associated with Tasknera HR Solutions as an {hl(designation)} from {hl(startDate)} to {hl(endDate)}.
                     </p>
 
-                    <p style={{ margin: 0 }}>
+                    <p contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this paragraph directly" style={{ margin: 0, padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}>
                       During {hl(pronounHisHer)} tenure with the organization, {hl(pronounHeShe)} supported {hl(departmentSupport)}.
                     </p>
 
-                    <p style={{ margin: 0 }}>
+                    <p contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this paragraph directly" style={{ margin: 0, padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}>
                       As part of the Talent Acquisition function, {hl(pronounHeShe)} assisted with {hl(taDuties)}
                     </p>
 
-                    <p style={{ margin: 0 }}>
+                    <p contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this paragraph directly" style={{ margin: 0, padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}>
                       Within the Learning &amp; Development function, {hl(pronounHeShe)} contributed to {hl(ldDuties)}
                     </p>
 
-                    <p style={{ margin: 0 }}>
+                    <p contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this paragraph directly" style={{ margin: 0, padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}>
                       Throughout {hl(pronounHisHer)} association with Tasknera HR Solutions, {hl(pronounHeShe)} demonstrated {hl(demonstratedQualities)} in carrying out {hl(pronounHisHer)} responsibilities.
                     </p>
 
-                    <p style={{ margin: 0 }}>
+                    <p contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this paragraph directly" style={{ margin: 0, padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}>
                       {hl(pronounHisHerCap)} association with Tasknera HR Solutions {statusMode === 'ended' ? hl(`ended on ${endDate}.`) : hl('is continuing as on the date of this letter.')}
                     </p>
 
-                    <p style={{ margin: 0 }}>
+                    <p contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this paragraph directly" style={{ margin: 0, padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}>
                       We appreciate {hl(pronounHisHer)} contribution to the organization and wish {hl(pronounHimHer)} continued success and growth in all {hl(pronounHisHer)} future endeavors.
                     </p>
                   </div>

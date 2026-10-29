@@ -228,6 +228,12 @@ export const ResignationAcceptanceModal: React.FC<ResignationAcceptanceModalProp
           <title>${docTitle}</title>
           <meta charset="utf-8" />
           <style>
+            [contenteditable] {
+              outline: none !important;
+              border: none !important;
+              background: transparent !important;
+              box-shadow: none !important;
+            }
             @page {
               size: A4 portrait;
               margin: 12mm 16mm 12mm 16mm;
@@ -1228,6 +1234,22 @@ export const ResignationAcceptanceModal: React.FC<ResignationAcceptanceModalProp
                     Back to Edit
                   </Button>
 
+                  <div
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 6,
+                      padding: '4px 10px',
+                      backgroundColor: '#eff6ff',
+                      borderRadius: 6,
+                      border: '1px solid #bfdbfe',
+                      fontSize: '0.75rem',
+                      color: '#1e40af',
+                    }}
+                  >
+                    <span>✏️</span>
+                    <span><strong>Tip:</strong> All paragraphs are editable — click any text to edit directly.</span>
+                  </div>
                   <button
                     type="button"
                     onClick={() => setHighlightPlaceholders(!highlightPlaceholders)}
@@ -1407,7 +1429,7 @@ export const ResignationAcceptanceModal: React.FC<ResignationAcceptanceModalProp
                     </div>
 
                     {/* Point 1: Reference */}
-                    <p style={{ textAlign: 'justify', marginBottom: 10 }}>
+                    <p contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this paragraph directly" style={{ textAlign: 'justify', marginBottom: 10, padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}>
                       <strong>1. Reference.</strong> We acknowledge receipt of your resignation letter dated{' '}
                       {highlightPlaceholders ? <mark>{resignationLetterDate}</mark> : resignationLetterDate} from the
                       position of {highlightPlaceholders ? <mark>{designation}</mark> : designation} in the{' '}
@@ -1415,7 +1437,7 @@ export const ResignationAcceptanceModal: React.FC<ResignationAcceptanceModalProp
                     </p>
 
                     {/* Point 2: Acceptance */}
-                    <p style={{ textAlign: 'justify', marginBottom: 10 }}>
+                    <p contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this paragraph directly" style={{ textAlign: 'justify', marginBottom: 10, padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}>
                       <strong>2. Acceptance.</strong> Your resignation is accepted. Your last working day with the
                       Company will be{' '}
                       {highlightPlaceholders ? <mark>{lastWorkingDay}</mark> : lastWorkingDay} (the “Last Working
@@ -1423,7 +1445,7 @@ export const ResignationAcceptanceModal: React.FC<ResignationAcceptanceModalProp
                     </p>
 
                     {/* Point 3: Notice period */}
-                    <p style={{ textAlign: 'justify', marginBottom: 10 }}>
+                    <p contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this paragraph directly" style={{ textAlign: 'justify', marginBottom: 10, padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}>
                       <strong>3. Notice period.</strong>{' '}
                       {noticePeriodMode === 'SERVE_NOTICE' && (
                         <>
@@ -1442,14 +1464,14 @@ export const ResignationAcceptanceModal: React.FC<ResignationAcceptanceModalProp
                     </p>
 
                     {/* Point 4: Handover */}
-                    <p style={{ textAlign: 'justify', marginBottom: 10 }}>
+                    <p contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this paragraph directly" style={{ textAlign: 'justify', marginBottom: 10, padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}>
                       <strong>4. Handover.</strong> Please hand over all work, files and responsibilities to{' '}
                       {highlightPlaceholders ? <mark>{handoverRecipient}</mark> : handoverRecipient} before the Last
                       Working Day, and keep your reporting manager informed of the status of open tasks.
                     </p>
 
                     {/* Point 5: Exit formalities */}
-                    <p style={{ textAlign: 'justify', marginBottom: 10 }}>
+                    <p contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this paragraph directly" style={{ textAlign: 'justify', marginBottom: 10, padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}>
                       <strong>5. Exit formalities.</strong> Please return all Company property (laptop, ID and access
                       cards, documents and credentials) and complete the exit clearance process with HR, Accounts and
                       your reporting manager by the Last Working Day. Your access to Company and Client systems will be
@@ -1457,7 +1479,7 @@ export const ResignationAcceptanceModal: React.FC<ResignationAcceptanceModalProp
                     </p>
 
                     {/* Point 6: Full and final settlement */}
-                    <p style={{ textAlign: 'justify', marginBottom: 10 }}>
+                    <p contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this paragraph directly" style={{ textAlign: 'justify', marginBottom: 10, padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}>
                       <strong>6. Full and final settlement.</strong> Your full and final settlement, covering salary up to
                       the Last Working Day, leave encashment (if any) as per policy, and statutory dues (if any), less
                       amounts due to the Company, will be processed within{' '}
@@ -1466,20 +1488,20 @@ export const ResignationAcceptanceModal: React.FC<ResignationAcceptanceModalProp
                     </p>
 
                     {/* Point 7: Confidentiality */}
-                    <p style={{ textAlign: 'justify', marginBottom: 10 }}>
+                    <p contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this paragraph directly" style={{ textAlign: 'justify', marginBottom: 10, padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}>
                       <strong>7. Confidentiality.</strong> Your confidentiality, data-protection, non-solicitation and
                       other post-employment obligations under your appointment letter and Company policies continue
                       after you leave the Company.
                     </p>
 
                     {/* Point 8: Relieving letter */}
-                    <p style={{ textAlign: 'justify', marginBottom: 12 }}>
+                    <p contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this paragraph directly" style={{ textAlign: 'justify', marginBottom: 12, padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}>
                       <strong>8. Relieving letter.</strong> Your Relieving Letter will be issued after completion of the
                       exit formalities and settlement.
                     </p>
 
                     {/* Closing Note */}
-                    <p style={{ textAlign: 'justify', marginBottom: 0 }}>
+                    <p contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this paragraph directly" style={{ textAlign: 'justify', marginBottom: 0, padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}>
                       We thank you for your contribution to Tasknera and wish you every success in the future. Please
                       sign and return a copy of this letter as acknowledgement.
                     </p>

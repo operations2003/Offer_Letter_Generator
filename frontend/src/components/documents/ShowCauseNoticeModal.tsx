@@ -264,6 +264,12 @@ export const ShowCauseNoticeModal: React.FC<ShowCauseNoticeModalProps> = ({
               -webkit-print-color-adjust: exact;
               print-color-adjust: exact;
             }
+            [contenteditable] {
+              outline: none !important;
+              border: none !important;
+              background: transparent !important;
+              box-shadow: none !important;
+            }
             mark {
               background: transparent !important;
               color: inherit !important;
@@ -1133,35 +1139,35 @@ export const ShowCauseNoticeModal: React.FC<ShowCauseNoticeModalProps> = ({
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 7, fontSize: '8.85pt', color: '#1e293b', textAlign: 'justify' }}>
                     <div style={{ display: 'flex', gap: 6, alignItems: 'flex-start' }}>
                       <span style={{ fontWeight: 700, flexShrink: 0 }}>1.</span>
-                      <div>
+                      <div contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this clause directly" style={{ padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text', flex: 1 }}>
                         <strong>Allegations.</strong> It has been brought to the Company&rsquo;s notice that on or about {renderHighlighted(incidentDates)}, you {renderHighlighted(allegationsDescription)}.
                       </div>
                     </div>
 
                     <div style={{ display: 'flex', gap: 6, alignItems: 'flex-start' }}>
                       <span style={{ fontWeight: 700, flexShrink: 0 }}>2.</span>
-                      <div>
+                      <div contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this clause directly" style={{ padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text', flex: 1 }}>
                         <strong>Provisions.</strong> If established, the above conduct would constitute a breach of {renderHighlighted(policyBreached)} and Clause {renderHighlighted(appointmentClause)} of your appointment letter.
                       </div>
                     </div>
 
                     <div style={{ display: 'flex', gap: 6, alignItems: 'flex-start' }}>
                       <span style={{ fontWeight: 700, flexShrink: 0 }}>3.</span>
-                      <div>
+                      <div contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this clause directly" style={{ padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text', flex: 1 }}>
                         <strong>Material relied on.</strong> The Company has relied on the following: {renderHighlighted(materialReliedOn)}. Copies are {renderHighlighted(materialAvailability)}.
                       </div>
                     </div>
 
                     <div style={{ display: 'flex', gap: 6, alignItems: 'flex-start' }}>
                       <span style={{ fontWeight: 700, flexShrink: 0 }}>4.</span>
-                      <div>
+                      <div contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this clause directly" style={{ padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text', flex: 1 }}>
                         <strong>Show cause.</strong> You are required to show cause in writing, within {renderHighlighted(responseDays)} days of receiving this notice, i.e. by {renderHighlighted(responseDeadlineDate)}, why disciplinary action should not be taken against you. Your reply should be sent to {renderHighlighted(hrEmailContact)}.
                       </div>
                     </div>
 
                     <div style={{ display: 'flex', gap: 6, alignItems: 'flex-start' }}>
                       <span style={{ fontWeight: 700, flexShrink: 0 }}>5.</span>
-                      <div>
+                      <div contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this clause directly" style={{ padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text', flex: 1 }}>
                         <strong>Opportunity to be heard.</strong> If you wish to be heard in person, please say so in your reply.{' '}
                         {includeScheduledMeeting && (
                           <span>
@@ -1173,21 +1179,21 @@ export const ShowCauseNoticeModal: React.FC<ShowCauseNoticeModalProps> = ({
 
                     <div style={{ display: 'flex', gap: 6, alignItems: 'flex-start' }}>
                       <span style={{ fontWeight: 700, flexShrink: 0 }}>6.</span>
-                      <div>
+                      <div contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this clause directly" style={{ padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text', flex: 1 }}>
                         <strong>Non-response.</strong> If no reply is received by the date above, the Company may proceed on the basis of the material available, without further notice to you.
                       </div>
                     </div>
 
                     <div style={{ display: 'flex', gap: 6, alignItems: 'flex-start' }}>
                       <span style={{ fontWeight: 700, flexShrink: 0 }}>7.</span>
-                      <div>
+                      <div contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this clause directly" style={{ padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text', flex: 1 }}>
                         <strong>No pre-judgment.</strong> This notice is not a finding of guilt and does not amount to a disciplinary action. All rights of the Company under your appointment letter, Company policies and applicable law are reserved.
                       </div>
                     </div>
 
                     <div style={{ display: 'flex', gap: 6, alignItems: 'flex-start' }}>
                       <span style={{ fontWeight: 700, flexShrink: 0 }}>8.</span>
-                      <div>
+                      <div contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this clause directly" style={{ padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text', flex: 1 }}>
                         <strong>Confidentiality.</strong> Please treat this notice as confidential and do not contact the complainant or any witness regarding this matter.{' '}
                         {includeInterimMeasures && (
                           <span>
@@ -1198,7 +1204,7 @@ export const ShowCauseNoticeModal: React.FC<ShowCauseNoticeModalProps> = ({
                     </div>
                   </div>
 
-                  <p style={{ margin: '8px 0 12px 0', fontSize: '8.85pt', textAlign: 'justify' }}>
+                  <p contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this paragraph directly" style={{ margin: '8px 0 12px 0', fontSize: '8.85pt', textAlign: 'justify', padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}>
                     Please sign and return a copy of this notice to acknowledge receipt. Your signature does not mean that you accept the allegations.
                   </p>
 

@@ -223,6 +223,12 @@ export const BonafideCertificateModal: React.FC<BonafideCertificateModalProps> =
           <title>${docTitle}</title>
           <meta charset="utf-8" />
           <style>
+            [contenteditable] {
+              outline: none !important;
+              border: none !important;
+              background: transparent !important;
+              box-shadow: none !important;
+            }
             @page {
               size: A4 portrait;
               margin: 10mm 15mm 10mm 15mm;
@@ -1031,11 +1037,11 @@ export const BonafideCertificateModal: React.FC<BonafideCertificateModalProps> =
 
                 {/* Certificate Salutation & Narrative */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 16, textAlign: 'justify' }}>
-                  <p>
+                  <p contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this paragraph directly" style={{ padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}>
                     <strong>{renderHighlighted(addressedTo)},</strong>
                   </p>
 
-                  <p>
+                  <p contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this paragraph directly" style={{ padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}>
                     This is to certify that{' '}
                     <strong>
                       {renderHighlighted(salutation)} {renderHighlighted(fullName)}
@@ -1044,7 +1050,7 @@ export const BonafideCertificateModal: React.FC<BonafideCertificateModalProps> =
                     <strong>TaskNera HR Solutions Private Limited</strong>.
                   </p>
 
-                  <p>
+                  <p contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this paragraph directly" style={{ padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}>
                     {pronounHeSheCap} joined our organization on{' '}
                     <strong>{renderHighlighted(joiningDate)}</strong> and is currently employed on a{' '}
                     <strong>{renderHighlighted(employmentType)}</strong> basis. {pronounHeSheCap} is designated as{' '}
@@ -1053,19 +1059,19 @@ export const BonafideCertificateModal: React.FC<BonafideCertificateModalProps> =
                   </p>
 
                   {includeSalaryDetails && (
-                    <p>
+                    <p contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this paragraph directly" style={{ padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}>
                       As per company records, {pronounHisHer} current remuneration package is{' '}
                       <strong>{renderHighlighted(annualCtc)}</strong>.
                     </p>
                   )}
 
-                  <p>
+                  <p contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this paragraph directly" style={{ padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}>
                     This certificate is being formally issued at the specific request of the employee for the sole purpose of{' '}
                     <strong>{renderHighlighted(customPurposeNote)}</strong> without any financial or legal liability on the
                     part of TaskNera HR Solutions Private Limited or any of its signing officers.
                   </p>
 
-                  <p>
+                  <p contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this paragraph directly" style={{ padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}>
                     During {pronounHisHer} period of employment with us, {pronounHisHer} conduct, professional dedication,
                     and moral standing have been exemplary and satisfactory in all respects.
                   </p>

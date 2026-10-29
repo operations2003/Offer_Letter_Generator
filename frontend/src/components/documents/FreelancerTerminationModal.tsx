@@ -248,6 +248,12 @@ export const FreelancerTerminationModal: React.FC<FreelancerTerminationModalProp
           <title>${docTitle}</title>
           <meta charset="utf-8" />
           <style>
+            [contenteditable] {
+              outline: none !important;
+              border: none !important;
+              background: transparent !important;
+              box-shadow: none !important;
+            }
             @page {
               size: A4 portrait;
               margin: 12mm 16mm 12mm 16mm;
@@ -1386,6 +1392,22 @@ export const FreelancerTerminationModal: React.FC<FreelancerTerminationModalProp
                     Back to Edit
                   </Button>
 
+                  <div
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 6,
+                      padding: '4px 10px',
+                      backgroundColor: '#eff6ff',
+                      borderRadius: 6,
+                      border: '1px solid #bfdbfe',
+                      fontSize: '0.75rem',
+                      color: '#1e40af',
+                    }}
+                  >
+                    <span>✏️</span>
+                    <span><strong>Tip:</strong> All paragraphs are editable — click any text to edit directly.</span>
+                  </div>
                   <button
                     type="button"
                     onClick={() => setHighlightPlaceholders(!highlightPlaceholders)}
@@ -1570,7 +1592,7 @@ export const FreelancerTerminationModal: React.FC<FreelancerTerminationModalProp
                     </div>
 
                     {/* Clause 1: Reference */}
-                    <p style={{ textAlign: 'justify', marginBottom: 12 }}>
+                    <p contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this paragraph directly" style={{ textAlign: 'justify', marginBottom: 12, padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}>
                       <strong>1. Reference.</strong> We refer to the Freelance Recruiter Services Agreement dated{' '}
                       {highlightPlaceholders ? <mark>{agreementDate}</mark> : agreementDate} (the “Agreement”) between
                       Tasknera (the “Company”) and{' '}
@@ -1580,7 +1602,7 @@ export const FreelancerTerminationModal: React.FC<FreelancerTerminationModalProp
 
                     {/* Clause 2: Notice of Termination */}
                     <div style={{ marginBottom: 12 }}>
-                      <p style={{ textAlign: 'justify', marginBottom: 8 }}>
+                      <p contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this paragraph directly" style={{ textAlign: 'justify', marginBottom: 8, padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}>
                         <strong>2. Notice of termination.</strong> The Company gives notice of termination of the
                         Agreement as follows.
                       </p>
@@ -1594,7 +1616,7 @@ export const FreelancerTerminationModal: React.FC<FreelancerTerminationModalProp
 
                       {/* Option A */}
                       {(terminationOption === 'A_CONVENIENCE' || terminationOption === 'ALL_TEMPLATE') && (
-                        <p style={{ textAlign: 'justify', marginBottom: 8, paddingLeft: terminationOption === 'ALL_TEMPLATE' ? 0 : 0 }}>
+                        <p contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this paragraph directly" style={{ textAlign: 'justify', marginBottom: 8, paddingLeft: terminationOption === 'ALL_TEMPLATE' ? 0 : 0, padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}>
                           <strong>Option A – Termination for convenience (Clause 15.2).</strong> The Company hereby
                           gives the Freelancer {convenienceNoticeDays} calendar days’ written notice of termination. The
                           Agreement will terminate on{' '}
@@ -1609,7 +1631,7 @@ export const FreelancerTerminationModal: React.FC<FreelancerTerminationModalProp
 
                       {/* Option B */}
                       {(terminationOption === 'B_BREACH_CURABLE' || terminationOption === 'ALL_TEMPLATE') && (
-                        <p style={{ textAlign: 'justify', marginBottom: 8 }}>
+                        <p contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this paragraph directly" style={{ textAlign: 'justify', marginBottom: 8, padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}>
                           <strong>Option B – Termination for breach, curable (Clause 15.3).</strong> The Company has
                           identified the following material breach of the Agreement:{' '}
                           {highlightPlaceholders ? <mark>{breachDescription}</mark> : breachDescription}. The
@@ -1622,7 +1644,7 @@ export const FreelancerTerminationModal: React.FC<FreelancerTerminationModalProp
 
                       {/* Option C */}
                       {(terminationOption === 'C_IMMEDIATE' || terminationOption === 'ALL_TEMPLATE') && (
-                        <p style={{ textAlign: 'justify', marginBottom: 8 }}>
+                        <p contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this paragraph directly" style={{ textAlign: 'justify', marginBottom: 8, padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}>
                           <strong>Option C – Immediate termination (Clause 15.3).</strong> In view of{' '}
                           {highlightPlaceholders ? (
                             <mark>{immediateCauseCategory}</mark>
@@ -1643,7 +1665,7 @@ export const FreelancerTerminationModal: React.FC<FreelancerTerminationModalProp
                     </div>
 
                     {/* Clause 3: Assignments */}
-                    <p style={{ textAlign: 'justify', marginBottom: 12 }}>
+                    <p contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this paragraph directly" style={{ textAlign: 'justify', marginBottom: 12, padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}>
                       <strong>3. Assignments.</strong> From the Termination Date, all open Assignments are closed and no
                       further Assignments will be shared. The Freelancer shall not submit any further Candidate profile to
                       the Company or any Client, or communicate with any Candidate or Client on behalf of the Company, after
@@ -1651,7 +1673,7 @@ export const FreelancerTerminationModal: React.FC<FreelancerTerminationModalProp
                     </p>
 
                     {/* Clause 4: Payout after termination */}
-                    <p style={{ textAlign: 'justify', marginBottom: 12 }}>
+                    <p contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this paragraph directly" style={{ textAlign: 'justify', marginBottom: 12, padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}>
                       <strong>4. Payout after termination (Clause 15.4).</strong> Termination does not affect the
                       Freelancer’s eligibility for a Candidate introduced under an accepted Assignment before
                       termination who achieves a Successful Joining within the applicable attribution period (Clause
@@ -1737,7 +1759,7 @@ export const FreelancerTerminationModal: React.FC<FreelancerTerminationModalProp
 
                     {/* Clause 5: Exit obligations */}
                     <div style={{ marginBottom: 12 }}>
-                      <p style={{ textAlign: 'justify', marginBottom: 6 }}>
+                      <p contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this paragraph directly" style={{ textAlign: 'justify', marginBottom: 6, padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}>
                         <strong>5. Exit obligations (Clauses 15.5 and 9.5).</strong> The Freelancer shall:
                       </p>
                       <div style={{ paddingLeft: 18, display: 'flex', flexDirection: 'column', gap: 5 }}>
@@ -1773,7 +1795,7 @@ export const FreelancerTerminationModal: React.FC<FreelancerTerminationModalProp
                     </div>
 
                     {/* Clause 6: Payments and tax documentation */}
-                    <p style={{ textAlign: 'justify', marginBottom: 12 }}>
+                    <p contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this paragraph directly" style={{ textAlign: 'justify', marginBottom: 12, padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}>
                       <strong>6. Payments and tax documentation (Clauses 6.4 and 6.5).</strong> The Freelancer should
                       keep their payment details and tax documentation up to date so that any payout that falls due can
                       be processed. The Company will issue the applicable tax-deduction certificates within the
@@ -1781,7 +1803,7 @@ export const FreelancerTerminationModal: React.FC<FreelancerTerminationModalProp
                     </p>
 
                     {/* Clause 7: Surviving obligations */}
-                    <p style={{ textAlign: 'justify', marginBottom: 12 }}>
+                    <p contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this paragraph directly" style={{ textAlign: 'justify', marginBottom: 12, padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}>
                       <strong>7. Surviving obligations (Clause 15.6).</strong> The provisions of the Agreement that
                       survive termination continue in force, including Clauses 8 (Confidentiality, for five (5) years
                       after the Agreement ends), 9 (Candidate data, privacy and information security), 10
@@ -1790,14 +1812,14 @@ export const FreelancerTerminationModal: React.FC<FreelancerTerminationModalProp
                     </p>
 
                     {/* Clause 8: Reservation of rights */}
-                    <p style={{ textAlign: 'justify', marginBottom: 12 }}>
+                    <p contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this paragraph directly" style={{ textAlign: 'justify', marginBottom: 12, padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}>
                       <strong>8. Reservation of rights.</strong> Nothing in this letter waives any right or remedy of the
                       Company under the Agreement or Applicable Law, including under Clauses 5.6 and 14, all of which are
                       reserved.
                     </p>
 
                     {/* Clause 9: Notices and acknowledgement */}
-                    <p style={{ textAlign: 'justify', marginBottom: 12 }}>
+                    <p contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this paragraph directly" style={{ textAlign: 'justify', marginBottom: 12, padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}>
                       <strong>9. Notices and acknowledgement.</strong> This notice is given in writing by email under
                       Clause 17.5. Please countersign and return a copy of this letter to careers@tasknera.com to
                       acknowledge receipt. Failure to do so does not affect the validity of this notice.

@@ -142,6 +142,21 @@ export const SalaryRevisionModal: React.FC<SalaryRevisionModalProps> = ({
   const revNet = revGross - revTotalDeductions;
   const revAnnualCtc = revGross * 12;
 
+  // Inner Content Paragraphs (Fully Editable)
+  const [customOpeningPara, setCustomOpeningPara] = useState<string>('');
+  const [customStructureIntro, setCustomStructureIntro] = useState<string>('');
+  const [customDeductionsPara, setCustomDeductionsPara] = useState<string>('');
+  const [customOtherTermsPara, setCustomOtherTermsPara] = useState<string>('');
+  const [customConfidentialityPara, setCustomConfidentialityPara] = useState<string>('');
+  const [customClosingPara, setCustomClosingPara] = useState<string>('');
+
+  const defaultOpeningPara = `We are pleased to inform you that, ${revisionReason}, your compensation has been revised with effect from ${effectiveDate} (the “Effective Date”).`;
+  const defaultStructureIntro = 'Your revised salary structure is set out below:';
+  const defaultDeductionsPara = 'Statutory deductions. The components above are subject to deductions and withholdings required by applicable law (including provident fund, employee state insurance, professional tax and income tax, as applicable) and Company policy.';
+  const defaultOtherTermsPara = 'Other terms. All other terms and conditions of your employment, as set out in your appointment letter and Company policies, remain unchanged and continue to apply.';
+  const defaultConfidentialityPara = 'Confidentiality. Your compensation is confidential, and you are requested not to disclose it to any third party or other employees, except as required by law.';
+  const defaultClosingPara = 'Please confirm your acceptance of the revised terms by signing and returning the duplicate copy of this letter.';
+
   // Signatory (Tasknera)
   const [taskneraSignatoryName, setTaskneraSignatoryName] = useState<string>('Ms. Sheetal Bedi');
   const [taskneraSignatoryTitle, setTaskneraSignatoryTitle] = useState<string>('Chief Executive Officer (CEO)');
@@ -311,6 +326,12 @@ export const SalaryRevisionModal: React.FC<SalaryRevisionModalProps> = ({
               box-sizing: border-box;
               -webkit-print-color-adjust: exact !important;
               print-color-adjust: exact !important;
+            }
+            [contenteditable] {
+              outline: none !important;
+              border: none !important;
+              background: transparent !important;
+              box-shadow: none !important;
             }
             html, body {
               margin: 0;
@@ -1238,6 +1259,128 @@ export const SalaryRevisionModal: React.FC<SalaryRevisionModalProps> = ({
                 </div>
               </div>
 
+              {/* Card 4: Edit Inner Content & Paragraphs */}
+              <div
+                style={{
+                  backgroundColor: '#ffffff',
+                  borderRadius: 12,
+                  padding: '20px',
+                  border: '1.5px solid #3b82f6',
+                  boxShadow: '0 4px 14px rgba(59, 130, 246, 0.08)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 14,
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #f1f5f9', paddingBottom: 10 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <TrendingUp size={17} style={{ color: '#2563eb' }} />
+                    <h4 style={{ fontSize: '0.9rem', fontWeight: 700, color: '#0f172a', margin: 0 }}>
+                      4. Edit Letter Inner Content &amp; Paragraphs
+                    </h4>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setCustomOpeningPara('');
+                      setCustomStructureIntro('');
+                      setCustomDeductionsPara('');
+                      setCustomOtherTermsPara('');
+                      setCustomConfidentialityPara('');
+                      setCustomClosingPara('');
+                    }}
+                    style={{
+                      padding: '4px 10px',
+                      fontSize: '0.75rem',
+                      fontWeight: 600,
+                      borderRadius: 6,
+                      border: '1px solid #cbd5e1',
+                      backgroundColor: '#f8fafc',
+                      color: '#475569',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    Reset to Default Text
+                  </button>
+                </div>
+
+                <div style={{ fontSize: '0.78rem', color: '#64748b' }}>
+                  You can edit the wording of every paragraph here or click any paragraph directly in the preview (Step 2).
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#475569', marginBottom: 4 }}>
+                    Opening Paragraph (Revision Announcement)
+                  </label>
+                  <textarea
+                    rows={2}
+                    value={customOpeningPara !== '' ? customOpeningPara : defaultOpeningPara}
+                    onChange={(e) => setCustomOpeningPara(e.target.value)}
+                    style={{ width: '100%', padding: '8px 10px', fontSize: '0.8125rem', borderRadius: 6, border: '1px solid #cbd5e1', color: '#0f172a', resize: 'vertical' }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#475569', marginBottom: 4 }}>
+                    Structure Intro Line
+                  </label>
+                  <input
+                    type="text"
+                    value={customStructureIntro !== '' ? customStructureIntro : defaultStructureIntro}
+                    onChange={(e) => setCustomStructureIntro(e.target.value)}
+                    style={{ width: '100%', padding: '8px 10px', fontSize: '0.8125rem', borderRadius: 6, border: '1px solid #cbd5e1', color: '#0f172a' }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#475569', marginBottom: 4 }}>
+                    Point 1: Statutory Deductions
+                  </label>
+                  <textarea
+                    rows={2}
+                    value={customDeductionsPara !== '' ? customDeductionsPara : defaultDeductionsPara}
+                    onChange={(e) => setCustomDeductionsPara(e.target.value)}
+                    style={{ width: '100%', padding: '8px 10px', fontSize: '0.8125rem', borderRadius: 6, border: '1px solid #cbd5e1', color: '#0f172a', resize: 'vertical' }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#475569', marginBottom: 4 }}>
+                    Point 2: Other Terms
+                  </label>
+                  <textarea
+                    rows={2}
+                    value={customOtherTermsPara !== '' ? customOtherTermsPara : defaultOtherTermsPara}
+                    onChange={(e) => setCustomOtherTermsPara(e.target.value)}
+                    style={{ width: '100%', padding: '8px 10px', fontSize: '0.8125rem', borderRadius: 6, border: '1px solid #cbd5e1', color: '#0f172a', resize: 'vertical' }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#475569', marginBottom: 4 }}>
+                    Point 3: Confidentiality
+                  </label>
+                  <textarea
+                    rows={2}
+                    value={customConfidentialityPara !== '' ? customConfidentialityPara : defaultConfidentialityPara}
+                    onChange={(e) => setCustomConfidentialityPara(e.target.value)}
+                    style={{ width: '100%', padding: '8px 10px', fontSize: '0.8125rem', borderRadius: 6, border: '1px solid #cbd5e1', color: '#0f172a', resize: 'vertical' }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#475569', marginBottom: 4 }}>
+                    Closing Acceptance Paragraph
+                  </label>
+                  <textarea
+                    rows={2}
+                    value={customClosingPara !== '' ? customClosingPara : defaultClosingPara}
+                    onChange={(e) => setCustomClosingPara(e.target.value)}
+                    style={{ width: '100%', padding: '8px 10px', fontSize: '0.8125rem', borderRadius: 6, border: '1px solid #cbd5e1', color: '#0f172a', resize: 'vertical' }}
+                  />
+                </div>
+              </div>
+
               {/* Signatories & Acknowledgement */}
               <div
                 style={{
@@ -1386,6 +1529,23 @@ export const SalaryRevisionModal: React.FC<SalaryRevisionModalProps> = ({
                   >
                     Back to Edit
                   </Button>
+
+                  <div
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 6,
+                      padding: '4px 10px',
+                      backgroundColor: '#eff6ff',
+                      borderRadius: 6,
+                      border: '1px solid #bfdbfe',
+                      fontSize: '0.75rem',
+                      color: '#1e40af',
+                    }}
+                  >
+                    <span>✏️</span>
+                    <span><strong>Tip:</strong> All paragraphs are editable — click any text to edit directly.</span>
+                  </div>
 
                   <button
                     type="button"
@@ -1567,16 +1727,45 @@ export const SalaryRevisionModal: React.FC<SalaryRevisionModalProps> = ({
                     </div>
 
                     {/* Opening Revision Paragraph */}
-                    <p style={{ textAlign: 'justify', marginBottom: 12 }}>
-                      We are pleased to inform you that,{' '}
-                      {highlightPlaceholders ? <mark>{revisionReason}</mark> : revisionReason}, your compensation has been
-                      revised with effect from{' '}
-                      {highlightPlaceholders ? <mark>{effectiveDate}</mark> : effectiveDate} (the “Effective Date”). Your
-                      designation, {highlightPlaceholders ? <mark>{designation}</mark> : designation}, remains unchanged.
+                    <p
+                      contentEditable={true}
+                      suppressContentEditableWarning={true}
+                      onBlur={(e) => setCustomOpeningPara(e.currentTarget.innerText)}
+                      title="Click to edit this paragraph directly"
+                      style={{
+                        textAlign: 'justify',
+                        marginBottom: 12,
+                        padding: '2px 4px',
+                        borderRadius: 4,
+                        outline: 'none',
+                        cursor: 'text',
+                      }}
+                    >
+                      {customOpeningPara !== '' ? customOpeningPara : (
+                        <>
+                          We are pleased to inform you that,{' '}
+                          {highlightPlaceholders ? <mark>{revisionReason}</mark> : revisionReason}, your compensation has been
+                          revised with effect from{' '}
+                          {highlightPlaceholders ? <mark>{effectiveDate}</mark> : effectiveDate} (the “Effective Date”). Your
+                          designation, {highlightPlaceholders ? <mark>{designation}</mark> : designation}, remains unchanged.
+                        </>
+                      )}
                     </p>
 
-                    <p style={{ marginBottom: 6 }}>
-                      Your revised salary structure is set out below:
+                    <p
+                      contentEditable={true}
+                      suppressContentEditableWarning={true}
+                      onBlur={(e) => setCustomStructureIntro(e.currentTarget.innerText)}
+                      title="Click to edit this text directly"
+                      style={{
+                        marginBottom: 6,
+                        padding: '2px 4px',
+                        borderRadius: 4,
+                        outline: 'none',
+                        cursor: 'text',
+                      }}
+                    >
+                      {customStructureIntro !== '' ? customStructureIntro : 'Your revised salary structure is set out below:'}
                     </p>
 
                     {/* Salary Structure Comparison Table */}
@@ -1687,28 +1876,96 @@ export const SalaryRevisionModal: React.FC<SalaryRevisionModalProps> = ({
                     </table>
 
                     {/* Point 1: Statutory deductions */}
-                    <p style={{ textAlign: 'justify', marginBottom: 8 }}>
-                      <strong>1. Statutory deductions.</strong> The components above are subject to deductions and
-                      withholdings required by applicable law and Company policy, and may change if the law or the structure
-                      changes.
+                    <p
+                      contentEditable={true}
+                      suppressContentEditableWarning={true}
+                      onBlur={(e) => setCustomDeductionsPara(e.currentTarget.innerText)}
+                      title="Click to edit this point directly"
+                      style={{
+                        textAlign: 'justify',
+                        marginBottom: 8,
+                        padding: '2px 4px',
+                        borderRadius: 4,
+                        outline: 'none',
+                        cursor: 'text',
+                      }}
+                    >
+                      {customDeductionsPara !== '' ? customDeductionsPara : (
+                        <>
+                          <strong>1. Statutory deductions.</strong> The components above are subject to deductions and
+                          withholdings required by applicable law and Company policy, and may change if the law or the structure
+                          changes.
+                        </>
+                      )}
                     </p>
 
                     {/* Point 2: Other terms */}
-                    <p style={{ textAlign: 'justify', marginBottom: 8 }}>
-                      <strong>2. Other terms.</strong> All other terms and conditions of your employment, as set out in your
-                      appointment letter and Company policies, remain unchanged.
+                    <p
+                      contentEditable={true}
+                      suppressContentEditableWarning={true}
+                      onBlur={(e) => setCustomOtherTermsPara(e.currentTarget.innerText)}
+                      title="Click to edit this point directly"
+                      style={{
+                        textAlign: 'justify',
+                        marginBottom: 8,
+                        padding: '2px 4px',
+                        borderRadius: 4,
+                        outline: 'none',
+                        cursor: 'text',
+                      }}
+                    >
+                      {customOtherTermsPara !== '' ? customOtherTermsPara : (
+                        <>
+                          <strong>2. Other terms.</strong> All other terms and conditions of your employment, as set out in your
+                          appointment letter and Company policies, remain unchanged.
+                        </>
+                      )}
                     </p>
 
                     {/* Point 3: Confidentiality */}
-                    <p style={{ textAlign: 'justify', marginBottom: 12 }}>
-                      <strong>3. Confidentiality.</strong> Your compensation is confidential, and you are requested not to
-                      disclose it to colleagues or third parties, except as required by law.
+                    <p
+                      contentEditable={true}
+                      suppressContentEditableWarning={true}
+                      onBlur={(e) => setCustomConfidentialityPara(e.currentTarget.innerText)}
+                      title="Click to edit this point directly"
+                      style={{
+                        textAlign: 'justify',
+                        marginBottom: 12,
+                        padding: '2px 4px',
+                        borderRadius: 4,
+                        outline: 'none',
+                        cursor: 'text',
+                      }}
+                    >
+                      {customConfidentialityPara !== '' ? customConfidentialityPara : (
+                        <>
+                          <strong>3. Confidentiality.</strong> Your compensation is confidential, and you are requested not to
+                          disclose it to colleagues or third parties, except as required by law.
+                        </>
+                      )}
                     </p>
 
                     {/* Closing Note */}
-                    <p style={{ textAlign: 'justify', marginBottom: 0 }}>
-                      We appreciate your contribution and look forward to your continued commitment. Please sign and return a
-                      copy of this letter as acknowledgement.
+                    <p
+                      contentEditable={true}
+                      suppressContentEditableWarning={true}
+                      onBlur={(e) => setCustomClosingPara(e.currentTarget.innerText)}
+                      title="Click to edit this paragraph directly"
+                      style={{
+                        textAlign: 'justify',
+                        marginBottom: 0,
+                        padding: '2px 4px',
+                        borderRadius: 4,
+                        outline: 'none',
+                        cursor: 'text',
+                      }}
+                    >
+                      {customClosingPara !== '' ? customClosingPara : (
+                        <>
+                          We appreciate your contribution and look forward to your continued commitment. Please sign and return a
+                          copy of this letter as acknowledgement.
+                        </>
+                      )}
                     </p>
                   </div>
 

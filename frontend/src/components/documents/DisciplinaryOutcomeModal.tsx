@@ -268,6 +268,12 @@ export const DisciplinaryOutcomeModal: React.FC<DisciplinaryOutcomeModalProps> =
               -webkit-print-color-adjust: exact;
               print-color-adjust: exact;
             }
+            [contenteditable] {
+              outline: none !important;
+              border: none !important;
+              background: transparent !important;
+              box-shadow: none !important;
+            }
             mark {
               background: transparent !important;
               color: inherit !important;
@@ -1207,21 +1213,21 @@ export const DisciplinaryOutcomeModal: React.FC<DisciplinaryOutcomeModalProps> =
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 8, fontSize: '9pt', color: '#1e293b', textAlign: 'justify' }}>
                     <div style={{ display: 'flex', gap: 6, alignItems: 'flex-start' }}>
                       <span style={{ fontWeight: 700, flexShrink: 0 }}>1.</span>
-                      <div>
+                      <div contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this clause directly" style={{ padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text', flex: 1 }}>
                         <strong>Reference.</strong> We refer to the show-cause notice dated {renderHighlighted(showCauseDate)}, {hasEmployeeReply ? <>your reply dated {renderHighlighted(replyDate)}</> : <>(the absence of a reply)</>}, and the inquiry / hearing held on {renderHighlighted(inquiryDate)}.
                       </div>
                     </div>
 
                     <div style={{ display: 'flex', gap: 6, alignItems: 'flex-start' }}>
                       <span style={{ fontWeight: 700, flexShrink: 0 }}>2.</span>
-                      <div>
+                      <div contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this clause directly" style={{ padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text', flex: 1 }}>
                         <strong>Findings.</strong> After considering the material on record and your explanation, the Company has found that {renderHighlighted(findingsText)}.
                       </div>
                     </div>
 
                     <div style={{ display: 'flex', gap: 6, alignItems: 'flex-start' }}>
                       <span style={{ fontWeight: 700, flexShrink: 0 }}>3.</span>
-                      <div>
+                      <div contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this clause directly" style={{ padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text', flex: 1 }}>
                         <strong>Decision.</strong> In view of the above, the Company has decided as follows:{' '}
                         {decisionType === 'CLOSED' && (
                           <span>(a) No further action; the matter is closed.</span>
@@ -1247,14 +1253,14 @@ export const DisciplinaryOutcomeModal: React.FC<DisciplinaryOutcomeModalProps> =
 
                     <div style={{ display: 'flex', gap: 6, alignItems: 'flex-start' }}>
                       <span style={{ fontWeight: 700, flexShrink: 0 }}>4.</span>
-                      <div>
+                      <div contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this clause directly" style={{ padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text', flex: 1 }}>
                         <strong>Effective date.</strong> This decision takes effect from {renderHighlighted(effectiveDate)}.
                       </div>
                     </div>
 
                     <div style={{ display: 'flex', gap: 6, alignItems: 'flex-start' }}>
                       <span style={{ fontWeight: 700, flexShrink: 0 }}>5.</span>
-                      <div>
+                      <div contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this clause directly" style={{ padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text', flex: 1 }}>
                         <strong>Conduct expected.</strong> You are required to {renderHighlighted(conductExpected)}. Any further breach may lead to stricter action in accordance with Company policy and applicable law.
                       </div>
                     </div>
@@ -1274,7 +1280,7 @@ export const DisciplinaryOutcomeModal: React.FC<DisciplinaryOutcomeModalProps> =
                     </div>
                   </div>
 
-                  <p style={{ margin: '10px 0 14px 0', fontSize: '9pt', textAlign: 'justify' }}>
+                  <p contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this paragraph directly" style={{ margin: '10px 0 14px 0', fontSize: '9pt', textAlign: 'justify', padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}>
                     Please sign and return a copy of this letter as acknowledgement of receipt.
                   </p>
 

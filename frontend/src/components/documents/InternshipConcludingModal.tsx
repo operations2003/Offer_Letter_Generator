@@ -120,6 +120,27 @@ export const InternshipConcludingModal: React.FC<InternshipConcludingModalProps>
   const [internSignDate, setInternSignDate] = useState<string>(() => formatDateString(new Date()));
   const [internSignPlace, setInternSignPlace] = useState<string>('Delhi');
 
+  // Inner Content Paragraphs (Fully Editable)
+  const [customPara1, setCustomPara1] = useState<string>('');
+  const [customPara2, setCustomPara2] = useState<string>('');
+  const [customPoint1, setCustomPoint1] = useState<string>('');
+  const [customPoint2, setCustomPoint2] = useState<string>('');
+  const [customPoint3, setCustomPoint3] = useState<string>('');
+  const [customPoint4, setCustomPoint4] = useState<string>('');
+  const [customPoint5, setCustomPoint5] = useState<string>('');
+  const [customConcludingPara, setCustomConcludingPara] = useState<string>('');
+
+  const defaultPara1 = `This letter confirms that your internship with Tasknera as ${internshipRole} in the ${department} team, which commenced on ${commencedDate}, will conclude on ${lastWorkingDay} (the “Last Working Day”), on completion of the internship period of ${duration}.`;
+  const defaultPara2 = `During this period you were engaged in ${workDescription}.${performanceConductNote ? ` ${performanceConductNote}` : ''}`;
+  const defaultPoint1 = `Handover. Please hand over all work, files, trackers and responsibilities to ${handoverRecipient} on or before the Last Working Day.`;
+  const defaultPoint2 = `Company property and access. Please return all Company property, and credentials, if any, issued to you. Your access to Company and Client systems, including the ATS, CRM, email and communication channels, will be withdrawn at the close of business on the Last Working Day.`;
+  const defaultPoint3 = `Confidentiality and data. You are required to return or securely delete all Company, Client and Candidate information in your possession and to keep all such information confidential after the Last Working Day. Your confidentiality and data-protection obligations continue after your internship ends, as set out in your internship terms.`;
+  const defaultPoint4 = hasStipend
+    ? `Stipend and dues. Your stipend, if any, for the period up to the Last Working Day will be paid by ${stipendPaymentDate}, subject to completion of the above formalities and applicable deductions.`
+    : `Stipend and dues. Your stipend, if any, for the period up to the Last Working Day will be paid subject to completion of the above formalities and applicable deductions.`;
+  const defaultPoint5 = `Certificate. An Internship Completion Certificate will be issued to you once the above formalities are complete.`;
+  const defaultConcludingPara = `This internship was for a fixed period and does not by itself create any right to employment or continued engagement with Tasknera. We thank you for your contribution to Tasknera and wish you every success in your academic and professional journey.`;
+
   // Load employee roster
   useEffect(() => {
     let isMounted = true;
@@ -219,6 +240,12 @@ export const InternshipConcludingModal: React.FC<InternshipConcludingModalProps>
               box-sizing: border-box;
               -webkit-print-color-adjust: exact !important;
               print-color-adjust: exact !important;
+            }
+            [contenteditable] {
+              outline: none !important;
+              border: none !important;
+              background: transparent !important;
+              box-shadow: none !important;
             }
             html, body {
               margin: 0;
@@ -1045,7 +1072,220 @@ export const InternshipConcludingModal: React.FC<InternshipConcludingModalProps>
                 </div>
               </div>
 
-              {/* Card 4: Signatories & Acknowledgement */}
+              {/* Card 4: Edit Inner Content & Paragraphs */}
+              <div
+                style={{
+                  backgroundColor: '#ffffff',
+                  borderRadius: 12,
+                  padding: '20px',
+                  border: '1.5px solid #3b82f6',
+                  boxShadow: '0 4px 14px rgba(59, 130, 246, 0.08)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 14,
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #f1f5f9', paddingBottom: 10 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <FileText size={18} style={{ color: '#2563eb' }} />
+                    <div>
+                      <h4 style={{ fontSize: '0.95rem', fontWeight: 700, color: '#0f172a', margin: 0 }}>
+                        4. Edit Letter Inner Content &amp; Paragraphs
+                      </h4>
+                      <p style={{ margin: '2px 0 0 0', fontSize: '0.75rem', color: '#64748b' }}>
+                        Customize every paragraph and clause directly. Changes update the letter preview and PDF immediately.
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setCustomPara1('');
+                      setCustomPara2('');
+                      setCustomPoint1('');
+                      setCustomPoint2('');
+                      setCustomPoint3('');
+                      setCustomPoint4('');
+                      setCustomPoint5('');
+                      setCustomConcludingPara('');
+                    }}
+                    style={{
+                      fontSize: '0.75rem',
+                      fontWeight: 600,
+                      color: '#2563eb',
+                      backgroundColor: '#eff6ff',
+                      border: '1px solid #bfdbfe',
+                      borderRadius: 6,
+                      padding: '4px 10px',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    Reset to Default
+                  </button>
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#475569', marginBottom: 4 }}>
+                    Paragraph 1: Opening &amp; Tenure Confirmation
+                  </label>
+                  <textarea
+                    rows={3}
+                    value={customPara1 !== '' ? customPara1 : defaultPara1}
+                    onChange={(e) => setCustomPara1(e.target.value)}
+                    style={{
+                      width: '100%',
+                      padding: '8px 10px',
+                      fontSize: '0.8125rem',
+                      borderRadius: 6,
+                      border: '1px solid #cbd5e1',
+                      color: '#0f172a',
+                      lineHeight: 1.5,
+                    }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#475569', marginBottom: 4 }}>
+                    Paragraph 2: Roles, Responsibilities &amp; Performance Note
+                  </label>
+                  <textarea
+                    rows={3}
+                    value={customPara2 !== '' ? customPara2 : defaultPara2}
+                    onChange={(e) => setCustomPara2(e.target.value)}
+                    style={{
+                      width: '100%',
+                      padding: '8px 10px',
+                      fontSize: '0.8125rem',
+                      borderRadius: 6,
+                      border: '1px solid #cbd5e1',
+                      color: '#0f172a',
+                      lineHeight: 1.5,
+                    }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#475569', marginBottom: 4 }}>
+                    Formality Point 1: Handover
+                  </label>
+                  <textarea
+                    rows={2}
+                    value={customPoint1 !== '' ? customPoint1 : defaultPoint1}
+                    onChange={(e) => setCustomPoint1(e.target.value)}
+                    style={{
+                      width: '100%',
+                      padding: '8px 10px',
+                      fontSize: '0.8125rem',
+                      borderRadius: 6,
+                      border: '1px solid #cbd5e1',
+                      color: '#0f172a',
+                      lineHeight: 1.5,
+                    }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#475569', marginBottom: 4 }}>
+                    Formality Point 2: Company Property &amp; Access
+                  </label>
+                  <textarea
+                    rows={2}
+                    value={customPoint2 !== '' ? customPoint2 : defaultPoint2}
+                    onChange={(e) => setCustomPoint2(e.target.value)}
+                    style={{
+                      width: '100%',
+                      padding: '8px 10px',
+                      fontSize: '0.8125rem',
+                      borderRadius: 6,
+                      border: '1px solid #cbd5e1',
+                      color: '#0f172a',
+                      lineHeight: 1.5,
+                    }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#475569', marginBottom: 4 }}>
+                    Formality Point 3: Confidentiality &amp; Data Protection
+                  </label>
+                  <textarea
+                    rows={2}
+                    value={customPoint3 !== '' ? customPoint3 : defaultPoint3}
+                    onChange={(e) => setCustomPoint3(e.target.value)}
+                    style={{
+                      width: '100%',
+                      padding: '8px 10px',
+                      fontSize: '0.8125rem',
+                      borderRadius: 6,
+                      border: '1px solid #cbd5e1',
+                      color: '#0f172a',
+                      lineHeight: 1.5,
+                    }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#475569', marginBottom: 4 }}>
+                    Formality Point 4: Stipend and Dues
+                  </label>
+                  <textarea
+                    rows={2}
+                    value={customPoint4 !== '' ? customPoint4 : defaultPoint4}
+                    onChange={(e) => setCustomPoint4(e.target.value)}
+                    style={{
+                      width: '100%',
+                      padding: '8px 10px',
+                      fontSize: '0.8125rem',
+                      borderRadius: 6,
+                      border: '1px solid #cbd5e1',
+                      color: '#0f172a',
+                      lineHeight: 1.5,
+                    }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#475569', marginBottom: 4 }}>
+                    Formality Point 5: Completion Certificate
+                  </label>
+                  <textarea
+                    rows={2}
+                    value={customPoint5 !== '' ? customPoint5 : defaultPoint5}
+                    onChange={(e) => setCustomPoint5(e.target.value)}
+                    style={{
+                      width: '100%',
+                      padding: '8px 10px',
+                      fontSize: '0.8125rem',
+                      borderRadius: 6,
+                      border: '1px solid #cbd5e1',
+                      color: '#0f172a',
+                      lineHeight: 1.5,
+                    }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#475569', marginBottom: 4 }}>
+                    Concluding / Well Wishes Paragraph
+                  </label>
+                  <textarea
+                    rows={3}
+                    value={customConcludingPara !== '' ? customConcludingPara : defaultConcludingPara}
+                    onChange={(e) => setCustomConcludingPara(e.target.value)}
+                    style={{
+                      width: '100%',
+                      padding: '8px 10px',
+                      fontSize: '0.8125rem',
+                      borderRadius: 6,
+                      border: '1px solid #cbd5e1',
+                      color: '#0f172a',
+                      lineHeight: 1.5,
+                    }}
+                  />
+                </div>
+              </div>
+
+              {/* Card 5: Signatories & Acknowledgement */}
               <div
                 style={{
                   backgroundColor: '#ffffff',
@@ -1215,6 +1455,24 @@ export const InternshipConcludingModal: React.FC<InternshipConcludingModalProps>
                     <Highlighter size={14} />
                     {highlightPlaceholders ? 'Fields Highlighted' : 'Highlight Fields'}
                   </button>
+
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 6,
+                      padding: '5px 10px',
+                      borderRadius: 6,
+                      fontSize: '0.75rem',
+                      fontWeight: 600,
+                      backgroundColor: '#eff6ff',
+                      color: '#1d4ed8',
+                      border: '1px solid #bfdbfe',
+                    }}
+                  >
+                    <FileText size={13} />
+                    <span>Click any paragraph to edit text directly</span>
+                  </div>
                 </div>
 
                 <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
@@ -1370,28 +1628,68 @@ export const InternshipConcludingModal: React.FC<InternshipConcludingModalProps>
                     </div>
 
                     {/* Paragraph 1 */}
-                    <p style={{ textAlign: 'justify', marginBottom: 10 }}>
-                      This letter confirms that your internship with Tasknera as{' '}
-                      {highlightPlaceholders ? <mark>{internshipRole}</mark> : internshipRole} in the{' '}
-                      {highlightPlaceholders ? <mark>{department}</mark> : department} team, which commenced on{' '}
-                      {highlightPlaceholders ? <mark>{commencedDate}</mark> : commencedDate}, will conclude on{' '}
-                      {highlightPlaceholders ? <mark>{lastWorkingDay}</mark> : lastWorkingDay} (the “
-                      <strong>Last Working Day</strong>”), on completion of the internship period of{' '}
-                      {highlightPlaceholders ? <mark>{duration}</mark> : duration}.
+                    <p
+                      contentEditable={true}
+                      suppressContentEditableWarning={true}
+                      onBlur={(e) => setCustomPara1(e.currentTarget.innerText)}
+                      title="Click to edit this paragraph directly"
+                      style={{
+                        textAlign: 'justify',
+                        marginBottom: 10,
+                        padding: '2px 4px',
+                        borderRadius: 4,
+                        outline: 'none',
+                        cursor: 'text',
+                        transition: 'background-color 0.15s ease',
+                      }}
+                      onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#f8fafc'; e.currentTarget.style.boxShadow = '0 0 0 1px #93c5fd'; }}
+                      onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.boxShadow = 'none'; }}
+                    >
+                      {customPara1 !== '' ? customPara1 : (
+                        <>
+                          This letter confirms that your internship with Tasknera as{' '}
+                          {highlightPlaceholders ? <mark>{internshipRole}</mark> : internshipRole} in the{' '}
+                          {highlightPlaceholders ? <mark>{department}</mark> : department} team, which commenced on{' '}
+                          {highlightPlaceholders ? <mark>{commencedDate}</mark> : commencedDate}, will conclude on{' '}
+                          {highlightPlaceholders ? <mark>{lastWorkingDay}</mark> : lastWorkingDay} (the “
+                          <strong>Last Working Day</strong>”), on completion of the internship period of{' '}
+                          {highlightPlaceholders ? <mark>{duration}</mark> : duration}.
+                        </>
+                      )}
                     </p>
 
                     {/* Paragraph 2 */}
-                    <p style={{ textAlign: 'justify', marginBottom: 10 }}>
-                      During this period you were engaged in{' '}
-                      {highlightPlaceholders ? <mark>{workDescription}</mark> : workDescription}.{' '}
-                      {performanceConductNote && (
-                        <span>
-                          {highlightPlaceholders ? (
-                            <mark>{performanceConductNote}</mark>
-                          ) : (
-                            performanceConductNote
+                    <p
+                      contentEditable={true}
+                      suppressContentEditableWarning={true}
+                      onBlur={(e) => setCustomPara2(e.currentTarget.innerText)}
+                      title="Click to edit this paragraph directly"
+                      style={{
+                        textAlign: 'justify',
+                        marginBottom: 10,
+                        padding: '2px 4px',
+                        borderRadius: 4,
+                        outline: 'none',
+                        cursor: 'text',
+                        transition: 'background-color 0.15s ease',
+                      }}
+                      onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#f8fafc'; e.currentTarget.style.boxShadow = '0 0 0 1px #93c5fd'; }}
+                      onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.boxShadow = 'none'; }}
+                    >
+                      {customPara2 !== '' ? customPara2 : (
+                        <>
+                          During this period you were engaged in{' '}
+                          {highlightPlaceholders ? <mark>{workDescription}</mark> : workDescription}.{' '}
+                          {performanceConductNote && (
+                            <span>
+                              {highlightPlaceholders ? (
+                                <mark>{performanceConductNote}</mark>
+                              ) : (
+                                performanceConductNote
+                              )}
+                            </span>
                           )}
-                        </span>
+                        </>
                       )}
                     </p>
 
@@ -1401,50 +1699,120 @@ export const InternshipConcludingModal: React.FC<InternshipConcludingModalProps>
 
                     {/* Ordered Formalities (1 to 5) */}
                     <ol style={{ margin: '0 0 12px 0', paddingLeft: 18 }}>
-                      <li style={{ textAlign: 'justify', marginBottom: 5 }}>
-                        <strong>Handover.</strong> Please hand over all work, files, trackers and responsibilities to{' '}
-                        {highlightPlaceholders ? <mark>{handoverRecipient}</mark> : handoverRecipient} on or before the
-                        Last Working Day.
-                      </li>
-                      <li style={{ textAlign: 'justify', marginBottom: 5 }}>
-                        <strong>Company property and access.</strong> Please return all Company property, and
-                        credentials, if any, issued to you. Your access to Company and Client systems, including the
-                        ATS, CRM, email and communication channels, will be withdrawn at the close of business on the
-                        Last Working Day.
-                      </li>
-                      <li style={{ textAlign: 'justify', marginBottom: 5 }}>
-                        <strong>Confidentiality and data.</strong> You are required to return or securely delete all
-                        Company, Client and Candidate information in your possession and to keep all such information
-                        confidential after the Last Working Day. Your confidentiality and data-protection obligations
-                        continue after your internship ends, as set out in your internship terms.
-                      </li>
-                      <li style={{ textAlign: 'justify', marginBottom: 5 }}>
-                        <strong>Stipend and dues.</strong>{' '}
-                        {hasStipend ? (
+                      <li
+                        contentEditable={true}
+                        suppressContentEditableWarning={true}
+                        onBlur={(e) => setCustomPoint1(e.currentTarget.innerText)}
+                        title="Click to edit this point directly"
+                        style={{ textAlign: 'justify', marginBottom: 5, padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}
+                      >
+                        {customPoint1 !== '' ? customPoint1 : (
                           <>
-                            Your stipend, if any, for the period up to the Last Working Day will be paid by{' '}
-                            {highlightPlaceholders ? <mark>{stipendPaymentDate}</mark> : stipendPaymentDate}, subject to
-                            completion of the above formalities and applicable deductions.
-                          </>
-                        ) : (
-                          <>
-                            [Retain if applicable:] Your stipend, if any, for the period up to the Last Working Day will
-                            be paid by [DD Month YYYY], subject to completion of the above formalities and applicable
-                            deductions.
+                            <strong>Handover.</strong> Please hand over all work, files, trackers and responsibilities to{' '}
+                            {highlightPlaceholders ? <mark>{handoverRecipient}</mark> : handoverRecipient} on or before the
+                            Last Working Day.
                           </>
                         )}
                       </li>
-                      <li style={{ textAlign: 'justify', marginBottom: 5 }}>
-                        <strong>Certificate.</strong> An Internship Completion Certificate will be issued to you once the
-                        above formalities are complete.
+                      <li
+                        contentEditable={true}
+                        suppressContentEditableWarning={true}
+                        onBlur={(e) => setCustomPoint2(e.currentTarget.innerText)}
+                        title="Click to edit this point directly"
+                        style={{ textAlign: 'justify', marginBottom: 5, padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}
+                      >
+                        {customPoint2 !== '' ? customPoint2 : (
+                          <>
+                            <strong>Company property and access.</strong> Please return all Company property, and
+                            credentials, if any, issued to you. Your access to Company and Client systems, including the
+                            ATS, CRM, email and communication channels, will be withdrawn at the close of business on the
+                            Last Working Day.
+                          </>
+                        )}
+                      </li>
+                      <li
+                        contentEditable={true}
+                        suppressContentEditableWarning={true}
+                        onBlur={(e) => setCustomPoint3(e.currentTarget.innerText)}
+                        title="Click to edit this point directly"
+                        style={{ textAlign: 'justify', marginBottom: 5, padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}
+                      >
+                        {customPoint3 !== '' ? customPoint3 : (
+                          <>
+                            <strong>Confidentiality and data.</strong> You are required to return or securely delete all
+                            Company, Client and Candidate information in your possession and to keep all such information
+                            confidential after the Last Working Day. Your confidentiality and data-protection obligations
+                            continue after your internship ends, as set out in your internship terms.
+                          </>
+                        )}
+                      </li>
+                      <li
+                        contentEditable={true}
+                        suppressContentEditableWarning={true}
+                        onBlur={(e) => setCustomPoint4(e.currentTarget.innerText)}
+                        title="Click to edit this point directly"
+                        style={{ textAlign: 'justify', marginBottom: 5, padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}
+                      >
+                        {customPoint4 !== '' ? customPoint4 : (
+                          <>
+                            <strong>Stipend and dues.</strong>{' '}
+                            {hasStipend ? (
+                              <>
+                                Your stipend, if any, for the period up to the Last Working Day will be paid by{' '}
+                                {highlightPlaceholders ? <mark>{stipendPaymentDate}</mark> : stipendPaymentDate}, subject to
+                                completion of the above formalities and applicable deductions.
+                              </>
+                            ) : (
+                              <>
+                                [Retain if applicable:] Your stipend, if any, for the period up to the Last Working Day will
+                                be paid by [DD Month YYYY], subject to completion of the above formalities and applicable
+                                deductions.
+                              </>
+                            )}
+                          </>
+                        )}
+                      </li>
+                      <li
+                        contentEditable={true}
+                        suppressContentEditableWarning={true}
+                        onBlur={(e) => setCustomPoint5(e.currentTarget.innerText)}
+                        title="Click to edit this point directly"
+                        style={{ textAlign: 'justify', marginBottom: 5, padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}
+                      >
+                        {customPoint5 !== '' ? customPoint5 : (
+                          <>
+                            <strong>Certificate.</strong> An Internship Completion Certificate will be issued to you once the
+                            above formalities are complete.
+                          </>
+                        )}
                       </li>
                     </ol>
 
                     {/* Disclaimer paragraph */}
-                    <p style={{ textAlign: 'justify', marginBottom: 12 }}>
-                      This internship was for a fixed period and does not by itself create any right to employment or
-                      continued engagement with Tasknera. We thank you for your contribution to Tasknera and wish you
-                      every success in your academic and professional journey.
+                    <p
+                      contentEditable={true}
+                      suppressContentEditableWarning={true}
+                      onBlur={(e) => setCustomConcludingPara(e.currentTarget.innerText)}
+                      title="Click to edit this paragraph directly"
+                      style={{
+                        textAlign: 'justify',
+                        marginBottom: 12,
+                        padding: '2px 4px',
+                        borderRadius: 4,
+                        outline: 'none',
+                        cursor: 'text',
+                        transition: 'background-color 0.15s ease',
+                      }}
+                      onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#f8fafc'; e.currentTarget.style.boxShadow = '0 0 0 1px #93c5fd'; }}
+                      onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.boxShadow = 'none'; }}
+                    >
+                      {customConcludingPara !== '' ? customConcludingPara : (
+                        <>
+                          This internship was for a fixed period and does not by itself create any right to employment or
+                          continued engagement with Tasknera. We thank you for your contribution to Tasknera and wish you
+                          every success in your academic and professional journey.
+                        </>
+                      )}
                     </p>
 
                     {/* Closing signoff */}

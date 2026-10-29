@@ -296,6 +296,12 @@ export const CharacterCertificateModal: React.FC<CharacterCertificateModalProps>
           <title>${docTitle}</title>
           <meta charset="utf-8" />
           <style>
+            [contenteditable] {
+              outline: none !important;
+              border: none !important;
+              background: transparent !important;
+              box-shadow: none !important;
+            }
             @page {
               size: A4 portrait;
               margin: 10mm 15mm 10mm 15mm;
@@ -1219,31 +1225,31 @@ export const CharacterCertificateModal: React.FC<CharacterCertificateModalProps>
 
                   {/* Certificate Body Paragraphs (Exact 7 Paragraphs matching official document) */}
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 14, textAlign: 'justify' }}>
-                    <p style={{ margin: 0 }}>
+                    <p contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this paragraph directly" style={{ margin: 0, padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}>
                       This is to certify that {hl(salutation ? `${salutation} ${fullName}` : fullName)} was associated with <strong>Tasknera HR Solutions</strong> as an <strong>{hl(designation)}</strong>, contributing to the <strong>{hl(department)}</strong> teams, from <strong>{hl(startDate)}</strong> to <strong>{hl(endDate)}</strong>.
                     </p>
 
-                    <p style={{ margin: 0 }}>
+                    <p contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this paragraph directly" style={{ margin: 0, padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}>
                       During the period of {hl(pronounHisHer)} internship, {hl(fullName)} {hl(ldAssistance)}.
                     </p>
 
-                    <p style={{ margin: 0 }}>
+                    <p contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this paragraph directly" style={{ margin: 0, padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}>
                       In addition, {hl(fullName)} {hl(taExperience)}.
                     </p>
 
-                    <p style={{ margin: 0 }}>
+                    <p contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this paragraph directly" style={{ margin: 0, padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}>
                       Throughout {hl(pronounHisHer)} association with Tasknera HR Solutions, {hl(fullName)} {hl(demonstratedQualities)}
                     </p>
 
-                    <p style={{ margin: 0 }}>
+                    <p contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this paragraph directly" style={{ margin: 0, padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}>
                       To the best of our knowledge, {hl(pronounHisHer)} conduct and character during the internship period were {hl(conductEvaluation)}. We found them to be {hl(characterTraits)} to the responsibilities entrusted to them.
                     </p>
 
-                    <p style={{ margin: 0 }}>
+                    <p contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this paragraph directly" style={{ margin: 0, padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}>
                       We appreciate {hl(pronounHisHer)} contribution to the Talent Acquisition and L&D functions and wish {hl(pronounHimHer)} success and growth in their future {hl(futureEndeavours)} endeavors.
                     </p>
 
-                    <p style={{ margin: 0 }}>
+                    <p contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this paragraph directly" style={{ margin: 0, padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}>
                       This certificate is being issued upon {hl(issuanceReason)}.
                     </p>
                   </div>

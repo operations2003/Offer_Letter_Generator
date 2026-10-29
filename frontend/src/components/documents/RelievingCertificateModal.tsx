@@ -221,6 +221,12 @@ export const RelievingCertificateModal: React.FC<RelievingCertificateModalProps>
               -webkit-print-color-adjust: exact;
               print-color-adjust: exact;
             }
+            [contenteditable] {
+              outline: none !important;
+              border: none !important;
+              background: transparent !important;
+              box-shadow: none !important;
+            }
             mark {
               background: transparent !important;
               color: inherit !important;
@@ -1112,15 +1118,15 @@ export const RelievingCertificateModal: React.FC<RelievingCertificateModalProps>
 
                   {/* Body Paragraphs */}
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 12, fontSize: '9.5pt', color: '#1e293b', textAlign: 'justify' }}>
-                    <p style={{ margin: 0 }}>
+                    <p contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this paragraph directly" style={{ margin: 0, padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}>
                       This is with reference to your resignation dated {renderHighlighted(resignationDate)}, which was accepted by the Company. You have been relieved from the services of Tasknera at the close of business on {renderHighlighted(lastWorkingDay)} (the &ldquo;<strong>Last Working Day</strong>&rdquo;).
                     </p>
 
-                    <p style={{ margin: 0 }}>
+                    <p contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this paragraph directly" style={{ margin: 0, padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}>
                       You joined the Company on {renderHighlighted(joiningDate)} and last held the position of {renderHighlighted(designation)} in the {renderHighlighted(department)} team.
                     </p>
 
-                    <p style={{ margin: 0 }}>
+                    <p contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this paragraph directly" style={{ margin: 0, padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}>
                       The Company confirms that you have completed the exit formalities, including handover of your work and return of Company property, and that, as on the date of this letter,{' '}
                       {duesType === 'NO_DUES' ? (
                         <span>you have no outstanding dues to the Company.</span>
@@ -1129,17 +1135,17 @@ export const RelievingCertificateModal: React.FC<RelievingCertificateModalProps>
                       )}
                     </p>
 
-                    <p style={{ margin: 0 }}>
+                    <p contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this paragraph directly" style={{ margin: 0, padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}>
                       Your confidentiality, data-protection and other post-employment obligations under your appointment letter and Company policies continue to apply after your relief.
                     </p>
 
                     {includePerformanceClause && (
-                      <p style={{ margin: 0 }}>
+                      <p contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this paragraph directly" style={{ margin: 0, padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}>
                         During your tenure, your conduct and performance were {renderHighlighted(performanceRating)}.
                       </p>
                     )}
 
-                    <p style={{ margin: 0 }}>
+                    <p contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this paragraph directly" style={{ margin: 0, padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}>
                       We thank you for your contribution to Tasknera and wish you every success in your future endeavours.
                     </p>
                   </div>

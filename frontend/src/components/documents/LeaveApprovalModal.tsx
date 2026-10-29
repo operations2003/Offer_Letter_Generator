@@ -197,6 +197,12 @@ export const LeaveApprovalModal: React.FC<LeaveApprovalModalProps> = ({
               -webkit-print-color-adjust: exact;
               print-color-adjust: exact;
             }
+            [contenteditable] {
+              outline: none !important;
+              border: none !important;
+              background: transparent !important;
+              box-shadow: none !important;
+            }
             table {
               border-collapse: collapse;
               width: 100%;
@@ -1059,7 +1065,7 @@ export const LeaveApprovalModal: React.FC<LeaveApprovalModalProps> = ({
                   </div>
 
                   {/* Body Intro */}
-                  <p style={{ margin: '0 0 14px 0', textAlign: 'justify' }}>
+                  <p contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this paragraph directly" style={{ margin: '0 0 14px 0', textAlign: 'justify', padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}>
                     This is with reference to your leave application dated {renderHighlighted(applicationDate)}. We are pleased to inform you that your request for leave has been approved by the Company, as detailed below:
                   </p>
 
@@ -1126,28 +1132,28 @@ export const LeaveApprovalModal: React.FC<LeaveApprovalModalProps> = ({
                   </table>
 
                   {/* Body Paragraphs */}
-                  <p style={{ margin: '0 0 10px 0', textAlign: 'justify' }}>
+                  <p contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this paragraph directly" style={{ margin: '0 0 10px 0', textAlign: 'justify', padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}>
                     During your absence, your responsibilities will be handled by {renderHighlighted(coveragePerson)}. Please ensure that all pending work is handed over before you proceed on leave and that you remain reachable, as far as practicable, for any urgent matters.
                   </p>
 
-                  <p style={{ margin: '0 0 10px 0', textAlign: 'justify' }}>
+                  <p contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this paragraph directly" style={{ margin: '0 0 10px 0', textAlign: 'justify', padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}>
                     {isPaidLeave
                       ? 'This leave will be treated as paid leave.'
                       : `This leave will be treated as unpaid leave and adjusted against your salary for the month of ${renderHighlighted(salaryMonth)}.`}
                   </p>
 
-                  <p style={{ margin: '0 0 10px 0', textAlign: 'justify' }}>
+                  <p contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this paragraph directly" style={{ margin: '0 0 10px 0', textAlign: 'justify', padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}>
                     Should you be unable to resume duty on the date mentioned above, you are requested to inform your reporting manager and the HR team in advance and obtain approval for any extension. Absence beyond the approved period is subject to Company policies.
                   </p>
 
                   {additionalRemarks && (
-                    <p style={{ margin: '0 0 10px 0', textAlign: 'justify' }}>
+                    <p contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this paragraph directly" style={{ margin: '0 0 10px 0', textAlign: 'justify', padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}>
                       <strong>Additional remarks: </strong>
                       {renderHighlighted(additionalRemarks)}
                     </p>
                   )}
 
-                  <p style={{ margin: '0 0 20px 0' }}>
+                  <p contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this paragraph directly" style={{ margin: '0 0 20px 0', padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}>
                     We wish you a pleasant and restful leave.
                   </p>
 

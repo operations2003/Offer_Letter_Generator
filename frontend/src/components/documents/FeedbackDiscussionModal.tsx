@@ -288,6 +288,12 @@ export const FeedbackDiscussionModal: React.FC<FeedbackDiscussionModalProps> = (
         <head>
           <title>Feedback_Discussion_Record_${employeeFullName.replace(/\\s+/g, '_')}</title>
           <style>
+            [contenteditable] {
+              outline: none !important;
+              border: none !important;
+              background: transparent !important;
+              box-shadow: none !important;
+            }
             @page {
               size: A4 portrait;
               margin: 12mm 16mm 14mm 16mm;
@@ -1198,7 +1204,7 @@ export const FeedbackDiscussionModal: React.FC<FeedbackDiscussionModalProps> = (
                     </div>
 
                     {/* Non-Disciplinary Clarification Opening */}
-                    <p style={{ margin: '0 0 10px 0', fontSize: '8.85pt', textAlign: 'justify' }}>
+                    <p contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this paragraph directly" style={{ margin: '0 0 10px 0', fontSize: '8.85pt', textAlign: 'justify', padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}>
                       This is a written record of the feedback discussion held with you. It is a record of the discussion and is not a disciplinary action.
                     </p>
 
@@ -1425,7 +1431,7 @@ export const FeedbackDiscussionModal: React.FC<FeedbackDiscussionModalProps> = (
                       </span>
                     </div>
 
-                    <p style={{ margin: '0 0 28px 0', fontSize: '9.5pt', textAlign: 'justify', lineHeight: 1.6 }}>
+                    <p contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this text directly" style={{ margin: '0 0 28px 0', fontSize: '9.5pt', textAlign: 'justify', lineHeight: 1.6, padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}>
                       Please sign below to confirm that this discussion took place. Your signature does not mean you agree with every point; you may add written comments within {renderHighlighted(commentDays)} days.
                     </p>
 

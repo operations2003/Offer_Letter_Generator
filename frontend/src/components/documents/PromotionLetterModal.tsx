@@ -92,6 +92,19 @@ export const PromotionLetterModal: React.FC<PromotionLetterModalProps> = ({
     'leading high-volume tech recruitment pipelines, client stakeholder management, mentoring junior recruiters, and executing quarterly talent acquisition targets'
   );
 
+  // Inner Content Paragraphs (Fully Editable)
+  const [customOpeningPara, setCustomOpeningPara] = useState<string>('');
+  const [customClause1, setCustomClause1] = useState<string>('');
+  const [customClause2, setCustomClause2] = useState<string>('');
+  const [customClause3, setCustomClause3] = useState<string>('');
+  const [customClosingPara, setCustomClosingPara] = useState<string>('');
+
+  const defaultOpeningPara = `We are pleased to inform you that, in recognition of your performance and contribution to Tasknera, you have been promoted with effect from ${effectiveDate} (the “Effective Date”). The details are as follows:`;
+  const defaultClause1 = `Role and responsibilities. Your new role carries the responsibilities of ${roleResponsibilitiesDescription}. Further details will be shared by your reporting manager.`;
+  const defaultClause2 = `Compensation. Your revised compensation is stated above and is subject to deductions and withholdings required by applicable law and Company policy.`;
+  const defaultClause3 = `Other terms. All other terms and conditions of your employment, as set out in your appointment letter and Company policies, remain unchanged and continue to apply to you in your new role.`;
+  const defaultClosingPara = `Congratulations on your promotion. We wish you continued success. Please sign and return a copy of this letter as acknowledgement.`;
+
   // Signatory & Location (Ms. Sheetal Bedi, CEO, Delhi)
   const [signatoryName, setSignatoryName] = useState<string>('Ms. Sheetal Bedi');
   const [signatoryDesignation, setSignatoryDesignation] = useState<string>('Chief Executive Officer (CEO)');
@@ -223,6 +236,12 @@ export const PromotionLetterModal: React.FC<PromotionLetterModalProps> = ({
               background: #ffffff;
               -webkit-print-color-adjust: exact;
               print-color-adjust: exact;
+            }
+            [contenteditable] {
+              outline: none !important;
+              border: none !important;
+              background: transparent !important;
+              box-shadow: none !important;
             }
             mark {
               background: transparent !important;
@@ -876,6 +895,115 @@ export const PromotionLetterModal: React.FC<PromotionLetterModalProps> = ({
                 </div>
               </div>
 
+              {/* Card 4: Edit Inner Content & Paragraphs */}
+              <div
+                style={{
+                  backgroundColor: '#ffffff',
+                  borderRadius: 12,
+                  padding: '20px',
+                  border: '1.5px solid #3b82f6',
+                  boxShadow: '0 4px 14px rgba(59, 130, 246, 0.08)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 14,
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #f1f5f9', paddingBottom: 10 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <Briefcase size={17} style={{ color: '#2563eb' }} />
+                    <h4 style={{ fontSize: '0.9rem', fontWeight: 700, color: '#0f172a', margin: 0 }}>
+                      4. Edit Letter Inner Content &amp; Paragraphs
+                    </h4>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setCustomOpeningPara('');
+                      setCustomClause1('');
+                      setCustomClause2('');
+                      setCustomClause3('');
+                      setCustomClosingPara('');
+                    }}
+                    style={{
+                      padding: '4px 10px',
+                      fontSize: '0.75rem',
+                      fontWeight: 600,
+                      borderRadius: 6,
+                      border: '1px solid #cbd5e1',
+                      backgroundColor: '#f8fafc',
+                      color: '#475569',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    Reset to Default Text
+                  </button>
+                </div>
+
+                <div style={{ fontSize: '0.78rem', color: '#64748b' }}>
+                  You can edit the wording of every paragraph here or click any paragraph directly in the preview (Step 2).
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#475569', marginBottom: 4 }}>
+                    Opening Paragraph (Promotion Confirmation)
+                  </label>
+                  <textarea
+                    rows={2}
+                    value={customOpeningPara !== '' ? customOpeningPara : defaultOpeningPara}
+                    onChange={(e) => setCustomOpeningPara(e.target.value)}
+                    style={{ width: '100%', padding: '8px 10px', fontSize: '0.8125rem', borderRadius: 6, border: '1px solid #cbd5e1', color: '#0f172a', resize: 'vertical' }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#475569', marginBottom: 4 }}>
+                    Clause 1: Role and Responsibilities
+                  </label>
+                  <textarea
+                    rows={2}
+                    value={customClause1 !== '' ? customClause1 : defaultClause1}
+                    onChange={(e) => setCustomClause1(e.target.value)}
+                    style={{ width: '100%', padding: '8px 10px', fontSize: '0.8125rem', borderRadius: 6, border: '1px solid #cbd5e1', color: '#0f172a', resize: 'vertical' }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#475569', marginBottom: 4 }}>
+                    Clause 2: Compensation Terms
+                  </label>
+                  <textarea
+                    rows={2}
+                    value={customClause2 !== '' ? customClause2 : defaultClause2}
+                    onChange={(e) => setCustomClause2(e.target.value)}
+                    style={{ width: '100%', padding: '8px 10px', fontSize: '0.8125rem', borderRadius: 6, border: '1px solid #cbd5e1', color: '#0f172a', resize: 'vertical' }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#475569', marginBottom: 4 }}>
+                    Clause 3: Other Terms
+                  </label>
+                  <textarea
+                    rows={2}
+                    value={customClause3 !== '' ? customClause3 : defaultClause3}
+                    onChange={(e) => setCustomClause3(e.target.value)}
+                    style={{ width: '100%', padding: '8px 10px', fontSize: '0.8125rem', borderRadius: 6, border: '1px solid #cbd5e1', color: '#0f172a', resize: 'vertical' }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#475569', marginBottom: 4 }}>
+                    Concluding Paragraph (Congratulations &amp; Acknowledgement)
+                  </label>
+                  <textarea
+                    rows={2}
+                    value={customClosingPara !== '' ? customClosingPara : defaultClosingPara}
+                    onChange={(e) => setCustomClosingPara(e.target.value)}
+                    style={{ width: '100%', padding: '8px 10px', fontSize: '0.8125rem', borderRadius: 6, border: '1px solid #cbd5e1', color: '#0f172a', resize: 'vertical' }}
+                  />
+                </div>
+              </div>
+
               {/* Signatory & Acknowledgement Details */}
               <div style={{ background: '#ffffff', padding: '20px', borderRadius: 12, border: '1px solid #e2e8f0' }}>
                 <h4 style={{ margin: '0 0 16px', fontSize: '0.95rem', fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -1166,8 +1294,26 @@ export const PromotionLetterModal: React.FC<PromotionLetterModalProps> = ({
                   </div>
 
                   {/* Opening Statement */}
-                  <p style={{ margin: '0 0 14px 0', textAlign: 'justify', fontSize: '9.5pt' }}>
-                    We are pleased to inform you that, in recognition of your performance and contribution to Tasknera, you have been promoted with effect from {renderHighlighted(effectiveDate)} (the &ldquo;<strong>Effective Date</strong>&rdquo;). The details are as follows:
+                  <p
+                    contentEditable={true}
+                    suppressContentEditableWarning={true}
+                    onBlur={(e) => setCustomOpeningPara(e.currentTarget.innerText)}
+                    title="Click to edit this paragraph directly"
+                    style={{
+                      margin: '0 0 14px 0',
+                      textAlign: 'justify',
+                      fontSize: '9.5pt',
+                      padding: '2px 4px',
+                      borderRadius: 4,
+                      outline: 'none',
+                      cursor: 'text',
+                    }}
+                  >
+                    {customOpeningPara !== '' ? customOpeningPara : (
+                      <>
+                        We are pleased to inform you that, in recognition of your performance and contribution to Tasknera, you have been promoted with effect from {renderHighlighted(effectiveDate)} (the &ldquo;<strong>Effective Date</strong>&rdquo;). The details are as follows:
+                      </>
+                    )}
                   </p>
 
                   {/* Particulars Table matching PDF */}
@@ -1247,28 +1393,76 @@ export const PromotionLetterModal: React.FC<PromotionLetterModalProps> = ({
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 9, fontSize: '9pt', color: '#1e293b', textAlign: 'justify' }}>
                     <div style={{ display: 'flex', gap: 6, alignItems: 'flex-start' }}>
                       <span style={{ fontWeight: 700, flexShrink: 0 }}>1.</span>
-                      <div>
-                        <strong>Role and responsibilities.</strong> Your new role carries the responsibilities of {renderHighlighted(roleResponsibilitiesDescription)}. Further details will be shared by your reporting manager.
+                      <div
+                        contentEditable={true}
+                        suppressContentEditableWarning={true}
+                        onBlur={(e) => setCustomClause1(e.currentTarget.innerText)}
+                        title="Click to edit this clause directly"
+                        style={{ padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text', flex: 1 }}
+                      >
+                        {customClause1 !== '' ? customClause1 : (
+                          <>
+                            <strong>Role and responsibilities.</strong> Your new role carries the responsibilities of {renderHighlighted(roleResponsibilitiesDescription)}. Further details will be shared by your reporting manager.
+                          </>
+                        )}
                       </div>
                     </div>
 
                     <div style={{ display: 'flex', gap: 6, alignItems: 'flex-start' }}>
                       <span style={{ fontWeight: 700, flexShrink: 0 }}>2.</span>
-                      <div>
-                        <strong>Compensation.</strong> Your revised compensation is stated above and is subject to deductions and withholdings required by applicable law and Company policy.
+                      <div
+                        contentEditable={true}
+                        suppressContentEditableWarning={true}
+                        onBlur={(e) => setCustomClause2(e.currentTarget.innerText)}
+                        title="Click to edit this clause directly"
+                        style={{ padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text', flex: 1 }}
+                      >
+                        {customClause2 !== '' ? customClause2 : (
+                          <>
+                            <strong>Compensation.</strong> Your revised compensation is stated above and is subject to deductions and withholdings required by applicable law and Company policy.
+                          </>
+                        )}
                       </div>
                     </div>
 
                     <div style={{ display: 'flex', gap: 6, alignItems: 'flex-start' }}>
                       <span style={{ fontWeight: 700, flexShrink: 0 }}>3.</span>
-                      <div>
-                        <strong>Other terms.</strong> All other terms and conditions of your employment, as set out in your appointment letter and Company policies, remain unchanged and continue to apply to you in your new role.
+                      <div
+                        contentEditable={true}
+                        suppressContentEditableWarning={true}
+                        onBlur={(e) => setCustomClause3(e.currentTarget.innerText)}
+                        title="Click to edit this clause directly"
+                        style={{ padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text', flex: 1 }}
+                      >
+                        {customClause3 !== '' ? customClause3 : (
+                          <>
+                            <strong>Other terms.</strong> All other terms and conditions of your employment, as set out in your appointment letter and Company policies, remain unchanged and continue to apply to you in your new role.
+                          </>
+                        )}
                       </div>
                     </div>
                   </div>
 
-                  <p style={{ margin: '12px 0 16px 0', fontSize: '9pt', textAlign: 'justify' }}>
-                    Congratulations on your promotion. We wish you continued success. Please sign and return a copy of this letter as acknowledgement.
+                  <p
+                    contentEditable={true}
+                    suppressContentEditableWarning={true}
+                    onBlur={(e) => setCustomClosingPara(e.currentTarget.innerText)}
+                    title="Click to edit this paragraph directly"
+                    style={{
+                      margin: '12px 0 16px 0',
+                      fontSize: '9pt',
+                      textAlign: 'justify',
+                      padding: '2px 4px',
+                      borderRadius: 4,
+                      outline: 'none',
+                      cursor: 'text',
+                    }}
+                  >
+                    {customClosingPara !== '' ? customClosingPara : (
+                      <>
+                        Congratulations on your promotion. We wish you continued success. Please sign and return a copy of this letter as acknowledgement.
+                      </>
+                    )}
                   </p>
 
                   {/* Signatory & Employee Acknowledgement */}
