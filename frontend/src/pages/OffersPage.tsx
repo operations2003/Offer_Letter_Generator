@@ -191,7 +191,6 @@ export const OffersPage: React.FC = () => {
   const [paymentReminderSectionPulse, setPaymentReminderSectionPulse] = useState(false);
   const [taxInvoiceSectionPulse, setTaxInvoiceSectionPulse] = useState(false);
   const [orderFormSectionPulse, setOrderFormSectionPulse] = useState(false);
-  const [assetHandoverSectionPulse, setAssetHandoverSectionPulse] = useState(false);
   const [leaveApprovalSectionPulse, setLeaveApprovalSectionPulse] = useState(false);
   const [fnfSectionPulse, setFnfSectionPulse] = useState(false);
   const [exitChecklistSectionPulse, setExitChecklistSectionPulse] = useState(false);
@@ -1043,7 +1042,6 @@ export const OffersPage: React.FC = () => {
             { key: 'ALL', label: 'All', count: documentCards.length + certificateCards.length + allPoliciesList.length + 1 },
             { key: 'TEMPLATES', label: 'Templates', count: documentCards.length },
             { key: 'EMPLOYEE_INFO_FORM', label: 'Employee Info Form', count: 1, icon: <UserPlus size={13} /> },
-            { key: 'ASSET_HANDOVER', label: 'Asset Handover', count: 1, icon: <Laptop size={13} /> },
             { key: 'LEAVE_APPROVAL', label: 'Leave Approval', count: 1, icon: <CalendarCheck size={13} /> },
             { key: 'INTERNSHIP_EXTENSION', label: 'Internship Extension', count: 1, icon: <GraduationCap size={13} /> },
             { key: 'PROMOTION', label: 'Promotion Letter', count: 1, icon: <Award size={13} /> },
@@ -1070,13 +1068,6 @@ export const OffersPage: React.FC = () => {
                       el.scrollIntoView({ behavior: 'smooth', block: 'start' });
                       setEmployeeInfoSectionPulse(true);
                       setTimeout(() => setEmployeeInfoSectionPulse(false), 2400);
-                    }
-                  } else if (tab.key === 'ASSET_HANDOVER') {
-                    const el = document.getElementById('asset-handover-section');
-                    if (el) {
-                      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                      setAssetHandoverSectionPulse(true);
-                      setTimeout(() => setAssetHandoverSectionPulse(false), 2400);
                     }
                   } else if (tab.key === 'LEAVE_APPROVAL') {
                     const el = document.getElementById('leave-approval-section');
@@ -1366,229 +1357,6 @@ export const OffersPage: React.FC = () => {
                 </div>
               );
             })}
-          </div>
-        </div>
-      )}
-
-      {/* ========================================================================= */}
-      {/* 2B. ASSET HANDOVER FORM SECTION (TN/HR/AST 2-PAGE ISSUE & RETURN)         */}
-      {/* ========================================================================= */}
-      {(activeDocumentTab === 'ALL' || activeDocumentTab === 'ASSET_HANDOVER') && (
-        <div
-          id="asset-handover-section"
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 16,
-            marginTop: 6,
-            paddingTop: 10,
-            scrollMarginTop: '80px',
-            borderRadius: 14,
-            padding: '16px',
-            backgroundColor: assetHandoverSectionPulse ? 'rgba(8, 145, 178, 0.06)' : 'transparent',
-            boxShadow: assetHandoverSectionPulse ? '0 0 0 2px rgba(8, 145, 178, 0.4)' : 'none',
-            transition: 'all 0.4s ease',
-          }}
-        >
-          {/* Section Header */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#0f172a', margin: 0 }}>
-                  Asset Handover Form
-                </h3>
-                <span
-                  style={{
-                    fontSize: '0.72rem',
-                    fontWeight: 700,
-                    backgroundColor: '#ecfeff',
-                    color: '#0891b2',
-                    padding: '2px 9px',
-                    borderRadius: 12,
-                    border: '1px solid #a5f3fc',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: 4,
-                  }}
-                >
-                  <Laptop size={12} />
-                  TN/HR/AST Format &bull; 2-Page Official Form
-                </span>
-              </div>
-              <p style={{ fontSize: '0.8125rem', color: '#64748b', margin: '2px 0 0 0' }}>
-                Official 2-page Tasknera asset handover and exit return clearance form covering laptops, power adapters, corporate SIM cards, RFID cards, peripherals, IT security clearance &amp; tripartite sign-off.
-              </p>
-            </div>
-
-            <Button
-              variant="primary"
-              icon={<Laptop size={14} />}
-              onClick={() => setIsAssetHandoverModalOpen(true)}
-              style={{
-                backgroundColor: '#0891b2',
-                borderColor: '#0891b2',
-                boxShadow: '0 2px 8px rgba(8, 145, 178, 0.25)',
-                fontSize: '0.8125rem',
-                padding: '8px 16px',
-              }}
-            >
-              Generate Asset Handover Form
-            </Button>
-          </div>
-
-          {/* Feature Showcase Card */}
-          <div
-            style={{
-              backgroundColor: '#ffffff',
-              borderRadius: 12,
-              padding: '22px 24px',
-              border: '1.5px solid #a5f3fc',
-              boxShadow: '0 4px 20px rgba(8, 145, 178, 0.08)',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 16,
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
-              <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start', maxWidth: 740 }}>
-                <div
-                  style={{
-                    width: 52,
-                    height: 52,
-                    borderRadius: 12,
-                    backgroundColor: '#ecfeff',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    border: '1px solid #a5f3fc',
-                    color: '#0891b2',
-                    flexShrink: 0,
-                  }}
-                >
-                  <Laptop size={26} />
-                </div>
-                <div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-                    <h4 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#0f172a', margin: 0 }}>
-                      Asset Handover &amp; IT Return Clearance (Lifecycle Hardware Tracking)
-                    </h4>
-                    <span
-                      style={{
-                        fontSize: '0.6875rem',
-                        fontWeight: 700,
-                        padding: '2px 7px',
-                        borderRadius: 6,
-                        backgroundColor: '#ecfeff',
-                        color: '#0891b2',
-                        border: '1px solid #a5f3fc',
-                      }}
-                    >
-                      Ref: TN/HR/AST/[YYYY]/[000]
-                    </span>
-                  </div>
-                  <p style={{ fontSize: '0.84rem', color: '#475569', lineHeight: 1.5, margin: 0 }}>
-                    Dual-purpose equipment tracking document supporting both onboarding issuance (new joiners / replacements) and separation clearance (exit / transfer). Itemizes serial numbers, hardware condition, data wipe compliance, software access revocation, and tripartite sign-off across Employee, IT / Admin, and HR.
-                  </p>
-                </div>
-              </div>
-
-              <div style={{ display: 'flex', gap: 10 }}>
-                <Button
-                  variant="primary"
-                  icon={<Laptop size={14} />}
-                  onClick={() => setIsAssetHandoverModalOpen(true)}
-                  style={{
-                    backgroundColor: '#0891b2',
-                    borderColor: '#0891b2',
-                    boxShadow: '0 2px 8px rgba(8, 145, 178, 0.25)',
-                    fontSize: '0.8125rem',
-                    padding: '8px 16px',
-                  }}
-                >
-                  Open Handover Form Generator
-                </Button>
-              </div>
-            </div>
-
-            {/* Quick parameter preview pills */}
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))',
-                gap: 12,
-                marginTop: 4,
-                paddingTop: 14,
-                borderTop: '1px solid #f1f5f9',
-              }}
-            >
-              <div
-                style={{
-                  backgroundColor: '#f8fafc',
-                  padding: '10px 14px',
-                  borderRadius: 8,
-                  border: '1px solid #e2e8f0',
-                  fontSize: '0.78rem',
-                }}
-              >
-                <span style={{ fontWeight: 700, color: '#0891b2', display: 'block', marginBottom: 2 }}>
-                  1. Dual Transaction Modes
-                </span>
-                <span style={{ color: '#64748b' }}>
-                  Toggle between Issue (new joiner / replacement) and Return (exit / department transfer).
-                </span>
-              </div>
-
-              <div
-                style={{
-                  backgroundColor: '#f8fafc',
-                  padding: '10px 14px',
-                  borderRadius: 8,
-                  border: '1px solid #e2e8f0',
-                  fontSize: '0.78rem',
-                }}
-              >
-                <span style={{ fontWeight: 700, color: '#0891b2', display: 'block', marginBottom: 2 }}>
-                  2. 7-Point Hardware Table
-                </span>
-                <span style={{ color: '#64748b' }}>
-                  Laptops, chargers, SIM cards, RFID cards, peripherals, bag &amp; custom accessory tags.
-                </span>
-              </div>
-
-              <div
-                style={{
-                  backgroundColor: '#f8fafc',
-                  padding: '10px 14px',
-                  borderRadius: 8,
-                  border: '1px solid #e2e8f0',
-                  fontSize: '0.78rem',
-                }}
-              >
-                <span style={{ fontWeight: 700, color: '#0891b2', display: 'block', marginBottom: 2 }}>
-                  3. IT Security Clearance
-                </span>
-                <span style={{ color: '#64748b' }}>
-                  Verification of policy data wipe, VPN / licence revocation &amp; physical inspection.
-                </span>
-              </div>
-
-              <div
-                style={{
-                  backgroundColor: '#f8fafc',
-                  padding: '10px 14px',
-                  borderRadius: 8,
-                  border: '1px solid #e2e8f0',
-                  fontSize: '0.78rem',
-                }}
-              >
-                <span style={{ fontWeight: 700, color: '#0891b2', display: 'block', marginBottom: 2 }}>
-                  4. Tripartite Execution
-                </span>
-                <span style={{ color: '#64748b' }}>
-                  Formal 3-column sign-off for Employee, IT / Admin Representative &amp; HR Representative.
-                </span>
-              </div>
-            </div>
           </div>
         </div>
       )}
