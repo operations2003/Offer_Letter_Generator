@@ -253,46 +253,48 @@ For {{company_name}}
     code: 'EXPERIENCE_LETTER',
     category: 'Experience Letter',
     name: 'Official Tasknera Experience Letter',
-    description: 'Attests employee tenure, designation history, duties executed, and conduct record on Tasknera letterhead.',
+    description: 'Attests employee tenure, designation history, key responsibilities, and conduct record on Tasknera letterhead.',
     supportedFormats: ['PDF', 'DOCX'],
     defaultDocxAvailable: true,
     requiredEmployeePlaceholders: ['employee_name', 'employee_id', 'designation', 'department', 'joining_date'],
     docSpecificFields: [
       { key: 'last_working_date', label: 'Last Working Day', type: 'date' },
-      { key: 'department_support', label: 'Departments/Teams Supported', type: 'string', defaultValue: 'the Operations Department' },
-      { key: 'primary_function', label: 'Primary Function/Department', type: 'string', defaultValue: 'Operations' },
-      { key: 'ta_duties', label: 'Primary Function Contributions', type: 'textarea', defaultValue: 'core operational workflows, task coordination, quality maintenance, and supporting key deliverables as assigned.' },
-      { key: 'secondary_function', label: 'Secondary Function/Department', type: 'string', defaultValue: 'Cross-Functional Support' },
-      { key: 'ld_duties', label: 'Secondary Function Contributions', type: 'textarea', defaultValue: 'process documentation, research, and assisting with special team initiatives.' },
-      { key: 'conduct_summary', label: 'Conduct & Qualities', type: 'string', defaultValue: 'professionalism, sincerity, adaptability, willingness to learn, teamwork, and responsibility' },
+      { key: 'tenure_contribution_overview', label: 'Tenure Contribution Overview', type: 'textarea', defaultValue: "the development and enhancement of the company's software solutions, particularly in the areas of Human Resource Management Systems (HRMS), Applicant Tracking Systems (ATS), recruitment automation, and business application development." },
+      { key: 'key_responsibilities', label: 'Key Responsibilities', type: 'textarea', defaultValue: "Developing and enhancing HRMS modules and functionalities.\nContributing to the development of HireIQ, an AI-powered Applicant Tracking System (ATS), including resume parsing, candidate screening, and job description matching.\nDeveloping email automation functionalities for recruitment and business communication.\nBuilding automated document generation functionalities, including offer letters, experience letters, and certificates.\nDeveloping and maintaining company website components and application interfaces.\nWorking on frontend and backend integration, database management, API development, and application functionality.\nSupporting the Talent Acquisition (TA) Team with recruitment-related activities and process improvements.\nContributing to research, preparation, and development of training materials for Learning & Development (L&D) initiatives." },
+      { key: 'conduct_summary', label: 'Conduct & Qualities', type: 'string', defaultValue: 'professionalism, technical aptitude, sincerity, adaptability, teamwork, willingness to learn, and responsibility' },
       { key: 'signatory_name', label: 'Signatory Name', type: 'string', defaultValue: 'Sheetal Bedi' },
       { key: 'signatory_title', label: 'Signatory Title', type: 'string', defaultValue: 'Chief Executive Officer' },
     ],
     contentMarkup: `Ref: {{reference_number}}    Date: {{issue_date}}
 
 EXPERIENCE LETTER
-To Whomsoever It May Concern
+To Whom It May Concern
 
-This is to certify that {{salutation}} {{employee_name}} was associated with Tasknera HR Solutions as a {{designation}} from {{joining_date}} to {{last_working_date}}.
+This is to certify that {{salutation}} {{employee_name}} was associated with Tasknera HR Solutions as a {{designation}} from {{joining_date}}, to {{last_working_date}}.
 
-During their tenure with the organization, they supported {{department_support}}.
+During their tenure with the organization, they contributed to {{tenure_contribution_overview}}
 
-As part of the {{primary_function}} function, they assisted with {{ta_duties}}
+Their key responsibilities and contributions included:
+{{key_responsibilities}}
 
-Within the {{secondary_function}} function, they contributed to {{ld_duties}}
+Throughout their association with Tasknera HR Solutions, they demonstrated {{conduct_summary}} in carrying out their assigned duties.
 
-Throughout their association with Tasknera HR Solutions, they demonstrated {{conduct_summary}} in carrying out their responsibilities.
+Their association with Tasknera HR Solutions concluded on {{last_working_date}}.
 
-Their association with Tasknera HR Solutions ended on {{last_working_date}}.
-
-We appreciate their contribution to the organization and wish them continued success and growth in all their future endeavors.
+We appreciate their contributions to the organization and wish them continued success and growth in their future professional endeavors.
 
 For Tasknera HR Solutions
 
 {{signatory_name}}
 {{signatory_title}}
+Authorized Signature: __________________
 Date: {{issue_date}}
-Place: {{place}}`,
+Place: {{place}}
+
+Registered Office:
+D-57 F1, Dilshad Colony, Shahdara, Delhi – 110095
+Email: operations@tasknera.com
+Website: https://tasknera.com`,
   },
 
   // 6. RELIEVING LETTER

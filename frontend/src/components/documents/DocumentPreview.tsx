@@ -260,6 +260,31 @@ export const DocumentPreview: React.FC<DocumentPreviewProps> = ({
   const pronounHimHer = salutation === 'Ms.' || salutation === 'Mrs.' ? 'her' : 'him';
   const designationArticle = /^[aeiou]/i.test(designation.trim()) ? 'an' : 'a';
 
+  const defaultExpContributionOverview =
+    "the development and enhancement of the company's software solutions, particularly in the areas of Human Resource Management Systems (HRMS), Applicant Tracking Systems (ATS), recruitment automation, and business application development.";
+  const defaultExpResponsibilities = [
+    'Developing and enhancing HRMS modules and functionalities.',
+    'Contributing to the development of HireIQ, an AI-powered Applicant Tracking System (ATS), including resume parsing, candidate screening, and job description matching.',
+    'Developing email automation functionalities for recruitment and business communication.',
+    'Building automated document generation functionalities, including offer letters, experience letters, and certificates.',
+    'Developing and maintaining company website components and application interfaces.',
+    'Working on frontend and backend integration, database management, API development, and application functionality.',
+    'Supporting the Talent Acquisition (TA) Team with recruitment-related activities and process improvements.',
+    'Contributing to research, preparation, and development of training materials for Learning & Development (L&D) initiatives.',
+  ];
+
+  const expContributionOverview = terms.tenureContributionOverview || defaultExpContributionOverview;
+  const expResponsibilities: string[] = useMemo(() => {
+    if (Array.isArray(terms.responsibilities) && terms.responsibilities.length > 0) {
+      return terms.responsibilities;
+    }
+    if (typeof terms.responsibilitiesText === 'string' && terms.responsibilitiesText.trim().length > 0) {
+      return terms.responsibilitiesText.split('\n').map((l: string) => l.trim()).filter(Boolean);
+    }
+    return defaultExpResponsibilities;
+  }, [terms.responsibilities, terms.responsibilitiesText]);
+  const expDemonstratedQualities = terms.demonstratedQualities || 'professionalism, technical aptitude, sincerity, adaptability, teamwork, willingness to learn, and responsibility';
+
   // =========================================================================
   // MRSA (Master Recruitment Services Agreement) Data Merging
   // =========================================================================
@@ -2243,119 +2268,107 @@ export const DocumentPreview: React.FC<DocumentPreviewProps> = ({
             <div
               style={{
                 textAlign: 'center',
-                fontSize: '1.05rem',
+                fontSize: '1rem',
                 fontStyle: 'italic',
                 fontWeight: 700,
                 color: '#0f172a',
-                marginBottom: 24,
+                marginBottom: 16,
                 fontFamily: 'Georgia, "Times New Roman", Times, serif',
               }}
             >
-              To Whomsoever It May Concern
+              To Whom It May Concern
             </div>
 
-            {/* Body Paragraphs matching PDF template exactly */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 14, textAlign: 'justify' }}>
+            {/* Body Paragraphs matching user requested format */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 9, textAlign: 'justify' }}>
               <p style={{ margin: 0 }}>
-                This is to certify that {salutation} {fullName} was associated with Tasknera HR Solutions as {/^[aeiou]/i.test((designation || '').trim()) ? 'an' : 'a'} {designation} from {startDate} to {endDate}.
+                This is to certify that {salutation} {fullName} was associated with Tasknera HR Solutions as {designationArticle} {designation} from {startDate}, to {endDate}.
               </p>
 
               <p style={{ margin: 0 }}>
-                During {pronounHisHer} tenure with the organization, {pronounHeShe} supported {terms.departmentSupport || 'the designated department'}.
+                During {pronounHisHer} tenure with the organization, {pronounHeShe} contributed to {expContributionOverview}
+              </p>
+
+              <p style={{ margin: '2px 0 0', fontWeight: 600 }}>
+                {pronounHisHerCap} key responsibilities and contributions included:
+              </p>
+
+              <ul style={{ margin: '2px 0', paddingLeft: 20, display: 'flex', flexDirection: 'column', gap: 3 }}>
+                {expResponsibilities.map((resp, idx) => (
+                  <li key={idx} style={{ lineHeight: 1.38 }}>
+                    {resp}
+                  </li>
+                ))}
+              </ul>
+
+              <p style={{ margin: 0 }}>
+                Throughout {pronounHisHer} association with Tasknera HR Solutions, {pronounHeShe} demonstrated {expDemonstratedQualities} in carrying out {pronounHisHer} assigned duties.
               </p>
 
               <p style={{ margin: 0 }}>
-                As part of {pronounHisHer} {terms.primaryFunctionName ? `${terms.primaryFunctionName} function` : 'role and assigned responsibilities'}, {pronounHeShe} assisted with {terms.taDuties || 'executing core operational workflows, task coordination, and supporting key deliverables as assigned.'}
-              </p>
-
-              {terms.ldDuties && (
-                <p style={{ margin: 0 }}>
-                  Within the {terms.secondaryFunctionName ? `${terms.secondaryFunctionName} function` : 'cross-functional domain'}, {pronounHeShe} contributed to {terms.ldDuties}
-                </p>
-              )}
-
-              <p style={{ margin: 0 }}>
-                Throughout {pronounHisHer} association with Tasknera HR Solutions, {pronounHeShe} demonstrated {demonstratedQualities} in carrying out {pronounHisHer} responsibilities.
+                {pronounHisHerCap} association with Tasknera HR Solutions {statusMode === 'ended' ? `concluded on ${endDate}.` : 'is continuing as on the date of this letter.'}
               </p>
 
               <p style={{ margin: 0 }}>
-                {pronounHisHerCap} association with Tasknera HR Solutions {statusMode === 'ended' ? `ended on ${endDate}.` : 'is continuing as on the date of this letter.'}
-              </p>
-
-              <p style={{ margin: 0 }}>
-                We appreciate {pronounHisHer} contribution to the organization and wish {pronounHimHer} continued success and growth in all {pronounHisHer} future endeavors.
+                We appreciate {pronounHisHer} contributions to the organization and wish {pronounHimHer} continued success and growth in {pronounHisHer} future professional endeavors.
               </p>
             </div>
 
-            {/* Signatory Section with Authentic Sheetal Bedi Signature */}
-            <div style={{ marginTop: 24, fontFamily: "'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif" }}>
-              <div style={{ fontWeight: 700, fontSize: '0.96rem', color: '#0f2a5c', marginBottom: 2 }}>
+            {/* Signatory Section */}
+            <div style={{ marginTop: 14, fontFamily: "'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif" }}>
+              <div style={{ fontWeight: 700, fontSize: '0.92rem', color: '#0f2a5c', marginBottom: 2 }}>
                 For Tasknera HR Solutions
               </div>
-              <div style={{ margin: '2px 0 2px -4px', minHeight: 90, display: 'flex', alignItems: 'center' }}>
+              <div style={{ margin: '0 0 0 -4px', minHeight: 56, display: 'flex', alignItems: 'center' }}>
                 <img
                   src={SHEETAL_BEDI_SIGNATURE_DATA_URL}
                   alt="Sheetal Bedi Signature"
                   style={{
-                    width: 110,
+                    width: 95,
                     height: 'auto',
                     display: 'block',
                     objectFit: 'contain',
                   }}
                 />
               </div>
-              <div style={{ fontWeight: 700, fontSize: '1.02rem', color: '#0f2a5c', lineHeight: 1.25 }}>
+              <div style={{ fontWeight: 700, fontSize: '0.96rem', color: '#0f2a5c', lineHeight: 1.25 }}>
                 {signatoryName}
               </div>
-              <div style={{ fontSize: '0.9rem', color: '#334155', fontWeight: 400, marginBottom: 14 }}>
+              <div style={{ fontSize: '0.84rem', color: '#334155', fontWeight: 500, marginBottom: 5 }}>
                 {signatoryTitle || 'Chief Executive Officer'}
               </div>
-              <div style={{ fontSize: '0.9rem', color: '#1e293b', lineHeight: 1.5 }}>
-                <span style={{ fontWeight: 700 }}>Date:</span>{' '}
+              <div style={{ fontSize: '0.84rem', color: '#1e293b', marginBottom: 5 }}>
+                <span style={{ fontWeight: 600 }}>Authorized Signature: </span>
+                <span style={{ color: '#64748b' }}>__________________</span>
+              </div>
+              <div style={{ fontSize: '0.84rem', color: '#1e293b', lineHeight: 1.4 }}>
+                <span style={{ fontWeight: 600 }}>Date:</span>{' '}
                 <span style={{ color: '#334155' }}>{issueDate || '14/09/2026'}</span>
               </div>
-              <div style={{ fontSize: '0.9rem', color: '#1e293b', lineHeight: 1.5 }}>
-                <span style={{ fontWeight: 700 }}>Place:</span>{' '}
+              <div style={{ fontSize: '0.84rem', color: '#1e293b', lineHeight: 1.4 }}>
+                <span style={{ fontWeight: 600 }}>Place:</span>{' '}
                 <span style={{ color: '#334155' }}>{place || 'Delhi'}</span>
               </div>
             </div>
           </div>
 
-          {/* Footer with Contact Bar and Geometric Corner Shape */}
-          <div style={{ marginTop: 44, paddingTop: 14, borderTop: '1px solid #cbd5e1', position: 'relative' }}>
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: 14,
-                fontSize: '0.75rem',
-                color: '#334155',
-                fontFamily: 'system-ui, -apple-system, sans-serif',
-                flexWrap: 'wrap',
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                <MapPin size={13} style={{ color: '#0284c7' }} />
-                <span>D-57 F1, Dilshad Colony Shahdara, Delhi 110095</span>
-              </div>
-              <span style={{ color: '#94a3b8' }}>|</span>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                <Mail size={13} style={{ color: '#0284c7' }} />
-                <span>operations@tasknera.com</span>
-              </div>
-              <span style={{ color: '#94a3b8' }}>|</span>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                <Globe size={13} style={{ color: '#0284c7' }} />
-                <span>https://tasknera.com</span>
+          {/* Footer with Registered Office Address */}
+          <div style={{ marginTop: 16, paddingTop: 8, borderTop: '1px solid #cbd5e1', position: 'relative' }}>
+            <div style={{ fontSize: '0.72rem', color: '#334155', lineHeight: 1.4, fontFamily: 'system-ui, -apple-system, sans-serif' }}>
+              <div style={{ fontWeight: 700, color: '#0f2238', marginBottom: 1 }}>Registered Office:</div>
+              <div>D-57 F1, Dilshad Colony, Shahdara, Delhi – 110095</div>
+              <div>
+                Email: <a href="mailto:operations@tasknera.com" style={{ color: '#0284c7', textDecoration: 'none' }}>operations@tasknera.com</a>
+                {' '}|{' '}
+                Website: <a href="https://tasknera.com" target="_blank" rel="noopener noreferrer" style={{ color: '#0284c7', textDecoration: 'none' }}>https://tasknera.com</a>
               </div>
             </div>
 
             {/* Corner Accent Graphic */}
-            <div style={{ position: 'absolute', right: -56, bottom: -40, width: 140, height: 36, pointerEvents: 'none', overflow: 'hidden' }}>
-              <svg width="140" height="36" viewBox="0 0 140 36" fill="none">
-                <polygon points="35,36 60,0 140,0 140,16" fill="#f97316" />
-                <polygon points="55,36 80,0 140,0 140,36" fill="#0f2a5c" />
+            <div style={{ position: 'absolute', right: -48, bottom: -28, width: 120, height: 28, pointerEvents: 'none', overflow: 'hidden' }}>
+              <svg width="120" height="28" viewBox="0 0 120 28" fill="none">
+                <polygon points="25,28 50,0 120,0 120,12" fill="#f97316" />
+                <polygon points="50,28 75,0 120,0 120,28" fill="#0f2a5c" />
               </svg>
             </div>
           </div>

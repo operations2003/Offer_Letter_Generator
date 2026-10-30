@@ -325,28 +325,33 @@ Signatory: Katherine Ward (VP of Human Resources)`,
       content: `Ref: {{reference_number}}    Date: {{issue_date}}
 
 EXPERIENCE LETTER
-To Whomsoever It May Concern
+To Whom It May Concern
 
-This is to certify that {{salutation}} {{employee_name}} was associated with Tasknera HR Solutions as a {{designation}} from {{date_of_joining}} to {{last_working_date}}.
+This is to certify that {{salutation}} {{employee_name}} was associated with Tasknera HR Solutions as a {{designation}} from {{date_of_joining}}, to {{last_working_date}}.
 
-During their tenure with the organization, they supported {{department_support}}.
+During their tenure with the organization, they contributed to {{tenure_contribution_overview}}
 
-As part of the {{primary_function}} function, they assisted with {{ta_duties}}.
+Their key responsibilities and contributions included:
+{{key_responsibilities}}
 
-Within the {{secondary_function}} function, they contributed to {{ld_duties}}.
+Throughout their association with Tasknera HR Solutions, they demonstrated {{demonstrated_qualities}} in carrying out their assigned duties.
 
-Throughout their association with Tasknera HR Solutions, they demonstrated {{demonstrated_qualities}} in carrying out their responsibilities.
+Their association with Tasknera HR Solutions concluded on {{last_working_date}}.
 
-Their association with Tasknera HR Solutions ended on {{last_working_date}}.
-
-We appreciate their contribution to the organization and wish them continued success and growth in all their future endeavors.
+We appreciate their contributions to the organization and wish them continued success and growth in their future professional endeavors.
 
 For Tasknera HR Solutions
 
 {{signatory_name}}
 {{signatory_title}}
+Authorized Signature: __________________
 Date: {{issue_date}}
-Place: {{place}}`,
+Place: {{place}}
+
+Registered Office:
+D-57 F1, Dilshad Colony, Shahdara, Delhi – 110095
+Email: operations@tasknera.com
+Website: https://tasknera.com`,
       sampleInputText: `SERVICE RECORD ARCHIVE:
 Employee: Maya Lin (Emp ID: EMP-55018) | maya.lin@alumni.org
 Designation: Principal Product Designer | Department: User Experience & Design
