@@ -86,8 +86,8 @@ export const InternshipConcludingModal: React.FC<InternshipConcludingModalProps>
   const [salutationPrefix, setSalutationPrefix] = useState<string>('Dear');
   const [internSalutation, setInternSalutation] = useState<string>('Rohan');
   const [internId, setInternId] = useState<string>('INT-2026-042');
-  const [internshipRole, setInternshipRole] = useState<string>('Talent Acquisition & Sourcing Intern');
-  const [department, setDepartment] = useState<string>('HR & Recruitment');
+  const [internshipRole, setInternshipRole] = useState<string>('Operations & Project Intern');
+  const [department, setDepartment] = useState<string>('Operations');
   const [contactAddress, setContactAddress] = useState<string>(
     'Flat 102, Green Meadows, Koramangala, Bangalore – 560034 | rohan.verma@example.com'
   );
@@ -97,7 +97,7 @@ export const InternshipConcludingModal: React.FC<InternshipConcludingModalProps>
   const [lastWorkingDay, setLastWorkingDay] = useState<string>(() => formatDateString(new Date()));
   const [duration, setDuration] = useState<string>('3 months');
   const [workDescription, setWorkDescription] = useState<string>(
-    'candidate sourcing, initial resume screening, interview coordination, and ATS pipeline tracking'
+    'project deliverables, operational coordination, workflow documentation, and task execution'
   );
   const [performanceConductNote, setPerformanceConductNote] = useState<string>(
     'Your dedication, proactive initiative, and consistent professionalism were deeply appreciated by the team.'

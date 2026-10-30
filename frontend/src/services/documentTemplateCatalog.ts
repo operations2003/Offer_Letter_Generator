@@ -331,9 +331,9 @@ This is to certify that {{salutation}} {{employee_name}} was associated with Tas
 
 During their tenure with the organization, they supported {{department_support}}.
 
-As part of the Talent Acquisition function, they assisted with {{ta_duties}}.
+As part of the {{primary_function}} function, they assisted with {{ta_duties}}.
 
-Within the Learning & Development function, they contributed to {{ld_duties}}.
+Within the {{secondary_function}} function, they contributed to {{ld_duties}}.
 
 Throughout their association with Tasknera HR Solutions, they demonstrated {{demonstrated_qualities}} in carrying out their responsibilities.
 

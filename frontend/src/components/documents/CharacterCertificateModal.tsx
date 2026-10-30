@@ -65,7 +65,7 @@ export const CharacterCertificateModal: React.FC<CharacterCertificateModalProps>
   const [salutation, setSalutation] = useState<'Mr.' | 'Ms.' | 'Dr.'>('Ms.');
   const [fullName, setFullName] = useState<string>('Edwina Zephra Gomes');
   const [designation, setDesignation] = useState<string>('HR Intern');
-  const [department, setDepartment] = useState<string>('Talent Acquisition and Learning and Development (L&D)');
+  const [department, setDepartment] = useState<string>('Operations');
   const [associationType, setAssociationType] = useState<'employment' | 'internship'>('internship');
   const [genderPronoun, setGenderPronoun] = useState<'male' | 'female'>('female');
 
@@ -78,10 +78,10 @@ export const CharacterCertificateModal: React.FC<CharacterCertificateModalProps>
 
   // Custom Content Fields (Matching official Tasknera Character Certificate)
   const [ldAssistance, setLdAssistance] = useState<string>(
-    'assisted the Learning & Development Department in various activities, particularly in the research, development, structuring, and preparation of training modules and learning materials for the organization'
+    'assisted the department in operational activities, workflow documentation, and preparation of deliverables for the organization'
   );
   const [taExperience, setTaExperience] = useState<string>(
-    'gained hands-on experience as a member of the Talent Acquisition team, supporting candidate sourcing and screening, coordinating interview schedules, and assisting with various stages of the end-to-end recruitment process'
+    'gained hands-on experience in cross-functional coordination, task execution, and supporting key milestones across projects'
   );
   const [demonstratedQualities, setDemonstratedQualities] = useState<string>(
     'demonstrated a professional attitude, sincerity, discipline, willingness to learn, and a responsible approach toward assigned responsibilities. She maintained professional conduct while working with the team and showed a positive attitude toward feedback and continuous improvement.'
@@ -932,7 +932,7 @@ export const CharacterCertificateModal: React.FC<CharacterCertificateModalProps>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 16 }}>
                   <div>
                     <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: '#475569', marginBottom: 4 }}>
-                      Learning & Development Assistance (Paragraph 2)
+                      Core Department Contributions & Assistance (Paragraph 2)
                     </label>
                     <textarea
                       rows={2}
@@ -945,7 +945,7 @@ export const CharacterCertificateModal: React.FC<CharacterCertificateModalProps>
 
                   <div>
                     <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: '#475569', marginBottom: 4 }}>
-                      Talent Acquisition Team Experience (Paragraph 3)
+                      Additional / Cross-Functional Experience (Paragraph 3)
                     </label>
                     <textarea
                       rows={2}
@@ -1245,7 +1245,7 @@ export const CharacterCertificateModal: React.FC<CharacterCertificateModalProps>
                     </p>
 
                     <p contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this paragraph directly" style={{ margin: 0, padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}>
-                      We appreciate {hl(pronounHisHer)} contribution to the Talent Acquisition and L&D functions and wish {hl(pronounHimHer)} success and growth in their future {hl(futureEndeavours)} endeavors.
+                      We appreciate {hl(pronounHisHer)} contribution to the organization and wish {hl(pronounHimHer)} success and growth in their future {hl(futureEndeavours)} endeavors.
                     </p>
 
                     <p contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this paragraph directly" style={{ margin: 0, padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}>

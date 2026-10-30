@@ -222,17 +222,17 @@ export const DocumentPreview: React.FC<DocumentPreviewProps> = ({
   const startDate = terms.startDate || 'October 2, 2026';
   const endDate = terms.endDate || 'September 30, 2026';
   const statusMode = terms.statusMode || 'ended';
-  const areaOfWork = terms.areaOfWork || 'talent acquisition, process automation, and HR operations';
+  const areaOfWork = terms.areaOfWork || 'operational workflows, task coordination, and project execution';
   const responsibilityLevel = terms.responsibilityLevel || 'was responsible for';
   const keyResponsibilities =
     terms.keyResponsibilities ||
     'candidate sourcing, technical screening coordination, employee lifecycle maintenance, and compliance documentation';
   const ldAssistance =
     terms.ldAssistance ||
-    'assisted the Learning & Development Department in various activities, particularly in the research, development, structuring, and preparation of training modules and learning materials for the organization';
+    'assisted the department in operational activities, workflow documentation, and project coordination';
   const taExperience =
     terms.taExperience ||
-    'gained hands-on experience as a member of the Talent Acquisition team, supporting candidate sourcing and screening, coordinating interview schedules, and assisting with various stages of the end-to-end recruitment process';
+    'gained hands-on experience in cross-functional coordination, task execution, and supporting key deliverables';
   const demonstratedQualities =
     terms.demonstratedQualities ||
     'demonstrated a professional attitude, sincerity, discipline, willingness to learn, and a responsible approach toward assigned responsibilities. She maintained professional conduct while working with the team and showed a positive attitude toward feedback and continuous improvement.';
@@ -2033,7 +2033,7 @@ export const DocumentPreview: React.FC<DocumentPreviewProps> = ({
               </p>
 
               <p style={{ margin: 0 }}>
-                We appreciate {pronounHisHer} contribution to the Talent Acquisition and L&D functions and wish {pronounHimHer} success and growth in their future {futureEndeavours} endeavors.
+                We appreciate {pronounHisHer} contribution to the {terms.department ? `${terms.department} function` : "organization"} and wish {pronounHimHer} success and growth in their future {futureEndeavours} endeavors.
               </p>
 
               <p style={{ margin: 0 }}>
@@ -2261,16 +2261,18 @@ export const DocumentPreview: React.FC<DocumentPreviewProps> = ({
               </p>
 
               <p style={{ margin: 0 }}>
-                During {pronounHisHer} tenure with the organization, {pronounHeShe} supported {terms.departmentSupport || 'the Talent Acquisition (TA) Team and the Learning & Development (L&D) Department'}.
+                During {pronounHisHer} tenure with the organization, {pronounHeShe} supported {terms.departmentSupport || 'the designated department'}.
               </p>
 
               <p style={{ margin: 0 }}>
-                As part of the Talent Acquisition function, {pronounHeShe} assisted with {terms.taDuties || 'candidate sourcing and screening, recruitment coordination, maintaining candidate records, and supported other talent acquisition activities as assigned.'}
+                As part of {pronounHisHer} {terms.primaryFunctionName ? `${terms.primaryFunctionName} function` : 'role and assigned responsibilities'}, {pronounHeShe} assisted with {terms.taDuties || 'executing core operational workflows, task coordination, and supporting key deliverables as assigned.'}
               </p>
 
-              <p style={{ margin: 0 }}>
-                Within the Learning &amp; Development function, {pronounHeShe} contributed to {terms.ldDuties || 'the research, preparation, structuring, and development of training modules and learning materials for internal L&D initiatives.'}
-              </p>
+              {terms.ldDuties && (
+                <p style={{ margin: 0 }}>
+                  Within the {terms.secondaryFunctionName ? `${terms.secondaryFunctionName} function` : 'cross-functional domain'}, {pronounHeShe} contributed to {terms.ldDuties}
+                </p>
+              )}
 
               <p style={{ margin: 0 }}>
                 Throughout {pronounHisHer} association with Tasknera HR Solutions, {pronounHeShe} demonstrated {demonstratedQualities} in carrying out {pronounHisHer} responsibilities.

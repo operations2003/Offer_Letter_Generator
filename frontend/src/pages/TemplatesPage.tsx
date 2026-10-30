@@ -863,9 +863,9 @@ This is to certify that {{honorific}} {{candidate_name}} was associated with {{c
 
 During {{possessive_pronoun}} tenure with the organization, {{pronoun}} supported the {{department_support}}.
 
-As part of the Talent Acquisition function, {{pronoun}} {{ta_duties}}.
+As part of the {{primary_function}} function, {{pronoun}} {{ta_duties}}.
 
-Within the Learning & Development function, {{pronoun}} {{ld_duties}}.
+Within the {{secondary_function}} function, {{pronoun}} {{ld_duties}}.
 
 Throughout {{possessive_pronoun}} association with {{company_name}}, {{pronoun}} demonstrated {{conduct_summary}}.
 
@@ -890,9 +890,11 @@ Place: {{signatory_place}}`,
       issue_date: '14/09/2026',
       job_title: 'HR Intern',
       department: 'Human Resources',
-      department_support: 'Talent Acquisition (TA) Team and the Learning & Development (L&D) Department',
-      ta_duties: 'assisted with candidate sourcing and screening, recruitment coordination, maintaining candidate records, and supported other talent acquisition activities as assigned',
-      ld_duties: 'contributed to the research, preparation, structuring, and development of training modules and learning materials for internal L&D initiatives',
+      department_support: 'Operations and Platform Engineering',
+      primary_function: 'Operations',
+      ta_duties: 'assisted with core workflows, project coordination, maintaining records, and supported key deliverables as assigned',
+      secondary_function: 'Cross-Functional Support',
+      ld_duties: 'process documentation, research, and assisting with special team initiatives',
       conduct_summary: 'professionalism, sincerity, adaptability, willingness to learn, teamwork, and responsibility in carrying out her responsibilities',
       joining_date: 'August 06, 2026',
       end_date: 'September 14, 2026',

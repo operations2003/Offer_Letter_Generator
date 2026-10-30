@@ -79,14 +79,15 @@ export const ExperienceLetterModal: React.FC<ExperienceLetterModalProps> = ({
   const [statusMode, setStatusMode] = useState<'ended' | 'continuing'>('ended');
 
   // Specific functions & contributions matching official Tasknera Experience Letter
-  const [departmentSupport, setDepartmentSupport] = useState<string>(
-    'the Talent Acquisition (TA) Team and the Learning & Development (L&D) Department'
-  );
+  const [departmentSupport, setDepartmentSupport] = useState<string>('the Operations Department');
+  const [primaryFunctionName, setPrimaryFunctionName] = useState<string>('Operations');
+  const [hasSecondaryFunction, setHasSecondaryFunction] = useState<boolean>(true);
+  const [secondaryFunctionName, setSecondaryFunctionName] = useState<string>('Cross-Functional Support');
   const [taDuties, setTaDuties] = useState<string>(
-    'candidate sourcing and screening, recruitment coordination, maintaining candidate records, and supported other talent acquisition activities as assigned.'
+    'core operational workflows, task coordination, quality maintenance, and supporting key deliverables as assigned.'
   );
   const [ldDuties, setLdDuties] = useState<string>(
-    'the research, preparation, structuring, and development of training modules and learning materials for internal L&D initiatives.'
+    'process documentation, research, and assisting with special team initiatives.'
   );
   const [demonstratedQualities, setDemonstratedQualities] = useState<string>(
     'professionalism, sincerity, adaptability, willingness to learn, teamwork, and responsibility'
@@ -126,7 +127,11 @@ export const ExperienceLetterModal: React.FC<ExperienceLetterModalProps> = ({
     setSelectedEmployeeId(emp.id);
     setFullName(emp.fullName || 'Employee');
     if (emp.designation) setDesignation(emp.designation);
-    if (emp.department) setDepartment(emp.department);
+    if (emp.department) {
+      setDepartment(emp.department);
+      setDepartmentSupport(`the ${emp.department} Department`);
+      setPrimaryFunctionName(emp.department);
+    }
 
     if (emp.joiningDate) {
       try {
@@ -342,6 +347,9 @@ export const ExperienceLetterModal: React.FC<ExperienceLetterModalProps> = ({
             endDate,
             statusMode,
             departmentSupport,
+            primaryFunctionName,
+            secondaryFunctionName,
+            hasSecondaryFunction,
             taDuties,
             ldDuties,
             demonstratedQualities,
@@ -839,37 +847,87 @@ export const ExperienceLetterModal: React.FC<ExperienceLetterModalProps> = ({
                       className="form-input"
                       value={departmentSupport}
                       onChange={(e) => setDepartmentSupport(e.target.value)}
-                      placeholder="e.g. the Talent Acquisition (TA) Team and the Learning & Development (L&D) Department"
+                      placeholder="e.g. the Operations Team / Engineering Department"
                       style={{ fontSize: '0.8125rem' }}
                     />
                   </div>
 
-                  <div>
-                    <label className="form-label" style={{ fontSize: '0.78rem', fontWeight: 700 }}>
-                      Primary Function Contributions (Paragraph 3 - Talent Acquisition)
-                    </label>
-                    <textarea
-                      rows={2}
-                      className="form-input"
-                      value={taDuties}
-                      onChange={(e) => setTaDuties(e.target.value)}
-                      placeholder="e.g. candidate sourcing and screening, recruitment coordination, maintaining candidate records, and supported other talent acquisition activities as assigned."
-                      style={{ fontSize: '0.8125rem' }}
-                    />
+                  {/* Primary Function & Deliverables */}
+                  <div style={{ backgroundColor: '#f8fafc', padding: 12, borderRadius: 8, border: '1px solid #e2e8f0' }}>
+                    <div style={{ marginBottom: 8 }}>
+                      <label className="form-label" style={{ fontSize: '0.78rem', fontWeight: 700, color: '#1e293b' }}>
+                        Primary Function / Department Name (Paragraph 3)
+                      </label>
+                      <input
+                        type="text"
+                        className="form-input"
+                        value={primaryFunctionName}
+                        onChange={(e) => setPrimaryFunctionName(e.target.value)}
+                        placeholder="e.g. Operations, Software Engineering, Talent Acquisition, Marketing"
+                        style={{ fontSize: '0.8125rem', backgroundColor: '#ffffff' }}
+                      />
+                    </div>
+                    <div>
+                      <label className="form-label" style={{ fontSize: '0.78rem', fontWeight: 700, color: '#475569' }}>
+                        Primary Role Deliverables &amp; Contributions
+                      </label>
+                      <textarea
+                        rows={2}
+                        className="form-input"
+                        value={taDuties}
+                        onChange={(e) => setTaDuties(e.target.value)}
+                        placeholder="e.g. core operational workflows, task coordination, quality maintenance, and supporting key deliverables as assigned."
+                        style={{ fontSize: '0.8125rem', backgroundColor: '#ffffff' }}
+                      />
+                    </div>
                   </div>
 
-                  <div>
-                    <label className="form-label" style={{ fontSize: '0.78rem', fontWeight: 700 }}>
-                      Secondary Function Contributions (Paragraph 4 - Learning &amp; Development)
-                    </label>
-                    <textarea
-                      rows={2}
-                      className="form-input"
-                      value={ldDuties}
-                      onChange={(e) => setLdDuties(e.target.value)}
-                      placeholder="e.g. the research, preparation, structuring, and development of training modules and learning materials for internal L&D initiatives."
-                      style={{ fontSize: '0.8125rem' }}
-                    />
+                  {/* Secondary Function & Deliverables (Optional with toggle) */}
+                  <div style={{ backgroundColor: '#f8fafc', padding: 12, borderRadius: 8, border: '1px solid #e2e8f0' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                      <label className="form-label" style={{ fontSize: '0.78rem', fontWeight: 700, color: '#1e293b', margin: 0 }}>
+                        Secondary / Additional Function (Paragraph 4)
+                      </label>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.75rem', color: '#64748b', cursor: 'pointer' }}>
+                        <input
+                          type="checkbox"
+                          checked={hasSecondaryFunction}
+                          onChange={(e) => setHasSecondaryFunction(e.target.checked)}
+                        />
+                        Include Paragraph 4
+                      </label>
+                    </div>
+
+                    {hasSecondaryFunction && (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                        <div>
+                          <label className="form-label" style={{ fontSize: '0.75rem', fontWeight: 600, color: '#475569' }}>
+                            Secondary Function / Domain Name
+                          </label>
+                          <input
+                            type="text"
+                            className="form-input"
+                            value={secondaryFunctionName}
+                            onChange={(e) => setSecondaryFunctionName(e.target.value)}
+                            placeholder="e.g. Cross-Functional Support, Learning & Development, Quality Assurance"
+                            style={{ fontSize: '0.8125rem', backgroundColor: '#ffffff' }}
+                          />
+                        </div>
+                        <div>
+                          <label className="form-label" style={{ fontSize: '0.75rem', fontWeight: 600, color: '#475569' }}>
+                            Secondary Contributions &amp; Special Initiatives
+                          </label>
+                          <textarea
+                            rows={2}
+                            className="form-input"
+                            value={ldDuties}
+                            onChange={(e) => setLdDuties(e.target.value)}
+                            placeholder="e.g. process documentation, research, and assisting with special team initiatives."
+                            style={{ fontSize: '0.8125rem', backgroundColor: '#ffffff' }}
+                          />
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   <div>
@@ -1160,12 +1218,22 @@ export const ExperienceLetterModal: React.FC<ExperienceLetterModalProps> = ({
                     </p>
 
                     <p contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this paragraph directly" style={{ margin: 0, padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}>
-                      As part of the Talent Acquisition function, {hl(pronounHeShe)} assisted with {hl(taDuties)}
+                      {primaryFunctionName ? (
+                        <>As part of the {hl(primaryFunctionName)} function, {hl(pronounHeShe)} assisted with {hl(taDuties)}</>
+                      ) : (
+                        <>As part of {hl(pronounHisHer)} role and assigned responsibilities, {hl(pronounHeShe)} assisted with {hl(taDuties)}</>
+                      )}
                     </p>
 
-                    <p contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this paragraph directly" style={{ margin: 0, padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}>
-                      Within the Learning &amp; Development function, {hl(pronounHeShe)} contributed to {hl(ldDuties)}
-                    </p>
+                    {hasSecondaryFunction && ldDuties && (
+                      <p contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this paragraph directly" style={{ margin: 0, padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}>
+                        {secondaryFunctionName ? (
+                          <>Within the {hl(secondaryFunctionName)} function, {hl(pronounHeShe)} contributed to {hl(ldDuties)}</>
+                        ) : (
+                          <>Additionally, {hl(pronounHeShe)} contributed to {hl(ldDuties)}</>
+                        )}
+                      </p>
+                    )}
 
                     <p contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this paragraph directly" style={{ margin: 0, padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}>
                       Throughout {hl(pronounHisHer)} association with Tasknera HR Solutions, {hl(pronounHeShe)} demonstrated {hl(demonstratedQualities)} in carrying out {hl(pronounHisHer)} responsibilities.

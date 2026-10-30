@@ -259,9 +259,11 @@ For {{company_name}}
     requiredEmployeePlaceholders: ['employee_name', 'employee_id', 'designation', 'department', 'joining_date'],
     docSpecificFields: [
       { key: 'last_working_date', label: 'Last Working Day', type: 'date' },
-      { key: 'department_support', label: 'Departments/Teams Supported', type: 'string', defaultValue: 'the Talent Acquisition (TA) Team and the Learning & Development (L&D) Department' },
-      { key: 'ta_duties', label: 'Talent Acquisition Contributions', type: 'textarea', defaultValue: 'candidate sourcing and screening, recruitment coordination, maintaining candidate records, and supported other talent acquisition activities as assigned.' },
-      { key: 'ld_duties', label: 'Learning & Development Contributions', type: 'textarea', defaultValue: 'the research, preparation, structuring, and development of training modules and learning materials for internal L&D initiatives.' },
+      { key: 'department_support', label: 'Departments/Teams Supported', type: 'string', defaultValue: 'the Operations Department' },
+      { key: 'primary_function', label: 'Primary Function/Department', type: 'string', defaultValue: 'Operations' },
+      { key: 'ta_duties', label: 'Primary Function Contributions', type: 'textarea', defaultValue: 'core operational workflows, task coordination, quality maintenance, and supporting key deliverables as assigned.' },
+      { key: 'secondary_function', label: 'Secondary Function/Department', type: 'string', defaultValue: 'Cross-Functional Support' },
+      { key: 'ld_duties', label: 'Secondary Function Contributions', type: 'textarea', defaultValue: 'process documentation, research, and assisting with special team initiatives.' },
       { key: 'conduct_summary', label: 'Conduct & Qualities', type: 'string', defaultValue: 'professionalism, sincerity, adaptability, willingness to learn, teamwork, and responsibility' },
       { key: 'signatory_name', label: 'Signatory Name', type: 'string', defaultValue: 'Sheetal Bedi' },
       { key: 'signatory_title', label: 'Signatory Title', type: 'string', defaultValue: 'Chief Executive Officer' },
@@ -275,9 +277,9 @@ This is to certify that {{salutation}} {{employee_name}} was associated with Tas
 
 During their tenure with the organization, they supported {{department_support}}.
 
-As part of the Talent Acquisition function, they assisted with {{ta_duties}}
+As part of the {{primary_function}} function, they assisted with {{ta_duties}}
 
-Within the Learning & Development function, they contributed to {{ld_duties}}
+Within the {{secondary_function}} function, they contributed to {{ld_duties}}
 
 Throughout their association with Tasknera HR Solutions, they demonstrated {{conduct_summary}} in carrying out their responsibilities.
 
