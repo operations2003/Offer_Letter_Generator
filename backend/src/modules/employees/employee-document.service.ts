@@ -39,6 +39,12 @@ export interface RegenerateDocDto {
 }
 
 export class EmployeeDocumentService {
+
+  private static getIndefiniteArticle(word?: string): string {
+    if (!word || !word.trim()) return 'a';
+    return /^[aeiou]/i.test(word.trim()) ? 'an' : 'a';
+  }
+
   private static storageBaseDir = path.resolve(process.cwd(), 'uploads', 'employee-documents');
 
   private static ensureStorageDir(): void {

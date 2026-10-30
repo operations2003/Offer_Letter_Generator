@@ -1210,7 +1210,7 @@ export const ExperienceLetterModal: React.FC<ExperienceLetterModalProps> = ({
                   {/* Body Paragraphs matching PDF template exactly */}
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 14, textAlign: 'justify' }}>
                     <p contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this paragraph directly" style={{ margin: 0, padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}>
-                      This is to certify that {hl(`${salutation} ${fullName}`)} was associated with Tasknera HR Solutions as an {hl(designation)} from {hl(startDate)} to {hl(endDate)}.
+                      This is to certify that {hl(`${salutation} ${fullName}`)} was associated with Tasknera HR Solutions as {/^[aeiou]/i.test((designation || '').trim()) ? 'an' : 'a'} {hl(designation)} from {hl(startDate)} to {hl(endDate)}.
                     </p>
 
                     <p contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this paragraph directly" style={{ margin: 0, padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}>

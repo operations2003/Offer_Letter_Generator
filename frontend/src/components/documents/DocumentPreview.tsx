@@ -2013,7 +2013,7 @@ export const DocumentPreview: React.FC<DocumentPreviewProps> = ({
             {/* Certificate Body Paragraphs (Exact 7 Paragraphs matching official document) */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14, textAlign: 'justify' }}>
               <p style={{ margin: 0 }}>
-                This is to certify that {salutation ? `${salutation} ${fullName}` : fullName} was associated with <strong>Tasknera HR Solutions</strong> as an <strong>{designation}</strong>, contributing to the <strong>{department}</strong> teams, from <strong>{startDate}</strong> to <strong>{endDate}</strong>.
+                This is to certify that {salutation ? `${salutation} ${fullName}` : fullName} was associated with <strong>Tasknera HR Solutions</strong> as {/^[aeiou]/i.test((designation || '').trim()) ? 'an' : 'a'} <strong>{designation}</strong>, contributing to the <strong>{department}</strong> teams, from <strong>{startDate}</strong> to <strong>{endDate}</strong>.
               </p>
 
               <p style={{ margin: 0 }}>
@@ -2257,7 +2257,7 @@ export const DocumentPreview: React.FC<DocumentPreviewProps> = ({
             {/* Body Paragraphs matching PDF template exactly */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14, textAlign: 'justify' }}>
               <p style={{ margin: 0 }}>
-                This is to certify that {salutation} {fullName} was associated with Tasknera HR Solutions as an {designation} from {startDate} to {endDate}.
+                This is to certify that {salutation} {fullName} was associated with Tasknera HR Solutions as {/^[aeiou]/i.test((designation || '').trim()) ? 'an' : 'a'} {designation} from {startDate} to {endDate}.
               </p>
 
               <p style={{ margin: 0 }}>

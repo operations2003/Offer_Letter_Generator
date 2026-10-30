@@ -798,7 +798,7 @@ Date: ___________________________`,
 
 *To Whomsoever It May Concern*
 
-This is to certify that {{honorific}} {{candidate_name}} was associated with {{company_name}} as an {{job_title}}, contributing to the {{department}} teams, from {{joining_date}} to {{end_date}}.
+This is to certify that {{honorific}} {{candidate_name}} was associated with {{company_name}} as a {{job_title}}, contributing to the {{department}} teams, from {{joining_date}} to {{end_date}}.
 
 During the period of {{possessive_pronoun}} internship, {{candidate_name}} {{ld_assistance}}.
 
@@ -859,7 +859,7 @@ Place: {{signatory_place}}`,
 
 *To Whomsoever It May Concern*
 
-This is to certify that {{honorific}} {{candidate_name}} was associated with {{company_name}} as an {{job_title}} from {{joining_date}} to {{end_date}}.
+This is to certify that {{honorific}} {{candidate_name}} was associated with {{company_name}} as a {{job_title}} from {{joining_date}} to {{end_date}}.
 
 During {{possessive_pronoun}} tenure with the organization, {{pronoun}} supported the {{department_support}}.
 

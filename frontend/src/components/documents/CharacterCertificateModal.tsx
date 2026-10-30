@@ -1225,7 +1225,7 @@ export const CharacterCertificateModal: React.FC<CharacterCertificateModalProps>
                   {/* Certificate Body Paragraphs (Exact 7 Paragraphs matching official document) */}
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 14, textAlign: 'justify' }}>
                     <p contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this paragraph directly" style={{ margin: 0, padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}>
-                      This is to certify that {hl(salutation ? `${salutation} ${fullName}` : fullName)} was associated with <strong>Tasknera HR Solutions</strong> as an <strong>{hl(designation)}</strong>, contributing to the <strong>{hl(department)}</strong> teams, from <strong>{hl(startDate)}</strong> to <strong>{hl(endDate)}</strong>.
+                      This is to certify that {hl(salutation ? `${salutation} ${fullName}` : fullName)} was associated with <strong>Tasknera HR Solutions</strong> as {/^[aeiou]/i.test((designation || '').trim()) ? 'an' : 'a'} <strong>{hl(designation)}</strong>, contributing to the <strong>{hl(department)}</strong> teams, from <strong>{hl(startDate)}</strong> to <strong>{hl(endDate)}</strong>.
                     </p>
 
                     <p contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this paragraph directly" style={{ margin: 0, padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}>
