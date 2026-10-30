@@ -1,3 +1,4 @@
+import { SHEETAL_BEDI_SIGNATURE_DATA_URL } from '../../constants/signature.js';
 import { sanitizeHtml } from '../../utils/sanitize.js';
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';

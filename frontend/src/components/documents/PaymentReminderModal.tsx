@@ -1,3 +1,4 @@
+import { SHEETAL_BEDI_SIGNATURE_DATA_URL } from '../../constants/signature.js';
 import React, { useState, useId } from 'react';
 import {
   X,
@@ -887,8 +888,15 @@ Payment Deadline: ${paymentDeadlineDate}`;
                       <div style={{ fontSize: '0.8125rem', color: '#1e293b', marginBottom: 4 }}>
                         Yours sincerely,
                       </div>
-                      <div style={{ fontSize: '0.8125rem', fontWeight: 700, color: '#0f172a', marginBottom: 36 }}>
+                      <div style={{ fontSize: '0.8125rem', fontWeight: 700, color: '#0f172a', marginBottom: 8 }}>
                         For and on behalf of TASKNERA
+                      </div>
+                      <div style={{ height: 42, display: 'flex', alignItems: 'center', marginBottom: 2 }}>
+                        <img
+                          src={SHEETAL_BEDI_SIGNATURE_DATA_URL}
+                          alt="Sheetal Bedi Signature"
+                          style={{ maxHeight: 38, objectFit: 'contain' }}
+                        />
                       </div>
 
                       <div style={{ display: 'flex', alignItems: 'flex-end', gap: 20 }}>

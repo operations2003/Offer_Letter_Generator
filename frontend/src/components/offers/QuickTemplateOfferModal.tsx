@@ -1,3 +1,4 @@
+import { SHEETAL_BEDI_SIGNATURE_DATA_URL } from '../../constants/signature.js';
 import { sanitizeHtml } from '../../utils/sanitize.js';
 import React, { useState, useRef, useMemo, useEffect } from 'react';
 import { createPortal } from 'react-dom';
@@ -2687,9 +2688,16 @@ export const QuickTemplateOfferModal: React.FC<QuickTemplateOfferModalProps> = (
 
                   <div style={{ marginTop: 20 }}>
                     <div style={{ marginBottom: 44 }}>
-                      <p style={{ fontWeight: 700, color: '#a35d39', fontSize: '14px', margin: '0 0 24px', fontFamily: "'Georgia', serif" }}>
+                      <p style={{ fontWeight: 700, color: '#a35d39', fontSize: '14px', margin: '0 0 8px', fontFamily: "'Georgia', serif" }}>
                         For TaskNera
                       </p>
+                      <div style={{ height: 44, display: 'flex', alignItems: 'center', marginBottom: 4 }}>
+                        <img
+                          src={SHEETAL_BEDI_SIGNATURE_DATA_URL}
+                          alt="Sheetal Bedi Signature"
+                          style={{ maxHeight: 38, objectFit: 'contain' }}
+                        />
+                      </div>
                       <div style={{ width: 300, borderBottom: '1px solid #334155', marginBottom: 12 }}></div>
                       <div style={{ fontSize: '13px', lineHeight: 1.7, color: '#1e293b' }}>
                         <div><strong>Name:</strong> Sheetal Bedi</div>
@@ -3205,9 +3213,16 @@ export const QuickTemplateOfferModal: React.FC<QuickTemplateOfferModalProps> = (
                   {/* Dual Signatures */}
                   <div style={{ marginTop: 10 }}>
                     <div style={{ marginBottom: 30 }}>
-                      <p style={{ fontWeight: 700, color: '#a35d39', fontSize: '13px', margin: '0 0 16px', fontFamily: "'Georgia', serif" }}>
+                      <p style={{ fontWeight: 700, color: '#a35d39', fontSize: '13px', margin: '0 0 6px', fontFamily: "'Georgia', serif" }}>
                         For TaskNera
                       </p>
+                      <div style={{ height: 44, display: 'flex', alignItems: 'center', marginBottom: 4 }}>
+                        <img
+                          src={SHEETAL_BEDI_SIGNATURE_DATA_URL}
+                          alt="Sheetal Bedi Signature"
+                          style={{ maxHeight: 38, objectFit: 'contain' }}
+                        />
+                      </div>
                       <div style={{ width: 260, borderBottom: '1px solid #334155', marginBottom: 8 }}></div>
                       <div style={{ fontSize: '12px', lineHeight: 1.6, color: '#1e293b' }}>
                         <div><strong>Name:</strong> Sheetal Bedi</div>
