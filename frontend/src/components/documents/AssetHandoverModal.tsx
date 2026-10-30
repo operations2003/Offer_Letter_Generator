@@ -325,7 +325,9 @@ export const AssetHandoverModal: React.FC<AssetHandoverModalProps> = ({
       <html>
         <head>
           <title>Asset_Handover_Form_${employeeFullName.replace(/\\s+/g, '_')}</title>
-          <style>
+          
+            <style>
+            [contenteditable] { outline: none !important; border: none !important; background: transparent !important; box-shadow: none !important; }
             @page {
               size: A4 portrait;
               margin: 10mm 14mm 10mm 14mm;
@@ -1375,8 +1377,7 @@ export const AssetHandoverModal: React.FC<AssetHandoverModalProps> = ({
               }}
             >
               {/* Printable Wrapper (Used for iframe print & on-screen preview) */}
-              <div
-                id="printable-asset-handover-sheet"
+              <div id="printable-asset-handover-sheet"
                 style={{
                   display: 'flex',
                   flexDirection: 'column',
@@ -1384,7 +1385,7 @@ export const AssetHandoverModal: React.FC<AssetHandoverModalProps> = ({
                   width: '100%',
                   maxWidth: '794px', // standard A4 width at 96 DPI
                 }}
-              >
+               contentEditable={true} suppressContentEditableWarning={true}>
                 {/* ==================================================================== */}
                 {/* PAGE 1: HEADER, EMPLOYEE DETAILS, ASSETS TABLE, IT CLEARANCE & ACK   */}
                 {/* ==================================================================== */}

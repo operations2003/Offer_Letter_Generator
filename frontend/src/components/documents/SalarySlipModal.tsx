@@ -386,7 +386,9 @@ export const SalarySlipModal: React.FC<SalarySlipModalProps> = ({
         <head>
           <title>${docTitle}</title>
           <meta charset="utf-8" />
-          <style>
+          
+            <style>
+            [contenteditable] { outline: none !important; border: none !important; background: transparent !important; box-shadow: none !important; }
             @page {
               size: A4 portrait;
               margin: 12mm 15mm 12mm 15mm;
@@ -1276,8 +1278,7 @@ export const SalarySlipModal: React.FC<SalarySlipModalProps> = ({
             /* STEP 2: HIGH-FIDELITY OFFICIAL TASKNERA PAYSLIP PREVIEW (A4)      */
             /* ================================================================= */
             <div style={{ display: 'flex', justifyContent: 'center' }}>
-              <div
-                id="printable-salary-slip"
+              <div id="printable-salary-slip"
                 style={{
                   width: '100%',
                   maxWidth: '780px',
@@ -1288,7 +1289,7 @@ export const SalarySlipModal: React.FC<SalarySlipModalProps> = ({
                   fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
                   boxSizing: 'border-box',
                 }}
-              >
+               contentEditable={true} suppressContentEditableWarning={true}>
                 {/* 1. Header Banner */}
                 <div style={{ marginBottom: 18 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>

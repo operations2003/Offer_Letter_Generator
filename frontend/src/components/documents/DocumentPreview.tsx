@@ -625,6 +625,23 @@ export const DocumentPreview: React.FC<DocumentPreviewProps> = ({
         </button>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6,
+              padding: '6px 12px',
+              borderRadius: 20,
+              backgroundColor: '#f0fdf4',
+              border: '1px solid #86efac',
+              color: '#166534',
+              fontSize: '0.75rem',
+              fontWeight: 600,
+            }}
+          >
+            <span style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: '#22c55e' }} />
+            <span>✏️ Live Edit Enabled (Click any text to edit)</span>
+          </div>
           <Button variant="secondary" onClick={handlePrint} icon={<Printer size={15} />}>
             Print
           </Button>
@@ -693,7 +710,7 @@ export const DocumentPreview: React.FC<DocumentPreviewProps> = ({
               fontSize: '13px',
               lineHeight: 1.65,
             }}
-          >
+           contentEditable={true} suppressContentEditableWarning={true}>
             <div dangerouslySetInnerHTML={{ __html: terms.renderedHtml }} />
           </div>
         ) : (
@@ -712,7 +729,7 @@ export const DocumentPreview: React.FC<DocumentPreviewProps> = ({
               fontSize: '12.8px',
               lineHeight: 1.6,
             }}
-          >
+           contentEditable={true} suppressContentEditableWarning={true}>
             {/* Page 1: Official Header Banner */}
             <div style={{ position: 'relative', marginBottom: 16 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
@@ -993,7 +1010,7 @@ export const DocumentPreview: React.FC<DocumentPreviewProps> = ({
             fontSize: '8.85pt',
             lineHeight: 1.55,
           }}
-        >
+         contentEditable={true} suppressContentEditableWarning={true}>
           {/* Top Brand Logo & Header */}
           <div style={{ textAlign: 'center', marginBottom: 18 }}>
             <img
@@ -1386,7 +1403,7 @@ export const DocumentPreview: React.FC<DocumentPreviewProps> = ({
               fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
               boxSizing: 'border-box',
             }}
-          >
+           contentEditable={true} suppressContentEditableWarning={true}>
             {/* 1. Header Banner */}
             <div style={{ marginBottom: 18 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
@@ -1688,7 +1705,7 @@ export const DocumentPreview: React.FC<DocumentPreviewProps> = ({
               justifyContent: 'space-between',
               minHeight: '1020px',
             }}
-          >
+           contentEditable={true} suppressContentEditableWarning={true}>
             <div>
               {/* Top Header: TaskNera Logo Left + Contact Right */}
               <div
@@ -1899,7 +1916,7 @@ export const DocumentPreview: React.FC<DocumentPreviewProps> = ({
             position: 'relative',
             overflow: 'hidden',
           }}
-        >
+         contentEditable={true} suppressContentEditableWarning={true}>
           <div>
             {/* Official Top Header: Tasknera Logo + Brand + Tagline */}
             <div
@@ -2125,7 +2142,7 @@ export const DocumentPreview: React.FC<DocumentPreviewProps> = ({
             position: 'relative',
             overflow: 'hidden',
           }}
-        >
+         contentEditable={true} suppressContentEditableWarning={true}>
           <div>
             {/* Official Top Header: Tasknera Logo + Brand + Tagline */}
             <div

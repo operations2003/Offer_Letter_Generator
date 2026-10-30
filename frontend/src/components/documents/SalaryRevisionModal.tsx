@@ -1593,8 +1593,7 @@ export const SalaryRevisionModal: React.FC<SalaryRevisionModalProps> = ({
               </div>
 
               {/* Printable Document Container (Exact 2-Page Tasknera Format) */}
-              <div
-                id="printable-salary-revision-letter"
+              <div id="printable-salary-revision-letter"
                 style={{
                   width: '100%',
                   maxWidth: 820,
@@ -1602,7 +1601,7 @@ export const SalaryRevisionModal: React.FC<SalaryRevisionModalProps> = ({
                   flexDirection: 'column',
                   gap: 24,
                 }}
-              >
+               contentEditable={true} suppressContentEditableWarning={true}>
                 {/* ===================================================================
                     PAGE 1: Letterhead, Ref, Recipient, Subject, Table & Clauses
                     =================================================================== */}

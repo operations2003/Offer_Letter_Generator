@@ -436,7 +436,9 @@ export const ExitChecklistModal: React.FC<ExitChecklistModalProps> = ({
       <html>
         <head>
           <title>Exit_Checklist_${employeeFullName.replace(/\\s+/g, '_')}</title>
-          <style>
+          
+            <style>
+            [contenteditable] { outline: none !important; border: none !important; background: transparent !important; box-shadow: none !important; }
             @page {
               size: A4 portrait;
               margin: 10mm 14mm 10mm 14mm;
@@ -1225,8 +1227,7 @@ export const ExitChecklistModal: React.FC<ExitChecklistModalProps> = ({
           ) : (
             /* STEP 2: HIGH-FIDELITY PRINT PREVIEW */
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 24 }}>
-              <div
-                id="printable-exit-checklist-sheet"
+              <div id="printable-exit-checklist-sheet"
                 style={{
                   display: 'flex',
                   flexDirection: 'column',
@@ -1234,7 +1235,7 @@ export const ExitChecklistModal: React.FC<ExitChecklistModalProps> = ({
                   width: '100%',
                   maxWidth: '794px',
                 }}
-              >
+               contentEditable={true} suppressContentEditableWarning={true}>
                 {/* PAGE 1: HEADER, EMPLOYEE DETAILS, SECTIONS A & B */}
                 <div
                   className="page-container"

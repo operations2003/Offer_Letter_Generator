@@ -1096,7 +1096,7 @@ export const FeedbackDiscussionModal: React.FC<FeedbackDiscussionModalProps> = (
               </div>
 
               {/* Printable Official Tasknera Feedback Record Sheets (2 Pages) */}
-              <div id="printable-feedback-discussion-sheet" style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+              <div id="printable-feedback-discussion-sheet" style={{ display: 'flex', flexDirection: 'column', gap: 24 }} contentEditable={true} suppressContentEditableWarning={true}>
                 {/* =================================================================
                     PAGE 1: Official Header, Particulars Table, Points 1-5
                     ================================================================= */}

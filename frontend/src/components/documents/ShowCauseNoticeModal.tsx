@@ -1031,8 +1031,7 @@ export const ShowCauseNoticeModal: React.FC<ShowCauseNoticeModalProps> = ({
               </div>
 
               {/* Printable Official Tasknera Letter Preview Sheet (A4) */}
-              <div
-                id="printable-show-cause-notice-sheet"
+              <div id="printable-show-cause-notice-sheet"
                 style={{
                   backgroundColor: '#ffffff',
                   boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
@@ -1052,7 +1051,7 @@ export const ShowCauseNoticeModal: React.FC<ShowCauseNoticeModalProps> = ({
                   flexDirection: 'column',
                   justifyContent: 'space-between',
                 }}
-              >
+               contentEditable={true} suppressContentEditableWarning={true}>
                 <div>
                   {/* Official Header */}
                   <div style={{ textAlign: 'center', marginBottom: 16 }}>

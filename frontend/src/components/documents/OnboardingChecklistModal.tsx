@@ -1281,7 +1281,9 @@ export const OnboardingChecklistModal: React.FC<OnboardingChecklistModalProps> =
               }}
             >
               {/* PRINT CSS STYLES INJECTED */}
-              <style>{`
+              
+            <style>{`
+                [contenteditable] { outline: none !important; border: none !important; background: transparent !important; box-shadow: none !important; }
                 @media print {
                   body * {
                     visibility: hidden;
@@ -1309,8 +1311,7 @@ export const OnboardingChecklistModal: React.FC<OnboardingChecklistModalProps> =
                 }
               `}</style>
 
-              <div
-                id="onboarding-printable-document"
+              <div id="onboarding-printable-document"
                 style={{
                   display: 'flex',
                   flexDirection: 'column',
@@ -1318,7 +1319,7 @@ export const OnboardingChecklistModal: React.FC<OnboardingChecklistModalProps> =
                   width: '100%',
                   maxWidth: '794px', // standard A4 width at 96 DPI
                 }}
-              >
+               contentEditable={true} suppressContentEditableWarning={true}>
                 {/* ==================================================== */}
                 {/* PAGE 1: HEADER, EMPLOYEE DETAILS, SECTIONS A & B */}
                 {/* ==================================================== */}

@@ -1016,8 +1016,7 @@ export const ExperienceLetterModal: React.FC<ExperienceLetterModalProps> = ({
               </div>
 
               {/* PRINTABLE OFFICIAL TASKNERA EXPERIENCE LETTER SHEET */}
-              <div
-                id="printable-experience-letter"
+              <div id="printable-experience-letter"
                 className="printable-experience-sheet"
                 style={{
                   backgroundColor: '#ffffff',
@@ -1038,7 +1037,7 @@ export const ExperienceLetterModal: React.FC<ExperienceLetterModalProps> = ({
                   position: 'relative',
                   overflow: 'hidden',
                 }}
-              >
+               contentEditable={true} suppressContentEditableWarning={true}>
                 <div>
                   {/* Official Top Header: Tasknera Logo + Brand + Tagline */}
                   <div

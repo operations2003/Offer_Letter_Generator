@@ -1105,8 +1105,7 @@ export const DisciplinaryOutcomeModal: React.FC<DisciplinaryOutcomeModalProps> =
               </div>
 
               {/* Printable Official Tasknera Letter Preview Sheet (A4) */}
-              <div
-                id="printable-disciplinary-outcome-sheet"
+              <div id="printable-disciplinary-outcome-sheet"
                 style={{
                   backgroundColor: '#ffffff',
                   boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
@@ -1126,7 +1125,7 @@ export const DisciplinaryOutcomeModal: React.FC<DisciplinaryOutcomeModalProps> =
                   flexDirection: 'column',
                   justifyContent: 'space-between',
                 }}
-              >
+               contentEditable={true} suppressContentEditableWarning={true}>
                 <div>
                   {/* Official Header */}
                   <div style={{ textAlign: 'center', marginBottom: 16 }}>

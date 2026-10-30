@@ -885,8 +885,7 @@ export const CertificateOfCompletionModal: React.FC<CertificateOfCompletionModal
                   padding: '10px 0',
                 }}
               >
-                <div
-                  id="printable-completion-certificate"
+                <div id="printable-completion-certificate"
                   style={{
                     width: '920px',
                     minWidth: '920px',
@@ -902,7 +901,7 @@ export const CertificateOfCompletionModal: React.FC<CertificateOfCompletionModal
                     fontFamily: '"Times New Roman", Times, Georgia, serif',
                     color: '#2d2727',
                   }}
-                >
+                 contentEditable={true} suppressContentEditableWarning={true}>
                   {/* Outer Certificate Border Box */}
                   <div
                     style={{

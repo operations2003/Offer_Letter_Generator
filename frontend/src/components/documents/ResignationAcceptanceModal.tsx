@@ -1296,8 +1296,7 @@ export const ResignationAcceptanceModal: React.FC<ResignationAcceptanceModalProp
               </div>
 
               {/* Printable Document Container (Exact 2-Page Tasknera Format) */}
-              <div
-                id="printable-resignation-acceptance-letter"
+              <div id="printable-resignation-acceptance-letter"
                 style={{
                   width: '100%',
                   maxWidth: 820,
@@ -1305,7 +1304,7 @@ export const ResignationAcceptanceModal: React.FC<ResignationAcceptanceModalProp
                   flexDirection: 'column',
                   gap: 24,
                 }}
-              >
+               contentEditable={true} suppressContentEditableWarning={true}>
                 {/* ===================================================================
                     PAGE 1: Header, Ref, Recipient, Subject & Clauses 1 to 8
                     =================================================================== */}

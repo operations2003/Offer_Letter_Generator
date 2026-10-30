@@ -1280,8 +1280,7 @@ export const FnfSettlementModal: React.FC<FnfSettlementModalProps> = ({
           ) : (
             /* STEP 2: HIGH-FIDELITY PRINT PREVIEW */
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 24 }}>
-              <div
-                id="printable-fnf-statement-sheet"
+              <div id="printable-fnf-statement-sheet"
                 style={{
                   display: 'flex',
                   flexDirection: 'column',
@@ -1289,7 +1288,7 @@ export const FnfSettlementModal: React.FC<FnfSettlementModalProps> = ({
                   width: '100%',
                   maxWidth: '794px',
                 }}
-              >
+               contentEditable={true} suppressContentEditableWarning={true}>
                 {/* PAGE 1: HEADER, SERVICE DETAILS, EARNINGS & DEDUCTIONS */}
                 <div
                   className="page-container"

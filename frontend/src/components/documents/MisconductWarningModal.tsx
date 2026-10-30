@@ -957,8 +957,7 @@ export const MisconductWarningModal: React.FC<MisconductWarningModalProps> = ({
               </div>
 
               {/* Printable Official Tasknera Letter Preview Sheet (A4) */}
-              <div
-                id="printable-misconduct-warning-sheet"
+              <div id="printable-misconduct-warning-sheet"
                 style={{
                   backgroundColor: '#ffffff',
                   boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
@@ -978,7 +977,7 @@ export const MisconductWarningModal: React.FC<MisconductWarningModalProps> = ({
                   flexDirection: 'column',
                   justifyContent: 'space-between',
                 }}
-              >
+               contentEditable={true} suppressContentEditableWarning={true}>
                 <div>
                   {/* Official Header */}
                   <div style={{ textAlign: 'center', marginBottom: 16 }}>

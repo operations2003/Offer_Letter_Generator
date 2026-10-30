@@ -964,8 +964,7 @@ export const BonafideCertificateModal: React.FC<BonafideCertificateModalProps> =
               </div>
 
               {/* Printable Bonafide Certificate Sheet */}
-              <div
-                id="printable-bonafide-certificate"
+              <div id="printable-bonafide-certificate"
                 style={{
                   backgroundColor: '#ffffff',
                   boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
@@ -981,7 +980,7 @@ export const BonafideCertificateModal: React.FC<BonafideCertificateModalProps> =
                   boxSizing: 'border-box',
                   width: '100%',
                 }}
-              >
+               contentEditable={true} suppressContentEditableWarning={true}>
                 {/* Header with Logo & Reference */}
                 <div style={{ borderBottom: '2px solid #2563eb', paddingBottom: 16, marginBottom: 24, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>

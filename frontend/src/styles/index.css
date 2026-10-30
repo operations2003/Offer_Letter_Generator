@@ -1333,3 +1333,55 @@ button, input, select, textarea {
   }
 }
 
+
+
+/* =========================================================================
+   Universal Live Inline Document Editing - All HR Letters & Contracts
+   ========================================================================= */
+[contenteditable="true"] {
+  cursor: text !important;
+  outline: none;
+}
+
+[contenteditable="true"]:hover {
+  outline: 1px dashed rgba(59, 130, 246, 0.4) !important;
+}
+
+[contenteditable="true"] p:hover,
+[contenteditable="true"] td:hover,
+[contenteditable="true"] th:hover,
+[contenteditable="true"] span:hover,
+[contenteditable="true"] h1:hover,
+[contenteditable="true"] h2:hover,
+[contenteditable="true"] h3:hover,
+[contenteditable="true"] h4:hover,
+[contenteditable="true"] li:hover {
+  background-color: rgba(59, 130, 246, 0.05);
+  border-radius: 2px;
+}
+
+[contenteditable="true"] p:focus,
+[contenteditable="true"] td:focus,
+[contenteditable="true"] th:focus,
+[contenteditable="true"] span:focus,
+[contenteditable="true"] h1:focus,
+[contenteditable="true"] h2:focus,
+[contenteditable="true"] h3:focus,
+[contenteditable="true"] h4:focus,
+[contenteditable="true"] li:focus,
+[contenteditable="true"]:focus {
+  background-color: #ffffff !important;
+  box-shadow: 0 0 0 1.5px rgba(59, 130, 246, 0.5) !important;
+  outline: none !important;
+  border-radius: 3px;
+}
+
+@media print {
+  [contenteditable="true"],
+  [contenteditable="true"] * {
+    background: transparent !important;
+    box-shadow: none !important;
+    outline: none !important;
+    border: none !important;
+  }
+}

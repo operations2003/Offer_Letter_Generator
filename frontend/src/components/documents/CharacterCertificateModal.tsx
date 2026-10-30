@@ -1110,8 +1110,7 @@ export const CharacterCertificateModal: React.FC<CharacterCertificateModalProps>
               </div>
 
               {/* PRINTABLE OFFICIAL TASKNERA CHARACTER CERTIFICATE SHEET */}
-              <div
-                id="printable-character-certificate"
+              <div id="printable-character-certificate"
                 className="printable-character-sheet"
                 style={{
                   maxWidth: 816,
@@ -1129,7 +1128,7 @@ export const CharacterCertificateModal: React.FC<CharacterCertificateModalProps>
                   position: 'relative',
                   overflow: 'hidden',
                 }}
-              >
+               contentEditable={true} suppressContentEditableWarning={true}>
                 <div>
                   {/* Official Top Header: Tasknera Logo + Brand + Tagline */}
                   <div

@@ -999,8 +999,7 @@ export const RelievingCertificateModal: React.FC<RelievingCertificateModalProps>
               </div>
 
               {/* Printable Relieving Letter Sheet (Single A4 Page matching PDF) */}
-              <div
-                id="printable-relieving-sheet"
+              <div id="printable-relieving-sheet"
                 style={{
                   backgroundColor: '#ffffff',
                   boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
@@ -1020,7 +1019,7 @@ export const RelievingCertificateModal: React.FC<RelievingCertificateModalProps>
                   flexDirection: 'column',
                   justifyContent: 'space-between',
                 }}
-              >
+               contentEditable={true} suppressContentEditableWarning={true}>
                 <div>
                   {/* Official Header */}
                   <div style={{ textAlign: 'center', marginBottom: 20 }}>

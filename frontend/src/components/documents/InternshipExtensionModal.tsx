@@ -1045,8 +1045,7 @@ export const InternshipExtensionModal: React.FC<InternshipExtensionModalProps> =
               </div>
 
               {/* Printable Sheet (Single A4 Page matching PDF) */}
-              <div
-                id="printable-internship-extension-sheet"
+              <div id="printable-internship-extension-sheet"
                 style={{
                   backgroundColor: '#ffffff',
                   boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
@@ -1066,7 +1065,7 @@ export const InternshipExtensionModal: React.FC<InternshipExtensionModalProps> =
                   flexDirection: 'column',
                   justifyContent: 'space-between',
                 }}
-              >
+               contentEditable={true} suppressContentEditableWarning={true}>
                 <div>
                   {/* Official Header */}
                   <div style={{ textAlign: 'center', marginBottom: 18 }}>

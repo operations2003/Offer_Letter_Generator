@@ -2276,8 +2276,33 @@ export const QuickTemplateOfferModal: React.FC<QuickTemplateOfferModalProps> = (
                 </div>
               </div>
 
+                            <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  padding: '8px 14px',
+                  backgroundColor: '#f0fdf4',
+                  border: '1px solid #bbf7d0',
+                  borderRadius: 8,
+                  marginBottom: 16,
+                  fontSize: '0.8125rem',
+                  color: '#166534',
+                }}
+              >
+                <span style={{ fontSize: '1rem' }}>✏️</span>
+                <span>
+                  <strong>Interactive Letter Editing:</strong> All fields, text, compensation figures, dates, and clauses in this letter are directly editable. Click anywhere in the preview to edit before printing or saving.
+                </span>
+              </div>
               {/* MULTI-PAGE PRINTABLE CONTAINER (EXACT 11-PAGE OFFICIAL TASKNERA CONTRACT) */}
-              <div id="printable-offer-document" className="printable-letterhead-paper">
+              <div
+                id="printable-offer-document"
+                className="printable-letterhead-paper"
+                contentEditable={true}
+                suppressContentEditableWarning={true}
+                style={{ outline: 'none' }}
+              >
                 {/* ========================================================
                     PAGE 1: LETTERHEAD BANNER, TOP META, CLAUSES 1 TO 5 (PART 1)
                     ======================================================== */}

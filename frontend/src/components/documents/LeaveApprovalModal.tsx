@@ -965,8 +965,7 @@ export const LeaveApprovalModal: React.FC<LeaveApprovalModalProps> = ({
           ) : (
             /* STEP 2: HIGH-FIDELITY PRINT PREVIEW */
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 24 }}>
-              <div
-                id="printable-leave-approval-sheet"
+              <div id="printable-leave-approval-sheet"
                 style={{
                   backgroundColor: '#ffffff',
                   width: '100%',
@@ -984,7 +983,7 @@ export const LeaveApprovalModal: React.FC<LeaveApprovalModalProps> = ({
                   lineHeight: 1.5,
                   color: '#0f172a',
                 }}
-              >
+               contentEditable={true} suppressContentEditableWarning={true}>
                 <div>
                   {/* Brand Header */}
                   <div style={{ textAlign: 'center', marginBottom: 16 }}>

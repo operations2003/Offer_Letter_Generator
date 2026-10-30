@@ -1482,8 +1482,7 @@ export const EmployeeTerminationModal: React.FC<EmployeeTerminationModalProps> =
               </div>
 
               {/* Printable Document Container */}
-              <div
-                id="printable-emp-termination-letter"
+              <div id="printable-emp-termination-letter"
                 style={{
                   width: '100%',
                   maxWidth: 820,
@@ -1491,7 +1490,7 @@ export const EmployeeTerminationModal: React.FC<EmployeeTerminationModalProps> =
                   flexDirection: 'column',
                   gap: 24,
                 }}
-              >
+               contentEditable={true} suppressContentEditableWarning={true}>
                 {/* ===================================================================
                     PAGE 1: Header, Ref, Recipient, Subject & Clauses 1 to 7
                     =================================================================== */}

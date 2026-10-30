@@ -1144,7 +1144,7 @@ export const PerformanceImprovementPlanModal: React.FC<PerformanceImprovementPla
               </div>
 
               {/* Printable Official Tasknera PIP Document Sheets (2 Pages) */}
-              <div id="printable-pip-sheet" style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+              <div id="printable-pip-sheet" style={{ display: 'flex', flexDirection: 'column', gap: 24 }} contentEditable={true} suppressContentEditableWarning={true}>
                 {/* =================================================================
                     PAGE 1: Official Header, Clauses 1-7, Improvement Table, Schedule
                     ================================================================= */}

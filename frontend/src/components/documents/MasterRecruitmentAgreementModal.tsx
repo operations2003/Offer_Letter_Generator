@@ -2673,8 +2673,7 @@ export const MasterRecruitmentAgreementModal: React.FC<MasterRecruitmentAgreemen
                 }}
               >
                 {/* Printable Document Box */}
-                <div
-                  id="printable-mrsa-agreement"
+                <div id="printable-mrsa-agreement"
                   style={{
                     width: '100%',
                     maxWidth: 820,
@@ -2687,7 +2686,7 @@ export const MasterRecruitmentAgreementModal: React.FC<MasterRecruitmentAgreemen
                     fontSize: '8.85pt',
                     lineHeight: 1.55,
                   }}
-                >
+                 contentEditable={true} suppressContentEditableWarning={true}>
                   {/* =============================================================== */}
                   {/* 1. TOP BRAND LOGO & HEADER                                      */}
                   {/* =============================================================== */}

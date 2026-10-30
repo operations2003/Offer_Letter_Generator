@@ -1175,8 +1175,7 @@ export const PromotionLetterModal: React.FC<PromotionLetterModalProps> = ({
               </div>
 
               {/* Printable Promotion Letter Sheet (Single A4 Page matching PDF) */}
-              <div
-                id="printable-promotion-sheet"
+              <div id="printable-promotion-sheet"
                 style={{
                   backgroundColor: '#ffffff',
                   boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
@@ -1196,7 +1195,7 @@ export const PromotionLetterModal: React.FC<PromotionLetterModalProps> = ({
                   flexDirection: 'column',
                   justifyContent: 'space-between',
                 }}
-              >
+               contentEditable={true} suppressContentEditableWarning={true}>
                 <div>
                   {/* Official Header */}
                   <div style={{ textAlign: 'center', marginBottom: 18 }}>

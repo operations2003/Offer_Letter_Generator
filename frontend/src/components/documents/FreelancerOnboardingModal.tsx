@@ -1193,8 +1193,7 @@ export const FreelancerOnboardingModal: React.FC<FreelancerOnboardingModalProps>
               </div>
 
               {/* PRINTABLE CONTAINER HOLDING BOTH PAGES */}
-              <div
-                id="printable-freelancer-letter"
+              <div id="printable-freelancer-letter"
                 style={{
                   display: 'flex',
                   flexDirection: 'column',
@@ -1203,7 +1202,7 @@ export const FreelancerOnboardingModal: React.FC<FreelancerOnboardingModalProps>
                   margin: '0 auto',
                   width: '100%',
                 }}
-              >
+               contentEditable={true} suppressContentEditableWarning={true}>
                 {/* ========================================================================= */}
                 {/* PAGE 1: ONBOARDING LETTER                                                */}
                 {/* ========================================================================= */}

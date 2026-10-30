@@ -1498,15 +1498,14 @@ export const InternshipConcludingModal: React.FC<InternshipConcludingModalProps>
               </div>
 
               {/* Printable Document Container (Exact 1-Page Tasknera Format) */}
-              <div
-                id="printable-internship-concluding-letter"
+              <div id="printable-internship-concluding-letter"
                 style={{
                   width: '100%',
                   maxWidth: 820,
                   display: 'flex',
                   flexDirection: 'column',
                 }}
-              >
+               contentEditable={true} suppressContentEditableWarning={true}>
                 <div
                   className="internship-page"
                   style={{

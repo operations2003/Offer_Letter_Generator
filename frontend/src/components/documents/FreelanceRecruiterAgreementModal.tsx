@@ -1219,8 +1219,7 @@ export const FreelanceRecruiterAgreementModal: React.FC<FreelanceRecruiterAgreem
               </div>
 
               {/* PRINTABLE AGREEMENT CONTAINER */}
-              <div
-                id="printable-freelance-recruiter-agreement"
+              <div id="printable-freelance-recruiter-agreement"
                 style={{
                   maxWidth: 820,
                   margin: '0 auto',
@@ -1235,7 +1234,7 @@ export const FreelanceRecruiterAgreementModal: React.FC<FreelanceRecruiterAgreem
                   lineHeight: 1.5,
                   border: '1px solid #e2e8f0',
                 }}
-              >
+               contentEditable={true} suppressContentEditableWarning={true}>
                 {/* PAGE 1: COVER HEADER */}
                 <div style={{ textAlign: 'center', paddingBottom: 40, borderBottom: '1px solid #e2e8f0', marginBottom: 28 }}>
                   <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 64, height: 64, borderRadius: 12, backgroundColor: '#ffedd5', marginBottom: 12 }}>

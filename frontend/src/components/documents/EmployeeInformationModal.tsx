@@ -244,7 +244,9 @@ export const EmployeeInformationModal: React.FC<EmployeeInformationModalProps> =
       <html>
         <head>
           <title>Employee_Information_Form_${fullName.replace(/\\s+/g, '_')}</title>
-          <style>
+          
+            <style>
+            [contenteditable] { outline: none !important; border: none !important; background: transparent !important; box-shadow: none !important; }
             @page {
               size: A4 portrait;
               margin: 10mm 14mm 10mm 14mm;
@@ -1066,8 +1068,7 @@ export const EmployeeInformationModal: React.FC<EmployeeInformationModalProps> =
           ) : (
             /* STEP 2: HIGH-FIDELITY PRINT PREVIEW */
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 24 }}>
-              <div
-                id="printable-employee-info-sheet"
+              <div id="printable-employee-info-sheet"
                 style={{
                   display: 'flex',
                   flexDirection: 'column',
@@ -1075,7 +1076,7 @@ export const EmployeeInformationModal: React.FC<EmployeeInformationModalProps> =
                   width: '100%',
                   maxWidth: '794px',
                 }}
-              >
+               contentEditable={true} suppressContentEditableWarning={true}>
                 {/* PAGE 1: HEADER, SECTIONS A - F */}
                 <div
                   className="page-container"

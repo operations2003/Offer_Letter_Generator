@@ -1454,8 +1454,7 @@ export const FreelancerTerminationModal: React.FC<FreelancerTerminationModalProp
               </div>
 
               {/* Printable Document Container */}
-              <div
-                id="printable-termination-letter"
+              <div id="printable-termination-letter"
                 style={{
                   width: '100%',
                   maxWidth: 820,
@@ -1463,7 +1462,7 @@ export const FreelancerTerminationModal: React.FC<FreelancerTerminationModalProp
                   flexDirection: 'column',
                   gap: 24,
                 }}
-              >
+               contentEditable={true} suppressContentEditableWarning={true}>
                 {/* ===================================================================
                     PAGE 1: Official Header, Subject, Ref, Recipient & Clauses 1 to 4
                     =================================================================== */}
