@@ -1,3 +1,4 @@
+import { SHEETAL_BEDI_SIGNATURE_DATA_URL } from '../../constants/signature.js';
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import {
@@ -1602,10 +1603,16 @@ export const ResignationAcceptanceModal: React.FC<ResignationAcceptanceModalProp
                     >
                       {/* Left: Authorised Signatory */}
                       <div>
+                        <div style={{ height: 44, display: 'flex', alignItems: 'center', marginBottom: 2 }}>
+                          <img
+                            src={SHEETAL_BEDI_SIGNATURE_DATA_URL}
+                            alt="Sheetal Bedi Signature"
+                            style={{ maxHeight: 38, objectFit: 'contain' }}
+                          />
+                        </div>
                         <div
                           style={{
                             borderBottom: '1px solid #cbd5e1',
-                            height: 52,
                             marginBottom: 8,
                           }}
                         />

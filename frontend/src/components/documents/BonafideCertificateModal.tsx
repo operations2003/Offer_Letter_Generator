@@ -1,3 +1,4 @@
+import { SHEETAL_BEDI_SIGNATURE_DATA_URL } from '../../constants/signature.js';
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import {
@@ -1093,8 +1094,15 @@ export const BonafideCertificateModal: React.FC<BonafideCertificateModalProps> =
                   </div>
 
                   <div style={{ textAlign: 'right', minWidth: 220 }}>
-                    <div style={{ fontSize: '9pt', color: '#475569', marginBottom: 28 }}>
+                    <div style={{ fontSize: '9pt', color: '#475569', marginBottom: 4 }}>
                       For <strong>TaskNera HR Solutions Private Limited</strong>
+                    </div>
+                    <div style={{ height: 42, display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginBottom: 2 }}>
+                      <img
+                        src={SHEETAL_BEDI_SIGNATURE_DATA_URL}
+                        alt="Sheetal Bedi Signature"
+                        style={{ maxHeight: 38, objectFit: 'contain' }}
+                      />
                     </div>
                     {/* Authorized Signature Line */}
                     <div

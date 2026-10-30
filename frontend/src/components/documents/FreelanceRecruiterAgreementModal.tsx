@@ -1,3 +1,4 @@
+import { SHEETAL_BEDI_SIGNATURE_DATA_URL } from '../../constants/signature.js';
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import {
@@ -1585,8 +1586,15 @@ export const FreelanceRecruiterAgreementModal: React.FC<FreelanceRecruiterAgreem
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 32, marginTop: 18 }}>
                     {/* For Tasknera */}
                     <div>
-                      <div style={{ fontWeight: 700, color: '#0f172a', marginBottom: 28 }}>
+                      <div style={{ fontWeight: 700, color: '#0f172a', marginBottom: 6 }}>
                         For and on behalf of TASKNERA
+                      </div>
+                      <div style={{ height: 42, display: 'flex', alignItems: 'center', marginBottom: 4 }}>
+                        <img
+                          src={SHEETAL_BEDI_SIGNATURE_DATA_URL}
+                          alt="Sheetal Bedi Signature"
+                          style={{ maxHeight: 38, objectFit: 'contain' }}
+                        />
                       </div>
                       <div style={{ borderTop: '1px solid #94a3b8', width: '80%', marginBottom: 6 }} />
                       <div style={{ fontSize: '8pt', color: '#64748b' }}>Signature of Authorised Signatory</div>

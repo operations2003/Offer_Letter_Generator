@@ -1,3 +1,4 @@
+import { SHEETAL_BEDI_SIGNATURE_DATA_URL } from '../../constants/signature.js';
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import {
@@ -1471,8 +1472,15 @@ export const PromotionLetterModal: React.FC<PromotionLetterModalProps> = ({
                       <div style={{ fontSize: '9pt', color: '#0f172a', marginBottom: 2 }}>
                         Yours sincerely,
                       </div>
-                      <div style={{ fontSize: '9pt', fontWeight: 700, color: '#0f172a', marginBottom: 12 }}>
+                      <div style={{ fontSize: '9pt', fontWeight: 700, color: '#0f172a', marginBottom: 6 }}>
                         For and on behalf of TASKNERA
+                      </div>
+                      <div style={{ height: 42, display: 'flex', alignItems: 'center', marginBottom: 2 }}>
+                        <img
+                          src={SHEETAL_BEDI_SIGNATURE_DATA_URL}
+                          alt="Sheetal Bedi Signature"
+                          style={{ maxHeight: 38, objectFit: 'contain' }}
+                        />
                       </div>
                       <div
                         style={{

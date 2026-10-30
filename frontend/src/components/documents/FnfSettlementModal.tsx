@@ -1,3 +1,4 @@
+import { SHEETAL_BEDI_SIGNATURE_DATA_URL } from '../../constants/signature.js';
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import {
@@ -1737,11 +1738,17 @@ export const FnfSettlementModal: React.FC<FnfSettlementModalProps> = ({
 
                       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', maxWidth: 440 }}>
                         <div>
+                          <div style={{ height: 42, display: 'flex', alignItems: 'center', marginBottom: 2 }}>
+                            <img
+                              src={SHEETAL_BEDI_SIGNATURE_DATA_URL}
+                              alt="Sheetal Bedi Signature"
+                              style={{ maxHeight: 38, objectFit: 'contain' }}
+                            />
+                          </div>
                           <div
                             style={{
                               borderBottom: '1px solid #0f172a',
                               width: 200,
-                              height: 44,
                               display: 'flex',
                               alignItems: 'flex-end',
                               paddingBottom: 4,

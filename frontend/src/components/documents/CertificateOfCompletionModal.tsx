@@ -1,3 +1,4 @@
+import { SHEETAL_BEDI_SIGNATURE_DATA_URL } from '../../constants/signature.js';
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import {
@@ -1284,29 +1285,12 @@ export const CertificateOfCompletionModal: React.FC<CertificateOfCompletionModal
 
                       {/* Right: Handwritten Signature + Signatory Name */}
                       <div style={{ textAlign: 'right', minWidth: 200 }}>
-                        {/* Fluid Signature Stroke SVG */}
-                        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: -4 }}>
-                          <svg width="120" height="52" viewBox="0 0 140 60" fill="none">
-                            <path
-                              d="M10 42 C 25 10, 35 15, 42 38 C 45 48, 55 12, 60 22 C 65 32, 68 45, 78 30 C 85 20, 95 10, 110 25 C 118 32, 125 40, 132 36"
-                              stroke="#1e293b"
-                              strokeWidth="2.2"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                            />
-                            <path
-                              d="M32 28 C 45 26, 75 22, 105 24"
-                              stroke="#1e293b"
-                              strokeWidth="1.6"
-                              strokeLinecap="round"
-                            />
-                            <path
-                              d="M20 48 C 50 44, 90 40, 125 42"
-                              stroke="#1e293b"
-                              strokeWidth="1.8"
-                              strokeLinecap="round"
-                            />
-                          </svg>
+                        <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', height: 48, marginBottom: 2 }}>
+                          <img
+                            src={SHEETAL_BEDI_SIGNATURE_DATA_URL}
+                            alt="Sheetal Bedi Signature"
+                            style={{ maxHeight: 44, objectFit: 'contain' }}
+                          />
                         </div>
 
                         {/* Signatory Line */}

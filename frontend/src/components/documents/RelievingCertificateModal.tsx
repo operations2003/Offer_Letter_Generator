@@ -1,3 +1,4 @@
+import { SHEETAL_BEDI_SIGNATURE_DATA_URL } from '../../constants/signature.js';
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import {
@@ -1161,6 +1162,13 @@ export const RelievingCertificateModal: React.FC<RelievingCertificateModalProps>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 20 }}>
                       {/* Left: Authorised Signatory */}
                       <div style={{ minWidth: 260 }}>
+                        <div style={{ height: 42, display: 'flex', alignItems: 'center', marginBottom: 2 }}>
+                          <img
+                            src={SHEETAL_BEDI_SIGNATURE_DATA_URL}
+                            alt="Sheetal Bedi Signature"
+                            style={{ maxHeight: 38, objectFit: 'contain' }}
+                          />
+                        </div>
                         <div
                           style={{
                             borderBottom: '1px solid #94a3b8',
