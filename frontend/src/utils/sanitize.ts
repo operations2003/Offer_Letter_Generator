@@ -12,3 +12,4 @@ export function sanitizeHtml(dirtyHtml: string | null | undefined): string {
     USE_PROFILES: { html: true },
   });
 }
+
