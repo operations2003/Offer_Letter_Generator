@@ -42,6 +42,7 @@ export interface UpdateUserPayload {
 
 // Local storage key for system users
 const USERS_STORAGE_KEY = 'tasknera_system_users';
+const USER_CREDENTIALS_KEY = 'tasknera_user_credentials';
 
 const INITIAL_USERS: SystemUser[] = [
   {
@@ -69,6 +70,63 @@ export class UserService {
       Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json',
     };
+  }
+
+    public static saveUserCredential(email: string, passwordPlain: string): void {
+    try {
+      const cleanEmail = email.trim().toLowerCase();
+      const raw = localStorage.getItem(USER_CREDENTIALS_KEY);
+      const creds: Record<string, string> = raw ? JSON.parse(raw) : {};
+      creds[cleanEmail] = passwordPlain;
+      localStorage.setItem(USER_CREDENTIALS_KEY, JSON.stringify(creds));
+    } catch (err) {
+      console.warn('Failed to save credential to localStorage:', err);
+    }
+  }
+
+  public static getStoredCredential(email: string): string | null {
+    try {
+      const cleanEmail = email.trim().toLowerCase();
+      const raw = localStorage.getItem(USER_CREDENTIALS_KEY);
+      if (!raw) return null;
+      const creds: Record<string, string> = JSON.parse(raw);
+      return creds[cleanEmail] || null;
+    } catch {
+      return null;
+    }
+  }
+
+  public static deleteCredential(email: string): void {
+    try {
+      const cleanEmail = email.trim().toLowerCase();
+      const raw = localStorage.getItem(USER_CREDENTIALS_KEY);
+      if (!raw) return;
+      const creds: Record<string, string> = JSON.parse(raw);
+      delete creds[cleanEmail];
+      localStorage.setItem(USER_CREDENTIALS_KEY, JSON.stringify(creds));
+    } catch (err) {
+      console.warn('Failed to delete credential from localStorage:', err);
+    }
+  }
+
+  public static verifyCredentials(email: string, passwordPlain: string): SystemUser | null {
+    const cleanEmail = email.trim().toLowerCase();
+    const users = this.getLocalUsers();
+    const foundUser = users.find((u) => u.email.toLowerCase() === cleanEmail);
+
+    if (!foundUser) return null;
+    if (foundUser.status && foundUser.status !== 'ACTIVE') return null;
+
+    const storedPassword = this.getStoredCredential(cleanEmail);
+
+    // If password was already recorded, verify match
+    if (storedPassword !== null) {
+      return storedPassword === passwordPlain ? foundUser : null;
+    }
+
+    // Auto-bind on first login for accounts created prior to credential store (e.g. shubham@gmail.com)
+    this.saveUserCredential(cleanEmail, passwordPlain);
+    return foundUser;
   }
 
   public static getLocalUsers(): SystemUser[] {
@@ -162,6 +220,7 @@ export class UserService {
    * Admin creates a new user account
    */
   static async createUser(payload: CreateUserPayload): Promise<SystemUser> {
+    this.saveUserCredential(payload.email, payload.password);
     const roleMap: Record<string, string> = {
       SUPER_ADMIN: 'Super Administrator',
       HR_MANAGER: 'HR Manager',
@@ -277,6 +336,11 @@ export class UserService {
    * Admin deactivates/deletes a user
    */
   static async deleteUser(id: string): Promise<void> {
+    const localUsers = this.getLocalUsers();
+    const toDelete = localUsers.find((u) => u.id === id);
+    if (toDelete) {
+      this.deleteCredential(toDelete.email);
+    }
     try {
       await fetch(`/api/v1/users/${id}`, {
         method: 'DELETE',

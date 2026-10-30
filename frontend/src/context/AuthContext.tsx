@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User } from '../types/index.js';
+import { UserService, SystemUser } from '../services/userService.js';
 
 interface AuthContextType {
   user: User | null;
@@ -125,6 +126,82 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     initializeAuth();
   }, []);
 
+  
+  const loginWithSystemUser = (systemUser: SystemUser) => {
+    const roleCodes = (systemUser.roles || []).map((r) => r.code);
+    if (roleCodes.length === 0) {
+      roleCodes.push('HR_MANAGER');
+    }
+
+    const isSuperAdmin = roleCodes.includes('SUPER_ADMIN');
+    const isHrManager = roleCodes.includes('HR_MANAGER');
+    const isRecruiter = roleCodes.includes('RECRUITER');
+
+    let permissions: string[];
+    if (isSuperAdmin) {
+      permissions = ['*'];
+    } else if (isHrManager) {
+      permissions = [
+        'candidates:create',
+        'candidates:read',
+        'candidates:update',
+        'candidates:delete',
+        'offers:create',
+        'offers:read',
+        'offers:update',
+        'offers:delete',
+        'offers:generate_pdf',
+        'offers:send',
+        'templates:read',
+        'ai:extract',
+        'audit:read',
+        'users:read',
+        'users:create',
+        'users:update',
+        'users:delete',
+        'roles:read',
+        'analytics:read',
+        'exports:read',
+      ];
+    } else if (isRecruiter) {
+      permissions = [
+        'candidates:create',
+        'candidates:read',
+        'offers:create',
+        'offers:read',
+        'ai:extract',
+        'templates:read',
+      ];
+    } else {
+      permissions = ['candidates:read', 'offers:read', 'templates:read'];
+    }
+
+    const authUser: User = {
+      id: systemUser.id,
+      email: systemUser.email,
+      firstName: systemUser.firstName,
+      lastName: systemUser.lastName,
+      title: systemUser.title || undefined,
+      department: systemUser.department || undefined,
+      status: systemUser.status,
+      company: {
+        id: 'cmp_tasknera_001',
+        name: 'TaskNera Enterprise',
+        code: 'TASKNERA',
+        domain: 'tasknera.com',
+      },
+      roles: roleCodes,
+      permissions,
+      lastLoginAt: new Date().toISOString(),
+    };
+
+    const userToken = `jwt_user_${systemUser.id}_${Date.now()}`;
+    setUser(authUser);
+    setToken(userToken);
+    localStorage.setItem('offergen_user', JSON.stringify(authUser));
+    localStorage.setItem('offergen_token', userToken);
+  };
+
   const login = async (email: string, passwordPlain: string) => {
     setIsLoading(true);
     const cleanEmail = email.trim().toLowerCase();
@@ -145,6 +222,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           return;
         }
 
+        // Check if this is a created system user (e.g. shubham@gmail.com)
+        const localUser = UserService.verifyCredentials(cleanEmail, passwordPlain);
+        if (localUser) {
+          loginWithSystemUser(localUser);
+          return;
+        }
+
         const resData = await response.json().catch(() => ({}));
         throw new Error(resData?.message || 'Invalid email or password');
       }
@@ -157,14 +241,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       localStorage.setItem('offergen_user', JSON.stringify(authData.user));
       localStorage.setItem('offergen_token', authData.tokens.accessToken);
     } catch (err: any) {
-      // Offline fallback strictly for the designated credentials
+      // Offline fallback strictly for designated credentials or created system users
       if (cleanEmail === 'sheetalbedi@tasknera.com' && passwordPlain === 'Tasknera@9312506515') {
         loginAsDemo('SUPER_ADMIN');
+        return;
       } else if (cleanEmail === 'hr@gmail.com' && passwordPlain === 'hr@123') {
         loginAsDemo('HR_MANAGER');
-      } else {
-        throw new Error(err?.message || 'Login failed. Please check credentials.');
+        return;
       }
+
+      const localUser = UserService.verifyCredentials(cleanEmail, passwordPlain);
+      if (localUser) {
+        loginWithSystemUser(localUser);
+        return;
+      }
+
+      throw new Error(err?.message || 'Invalid email or password');
     } finally {
       setIsLoading(false);
     }
