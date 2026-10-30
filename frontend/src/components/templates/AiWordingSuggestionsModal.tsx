@@ -1,3 +1,4 @@
+import { sanitizeHtml } from '../../utils/sanitize.js';
 import React, { useState } from 'react';
 import {
   Sparkles,
@@ -272,7 +273,7 @@ export const AiWordingSuggestionsModal: React.FC<AiWordingSuggestionsModalProps>
                     color: '#0f172a',
                     fontFamily: 'var(--font-sans)',
                   }}
-                  dangerouslySetInnerHTML={{ __html: sugg.suggestedClause }}
+                  dangerouslySetInnerHTML={{ __html: sanitizeHtml(sugg.suggestedClause) }}
                 />
 
                 {/* Compliance Notes & Rationale */}

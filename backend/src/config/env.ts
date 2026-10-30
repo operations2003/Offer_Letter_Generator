@@ -42,3 +42,11 @@ export const config = {
     },
   },
 } as const;
+
+
+// Assert strong secrets in production
+if (config.env === 'production') {
+  if (!process.env.JWT_SECRET || process.env.JWT_SECRET.includes('dev_jwt_secret')) {
+    throw new Error('FATAL SECURITY CONFIGURATION: JWT_SECRET must be explicitly configured and cannot use default dev secret in production!');
+  }
+}

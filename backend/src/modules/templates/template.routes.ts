@@ -13,6 +13,9 @@ import { validateRequest } from '../../middleware/validate.js';
 
 const router = Router();
 
+// Enforce authentication across all template and upload routes
+router.use(authenticate);
+
 // 0. Upload Template Document (DOCX / PDF) - Text extraction utility
 router.post(
   '/upload',
@@ -20,7 +23,6 @@ router.post(
   TemplateController.uploadTemplate
 );
 
-router.use(authenticate);
 
 // 1. Placeholder catalog
 router.get('/placeholders/catalog', TemplateController.getCatalog);

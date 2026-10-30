@@ -72,12 +72,32 @@ export class UserService {
     };
   }
 
-    public static saveUserCredential(email: string, passwordPlain: string): void {
+  private static async hashCredential(password: string, email: string): Promise<string> {
+    try {
+      if (typeof crypto !== 'undefined' && crypto.subtle) {
+        const enc = new TextEncoder();
+        const data = enc.encode(`${email.toLowerCase()}:${password}:tasknera_client_salt_2026`);
+        const buffer = await crypto.subtle.digest('SHA-256', data);
+        return Array.from(new Uint8Array(buffer)).map((b) => b.toString(16).padStart(2, '0')).join('');
+      }
+    } catch {
+      // Fallback if subtle crypto is unavailable
+    }
+    let hash = 5381;
+    const str = `${email.toLowerCase()}:${password}`;
+    for (let i = 0; i < str.length; i++) {
+      hash = ((hash << 5) + hash) + str.charCodeAt(i);
+    }
+    return `h_${Math.abs(hash)}`;
+  }
+
+  public static async saveUserCredential(email: string, passwordPlain: string): Promise<void> {
     try {
       const cleanEmail = email.trim().toLowerCase();
       const raw = localStorage.getItem(USER_CREDENTIALS_KEY);
       const creds: Record<string, string> = raw ? JSON.parse(raw) : {};
-      creds[cleanEmail] = passwordPlain;
+      const hashed = await this.hashCredential(passwordPlain, cleanEmail);
+      creds[cleanEmail] = hashed;
       localStorage.setItem(USER_CREDENTIALS_KEY, JSON.stringify(creds));
     } catch (err) {
       console.warn('Failed to save credential to localStorage:', err);
@@ -105,11 +125,11 @@ export class UserService {
       delete creds[cleanEmail];
       localStorage.setItem(USER_CREDENTIALS_KEY, JSON.stringify(creds));
     } catch (err) {
-      console.warn('Failed to delete credential from localStorage:', err);
+      console.warn('Failed to delete credential to localStorage:', err);
     }
   }
 
-  public static verifyCredentials(email: string, passwordPlain: string): SystemUser | null {
+  public static async verifyCredentials(email: string, passwordPlain: string): Promise<SystemUser | null> {
     const cleanEmail = email.trim().toLowerCase();
     const users = this.getLocalUsers();
     const foundUser = users.find((u) => u.email.toLowerCase() === cleanEmail);
@@ -117,15 +137,22 @@ export class UserService {
     if (!foundUser) return null;
     if (foundUser.status && foundUser.status !== 'ACTIVE') return null;
 
-    const storedPassword = this.getStoredCredential(cleanEmail);
+    const storedHash = this.getStoredCredential(cleanEmail);
+    const computedHash = await this.hashCredential(passwordPlain, cleanEmail);
 
-    // If password was already recorded, verify match
-    if (storedPassword !== null) {
-      return storedPassword === passwordPlain ? foundUser : null;
+    // If password hash was already recorded, verify match
+    if (storedHash !== null) {
+      // Backwards compatibility if old unhashed password was stored
+      if (storedHash === passwordPlain) {
+        // Upgrade to hashed
+        await this.saveUserCredential(cleanEmail, passwordPlain);
+        return foundUser;
+      }
+      return storedHash === computedHash ? foundUser : null;
     }
 
-    // Auto-bind on first login for accounts created prior to credential store (e.g. shubham@gmail.com)
-    this.saveUserCredential(cleanEmail, passwordPlain);
+    // Auto-bind hash on first verified login
+    await this.saveUserCredential(cleanEmail, passwordPlain);
     return foundUser;
   }
 
@@ -220,7 +247,7 @@ export class UserService {
    * Admin creates a new user account
    */
   static async createUser(payload: CreateUserPayload): Promise<SystemUser> {
-    this.saveUserCredential(payload.email, payload.password);
+    await this.saveUserCredential(payload.email, payload.password);
     const roleMap: Record<string, string> = {
       SUPER_ADMIN: 'Super Administrator',
       HR_MANAGER: 'HR Manager',

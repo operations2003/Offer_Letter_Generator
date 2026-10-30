@@ -1,3 +1,4 @@
+import { sanitizeHtml } from '../../utils/sanitize.js';
 import React, { useState } from 'react';
 import {
   FileText,
@@ -251,21 +252,21 @@ export const TemplatePreviewModal: React.FC<TemplatePreviewModalProps> = ({
             {/* Document Header */}
             {renderedHeader && (
               <div
-                dangerouslySetInnerHTML={{ __html: renderedHeader }}
+                dangerouslySetInnerHTML={{ __html: sanitizeHtml(renderedHeader) }}
                 style={{ marginBottom: '20px' }}
               />
             )}
 
             {/* Document Body */}
             <div
-              dangerouslySetInnerHTML={{ __html: renderedContent }}
+              dangerouslySetInnerHTML={{ __html: sanitizeHtml(renderedContent) }}
               style={{ minHeight: '500px' }}
             />
 
             {/* Document Footer */}
             {renderedFooter && (
               <div
-                dangerouslySetInnerHTML={{ __html: renderedFooter }}
+                dangerouslySetInnerHTML={{ __html: sanitizeHtml(renderedFooter) }}
                 style={{ marginTop: '30px' }}
               />
             )}

@@ -4,9 +4,15 @@
 
 import { Router } from 'express';
 import { LearningController } from './learning.controller.js';
+import { authenticate } from '../../middleware/auth.js';
 
 export function createLearningRouter(controller: LearningController = new LearningController()): Router {
   const router = Router();
+
+  // Public verification endpoint (no authentication required)
+
+  // Enforce authentication on all operational routes
+  router.use(authenticate);
 
   // ---------------------------------------------------------------------------
   // Courses API

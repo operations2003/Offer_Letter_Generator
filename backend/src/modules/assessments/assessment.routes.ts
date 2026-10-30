@@ -4,9 +4,13 @@
 
 import { Router } from 'express';
 import { AssessmentController } from './assessment.controller.js';
+import { authenticate } from '../../middleware/auth.js';
 
 export function createAssessmentRouter(controller: AssessmentController = new AssessmentController()): Router {
   const router = Router();
+
+  // Enforce authentication on all assessment and AI routes
+  router.use(authenticate);
 
   // Question Bank & Review
   router.get('/questions', controller.listQuestions);

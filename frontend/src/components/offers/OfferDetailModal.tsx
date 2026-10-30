@@ -1,3 +1,4 @@
+import { sanitizeHtml } from '../../utils/sanitize.js';
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import {
@@ -627,7 +628,7 @@ export const OfferDetailModal: React.FC<OfferDetailModalProps> = ({
                       lineHeight: 1.65,
                     }}
                   >
-                    <div dangerouslySetInnerHTML={{ __html: previewData?.renderedHtml || '' }} />
+                    <div dangerouslySetInnerHTML={{ __html: sanitizeHtml(previewData?.renderedHtml || '') }} />
                   </div>
                 </div>
               )}
@@ -705,7 +706,7 @@ export const OfferDetailModal: React.FC<OfferDetailModalProps> = ({
                         fontSize: '13px',
                       }}
                     >
-                      <div dangerouslySetInnerHTML={{ __html: previewData?.renderedHtml || '' }} />
+                      <div dangerouslySetInnerHTML={{ __html: sanitizeHtml(previewData?.renderedHtml || '') }} />
                     </div>
                   </div>
                 </div>

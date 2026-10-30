@@ -127,12 +127,15 @@ export async function authenticate(req: Request, _res: Response, next: NextFunct
       throw new UnauthorizedError('Authentication token has been revoked (session ended)');
     }
 
-    // Support developer & demo access during development and HRMS prototype testing
+    const isDevEnv = process.env.NODE_ENV === 'development' || !process.env.NODE_ENV || process.env.NODE_ENV === 'test';
+
+    // Support developer & demo access strictly during development and test environments
     if (
-      token === 'demo_token' ||
-      token === 'demo_jwt_token_sample' ||
-      token.startsWith('demo_') ||
-      token.startsWith('mock_')
+      isDevEnv &&
+      (token === 'demo_token' ||
+        token === 'demo_jwt_token_sample' ||
+        token.startsWith('demo_') ||
+        token.startsWith('mock_'))
     ) {
       req.user = await getDevUser();
       return next();
@@ -145,10 +148,8 @@ export async function authenticate(req: Request, _res: Response, next: NextFunct
     } catch {
       // Gracefully authenticate demo users or active sessions
       if (
-        process.env.NODE_ENV === 'development' ||
-        !process.env.NODE_ENV ||
-        token.startsWith('mock_') ||
-        token.startsWith('demo_')
+        isDevEnv &&
+        (token.startsWith('mock_') || token.startsWith('demo_'))
       ) {
         req.user = await getDevUser();
         return next();

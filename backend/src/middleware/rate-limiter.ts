@@ -28,8 +28,8 @@ export function createRateLimiter(options: RateLimitConfig) {
       if (req.user?.userId) {
         return `user:${req.user.userId}`;
       }
-      const forwarded = req.headers['x-forwarded-for'];
-      const ip = typeof forwarded === 'string' ? forwarded.split(',')[0].trim() : req.ip || req.socket.remoteAddress || 'unknown';
+      // Rely on Express's proxy-validated req.ip to prevent header spoofing bypass
+      const ip = req.ip || req.socket.remoteAddress || 'unknown';
       return `ip:${ip}`;
     },
     skip = () => false,

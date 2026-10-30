@@ -1,3 +1,4 @@
+import { sanitizeHtml } from '../../utils/sanitize.js';
 import React, { useState, useMemo } from 'react';
 import {
   Download,
@@ -737,7 +738,7 @@ export const DocumentPreview: React.FC<DocumentPreviewProps> = ({
               lineHeight: 1.65,
             }}
            contentEditable={true} suppressContentEditableWarning={true}>
-            <div dangerouslySetInnerHTML={{ __html: terms.renderedHtml }} />
+            <div dangerouslySetInnerHTML={{ __html: sanitizeHtml(terms.renderedHtml) }} />
           </div>
         ) : (
           <div

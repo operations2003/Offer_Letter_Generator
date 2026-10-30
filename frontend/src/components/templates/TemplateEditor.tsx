@@ -1,3 +1,4 @@
+import { sanitizeHtml } from '../../utils/sanitize.js';
 import React, { useState, useEffect, useRef } from 'react';
 import {
   Save,
@@ -660,7 +661,7 @@ ul { padding-left: 20px; margin: 12px 0; }`
               {isMultiPageDocument ? (
                 <div style={{ width: '100%', maxWidth: '640px' }}>
                   {styleCss && <style>{styleCss}</style>}
-                  <div dangerouslySetInnerHTML={{ __html: renderedPreview }} />
+                  <div dangerouslySetInnerHTML={{ __html: sanitizeHtml(renderedPreview) }} />
                 </div>
               ) : (
                 <div
@@ -683,18 +684,18 @@ ul { padding-left: 20px; margin: 12px 0; }`
                   {/* Header (Only if not already embedded in body) */}
                   {renderedHeader && (
                     <div
-                      dangerouslySetInnerHTML={{ __html: renderedHeader }}
+                      dangerouslySetInnerHTML={{ __html: sanitizeHtml(renderedHeader) }}
                       style={{ marginBottom: 16 }}
                     />
                   )}
 
                   {/* Content */}
-                  <div dangerouslySetInnerHTML={{ __html: renderedPreview }} />
+                  <div dangerouslySetInnerHTML={{ __html: sanitizeHtml(renderedPreview) }} />
 
                   {/* Footer (Only if not already embedded in body) */}
                   {renderedFooter && (
                     <div
-                      dangerouslySetInnerHTML={{ __html: renderedFooter }}
+                      dangerouslySetInnerHTML={{ __html: sanitizeHtml(renderedFooter) }}
                       style={{ marginTop: 24 }}
                     />
                   )}

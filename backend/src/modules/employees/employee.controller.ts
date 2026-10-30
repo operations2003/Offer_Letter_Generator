@@ -206,10 +206,13 @@ export class EmployeeController {
       let detectedPlaceholders: string[] = Array.isArray(placeholders) ? placeholders : [];
       let extractedPreviewText = '';
 
-      if (templateStoragePath && fs.existsSync(templateStoragePath)) {
-        const inspection = await DocxTemplateService.inspectCustomTemplate(templateStoragePath);
+      if (templateStoragePath) {
+        const safePath = DocxTemplateService.assertSafeStoragePath(templateStoragePath);
+        if (fs.existsSync(safePath)) {
+          const inspection = await DocxTemplateService.inspectCustomTemplate(safePath);
         detectedPlaceholders = Array.from(new Set([...detectedPlaceholders, ...inspection.detectedPlaceholders]));
         extractedPreviewText = inspection.extractedPreviewText;
+        }
       }
 
       const mappings = await FieldMappingService.mapPlaceholdersForEmployee(

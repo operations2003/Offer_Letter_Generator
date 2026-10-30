@@ -1,6 +1,6 @@
 import { prisma } from '../../prisma/client.js';
 import { CryptoUtil } from '../../utils/crypto.js';
-import { NotFoundError, ConflictError, ValidationError, UnauthorizedError } from '../../errors/app-error.js';
+import { NotFoundError, ConflictError, ValidationError, UnauthorizedError, ForbiddenError } from '../../errors/app-error.js';
 import { AuditService } from '../audit/audit.service.js';
 export type UserStatus = 'ACTIVE' | 'INACTIVE' | 'SUSPENDED';
 
@@ -187,6 +187,18 @@ export class UserService {
 
     if (roles.length !== input.roleCodes.length) {
       throw new ValidationError('One or more specified role codes are invalid');
+    }
+
+    // Privilege escalation check: only SUPER_ADMIN can assign SUPER_ADMIN role
+    if (input.roleCodes.includes('SUPER_ADMIN')) {
+      const actorRoles = await prisma.userRole.findMany({
+        where: { userId: input.actorUserId },
+        include: { role: true },
+      });
+      const isSuperAdmin = actorRoles.some((ur) => ur.role.code === 'SUPER_ADMIN');
+      if (!isSuperAdmin) {
+        throw new ForbiddenError('Only Super Administrators are authorized to grant or assign the Super Administrator role');
+      }
     }
 
     const passwordHash = await CryptoUtil.hashPassword(input.passwordPlain);

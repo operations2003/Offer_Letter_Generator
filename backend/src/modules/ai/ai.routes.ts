@@ -14,6 +14,9 @@ import {
 
 const router = Router();
 
+// Enforce authentication across all AI endpoints
+router.use(authenticate);
+
 // MRSA prompt-driven agreement sections generation
 router.post('/mrsa/generate-sections', AiController.generateMrsaSections);
 
@@ -23,7 +26,6 @@ router.post('/policy/generate', AiController.generatePolicyFromPrompt);
 // HR Policy prompt-driven section editing
 router.post('/policy/edit-section', AiController.editPolicySection);
 
-router.use(authenticate);
 
 const extractSchema = z.object({
   documentText: z

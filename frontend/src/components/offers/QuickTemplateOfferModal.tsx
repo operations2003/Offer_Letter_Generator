@@ -1,3 +1,4 @@
+import { sanitizeHtml } from '../../utils/sanitize.js';
 import React, { useState, useRef, useMemo, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import {
@@ -886,7 +887,7 @@ export const QuickTemplateOfferModal: React.FC<QuickTemplateOfferModalProps> = (
       result = result.replace(pattern, displayVal);
     }
 
-    return result;
+    return sanitizeHtml(result);
   };
 
   // Print & PDF Download Handler

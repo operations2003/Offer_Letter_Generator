@@ -213,17 +213,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
 
       if (!response.ok) {
-        // Direct credential verification fallback if backend DB returns 401/network issue
-        if (cleanEmail === 'sheetalbedi@tasknera.com' && passwordPlain === 'Tasknera@9312506515') {
-          loginAsDemo('SUPER_ADMIN');
-          return;
-        } else if (cleanEmail === 'hr@gmail.com' && passwordPlain === 'hr@123') {
-          loginAsDemo('HR_MANAGER');
-          return;
-        }
-
-        // Check if this is a created system user (e.g. shubham@gmail.com)
-        const localUser = UserService.verifyCredentials(cleanEmail, passwordPlain);
+        // Check if this is a created system user (e.g. offline testing)
+        const localUser = await UserService.verifyCredentials(cleanEmail, passwordPlain);
         if (localUser) {
           loginWithSystemUser(localUser);
           return;
@@ -241,16 +232,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       localStorage.setItem('offergen_user', JSON.stringify(authData.user));
       localStorage.setItem('offergen_token', authData.tokens.accessToken);
     } catch (err: any) {
-      // Offline fallback strictly for designated credentials or created system users
-      if (cleanEmail === 'sheetalbedi@tasknera.com' && passwordPlain === 'Tasknera@9312506515') {
-        loginAsDemo('SUPER_ADMIN');
-        return;
-      } else if (cleanEmail === 'hr@gmail.com' && passwordPlain === 'hr@123') {
-        loginAsDemo('HR_MANAGER');
-        return;
-      }
+      // Offline fallback strictly for created system users
 
-      const localUser = UserService.verifyCredentials(cleanEmail, passwordPlain);
+      const localUser = await UserService.verifyCredentials(cleanEmail, passwordPlain);
       if (localUser) {
         loginWithSystemUser(localUser);
         return;

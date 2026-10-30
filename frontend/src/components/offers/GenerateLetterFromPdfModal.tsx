@@ -1,3 +1,4 @@
+import { sanitizeHtml } from '../../utils/sanitize.js';
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import {
@@ -1335,7 +1336,7 @@ export const GenerateLetterFromPdfModal: React.FC<GenerateLetterFromPdfModalProp
                         padding: isDirectEditMode ? '8px' : '0',
                         borderRadius: 6,
                       }}
-                      dangerouslySetInnerHTML={{ __html: getCompiledLetterBody() }}
+                      dangerouslySetInnerHTML={{ __html: sanitizeHtml(getCompiledLetterBody()) }}
                     />
 
                     {/* 6. Professional Executive Corporate Sign-Off & Acceptance Block */}

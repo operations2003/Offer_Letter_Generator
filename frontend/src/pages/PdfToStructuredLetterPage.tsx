@@ -1,3 +1,4 @@
+import { sanitizeHtml } from '../utils/sanitize.js';
 import React, { useState, useRef, useEffect } from 'react';
 import {
   FileText,
@@ -796,7 +797,7 @@ export const PdfToStructuredLetterPage: React.FC = () => {
                             handleDirectPageEdit(p.pageNumber, e.currentTarget.innerHTML);
                           }
                         }}
-                        dangerouslySetInnerHTML={{ __html: getRenderedHtml(p.htmlMarkup, p.pageNumber) }}
+                        dangerouslySetInnerHTML={{ __html: sanitizeHtml(getRenderedHtml(p.htmlMarkup, p.pageNumber)) }}
                       />
                     ))
                   : extractedData.pages
@@ -812,7 +813,7 @@ export const PdfToStructuredLetterPage: React.FC = () => {
                               handleDirectPageEdit(p.pageNumber, e.currentTarget.innerHTML);
                             }
                           }}
-                          dangerouslySetInnerHTML={{ __html: getRenderedHtml(p.htmlMarkup, p.pageNumber) }}
+                          dangerouslySetInnerHTML={{ __html: sanitizeHtml(getRenderedHtml(p.htmlMarkup, p.pageNumber)) }}
                         />
                       ))}
               </div>

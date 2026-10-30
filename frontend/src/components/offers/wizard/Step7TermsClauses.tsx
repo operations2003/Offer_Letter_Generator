@@ -1,3 +1,4 @@
+import { sanitizeHtml } from '../../../utils/sanitize.js';
 import React, { useState } from 'react';
 import {
   FileCheck2,
@@ -319,7 +320,7 @@ export const Step7TermsClauses: React.FC<Step7TermsClausesProps> = ({
                         marginTop: 6,
                         lineHeight: 1.5,
                       }}
-                      dangerouslySetInnerHTML={{ __html: clause.content }}
+                      dangerouslySetInnerHTML={{ __html: sanitizeHtml(clause.content) }}
                     />
                   </div>
                 </div>

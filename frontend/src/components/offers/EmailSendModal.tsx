@@ -1,3 +1,4 @@
+import { sanitizeHtml } from '../../utils/sanitize.js';
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import {
@@ -400,7 +401,7 @@ export const EmailSendModal: React.FC<EmailSendModalProps> = ({
                     overflowY: 'auto',
                     border: '1px solid var(--border-medium)',
                   }}
-                  dangerouslySetInnerHTML={{ __html: preview?.bodyHtmlPreview || '' }}
+                  dangerouslySetInnerHTML={{ __html: sanitizeHtml(preview?.bodyHtmlPreview || '') }}
                 />
               </div>
 

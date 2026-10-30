@@ -463,12 +463,34 @@ export class DocxTemplateService {
    * Reads template DOCX, scans document.xml, headers, footers, tables,
    * extracts all detected placeholders, and generates a preview of the document.
    */
+  /**
+   * Safely validates that a requested template path resides strictly within allowed directories.
+   * Prevents path traversal vulnerabilities.
+   */
+  static assertSafeStoragePath(rawPath: string): string {
+    if (!rawPath || typeof rawPath !== 'string') {
+      throw new BadRequestError('Invalid template path provided.');
+    }
+    const resolvedPath = path.resolve(rawPath);
+    const allowedDirs = [
+      path.resolve(this.ORIGINAL_TEMPLATES_DIR),
+      path.resolve(this.WORKING_DOCS_DIR),
+      path.resolve(process.cwd(), 'uploads', 'template-files'),
+    ];
+    const isAllowed = allowedDirs.some((dir) => resolvedPath.startsWith(dir + path.sep) || resolvedPath === dir);
+    if (!isAllowed) {
+      throw new BadRequestError('Access denied: Specified template path is outside of allowed storage directories.');
+    }
+    return resolvedPath;
+  }
+
   static async inspectCustomTemplate(storagePath: string): Promise<DocxTemplateInspectionResult> {
-    if (!fs.existsSync(storagePath)) {
+    const safePath = this.assertSafeStoragePath(storagePath);
+    if (!fs.existsSync(safePath)) {
       throw new BadRequestError(`Custom template file does not exist at ${storagePath}`);
     }
 
-    const buffer = fs.readFileSync(storagePath);
+    const buffer = fs.readFileSync(safePath);
     const zip = await JSZip.loadAsync(buffer);
 
     const detectedPlaceholders = new Set<string>();
@@ -547,11 +569,12 @@ export class DocxTemplateService {
     renderedPlainText: string;
     detectedPlaceholders: string[];
   }> {
-    if (!fs.existsSync(originalTemplatePath)) {
+    const safePath = this.assertSafeStoragePath(originalTemplatePath);
+    if (!fs.existsSync(safePath)) {
       throw new BadRequestError(`Original template not found at ${originalTemplatePath}`);
     }
 
-    const originalBuffer = fs.readFileSync(originalTemplatePath);
+    const originalBuffer = fs.readFileSync(safePath);
     const zip = await JSZip.loadAsync(originalBuffer);
 
     const allDetected = new Set<string>();

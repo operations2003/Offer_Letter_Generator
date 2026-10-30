@@ -1,3 +1,4 @@
+import { sanitizeHtml } from '../../../utils/sanitize.js';
 import React, { useState } from 'react';
 import {
   FileCheck2,
@@ -271,7 +272,7 @@ export const Step11GenerateOffer: React.FC<Step11GenerateOfferProps> = ({
           }}
         >
           {/* Document Content */}
-          <div dangerouslySetInnerHTML={{ __html: generatedOffer.renderedHtml }} />
+          <div dangerouslySetInnerHTML={{ __html: sanitizeHtml(generatedOffer.renderedHtml) }} />
         </div>
       </div>
 

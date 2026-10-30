@@ -85,6 +85,13 @@ export class PdfToStructuredLetterService {
       } catch {}
     }
 
+    // Cleanup temp file safely
+    try {
+      if (fs.existsSync(tempFilePath)) {
+        await fs.promises.unlink(tempFilePath);
+      }
+    } catch {}
+
     if (rawPages.length === 0) {
       throw new BadRequestError('Could not extract text from the uploaded PDF.');
     }
