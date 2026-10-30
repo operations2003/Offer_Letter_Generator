@@ -259,7 +259,8 @@ GUARDRAILS:
 1. All wording is advisory suggestions only, subject to HR and legal review.
 2. DO NOT make compensation, salary, or termination decisions.
 3. DO NOT claim legal compliance or statutory guarantees.
-4. Output must be professional, authoritative, and aligned with standard corporate practice.`;
+4. Output must be professional, authoritative, and aligned with standard corporate practice.
+5. ZERO GRAMMAR MISTAKES: Ensure impeccable spelling, grammar, punctuation, subject-verb agreement, accurate article selection ('a' vs 'an'), and strictly consistent pronouns throughout.`;
 
     const userPrompt = `Draft wording for task "${input.taskCode}" in a ${typeDef.name}.
 Instruction: ${input.instruction || 'Draft standard executive wording'}

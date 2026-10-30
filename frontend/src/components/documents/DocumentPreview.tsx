@@ -222,6 +222,13 @@ export const DocumentPreview: React.FC<DocumentPreviewProps> = ({
   const startDate = terms.startDate || 'October 2, 2026';
   const endDate = terms.endDate || 'September 30, 2026';
   const statusMode = terms.statusMode || 'ended';
+
+  const pronounHeShe = salutation === 'Ms.' || salutation === 'Mrs.' ? 'she' : 'he';
+  const pronounHisHer = salutation === 'Ms.' || salutation === 'Mrs.' ? 'her' : 'his';
+  const pronounHisHerCap = pronounHisHer.charAt(0).toUpperCase() + pronounHisHer.slice(1);
+  const pronounHimHer = salutation === 'Ms.' || salutation === 'Mrs.' ? 'her' : 'him';
+  const designationArticle = /^[aeiou]/i.test(designation.trim()) ? 'an' : 'a';
+
   const areaOfWork = terms.areaOfWork || 'operational workflows, task coordination, and project execution';
   const responsibilityLevel = terms.responsibilityLevel || 'was responsible for';
   const keyResponsibilities =
@@ -235,13 +242,13 @@ export const DocumentPreview: React.FC<DocumentPreviewProps> = ({
     'gained hands-on experience in cross-functional coordination, task execution, and supporting key deliverables';
   const demonstratedQualities =
     terms.demonstratedQualities ||
-    'demonstrated a professional attitude, sincerity, discipline, willingness to learn, and a responsible approach toward assigned responsibilities. She maintained professional conduct while working with the team and showed a positive attitude toward feedback and continuous improvement.';
+    `demonstrated a professional attitude, sincerity, discipline, willingness to learn, and a responsible approach toward assigned responsibilities. Professional conduct was consistently maintained while working with the team, reflecting a positive attitude toward feedback and continuous improvement.`;
   const conductEvaluation = terms.conductEvaluation || 'satisfactory and professional';
   const characterTraits = terms.characterTraits || 'cooperative, respectful, and committed';
   const futureEndeavours = terms.futureEndeavours || 'academic and professional';
   const issuanceReason =
     terms.issuanceReason ||
-    'completion/conclusion of her internship with Tasknera HR Solutions';
+    `formal completion and conclusion of ${pronounHisHer} internship with Tasknera HR Solutions`;
   const referenceNumber = terms.referenceNumber || document.referenceNumber;
   const issueDate =
     terms.issueDate ||
@@ -253,12 +260,6 @@ export const DocumentPreview: React.FC<DocumentPreviewProps> = ({
     terms.signatoryTitle ||
     document.signatoryTitle ||
     (isExperienceLetter ? 'Chief Executive Officer' : 'CEO');
-
-  const pronounHeShe = salutation === 'Ms.' || salutation === 'Mrs.' ? 'she' : 'he';
-  const pronounHisHer = salutation === 'Ms.' || salutation === 'Mrs.' ? 'her' : 'his';
-  const pronounHisHerCap = pronounHisHer.charAt(0).toUpperCase() + pronounHisHer.slice(1);
-  const pronounHimHer = salutation === 'Ms.' || salutation === 'Mrs.' ? 'her' : 'him';
-  const designationArticle = /^[aeiou]/i.test(designation.trim()) ? 'an' : 'a';
 
   const defaultExpContributionOverview =
     "the development and enhancement of the company's software solutions, particularly in the areas of Human Resource Management Systems (HRMS), Applicant Tracking Systems (ATS), recruitment automation, and business application development.";
@@ -2054,11 +2055,11 @@ export const DocumentPreview: React.FC<DocumentPreviewProps> = ({
               </p>
 
               <p style={{ margin: 0 }}>
-                To the best of our knowledge, {pronounHisHer} conduct and character during the internship period were {conductEvaluation}. We found them to be {characterTraits} to the responsibilities entrusted to them.
+                To the best of our knowledge, {pronounHisHer} conduct and character during the internship period were {conductEvaluation}. We found {pronounHimHer} to be {characterTraits} with respect to the responsibilities entrusted to {pronounHimHer}.
               </p>
 
               <p style={{ margin: 0 }}>
-                We appreciate {pronounHisHer} contribution to the {terms.department ? `${terms.department} function` : "organization"} and wish {pronounHimHer} success and growth in their future {futureEndeavours} endeavors.
+                We appreciate {pronounHisHer} contributions to the {terms.department ? `${terms.department} function` : "organization"} and wish {pronounHimHer} continued success and growth in {pronounHisHer} future {futureEndeavours} endeavors.
               </p>
 
               <p style={{ margin: 0 }}>

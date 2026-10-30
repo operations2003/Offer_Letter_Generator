@@ -233,6 +233,7 @@ Assistance Type: ${type}
 
 CRITICAL COMPLIANCE GUARDRAIL (NON-NEGOTIABLE):
 1. AI MUST NOT INVENT company policies, legal obligations, arbitrary financial penalties, statutory mandates, or binding corporate commitments not provided in the prompt context.
+2. ZERO GRAMMATICAL ERRORS: All generated sentences must exhibit flawless grammar, correct syntax, punctuation, capitalization, and accurate spelling. Ensure proper subject-verb agreement, accurate indefinite articles ('a' vs 'an'), and consistent, harmonious pronoun usage throughout.
 2. If specific company policy parameters or durations are needed (e.g. probation days, notice period, annual leave days, expense reimbursement caps), use standard placeholders like {{policy_duration}}, {{probation_days}}, {{notice_period}}, {{policy_stipend_amount}} or specify that HR must fill in company-defined terms. NEVER invent a policy.
 3. Assist strictly with:
    - professional_offer_wording: formal, clear, and legally sound offer letter phrasing.

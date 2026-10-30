@@ -84,13 +84,13 @@ export const CharacterCertificateModal: React.FC<CharacterCertificateModalProps>
     'gained hands-on experience in cross-functional coordination, task execution, and supporting key milestones across projects'
   );
   const [demonstratedQualities, setDemonstratedQualities] = useState<string>(
-    'demonstrated a professional attitude, sincerity, discipline, willingness to learn, and a responsible approach toward assigned responsibilities. She maintained professional conduct while working with the team and showed a positive attitude toward feedback and continuous improvement.'
+    'demonstrated a professional attitude, sincerity, discipline, willingness to learn, and a responsible approach toward assigned responsibilities. Professional conduct was consistently maintained while working with the team, reflecting a positive attitude toward feedback and continuous improvement.'
   );
   const [conductEvaluation, setConductEvaluation] = useState<string>('satisfactory and professional');
   const [characterTraits, setCharacterTraits] = useState<string>('cooperative, respectful, and committed');
   const [futureEndeavours, setFutureEndeavours] = useState<string>('academic and professional');
   const [issuanceReason, setIssuanceReason] = useState<string>(
-    'completion/conclusion of her internship with Tasknera HR Solutions'
+    'formal completion and conclusion of the assigned internship tenure with Tasknera HR Solutions'
   );
 
   // Signatory
@@ -1241,11 +1241,11 @@ export const CharacterCertificateModal: React.FC<CharacterCertificateModalProps>
                     </p>
 
                     <p contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this paragraph directly" style={{ margin: 0, padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}>
-                      To the best of our knowledge, {hl(pronounHisHer)} conduct and character during the internship period were {hl(conductEvaluation)}. We found them to be {hl(characterTraits)} to the responsibilities entrusted to them.
+                      To the best of our knowledge, {hl(pronounHisHer)} conduct and character during the internship period were {hl(conductEvaluation)}. We found {hl(pronounHimHer)} to be {hl(characterTraits)} with respect to the responsibilities entrusted to {hl(pronounHimHer)}.
                     </p>
 
                     <p contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this paragraph directly" style={{ margin: 0, padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}>
-                      We appreciate {hl(pronounHisHer)} contribution to the organization and wish {hl(pronounHimHer)} success and growth in their future {hl(futureEndeavours)} endeavors.
+                      We appreciate {hl(pronounHisHer)} contributions to the organization and wish {hl(pronounHimHer)} continued success and growth in {hl(pronounHisHer)} future {hl(futureEndeavours)} endeavors.
                     </p>
 
                     <p contentEditable={true} suppressContentEditableWarning={true} title="Click to edit this paragraph directly" style={{ margin: 0, padding: '2px 4px', borderRadius: 4, outline: 'none', cursor: 'text' }}>

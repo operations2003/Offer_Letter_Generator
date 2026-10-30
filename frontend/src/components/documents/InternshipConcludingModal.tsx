@@ -130,8 +130,9 @@ export const InternshipConcludingModal: React.FC<InternshipConcludingModalProps>
   const [customPoint5, setCustomPoint5] = useState<string>('');
   const [customConcludingPara, setCustomConcludingPara] = useState<string>('');
 
-  const defaultPara1 = `This letter confirms that your internship with Tasknera as ${internshipRole} in the ${department} team, which commenced on ${commencedDate}, will conclude on ${lastWorkingDay} (the “Last Working Day”), on completion of the internship period of ${duration}.`;
-  const defaultPara2 = `During this period you were engaged in ${workDescription}.${performanceConductNote ? ` ${performanceConductNote}` : ''}`;
+  const roleArticle = /^[aeiou]/i.test((internshipRole || '').trim()) ? 'an' : 'a';
+  const defaultPara1 = `This letter confirms that your internship with Tasknera as ${roleArticle} ${internshipRole} in the ${department} team, which commenced on ${commencedDate}, will conclude on ${lastWorkingDay} (the “Last Working Day”), on completion of the internship period of ${duration}.`;
+  const defaultPara2 = `During this period, you were engaged in ${workDescription}.${performanceConductNote ? ` ${performanceConductNote}` : ''}`;
   const defaultPoint1 = `Handover. Please hand over all work, files, trackers and responsibilities to ${handoverRecipient} on or before the Last Working Day.`;
   const defaultPoint2 = `Company property and access. Please return all Company property, and credentials, if any, issued to you. Your access to Company and Client systems, including the ATS, CRM, email and communication channels, will be withdrawn at the close of business on the Last Working Day.`;
   const defaultPoint3 = `Confidentiality and data. You are required to return or securely delete all Company, Client and Candidate information in your possession and to keep all such information confidential after the Last Working Day. Your confidentiality and data-protection obligations continue after your internship ends, as set out in your internship terms.`;
