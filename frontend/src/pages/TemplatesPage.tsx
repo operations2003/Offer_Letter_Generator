@@ -709,6 +709,534 @@ ___________________________             ___________________________
       signatory_title: 'Chief Executive Officer',
     },
   },
+  // 11. Employee Leave & Attendance Policy
+  {
+    value: 'Leave & Attendance Policy',
+    legacyValue: 'LEAVE_ATTENDANCE_POLICY',
+    label: 'Employee Leave & Attendance Policy',
+    group: 'policies',
+    groupLabel: 'Policy',
+    defaultTitle: 'Employee Leave and Attendance Governance Standard',
+    blueprintContent: `# **{{company_name}}**
+## **{{policy_name}}**
+### **{{category_label}} Governance & Compliance Standard**
+
+**Policy Reference**: {{reference_number}} | **Version**: {{version}} | **Effective Date**: {{effective_date}}
+**Applicability**: {{applicability}}
+**Review Cycle**: {{review_cycle}} | **Governing Department**: {{department}}
+
+---
+
+**POLICY OBJECTIVE & MANDATE**
+The purpose of this **{{policy_name}}** is to establish standardized, equitable, and enforceable operational directives governing working hours, attendance recording, statutory and discretionary leave entitlements, and workforce availability across **{{company_name}}**. Compliance with this standard is a mandatory condition of ongoing engagement.
+
+**1. SCOPE & JURISDICTION**
+• **Personnel Coverage**: Applicable to all full-time employees, part-time staff, fixed-term contractors, probationary personnel, and interns across all operating entities and branch delivery centers of **{{company_name}}**.
+• **Operational Environments**: Encompasses onsite corporate offices, client locations, and approved remote/hybrid workstations.
+• **Statutory Alignment**: In the event of statutory conflict with local labor enactments, the more stringent compliance provision shall apply.
+
+**2. STANDARD WORKING HOURS & ATTENDANCE RECORDING**
+• **Working Hours**: Standard full-time engagement consists of 5 business days per week, comprising **{{working_hours}}** daily, inclusive of a 1-hour rest and meal interval.
+• **Core Collaboration Window**: All covered personnel must maintain synchronous team availability and communication reachability between **{{core_hours}}**.
+• **Time-Tracking Protocol**: Personnel must record check-in and check-out timestamps via the corporate portal or biometric access scanners. Discrepancies must be submitted for managerial regularization within **{{regularization_window}}**.
+• **Punctuality & Habitual Irregularity**: Unexcused tardiness exceeding 15 minutes more than **{{grace_days_limit}}** times in a single calendar month incurs formal HR counseling and potential forfeiture of discretionary attendance incentives.
+
+**3. ANNUAL PAID TIME OFF (PTO) & ACCRUAL CEILING**
+• **Accrual Rate**: Employees accrue **{{annual_leave_accrual}}** days of paid leave per completed calendar month of active service, providing an annual entitlement of **{{annual_leave_total}}** days.
+• **Rollover Cap**: A maximum of **{{max_leave_carryover}}** unused paid leave days may be carried forward into the subsequent calendar year. Unused balances beyond this ceiling are subject to statutory encashment or forfeiture.
+• **Advance Notice**: Any planned consecutive leave of **{{planned_leave_notice_days}}** or more business days requires formal approval submitted through the HR portal at least **{{advance_notice_timeline}}** prior to the commencement date.
+
+**4. SICK, CASUAL & COMPASSIONATE LEAVE**
+• **Medical Leave Allocation**: An annual allocation of **{{sick_leave_days}}** paid days is granted for personal medical convalescence or direct family healthcare emergencies.
+• **Medical Practitioner Certification**: Continuous illness absence spanning **{{medical_cert_threshold}}** or more consecutive business days mandates submission of a verified certificate issued by a registered medical practitioner.
+• **Casual & Emergency Leave**: Up to **{{casual_leave_days}}** days are allocated annually for unforeseen personal exigencies, subject to prompt supervisor notification on the morning of absence.
+
+**5. PARENTAL & MATERNITY PROVISIONS**
+• **Statutory Maternity Benefit**: Eligible female personnel are entitled to **{{maternity_leave_weeks}}** weeks of fully paid maternity leave in accordance with statutory guidelines, accessible up to 8 weeks prior to the expected delivery date.
+• **Paternity & Adoption Support**: Eligible secondary caregivers receive **{{paternity_leave_days}}** days of fully paid paternity leave, to be utilized within the initial 6 months following childbirth or formal legal adoption.
+
+**6. DISCIPLINARY SANCTIONS & JOB ABANDONMENT**
+• **Unauthorized Absence**: Unreported, unexcused absence exceeding **{{job_abandonment_days}}** consecutive business days is categorized as voluntary job abandonment, resulting in administrative termination of engagement for cause.
+• **Zero-Tolerance Protocol**: Willful falsification of time logs, proxy attendance punches, or falsified medical documentation incurs immediate disciplinary inquiry and potential legal recourse.
+
+---
+
+**AUTHORIZATION & GOVERNANCE ENDORSEMENT**
+
+Authorized on behalf of **{{company_name}}**:
+
+___________________________
+**{{signatory_name}}**
+{{signatory_title}}
+Email: {{signatory_email}}
+Corporate Office: {{company_address}}
+Issue Date: {{issue_date}}`,
+    sampleData: {
+      policy_name: 'Employee Leave & Attendance Policy',
+      category_label: 'Attendance & Leave',
+      reference_number: 'POL-ATT-LVE-2026-v1.0',
+      version: '1.0',
+      company_name: 'TaskNera Technologies Ltd.',
+      effective_date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
+      issue_date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
+      applicability: 'All Full-Time, Probationary, Remote & Associated Personnel',
+      review_cycle: 'Annual Corporate Review',
+      department: 'People Operations & Human Resources',
+      working_hours: '9 hours (9:30 AM to 6:30 PM)',
+      core_hours: '10:30 AM to 4:30 PM IST',
+      regularization_window: '48 hours from occurrence',
+      grace_days_limit: '3 occurrences',
+      annual_leave_accrual: '1.75',
+      annual_leave_total: '21',
+      max_leave_carryover: '10',
+      planned_leave_notice_days: '3',
+      advance_notice_timeline: '14 calendar days',
+      sick_leave_days: '10',
+      medical_cert_threshold: '3',
+      casual_leave_days: '7',
+      maternity_leave_weeks: '26',
+      paternity_leave_days: '15',
+      job_abandonment_days: '3',
+      signatory_name: 'Sheetal Bedi',
+      signatory_title: 'Chief Executive Officer',
+      signatory_email: 'operations@tasknera.com',
+      company_address: 'D-57 Dilshad Colony, Shahdara, Delhi 110095',
+    },
+  },
+
+  // 12. Code of Conduct & Workplace Ethics Policy
+  {
+    value: 'Code of Conduct Policy',
+    legacyValue: 'CODE_OF_CONDUCT',
+    label: 'Code of Conduct & Workplace Ethics Policy',
+    group: 'policies',
+    groupLabel: 'Policy',
+    defaultTitle: 'Code of Conduct and Professional Ethics Standard',
+    blueprintContent: `# **{{company_name}}**
+## **{{policy_name}}**
+### **{{category_label}} Governance & Compliance Standard**
+
+**Policy Reference**: {{reference_number}} | **Version**: {{version}} | **Effective Date**: {{effective_date}}
+**Applicability**: {{applicability}}
+**Review Cycle**: {{review_cycle}} | **Governing Department**: {{department}}
+
+---
+
+**1. OBJECTIVE & CORE VALUES**
+The Code of Conduct defines binding benchmarks of integrity, honesty, professionalism, and legal compliance required of every individual affiliated with **{{company_name}}**. All personnel are entrusted with upholding corporate reputation and client confidence.
+
+**2. ANTI-BRIBERY & CORRUPTION COMPLIANCE**
+• **Zero-Tolerance Prohibition**: Offering, giving, soliciting, or receiving any bribe, kickback, improper payment, or illicit inducement—directly or via third parties—is strictly prohibited.
+• **Gifts & Business Hospitality**: Business courtesies exceeding a nominal value of **{{gift_threshold}}** must be formally disclosed and pre-approved by the Ethics Committee.
+
+**3. CONFLICTS OF INTEREST & DUAL ENGAGEMENT**
+• **Duty of Undivided Loyalty**: Employees must not engage in outside commercial activities, consult for direct competitors, or maintain personal financial interests that compete with **{{company_name}}**.
+• **Moonlighting Restriction**: Full-time personnel are prohibited from concurrent external employment or commercial freelancing during active tenure without prior written consent from HR.
+
+**4. RESPECTFUL WORK ENVIRONMENT & EQUAL OPPORTUNITY**
+• **Non-Discrimination**: We mandate equal opportunity without regard to race, caste, gender, sexual orientation, disability, religion, or age.
+• **Harassment-Free Workplace**: Verbal abuse, derogatory remarks, microaggressions, or intimidatory conduct are severe infractions incurring summary disciplinary proceedings.
+
+**5. CONFIDENTIALITY & PROPRIETARY SAFEGUARDS**
+• Personnel must exercise rigorous diligence to protect trade secrets, source code, candidate data, client deliverables, and commercial pricing.
+
+**6. DISCIPLINARY RECOURSE & WHISTLEBLOWER PROTECTION**
+• Good-faith reporting of violations is strictly protected against retaliation. Material breaches incur sanctions up to termination for cause.
+
+---
+
+Authorized by **{{company_name}}**:
+
+___________________________
+**{{signatory_name}}** | {{signatory_title}}
+Date: {{issue_date}} | Delhi, India`,
+    sampleData: {
+      policy_name: 'Code of Conduct & Workplace Ethics Policy',
+      category_label: 'Workplace Conduct & Ethics',
+      reference_number: 'POL-ETH-2026-v1.0',
+      version: '1.0',
+      company_name: 'TaskNera Technologies Ltd.',
+      effective_date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
+      issue_date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
+      applicability: 'All Full-Time, Probationary, Contractor & Leadership Personnel',
+      review_cycle: 'Annual Review / Ethics Board Oversight',
+      department: 'Corporate Governance & Legal Compliance',
+      gift_threshold: 'INR 2,500',
+      signatory_name: 'Sheetal Bedi',
+      signatory_title: 'Chief Executive Officer',
+      signatory_email: 'compliance@tasknera.com',
+      company_address: 'D-57 Dilshad Colony, Shahdara, Delhi 110095',
+    },
+  },
+
+  // 13. Intellectual Property & Work Product Policy
+  {
+    value: 'Intellectual Property Policy',
+    legacyValue: 'IP_POLICY',
+    label: 'Intellectual Property & Work Product Policy',
+    group: 'policies',
+    groupLabel: 'Policy',
+    defaultTitle: 'Employee & Contractor IP Governance Standard',
+    blueprintContent: `# **{{company_name}}**
+## **{{policy_name}}**
+### **{{category_label}} Governance & Compliance Standard**
+
+**Policy Reference**: {{reference_number}} | **Version**: {{version}} | **Effective Date**: {{effective_date}}
+**Applicability**: {{applicability}}
+**Review Cycle**: {{review_cycle}} | **Governing Department**: {{department}}
+
+---
+
+**1. PURPOSE & PRINCIPLES**
+This policy governs the creation, ownership, protection, and assignment of intellectual property (IP), proprietary inventions, source code, workflows, algorithms, and business documentation developed in connection with **{{company_name}}**.
+
+**2. DEFINITION OF WORK PRODUCT**
+Work Product includes all software, technical designs, product architecture, documentation, candidate databases, recruitment algorithms, training assets, and deliverables created during the term of engagement.
+
+**3. EXCLUSIVE CORPORATE OWNERSHIP**
+• All Work Product authored, developed, or conceived by covered personnel in the course of their duties or utilizing company computing resources constitutes "work made for hire" and is the sole, exclusive property of **{{company_name}}**.
+• Covered persons irrevocably assign and transfer all global copyright, patent, trademark, and trade secret rights to **{{company_name}}** in perpetuity.
+
+**4. PRE-EXISTING INTELLECTUAL PROPERTY**
+• Any proprietary tools or code created prior to commencement must be documented in writing on the inception disclosure annexure. Unlisted items are presumed to belong to **{{company_name}}**.
+
+**5. MORAL RIGHTS WAIVER & COOPERATION**
+• Covered personnel expressly waive moral rights to the fullest extent permitted by law and agree to execute all necessary confirmatory assignment deeds.
+
+---
+
+Authorized by **{{company_name}}**:
+
+___________________________
+**{{signatory_name}}** | {{signatory_title}}
+Date: {{issue_date}} | Delhi, India`,
+    sampleData: {
+      policy_name: 'Intellectual Property & Work Product Policy',
+      category_label: 'Intellectual Property & Innovation',
+      reference_number: 'POL-IP-2026-v1.0',
+      version: '1.0',
+      company_name: 'TaskNera Technologies Ltd.',
+      effective_date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
+      issue_date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
+      applicability: 'All Software Engineers, Product Teams, Contractors & Associated Personnel',
+      review_cycle: 'Annual Review / Legal IP Audit',
+      department: 'Legal Affairs & Technology Innovation',
+      signatory_name: 'Sheetal Bedi',
+      signatory_title: 'Chief Executive Officer',
+      signatory_email: 'ip@tasknera.com',
+      company_address: 'D-57 Dilshad Colony, Shahdara, Delhi 110095',
+    },
+  },
+
+  // 14. Hybrid & Remote Work Policy
+  {
+    value: 'Remote Work Policy',
+    legacyValue: 'HYBRID_REMOTE_POLICY',
+    label: 'Hybrid & Remote Work Policy',
+    group: 'policies',
+    groupLabel: 'Policy',
+    defaultTitle: 'Hybrid and Remote Work Governance Framework',
+    blueprintContent: `# **{{company_name}}**
+## **{{policy_name}}**
+### **{{category_label}} Governance & Compliance Standard**
+
+**Policy Reference**: {{reference_number}} | **Version**: {{version}} | **Effective Date**: {{effective_date}}
+**Applicability**: {{applicability}}
+**Review Cycle**: {{review_cycle}} | **Governing Department**: {{department}}
+
+---
+
+**1. FRAMEWORK & OBJECTIVE**
+**{{company_name}}** supports dynamic, hybrid working models designed to maximize productivity while preserving cross-functional collaboration, physical team cohesion, and strict client data security.
+
+**2. SCHEDULE & IN-OFFICE REQUIREMENTS**
+• **Hybrid Model**: Covered personnel work **{{remote_days_per_week}}** remotely and attend our designated office facility **{{office_days_per_week}}** per week.
+• **Core Collaboration Schedule**: Remote personnel must be reachable on Slack/Teams and email during core hours of **{{core_hours}}**.
+
+**3. HOME WORKSPACE & CYBERSECURITY SAFEGUARDS**
+• **Private Work Environment**: Personnel must maintain a private, ergonomic workstation shielded from third-party observation.
+• **Secure Connectivity**: Connection to company repositories and production databases is restricted to multi-factor VPN tunnels. Public Wi-Fi usage without VPN encryption is strictly prohibited.
+
+**4. HARDWARE & PERIPHERAL ASSETS**
+• Company-provisioned laptops and peripherals remain corporate property and must not be loaned to family members or third parties.
+
+**5. PERFORMANCE OVERSIGHT & REVOCATION**
+• Remote privileges are contingent upon meeting deliverables and KPIs. Privileges may be revoked if performance metrics decline.
+
+---
+
+Authorized by **{{company_name}}**:
+
+___________________________
+**{{signatory_name}}** | {{signatory_title}}
+Date: {{issue_date}} | Delhi, India`,
+    sampleData: {
+      policy_name: 'Hybrid & Remote Work Policy',
+      category_label: 'Work Arrangements & Operations',
+      reference_number: 'POL-WRK-2026-v1.0',
+      version: '1.0',
+      company_name: 'TaskNera Technologies Ltd.',
+      effective_date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
+      issue_date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
+      applicability: 'All Eligible Hybrid, Remote & Distributed Engineering Staff',
+      review_cycle: 'Bi-Annual Operational Review',
+      department: 'Workforce Operations & Infrastructure',
+      remote_days_per_week: '3 days',
+      office_days_per_week: '2 days',
+      core_hours: '10:00 AM to 5:00 PM IST',
+      signatory_name: 'Sheetal Bedi',
+      signatory_title: 'Chief Executive Officer',
+      signatory_email: 'operations@tasknera.com',
+      company_address: 'D-57 Dilshad Colony, Shahdara, Delhi 110095',
+    },
+  },
+
+  // 15. IT Assets, Cybersecurity & Acceptable Use Policy
+  {
+    value: 'IT Security Policy',
+    legacyValue: 'IT_ACCEPTABLE_USE',
+    label: 'IT Assets, Cybersecurity & Acceptable Use Policy',
+    group: 'policies',
+    groupLabel: 'Policy',
+    defaultTitle: 'Enterprise IT Assets & Cybersecurity Directive',
+    blueprintContent: `# **{{company_name}}**
+## **{{policy_name}}**
+### **{{category_label}} Governance & Compliance Standard**
+
+**Policy Reference**: {{reference_number}} | **Version**: {{version}} | **Effective Date**: {{effective_date}}
+**Applicability**: {{applicability}}
+**Review Cycle**: {{review_cycle}} | **Governing Department**: {{department}}
+
+---
+
+**1. PURPOSE & DIRECTIVE**
+To safeguard **{{company_name}}** computing infrastructure, networks, client records, and software code against unauthorized access, malware, data exfiltration, and cyber threats.
+
+**2. PASSWORD & AUTHENTICATION PROTOCOLS**
+• Passwords must be at least **{{password_min_length}}** characters long, combining uppercase, lowercase, numbers, and symbols.
+• Multi-Factor Authentication (MFA) is strictly mandatory on all corporate email, source code repos, and cloud consoles.
+• Passwords must be rotated every **{{password_rotation_days}}** days and never shared or recorded in plaintext.
+
+**3. GENERATIVE AI & UNAPPROVED CLOUD TOOLS**
+• Ingestion of proprietary source code, internal communications, customer PII, or financial records into public AI tools (ChatGPT, Claude, etc.) is strictly prohibited without prior written IT approval.
+
+**4. BRING YOUR OWN DEVICE (BYOD) & EXTERNAL MEDIA**
+• Connecting personal USB flash drives or unencrypted external hard disks to company workstations is blocked by endpoint policy.
+• Personal mobile devices accessing corporate email must run the designated Mobile Device Management (MDM) profile.
+
+**5. SECURITY INCIDENT REPORTING**
+• Any suspicious email phishing attempt, malware warning, lost hardware, or data anomaly must be reported to the security desk within **{{breach_report_window}}**.
+
+---
+
+Authorized by **{{company_name}}**:
+
+___________________________
+**{{signatory_name}}** | {{signatory_title}}
+Date: {{issue_date}} | Delhi, India`,
+    sampleData: {
+      policy_name: 'IT Assets, Cybersecurity & Acceptable Use Policy',
+      category_label: 'IT Infrastructure & Data Security',
+      reference_number: 'POL-IT-2026-v1.0',
+      version: '1.0',
+      company_name: 'TaskNera Technologies Ltd.',
+      effective_date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
+      issue_date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
+      applicability: 'All Users Accessing TaskNera Networks, Servers & Laptops',
+      review_cycle: 'Annual Security & ISO/IEC 27001 Audit',
+      department: 'Information Technology & Cybersecurity',
+      password_min_length: '14',
+      password_rotation_days: '90',
+      breach_report_window: '2 hours',
+      signatory_name: 'Sheetal Bedi',
+      signatory_title: 'Chief Executive Officer',
+      signatory_email: 'security@tasknera.com',
+      company_address: 'D-57 Dilshad Colony, Shahdara, Delhi 110095',
+    },
+  },
+
+  // 16. Anti-Harassment & POSH Compliance Policy
+  {
+    value: 'Anti-Harassment Policy',
+    legacyValue: 'ANTI_HARASSMENT_POSH',
+    label: 'Anti-Harassment & POSH Compliance Policy',
+    group: 'policies',
+    groupLabel: 'Policy',
+    defaultTitle: 'Prevention of Workplace Harassment & POSH Directive',
+    blueprintContent: `# **{{company_name}}**
+## **{{policy_name}}**
+### **{{category_label}} Governance & Compliance Standard**
+
+**Policy Reference**: {{reference_number}} | **Version**: {{version}} | **Effective Date**: {{effective_date}}
+**Applicability**: {{applicability}}
+**Review Cycle**: {{review_cycle}} | **Governing Department**: {{department}}
+
+---
+
+**1. ZERO-TOLERANCE COMMITMENT**
+**{{company_name}}** is committed to fostering a secure, dignified, and inclusive environment completely free from sexual harassment, gender discrimination, and hostile workplace intimidation in strict compliance with the POSH Act.
+
+**2. DEFINITION OF PROHIBITED ACTS**
+Sexual harassment includes unwelcome physical contact, demands for sexual favors, sexually colored remarks, display of pornography, and any unwelcome conduct creating an intimidating or offensive work atmosphere.
+
+**3. INTERNAL COMPLAINTS COMMITTEE (ICC)**
+• An Internal Complaints Committee headed by a Presiding Woman Officer and an external NGO/legal member oversees all inquiries.
+• Confidential complaints may be lodged in writing to the ICC at **{{icc_email}}** within **{{complaint_window_months}}** months of an incident.
+
+**4. INQUIRY PROTOCOLS & TIMELINES**
+• All proceedings observe strict confidentiality and natural justice. Formal inquiry reports are concluded within **{{inquiry_completion_days}}** days.
+• Retaliation or victimization against any complainant, witness, or committee member is classified as gross misconduct resulting in immediate termination.
+
+---
+
+Authorized by **{{company_name}}**:
+
+___________________________
+**{{signatory_name}}** | {{signatory_title}}
+Date: {{issue_date}} | Delhi, India`,
+    sampleData: {
+      policy_name: 'Anti-Harassment & POSH Compliance Policy',
+      category_label: 'Workplace Conduct & Statutory Compliance',
+      reference_number: 'POL-POSH-2026-v1.0',
+      version: '1.0',
+      company_name: 'TaskNera Technologies Ltd.',
+      effective_date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
+      issue_date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
+      applicability: 'All Employees, Retainers, Trainees & Third-Party Visitors',
+      review_cycle: 'Annual Statutory Audit',
+      department: 'Internal Complaints Committee & Human Resources',
+      icc_email: 'posh@tasknera.com',
+      complaint_window_months: '3',
+      inquiry_completion_days: '90',
+      signatory_name: 'Sheetal Bedi',
+      signatory_title: 'Chief Executive Officer',
+      signatory_email: 'operations@tasknera.com',
+      company_address: 'D-57 Dilshad Colony, Shahdara, Delhi 110095',
+    },
+  },
+
+  // 17. Data Privacy, Confidentiality & DPDP Policy
+  {
+    value: 'Data Privacy Policy',
+    legacyValue: 'DATA_PRIVACY_DPDP',
+    label: 'Data Privacy, Confidentiality & DPDP Policy',
+    group: 'policies',
+    groupLabel: 'Policy',
+    defaultTitle: 'Corporate Data Protection & Privacy Governance Standard',
+    blueprintContent: `# **{{company_name}}**
+## **{{policy_name}}**
+### **{{category_label}} Governance & Compliance Standard**
+
+**Policy Reference**: {{reference_number}} | **Version**: {{version}} | **Effective Date**: {{effective_date}}
+**Applicability**: {{applicability}}
+**Review Cycle**: {{review_cycle}} | **Governing Department**: {{department}}
+
+---
+
+**1. STATUTORY COMPLIANCE & SCOPE**
+This standard governs the collection, processing, storage, and transfer of Personally Identifiable Information (PII) belonging to employees, job candidates, and clients in compliance with the Digital Personal Data Protection (DPDP) Act and international privacy frameworks.
+
+**2. DATA MINIMIZATION & LAWFUL PURPOSE**
+• PII must only be collected for specified, explicit, and legitimate corporate operational purposes with valid consent.
+• Candidate resumes, background verification documents, and salary slips may be retained for no longer than **{{retention_period_months}}** months post-recruitment conclusion unless statutory mandates require longer retention.
+
+**3. DATA PRINCIPAL RIGHTS & ACCESS**
+• Individuals maintain rights to access, rectify, and request erasure of their personal data by emailing **{{dpo_email}}**.
+
+**4. CROSS-BORDER DATA TRANSFERS & ENCRYPTION**
+• All data at rest must be encrypted using AES-256 standards, and data in transit must utilize TLS 1.3 encryption.
+
+---
+
+Authorized by **{{company_name}}**:
+
+___________________________
+**{{signatory_name}}** | {{signatory_title}}
+Date: {{issue_date}} | Delhi, India`,
+    sampleData: {
+      policy_name: 'Data Privacy, Confidentiality & DPDP Policy',
+      category_label: 'Information Privacy & Regulatory Governance',
+      reference_number: 'POL-DPDP-2026-v1.0',
+      version: '1.0',
+      company_name: 'TaskNera Technologies Ltd.',
+      effective_date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
+      issue_date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
+      applicability: 'All Global Employees, Contractors, Recruiter Teams & Data Processors',
+      review_cycle: 'Annual Privacy Governance Review',
+      department: 'Data Protection Office & Legal',
+      retention_period_months: '12',
+      dpo_email: 'privacy@tasknera.com',
+      signatory_name: 'Sheetal Bedi',
+      signatory_title: 'Chief Executive Officer',
+      signatory_email: 'compliance@tasknera.com',
+      company_address: 'D-57 Dilshad Colony, Shahdara, Delhi 110095',
+    },
+  },
+
+  // 18. Travel, Conveyance & Business Expense Policy
+  {
+    value: 'Expense Policy',
+    legacyValue: 'EXPENSE_TRAVEL_POLICY',
+    label: 'Travel, Conveyance & Business Expense Policy',
+    group: 'policies',
+    groupLabel: 'Policy',
+    defaultTitle: 'Business Travel & Expense Reimbursement Standard',
+    blueprintContent: `# **{{company_name}}**
+## **{{policy_name}}**
+### **{{category_label}} Governance & Compliance Standard**
+
+**Policy Reference**: {{reference_number}} | **Version**: {{version}} | **Effective Date**: {{effective_date}}
+**Applicability**: {{applicability}}
+**Review Cycle**: {{review_cycle}} | **Governing Department**: {{department}}
+
+---
+
+**1. PURPOSE & PRINCIPLES**
+To provide clear guidelines for business travel, lodging, meal allowances, and operational expense reimbursements while ensuring fiscal responsibility and prompt settlement.
+
+**2. TRAVEL AUTHORIZATION & CLASSES**
+• All domestic and international business travel requires advance approval from the department head at least **{{travel_advance_notice_days}}** days prior.
+• Domestic air travel is booked in Economy Class; train travel is booked in 2nd AC / 3rd AC or Executive Chair Car.
+
+**3. DAILY MEAL & INCIDENTAL ALLOWANCES (PER DIEM)**
+• Personnel traveling on outstation business assignments are eligible for a daily per diem allowance of **{{daily_meal_per_diem}}** covering meals and incidentals without requiring itemized receipts.
+
+**4. HOTEL ACCOMMODATIONS & CONVEYANCE**
+• Approved hotel stays are capped at **{{hotel_nightly_cap}}** per night in Tier-1 cities and **{{hotel_tier2_cap}}** in Tier-2/Tier-3 cities.
+• Local conveyance should utilize corporate ride-hailing services (Uber for Business / Ola Corporate).
+
+**5. SUBMISSION & DISBURSEMENT DEADLINES**
+• Expense claims must be submitted with original tax invoices within **{{claim_submission_deadline_days}}** days of trip conclusion. Approved claims are disbursed in the next monthly payroll run.
+
+---
+
+Authorized by **{{company_name}}**:
+
+___________________________
+**{{signatory_name}}** | {{signatory_title}}
+Date: {{issue_date}} | Delhi, India`,
+    sampleData: {
+      policy_name: 'Travel, Conveyance & Business Expense Policy',
+      category_label: 'Finance, Travel & Operational Governance',
+      reference_number: 'POL-FIN-2026-v1.0',
+      version: '1.0',
+      company_name: 'TaskNera Technologies Ltd.',
+      effective_date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
+      issue_date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
+      applicability: 'All Full-Time Employees & Contractors Traveling on Company Business',
+      review_cycle: 'Annual Finance & Audit Review',
+      department: 'Finance, Accounts & Corporate Travel',
+      travel_advance_notice_days: '7',
+      daily_meal_per_diem: 'INR 1,500 per day',
+      hotel_nightly_cap: 'INR 4,500 per night',
+      hotel_tier2_cap: 'INR 3,000 per night',
+      claim_submission_deadline_days: '15',
+      signatory_name: 'Sheetal Bedi',
+      signatory_title: 'Chief Executive Officer',
+      signatory_email: 'finance@tasknera.com',
+      company_address: 'D-57 Dilshad Colony, Shahdara, Delhi 110095',
+    },
+  },
 ];
 
 // Document Renderer helper
@@ -985,7 +1513,48 @@ export const TemplatesPage: React.FC = () => {
     }
   };
 
-  // 1-Click Employee Master Auto-Fill
+
+  // 1-Click Generate / Auto-Fill All Data on Template
+  const handleAutoFillAllData = () => {
+    const found = OFFERS_ALL_CATEGORIES.find((c) => c.value === templateCategory || c.label === templateCategory);
+    const standardDefaults: Record<string, string> = {
+      company_name: 'TaskNera Technologies Ltd.',
+      issue_date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
+      effective_date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
+      reference_number: `TSK-DOC-${new Date().getFullYear()}-${Math.floor(100 + Math.random() * 900)}`,
+      signatory_name: 'Sheetal Bedi',
+      signatory_title: 'Chief Executive Officer',
+      signatory_email: 'operations@tasknera.com',
+      signatory_place: 'Delhi, India',
+      company_address: 'D-57 Dilshad Colony, Shahdara, Delhi 110095',
+      version: '1.0',
+      review_cycle: 'Annual Corporate Review',
+      applicability: 'All Global Full-Time, Probationary & Associated Personnel',
+      department: 'Corporate HR & Operations',
+      policy_name: templateTitle || 'Enterprise Operational Policy',
+      category_label: found?.groupLabel || 'Corporate Governance',
+    };
+
+    setFormData((prev) => {
+      const merged: Record<string, string> = { ...prev, ...standardDefaults };
+      if (found && found.sampleData) {
+        Object.entries(found.sampleData).forEach(([k, v]) => {
+          merged[k] = v;
+        });
+      }
+      // Also ensure every detected placeholder is non-empty
+      detectedPlaceholders.forEach((k) => {
+        if (!merged[k]) {
+          merged[k] = standardDefaults[k] || formatFieldLabel(k);
+        }
+      });
+      return merged;
+    });
+
+    success(`Generated all template variables for "${templateTitle}"!`);
+  };
+
+    // 1-Click Employee Master Auto-Fill
   const handleSelectEmployee = (empId: string) => {
     setSelectedEmployeeId(empId);
     const emp = employees.find((e) => e.id === empId);
@@ -1257,18 +1826,59 @@ export const TemplatesPage: React.FC = () => {
     const recipientKeys = ['candidate_name', 'employee_name', 'contractor_name', 'honorific', 'email', 'personal_email', 'official_email', 'phone', 'candidate_address', 'address', 'employee_id'];
     const roleKeys = ['job_title', 'designation', 'department', 'work_location', 'reporting_manager', 'mentor_name'];
     const termsKeys = ['joining_date', 'end_date', 'last_working_day', 'resignation_date', 'annual_ctc', 'base_salary', 'variable_pay', 'notice_period', 'probation_period', 'valid_until', 'course_name'];
-    const signatoryKeys = ['signatory_name', 'signatory_title', 'signatory_place', 'issue_date', 'reference_number'];
+    const signatoryKeys = ['signatory_name', 'signatory_title', 'signatory_place', 'issue_date', 'reference_number', 'signatory_email', 'company_address'];
+    const policyKeys = [
+      'policy_name',
+      'category_label',
+      'version',
+      'effective_date',
+      'review_cycle',
+      'applicability',
+      'working_hours',
+      'core_hours',
+      'regularization_window',
+      'grace_days_limit',
+      'annual_leave_accrual',
+      'annual_leave_total',
+      'max_leave_carryover',
+      'planned_leave_notice_days',
+      'advance_notice_timeline',
+      'sick_leave_days',
+      'medical_cert_threshold',
+      'casual_leave_days',
+      'maternity_leave_weeks',
+      'paternity_leave_days',
+      'job_abandonment_days',
+      'gift_threshold',
+      'remote_days_per_week',
+      'office_days_per_week',
+      'password_min_length',
+      'password_rotation_days',
+      'breach_report_window',
+      'icc_email',
+      'complaint_window_months',
+      'inquiry_completion_days',
+      'retention_period_months',
+      'dpo_email',
+      'travel_advance_notice_days',
+      'daily_meal_per_diem',
+      'hotel_nightly_cap',
+      'hotel_tier2_cap',
+      'claim_submission_deadline_days',
+    ];
 
     const recipientFields = allKeys.filter((k) => recipientKeys.includes(k));
     const roleFields = allKeys.filter((k) => roleKeys.includes(k));
     const termsFields = allKeys.filter((k) => termsKeys.includes(k));
     const signatoryFields = allKeys.filter((k) => signatoryKeys.includes(k));
+    const policyFields = allKeys.filter((k) => policyKeys.includes(k));
     const otherFields = allKeys.filter(
       (k) =>
         !recipientKeys.includes(k) &&
         !roleKeys.includes(k) &&
         !termsKeys.includes(k) &&
         !signatoryKeys.includes(k) &&
+        !policyKeys.includes(k) &&
         k !== 'company_name' &&
         k !== 'pronoun' &&
         k !== 'possessive_pronoun' &&
@@ -1280,6 +1890,7 @@ export const TemplatesPage: React.FC = () => {
       roleFields,
       termsFields,
       signatoryFields,
+      policyFields,
       otherFields,
     };
   };
@@ -1294,7 +1905,7 @@ export const TemplatesPage: React.FC = () => {
     return ['candidate_name', 'employee_name', 'job_title', 'designation', 'department', 'joining_date'].includes(key);
   };
 
-  const { recipientFields, roleFields, termsFields, signatoryFields, otherFields } = getCategorizedFields();
+  const { recipientFields, roleFields, termsFields, signatoryFields, policyFields, otherFields } = getCategorizedFields();
 
   return (
     <div style={{ maxWidth: 1100, margin: '0 auto', padding: '24px 20px 80px', fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
@@ -1505,11 +2116,27 @@ export const TemplatesPage: React.FC = () => {
                       outline: 'none',
                     }}
                   >
-                    {OFFERS_ALL_CATEGORIES.map((cat) => (
-                      <option key={cat.value} value={cat.value}>
-                        {cat.label}
-                      </option>
-                    ))}
+                    <optgroup label="📜 Employment Agreements & Letters">
+                      {OFFERS_ALL_CATEGORIES.filter((c) => c.group === 'templates').map((cat) => (
+                        <option key={cat.value} value={cat.value}>
+                          {cat.label}
+                        </option>
+                      ))}
+                    </optgroup>
+                    <optgroup label="🏛️ Corporate Governance & HR Policies">
+                      {OFFERS_ALL_CATEGORIES.filter((c) => c.group === 'policies').map((cat) => (
+                        <option key={cat.value} value={cat.value}>
+                          {cat.label}
+                        </option>
+                      ))}
+                    </optgroup>
+                    <optgroup label="🎓 Certificates & Records">
+                      {OFFERS_ALL_CATEGORIES.filter((c) => c.group === 'certificates').map((cat) => (
+                        <option key={cat.value} value={cat.value}>
+                          {cat.label}
+                        </option>
+                      ))}
+                    </optgroup>
                     <option value="CUSTOM">Upload Custom Document Template (.docx, .pdf, .txt)</option>
                   </select>
                 </div>
@@ -1699,6 +2326,39 @@ export const TemplatesPage: React.FC = () => {
                   </div>
                 </div>
 
+                                {/* Auto-fill / Generate All Data Banner */}
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    flexWrap: 'wrap',
+                    gap: 12,
+                    backgroundColor: '#eff6ff',
+                    border: '1px solid #bfdbfe',
+                    borderRadius: 10,
+                    padding: '14px 18px',
+                  }}
+                >
+                  <div>
+                    <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <Sparkles size={16} />
+                      <span>Generate All Data on Template</span>
+                    </div>
+                    <div style={{ fontSize: '0.75rem', color: '#3b82f6', marginTop: 2 }}>
+                      1-Click populates all template placeholders with verified corporate governance data.
+                    </div>
+                  </div>
+                  <Button
+                    variant="primary"
+                    icon={<Wand2 size={14} />}
+                    onClick={handleAutoFillAllData}
+                    style={{ fontSize: '0.78rem', padding: '6px 14px', backgroundColor: '#2563eb', borderColor: '#2563eb' }}
+                  >
+                    Generate All Data Now
+                  </Button>
+                </div>
+
                 {/* Form Group 1: Recipient Information */}
                 {recipientFields.length > 0 && (
                   <div style={{ backgroundColor: '#f8fafc', padding: '18px 20px', borderRadius: 10, border: '1px solid #e2e8f0' }}>
@@ -1776,6 +2436,40 @@ export const TemplatesPage: React.FC = () => {
                         <div key={key}>
                           <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: '#334155', marginBottom: 4 }}>
                             {formatFieldLabel(key)} {isMandatoryField(key) && <span style={{ color: '#ef4444' }}>*</span>}
+                          </label>
+                          <input
+                            type="text"
+                            value={formData[key] || ''}
+                            onChange={(e) => setFormData((prev) => ({ ...prev, [key]: e.target.value }))}
+                            placeholder={`Enter ${formatFieldLabel(key)}...`}
+                            style={{
+                              width: '100%',
+                              padding: '8px 12px',
+                              borderRadius: 6,
+                              border: '1px solid #cbd5e1',
+                              fontSize: '0.8125rem',
+                              backgroundColor: '#ffffff',
+                              outline: 'none',
+                            }}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                
+                {/* Form Group: Policy Governance & Directives (for HR Policies) */}
+                {policyFields.length > 0 && (
+                  <div style={{ backgroundColor: '#f8fafc', padding: '18px 20px', borderRadius: 10, border: '1px solid #e2e8f0' }}>
+                    <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#0f172a', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <span>🏛️ Policy Governance, Terms &amp; Operational Directives</span>
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 14 }}>
+                      {policyFields.map((key) => (
+                        <div key={key}>
+                          <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: '#334155', marginBottom: 4 }}>
+                            {formatFieldLabel(key)}
                           </label>
                           <input
                             type="text"
@@ -2229,7 +2923,7 @@ export const TemplatesPage: React.FC = () => {
         /* =================================================================== */
         <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
           {/* Search & Category Filter */}
-          <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between' }}>
             <div style={{ position: 'relative', flex: 1, minWidth: 260 }}>
               <Search
                 size={16}
@@ -2250,6 +2944,36 @@ export const TemplatesPage: React.FC = () => {
                 }}
               />
             </div>
+
+            {/* Category Filter Pills */}
+            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+              {[
+                { key: 'ALL', label: `All (${OFFERS_ALL_CATEGORIES.length})` },
+                { key: 'policies', label: `Policies (${OFFERS_ALL_CATEGORIES.filter((c) => c.group === 'policies').length})` },
+                { key: 'templates', label: `Agreements (${OFFERS_ALL_CATEGORIES.filter((c) => c.group === 'templates').length})` },
+                { key: 'certificates', label: `Certificates (${OFFERS_ALL_CATEGORIES.filter((c) => c.group === 'certificates').length})` },
+              ].map((tab) => (
+                <button
+                  key={tab.key}
+                  type="button"
+                  onClick={() => setLibraryCategory(tab.key)}
+                  style={{
+                    padding: '6px 14px',
+                    borderRadius: 20,
+                    fontSize: '0.78rem',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    border: '1px solid',
+                    borderColor: libraryCategory === tab.key ? '#0f172a' : '#e2e8f0',
+                    backgroundColor: libraryCategory === tab.key ? '#0f172a' : '#ffffff',
+                    color: libraryCategory === tab.key ? '#ffffff' : '#64748b',
+                    transition: 'all 0.15s ease',
+                  }}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* Template Cards Grid */}
@@ -2260,7 +2984,15 @@ export const TemplatesPage: React.FC = () => {
               gap: 16,
             }}
           >
-            {OFFERS_ALL_CATEGORIES.map((cat) => (
+            {OFFERS_ALL_CATEGORIES.filter((cat) => {
+              const matchesSearch =
+                cat.label.toLowerCase().includes(librarySearch.toLowerCase()) ||
+                cat.defaultTitle.toLowerCase().includes(librarySearch.toLowerCase()) ||
+                cat.groupLabel.toLowerCase().includes(librarySearch.toLowerCase());
+              const matchesCategory =
+                libraryCategory === 'ALL' || cat.group === libraryCategory;
+              return matchesSearch && matchesCategory;
+            }).map((cat) => (
               <div
                 key={cat.value}
                 style={{
