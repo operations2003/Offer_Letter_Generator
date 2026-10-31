@@ -360,10 +360,10 @@ export const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
             {/* User Details */}
             <div style={{ textAlign: 'left', lineHeight: 1.25 }}>
               <div style={{ fontSize: '0.8125rem', fontWeight: 700, color: '#0f172a' }}>
-                {user?.firstName || 'Sakshi'} {user?.lastName || 'Koparde'}
+                {user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() : 'User Profile'}
               </div>
               <div style={{ fontSize: '0.6875rem', color: '#64748b' }}>
-                {user?.email || 'sakshi@tasknera.com'}
+                {user?.email || ''}
               </div>
             </div>
 

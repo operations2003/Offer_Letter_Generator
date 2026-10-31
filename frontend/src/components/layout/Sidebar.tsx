@@ -175,7 +175,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                   textOverflow: 'ellipsis',
                 }}
               >
-                {user?.firstName || 'Sakshi'} {user?.lastName || 'Koparde'}
+                {user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() : 'User Profile'}
               </div>
               <div
                 style={{
@@ -185,7 +185,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                   textOverflow: 'ellipsis',
                 }}
               >
-                {user?.email || 'sakshi@tasknera.com'}
+                {user?.email || ''}
               </div>
             </div>
           </div>

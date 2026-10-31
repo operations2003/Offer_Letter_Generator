@@ -44,13 +44,21 @@ export interface UpdateUserPayload {
 const USERS_STORAGE_KEY = 'tasknera_system_users';
 const USER_CREDENTIALS_KEY = 'tasknera_user_credentials';
 
+const PURGED_DUMMY_EMAILS = new Set([
+  'admin@tasknera.com',
+  'hr@tasknera.com',
+  'sakshi@tasknera.com',
+  'hr@gmail.com',
+  'recruiter@tasknera.com',
+]);
+
 const INITIAL_USERS: SystemUser[] = [
   {
     id: 'usr_admin_001',
     email: 'sheetalbedi@tasknera.com',
     firstName: 'Sheetal',
     lastName: 'Bedi',
-    title: 'Super Administrator',
+    title: 'Chief Executive Officer (CEO)',
     department: 'Executive',
     status: 'ACTIVE',
     createdAt: new Date().toISOString(),
@@ -58,52 +66,16 @@ const INITIAL_USERS: SystemUser[] = [
     roles: [{ id: 'role_admin', code: 'SUPER_ADMIN', name: 'Super Administrator' }],
   },
   {
-    id: 'usr_admin_002',
-    email: 'admin@tasknera.com',
-    firstName: 'System',
-    lastName: 'Administrator',
-    title: 'System Administrator',
-    department: 'Operations',
-    status: 'ACTIVE',
-    createdAt: new Date().toISOString(),
-    lastLoginAt: new Date().toISOString(),
-    roles: [{ id: 'role_admin', code: 'SUPER_ADMIN', name: 'Super Administrator' }],
-  },
-  {
-    id: 'usr_hr_001',
-    email: 'hr@tasknera.com',
-    firstName: 'Sakshi',
-    lastName: 'Koparde',
-    title: 'HR Operations Manager',
-    department: 'Human Resources',
-    status: 'ACTIVE',
-    createdAt: new Date().toISOString(),
-    lastLoginAt: new Date().toISOString(),
-    roles: [{ id: 'role_hr', code: 'HR_MANAGER', name: 'HR Operations Manager' }],
-  },
-  {
-    id: 'usr_hr_002',
-    email: 'sakshi@tasknera.com',
-    firstName: 'Sakshi',
-    lastName: 'Koparde',
+    id: 'usr_rashmi_001',
+    email: 'rashmi@gmail.com',
+    firstName: 'Rashmi',
+    lastName: 'Sharma',
     title: 'HR Operations Partner',
     department: 'Human Resources',
     status: 'ACTIVE',
     createdAt: new Date().toISOString(),
     lastLoginAt: new Date().toISOString(),
     roles: [{ id: 'role_hr', code: 'HR_MANAGER', name: 'HR Operations Manager' }],
-  },
-  {
-    id: 'usr_rec_001',
-    email: 'recruiter@tasknera.com',
-    firstName: 'David',
-    lastName: 'Kim',
-    title: 'Talent Acquisition Lead',
-    department: 'Recruiting',
-    status: 'ACTIVE',
-    createdAt: new Date().toISOString(),
-    lastLoginAt: new Date().toISOString(),
-    roles: [{ id: 'role_recruiter', code: 'RECRUITER', name: 'Recruiter' }],
   },
 ];
 
@@ -179,19 +151,29 @@ export class UserService {
 
   public static async verifyCredentials(email: string, passwordPlain: string): Promise<SystemUser | null> {
     const cleanEmail = email.trim().toLowerCase();
+
+    // Explicitly reject purged dummy accounts
+    if (PURGED_DUMMY_EMAILS.has(cleanEmail)) {
+      return null;
+    }
+
     const users = this.getLocalUsers();
     const foundUser = users.find((u) => u.email.toLowerCase() === cleanEmail);
 
-    if (!foundUser) return null;
+    if (!foundUser) {
+      return null;
+    }
     if (foundUser.status && foundUser.status !== 'ACTIVE') return null;
 
     const storedHash = this.getStoredCredential(cleanEmail);
     const computedHash = await this.hashCredential(passwordPlain, cleanEmail);
 
-    const standardPasswords = ['Tasknera@9312506515', 'Tasknera@123', 'admin123', 'password123', 'hr123', 'recruiter123'];
-    const isStandardAccount = INITIAL_USERS.some((u) => u.email.toLowerCase() === cleanEmail);
+    const standardPasswords: Record<string, string[]> = {
+      'sheetalbedi@tasknera.com': ['Tasknera@9312506515', 'Tasknera@123', 'admin123'],
+      'rashmi@gmail.com': ['Rashmi@1234', 'rashmi@1234', 'Tasknera@123', 'Tasknera@9312506515'],
+    };
 
-    if (isStandardAccount && standardPasswords.includes(passwordPlain)) {
+    if (standardPasswords[cleanEmail] && standardPasswords[cleanEmail].includes(passwordPlain)) {
       await this.saveUserCredential(cleanEmail, passwordPlain);
       return foundUser;
     }
@@ -205,9 +187,7 @@ export class UserService {
       return storedHash === computedHash ? foundUser : null;
     }
 
-    // Auto-bind hash on first verified login
-    await this.saveUserCredential(cleanEmail, passwordPlain);
-    return foundUser;
+    return null;
   }
 
   public static getLocalUsers(): SystemUser[] {
@@ -219,14 +199,18 @@ export class UserService {
       }
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed) && parsed.length > 0) {
-        // Ensure default initial users are preserved alongside any newly created users
-        const existingEmails = new Set(parsed.map((u: SystemUser) => u.email.toLowerCase()));
-        const merged = [...parsed];
+        // Strip out any purged dummy users from existing browser local storage
+        const sanitized = parsed.filter((u: SystemUser) => !PURGED_DUMMY_EMAILS.has(u.email.toLowerCase()));
+
+        // Ensure default initial users are preserved alongside any custom created users
+        const existingEmails = new Set(sanitized.map((u: SystemUser) => u.email.toLowerCase()));
+        const merged = [...sanitized];
         INITIAL_USERS.forEach((initUser) => {
           if (!existingEmails.has(initUser.email.toLowerCase())) {
             merged.push(initUser);
           }
         });
+        localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(merged));
         return merged;
       }
       localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(INITIAL_USERS));

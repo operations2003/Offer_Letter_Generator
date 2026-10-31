@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Lock, Mail, ArrowRight, Eye, EyeOff, ShieldCheck, CheckCircle2 } from 'lucide-react';
+import { Lock, Mail, ArrowRight, Eye, EyeOff, ShieldCheck } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.js';
 import { Button } from '../components/common/Button.js';
 import { useToast } from '../context/ToastContext.js';
@@ -10,7 +10,7 @@ export const LoginPage: React.FC = () => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { login, loginAsDemo } = useAuth();
+  const { login } = useAuth();
   const { success, error } = useToast();
   const navigate = useNavigate();
 
@@ -36,12 +36,6 @@ export const LoginPage: React.FC = () => {
     } finally {
       setIsSubmitting(false);
     }
-  };
-
-  const handleDemoLogin = (role: 'SUPER_ADMIN' | 'HR_MANAGER' | 'RECRUITER') => {
-    loginAsDemo(role);
-    success(`Signed in as ${role === 'HR_MANAGER' ? 'Sakshi Koparde (HR Partner)' : role.replace('_', ' ')}!`);
-    navigate('/dashboard');
   };
 
   return (
@@ -88,87 +82,6 @@ export const LoginPage: React.FC = () => {
           </p>
         </div>
 
-        {/* Quick 1-Click Access */}
-        <div
-          style={{
-            padding: '12px 14px',
-            borderRadius: 10,
-            background: '#f8fafc',
-            border: '1px solid #e2e8f0',
-            marginBottom: 20,
-          }}
-        >
-          <div
-            style={{
-              fontSize: '0.6875rem',
-              color: '#64748b',
-              fontWeight: 700,
-              textTransform: 'uppercase',
-              letterSpacing: '0.05em',
-              marginBottom: 8,
-              textAlign: 'center',
-            }}
-          >
-            ⚡ Quick 1-Click Sign-In:
-          </div>
-          <div style={{ display: 'flex', gap: 8 }}>
-            <button
-              type="button"
-              onClick={() => handleDemoLogin('SUPER_ADMIN')}
-              style={{
-                flex: 1,
-                padding: '7px 6px',
-                fontSize: '0.75rem',
-                fontWeight: 700,
-                background: '#0f172a',
-                color: '#ffffff',
-                border: 'none',
-                borderRadius: 6,
-                cursor: 'pointer',
-              }}
-              title="Sign in as Sheetal Bedi (Super Admin)"
-            >
-              👑 Admin
-            </button>
-            <button
-              type="button"
-              onClick={() => handleDemoLogin('HR_MANAGER')}
-              style={{
-                flex: 1,
-                padding: '7px 6px',
-                fontSize: '0.75rem',
-                fontWeight: 700,
-                background: '#eff6ff',
-                color: '#1d4ed8',
-                border: '1px solid #bfdbfe',
-                borderRadius: 6,
-                cursor: 'pointer',
-              }}
-              title="Sign in as Sakshi Koparde (HR Manager)"
-            >
-              👩‍💼 Sakshi (HR)
-            </button>
-            <button
-              type="button"
-              onClick={() => handleDemoLogin('RECRUITER')}
-              style={{
-                flex: 1,
-                padding: '7px 6px',
-                fontSize: '0.75rem',
-                fontWeight: 700,
-                background: '#f8fafc',
-                color: '#334155',
-                border: '1px solid #cbd5e1',
-                borderRadius: 6,
-                cursor: 'pointer',
-              }}
-              title="Sign in as David Kim (Recruiter)"
-            >
-              🔍 Recruiter
-            </button>
-          </div>
-        </div>
-
         {/* Login Form */}
         <form onSubmit={handleSubmit} autoComplete="off">
           <div className="form-group">
@@ -184,7 +97,7 @@ export const LoginPage: React.FC = () => {
                 autoCapitalize="off"
                 spellCheck={false}
                 className="form-input"
-                placeholder="sheetalbedi@tasknera.com"
+                placeholder="name@company.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 style={{ paddingLeft: 38 }}
@@ -214,7 +127,7 @@ export const LoginPage: React.FC = () => {
                 autoComplete="new-password"
                 spellCheck={false}
                 className="form-input"
-                placeholder="**********"
+                placeholder="••••••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 style={{ paddingLeft: 38, paddingRight: 38 }}
@@ -273,10 +186,10 @@ export const LoginPage: React.FC = () => {
             lineHeight: 1.5,
           }}
         >
-          <div style={{ fontWeight: 700, color: '#0f172a', marginBottom: 4 }}>
-            🔑 Enterprise Login Credentials:
+          <div style={{ fontWeight: 700, color: '#0f172a', marginBottom: 6 }}>
+            🔑 Enterprise Authorized Accounts:
           </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '3px 0' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '4px 0' }}>
             <span><strong>Admin</strong>: sheetalbedi@tasknera.com</span>
             <button
               type="button"
@@ -286,20 +199,20 @@ export const LoginPage: React.FC = () => {
               }}
               style={{ border: 'none', background: 'none', color: '#2563eb', fontWeight: 600, fontSize: '0.7rem', cursor: 'pointer', textDecoration: 'underline' }}
             >
-              Auto-fill
+              Fill
             </button>
           </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '3px 0' }}>
-            <span><strong>HR Partner</strong>: hr@tasknera.com</span>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '4px 0' }}>
+            <span><strong>HR Operations</strong>: rashmi@gmail.com</span>
             <button
               type="button"
               onClick={() => {
-                setEmail('hr@tasknera.com');
-                setPassword('Tasknera@123');
+                setEmail('rashmi@gmail.com');
+                setPassword('Rashmi@1234');
               }}
               style={{ border: 'none', background: 'none', color: '#2563eb', fontWeight: 600, fontSize: '0.7rem', cursor: 'pointer', textDecoration: 'underline' }}
             >
-              Auto-fill
+              Fill
             </button>
           </div>
         </div>

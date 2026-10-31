@@ -138,6 +138,41 @@ export async function runSeed() {
   });
   console.log(`✅ Default Super Admin seeded: ${adminUser.email} (Password: Tasknera@9312506515)`);
 
+  // 4. Create HR Partner User (Rashmi Sharma)
+  const hrPasswordHash = await CryptoUtil.hashPassword('Rashmi@1234');
+  const hrUser = await prisma.user.upsert({
+    where: { email: 'rashmi@gmail.com' },
+    update: {
+      passwordHash: hrPasswordHash,
+      status: 'ACTIVE',
+    },
+    create: {
+      companyId: company.id,
+      email: 'rashmi@gmail.com',
+      passwordHash: hrPasswordHash,
+      firstName: 'Rashmi',
+      lastName: 'Sharma',
+      title: 'HR Operations Partner',
+      department: 'Human Resources',
+      status: 'ACTIVE',
+    },
+  });
+
+  await prisma.userRole.upsert({
+    where: {
+      uq_user_role: {
+        userId: hrUser.id,
+        roleId: seededRoles['HR_MANAGER'],
+      },
+    },
+    update: {},
+    create: {
+      userId: hrUser.id,
+      roleId: seededRoles['HR_MANAGER'],
+    },
+  });
+  console.log(`✅ HR Partner seeded: ${hrUser.email} (Password: Rashmi@1234)`);
+
   console.log('🎉 Database seeding completed successfully.');
 }
 

@@ -10,10 +10,18 @@ interface AuthContextType {
   logout: () => void;
   hasRole: (...roles: string[]) => boolean;
   hasPermission: (...permissions: string[]) => boolean;
-  loginAsDemo: (role: 'SUPER_ADMIN' | 'HR_MANAGER' | 'RECRUITER') => void;
+  loginAsDemo: (role: 'SUPER_ADMIN' | 'HR_MANAGER') => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+const PURGED_DUMMY_EMAILS = new Set([
+  'admin@tasknera.com',
+  'hr@tasknera.com',
+  'sakshi@tasknera.com',
+  'hr@gmail.com',
+  'recruiter@tasknera.com',
+]);
 
 const DEMO_USERS: Record<string, User> = {
   SUPER_ADMIN: {
@@ -21,7 +29,7 @@ const DEMO_USERS: Record<string, User> = {
     email: 'sheetalbedi@tasknera.com',
     firstName: 'Sheetal',
     lastName: 'Bedi',
-    title: 'Enterprise Administrator',
+    title: 'Chief Executive Officer (CEO)',
     department: 'Executive',
     status: 'ACTIVE',
     company: {
@@ -34,11 +42,11 @@ const DEMO_USERS: Record<string, User> = {
     permissions: ['*'],
   },
   HR_MANAGER: {
-    id: 'usr_hr_002',
-    email: 'hr@gmail.com',
-    firstName: 'HR',
-    lastName: 'Manager',
-    title: 'HR Operations Manager',
+    id: 'usr_rashmi_001',
+    email: 'rashmi@gmail.com',
+    firstName: 'Rashmi',
+    lastName: 'Sharma',
+    title: 'HR Operations Partner',
     department: 'Human Resources',
     status: 'ACTIVE',
     company: {
@@ -63,23 +71,6 @@ const DEMO_USERS: Record<string, User> = {
       'policies:all',
     ],
   },
-  RECRUITER: {
-    id: 'usr_rec_003',
-    email: 'recruiter@tasknera.com',
-    firstName: 'David',
-    lastName: 'Kim',
-    title: 'Talent Acquisition Lead',
-    department: 'Recruiting',
-    status: 'ACTIVE',
-    company: {
-      id: 'cmp_tasknera_001',
-      name: 'TaskNera Enterprise',
-      code: 'TASKNERA',
-      domain: 'tasknera.com',
-    },
-    roles: ['RECRUITER'],
-    permissions: ['candidates:create', 'candidates:read', 'offers:create', 'offers:read', 'ai:extract'],
-  },
 };
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -103,10 +94,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (savedToken && savedUser) {
         try {
           const parsed = JSON.parse(savedUser);
-          if (parsed.email?.includes('acme.com') || parsed.firstName === 'Sarah') {
-            const defaultUser = DEMO_USERS.HR_MANAGER;
-            setUser(defaultUser);
-            localStorage.setItem('offergen_user', JSON.stringify(defaultUser));
+          if (
+            !parsed.email ||
+            PURGED_DUMMY_EMAILS.has(parsed.email.toLowerCase()) ||
+            parsed.email?.includes('acme.com')
+          ) {
+            localStorage.removeItem('offergen_user');
+            localStorage.removeItem('offergen_token');
+            setUser(null);
+            setToken(null);
           } else {
             setUser(parsed);
           }
@@ -126,7 +122,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     initializeAuth();
   }, []);
 
-  
   const loginWithSystemUser = (systemUser: SystemUser) => {
     const roleCodes = (systemUser.roles || []).map((r) => r.code);
     if (roleCodes.length === 0) {
@@ -135,7 +130,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const isSuperAdmin = roleCodes.includes('SUPER_ADMIN');
     const isHrManager = roleCodes.includes('HR_MANAGER');
-    const isRecruiter = roleCodes.includes('RECRUITER');
 
     let permissions: string[];
     if (isSuperAdmin) {
@@ -162,15 +156,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         'roles:read',
         'analytics:read',
         'exports:read',
-      ];
-    } else if (isRecruiter) {
-      permissions = [
-        'candidates:create',
-        'candidates:read',
-        'offers:create',
-        'offers:read',
-        'ai:extract',
-        'templates:read',
       ];
     } else {
       permissions = ['candidates:read', 'offers:read', 'templates:read'];
@@ -233,7 +218,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       localStorage.setItem('offergen_token', authData.tokens.accessToken);
     } catch (err: any) {
       // Offline fallback strictly for created system users
-
       const localUser = await UserService.verifyCredentials(cleanEmail, passwordPlain);
       if (localUser) {
         loginWithSystemUser(localUser);
@@ -246,8 +230,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const loginAsDemo = (role: 'SUPER_ADMIN' | 'HR_MANAGER' | 'RECRUITER') => {
+  const loginAsDemo = (role: 'SUPER_ADMIN' | 'HR_MANAGER') => {
     const selected = DEMO_USERS[role];
+    if (!selected) return;
     setUser(selected);
     const mockToken = `mock_jwt_${role.toLowerCase()}_token`;
     setToken(mockToken);
