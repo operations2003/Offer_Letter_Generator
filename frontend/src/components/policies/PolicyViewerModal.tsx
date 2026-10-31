@@ -30,6 +30,8 @@ import {
   editPolicySectionWithPrompt,
   updatePolicySectionManual,
   addNewPolicySection,
+  cleanPolicyTitle,
+  cleanSectionTitle,
 } from '../../services/policyGeneratorService.js';
 
 export interface PolicyDefinition {
@@ -226,7 +228,7 @@ export const PolicyViewerModal: React.FC<PolicyViewerModalProps> = ({
 
     const target = policy?.sections.find((s) => s.number === numToSelect);
     if (target) {
-      setManualTitle(target.title);
+      setManualTitle(cleanSectionTitle(target.title));
       setManualContent(target.content);
     } else {
       setManualTitle('');
@@ -243,7 +245,7 @@ export const PolicyViewerModal: React.FC<PolicyViewerModalProps> = ({
     } else {
       const target = policy?.sections.find((s) => s.number === num);
       if (target) {
-        setManualTitle(target.title);
+        setManualTitle(cleanSectionTitle(target.title));
         setManualContent(target.content);
       }
     }
@@ -265,10 +267,10 @@ export const PolicyViewerModal: React.FC<PolicyViewerModalProps> = ({
       onPolicyUpdate?.(result.updatedPolicy);
       setEditPrompt('');
       setEditSuccessMsg(result.changesSummary);
-      success(`Updated section § ${result.updatedSection.number} (${result.updatedSection.title})!`);
+      success(`Updated section § ${result.updatedSection.number} (${cleanSectionTitle(result.updatedSection.title)})!`);
 
       // Update manual text fields to match
-      setManualTitle(result.updatedSection.title);
+      setManualTitle(cleanSectionTitle(result.updatedSection.title));
       setManualContent(result.updatedSection.content);
 
       // Scroll to that section
@@ -310,7 +312,7 @@ export const PolicyViewerModal: React.FC<PolicyViewerModalProps> = ({
   const handleCopy = () => {
     const fullText = `TASKNERA — GLOBAL HR · RECRUITMENT · WORKFORCE SOLUTIONS
 =====================================================
-${policy.name.toUpperCase()}
+${cleanPolicyTitle(policy.name).toUpperCase()}
 ${policy.subtitle || 'Official Organizational Policy'}
 
 Reference ID: ${policy.policyNumber}
@@ -322,13 +324,13 @@ POLICY INTENT:
 ${policy.summary}
 
 TABLE OF CONTENTS:
-${policy.sections.map((s) => `${s.number} ${s.title}`).join('\n')}
+${policy.sections.map((s) => `${s.number} ${cleanSectionTitle(s.title)}`).join('\n')}
 
 =====================================================
 ${policy.sections
   .map(
     (s) => `
-${s.number} ${s.title}
+${s.number} ${cleanSectionTitle(s.title)}
 -----------------------------------------------------
 ${s.content
   .replace(/\[CORE_STANDARD\]/g, 'CORE STANDARD:\n')
@@ -356,7 +358,7 @@ TaskNera (D-57 Dilshad Colony, Delhi, 110095)
 
     navigator.clipboard.writeText(fullText);
     setCopied(true);
-    success(`Copied "${policy.name}" text to clipboard!`);
+    success(`Copied "${cleanPolicyTitle(policy.name)}" text to clipboard!`);
     setTimeout(() => setCopied(false), 2500);
   };
 
@@ -368,7 +370,7 @@ TaskNera (D-57 Dilshad Colony, Delhi, 110095)
       <!DOCTYPE html>
       <html>
         <head>
-          <title>${policy.name} — TaskNera Official Policy</title>
+          <title>${cleanPolicyTitle(policy.name)} — TaskNera Official Policy</title>
           <style>
             @page {
               size: A4;
@@ -566,7 +568,7 @@ TaskNera (D-57 Dilshad Colony, Delhi, 110095)
             <div style="font-size: 11pt; font-weight: 700; color: #2563eb; letter-spacing: 0.08em; text-transform: uppercase;">
               Global HR · Recruitment · Workforce Solutions
             </div>
-            <h1>${policy.name}</h1>
+            <h1>${cleanPolicyTitle(policy.name)}</h1>
             <h3>${policy.subtitle || 'Employee, Contractor & Business Partner Standards'}</h3>
             <div style="display: inline-block; font-size: 9.5pt; color: #475569; background: #f8fafc; padding: 6px 14px; border-radius: 20px; border: 1px solid #cbd5e1;">
               <strong>Reference:</strong> ${policy.policyNumber} &nbsp;|&nbsp;
@@ -607,7 +609,7 @@ TaskNera (D-57 Dilshad Colony, Delhi, 110095)
 
               return `
               <div class="section-block">
-                <div class="section-title">${s.number} ${s.title}</div>
+                <div class="section-title">${s.number} ${cleanSectionTitle(s.title)}</div>
                 <div style="font-size: 10pt; color: #1e293b; line-height: 1.6;">
                   ${formatted.replace(/\n\n/g, '<br/><br/>')}
                 </div>
@@ -714,7 +716,7 @@ TaskNera (D-57 Dilshad Colony, Delhi, 110095)
                 </span>
               </div>
               <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#0f172a', margin: '2px 0 0 0' }}>
-                {policy.name}
+                {cleanPolicyTitle(policy.name)}
               </h3>
             </div>
           </div>
@@ -1071,7 +1073,7 @@ TaskNera (D-57 Dilshad Colony, Delhi, 110095)
               >
                 {policy.sections.map((s) => (
                   <option key={s.number} value={s.number}>
-                    § {s.number} — {s.title}
+                    § {s.number} — {cleanSectionTitle(s.title)}
                   </option>
                 ))}
                 <option value="NEW">+ Add New Section / Provision</option>
@@ -1117,7 +1119,7 @@ TaskNera (D-57 Dilshad Colony, Delhi, 110095)
                 }}
               >
                 <div style={{ fontWeight: 700, color: '#0f172a', marginBottom: 4 }}>
-                  Current Section Text (§ {selectedSectionNum} {policy.sections.find((s) => s.number === selectedSectionNum)?.title}):
+                  Current Section Text (§ {selectedSectionNum} {cleanSectionTitle(policy.sections.find((s) => s.number === selectedSectionNum)?.title || '')}):
                 </div>
                 {policy.sections.find((s) => s.number === selectedSectionNum)?.content}
               </div>
@@ -1551,7 +1553,7 @@ TaskNera (D-57 Dilshad Colony, Delhi, 110095)
                     letterSpacing: '-0.02em',
                   }}
                 >
-                  {policy.name}
+                  {cleanPolicyTitle(policy.name)}
                 </h1>
                 <div style={{ fontSize: '13px', fontWeight: 600, color: '#475569', marginBottom: 14 }}>
                   {policy.subtitle || 'Employee, Contractor & Business Partner IP Standards'}
@@ -1660,7 +1662,7 @@ TaskNera (D-57 Dilshad Colony, Delhi, 110095)
                       >
                         <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                           <strong style={{ color: isActive ? '#2563eb' : '#475569' }}>{s.number}</strong>
-                          <span>{s.title}</span>
+                          <span>{cleanSectionTitle(s.title)}</span>
                         </span>
                       </div>
                     );
@@ -1710,7 +1712,7 @@ TaskNera (D-57 Dilshad Colony, Delhi, 110095)
                           }}
                         >
                           <span style={{ color: '#2563eb' }}>{s.number}</span>
-                          {s.title}
+                          {cleanSectionTitle(s.title)}
                         </h3>
 
                         <button
@@ -2088,7 +2090,7 @@ TaskNera (D-57 Dilshad Colony, Delhi, 110095)
                           § {section.number}
                         </span>
                         <span style={{ fontSize: '0.9rem', fontWeight: 800, color: '#0f172a' }}>
-                          {section.title}
+                          {cleanSectionTitle(section.title)}
                         </span>
                       </div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>

@@ -553,6 +553,19 @@ export class AiService {
 
       const parsed = ResponseParser.parseJson<any>(completion.rawContent);
       if (parsed && parsed.name && Array.isArray(parsed.sections) && parsed.sections.length > 0) {
+        parsed.name = String(parsed.name)
+          .replace(/^[\s#*"`'’“”]+/, '')
+          .replace(/[\s#*"`'’“”]+$/, '')
+          .replace(/^(prompt|topic|title)\s*[:\-–—]?\s*/i, '')
+          .trim();
+        parsed.sections = parsed.sections.map((s: any) => ({
+          ...s,
+          title: String(s.title || '')
+            .replace(/^[\s#*"`'’“”]+/, '')
+            .replace(/[\s#*"`'’“”]+$/, '')
+            .replace(/^(section\s*\d+(\.\d+)*\s*[:\-–—]?|\d+(\.\d+)*\s*[:\-–—.]?)\s*/i, '')
+            .trim(),
+        }));
         return parsed;
       }
       return null;

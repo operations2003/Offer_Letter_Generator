@@ -110,6 +110,7 @@ import {
   deletePolicy,
   restoreAllPolicies,
   getDeletedPolicyCodes,
+  cleanPolicyTitle,
 } from '../services/policyGeneratorService.js';
 import { offerService } from '../services/offerService.js';
 
@@ -225,7 +226,7 @@ export const OffersPage: React.FC = () => {
 
   const handleDeletePolicy = (policy: PolicyDefinition) => {
     const confirmed = window.confirm(
-      `Are you sure you want to delete "${policy.name}" (${policy.policyNumber})?\n\nThis policy will be removed from your catalog. You can restore default policies anytime.`
+      `Are you sure you want to delete "${cleanPolicyTitle(policy.name)}" (${policy.policyNumber})?\n\nThis policy will be removed from your catalog. You can restore default policies anytime.`
     );
     if (!confirmed) return;
 
@@ -234,7 +235,7 @@ export const OffersPage: React.FC = () => {
     if (selectedPolicyForView?.code === policy.code) {
       setSelectedPolicyForView(null);
     }
-    success(`"${policy.name}" was successfully deleted.`);
+    success(`"${cleanPolicyTitle(policy.name)}" was successfully deleted.`);
   };
 
   const handleRestorePolicies = () => {
@@ -1844,7 +1845,7 @@ export const OffersPage: React.FC = () => {
                       </span>
                       <button
                         type="button"
-                        title={`Delete ${policy.name}`}
+                        title={`Delete ${cleanPolicyTitle(policy.name)}`}
                         onClick={(e) => {
                           e.stopPropagation();
                           handleDeletePolicy(policy);
@@ -1879,7 +1880,7 @@ export const OffersPage: React.FC = () => {
 
                   {/* Title & Description */}
                   <h4 style={{ fontSize: '0.98rem', fontWeight: 700, color: '#0f172a', margin: '0 0 6px 0' }}>
-                    {policy.name}
+                    {cleanPolicyTitle(policy.name)}
                   </h4>
                   <p style={{ fontSize: '0.8125rem', color: '#64748b', lineHeight: 1.45, margin: '0 0 12px 0' }}>
                     {policy.description}

@@ -1,6 +1,97 @@
 import { PolicyDefinition } from '../components/policies/PolicyViewerModal.js';
 import { OFFICIAL_POLICIES } from './policyCatalog.js';
 
+/**
+ * Helper to retrieve authentication headers from browser storage
+ */
+function getAuthHeaders(): Record<string, string> {
+  const token =
+    localStorage.getItem('offergen_token') ||
+    localStorage.getItem('token') ||
+    localStorage.getItem('auth_token') ||
+    sessionStorage.getItem('token');
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+  };
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+  return headers;
+}
+
+/**
+ * Sanitizes policy titles, stripping markdown headers (#, ##),
+ * prompt/directive tags (e.g. "Prompt:", "Topic:"), duplicate "Policy" suffixes,
+ * and normalizing casing while preserving acronyms.
+ */
+export function cleanPolicyTitle(raw: string): string {
+  if (!raw || typeof raw !== 'string') return 'Enterprise HR Policy';
+  let cleaned = raw.trim();
+
+  // Strip leading and trailing markdown decorators (#, *, _, `, quotes)
+  cleaned = cleaned.replace(/^[\s#*"`'’“”]+/, '').replace(/[\s#*"`'’“”]+$/, '');
+
+  // Repeatedly strip leading prompt / topic / title directives
+  let prev = '';
+  while (prev !== cleaned) {
+    prev = cleaned;
+    cleaned = cleaned
+      .replace(
+        /^(prompt|topic|title|subject|policy name|policy on|policy for|policy regarding|draft policy on|draft policy for|draft a policy on|draft a policy for|create policy on|create policy for|create a policy on|create a policy for|generate policy on|generate policy for|generate a policy on|generate a policy for|write policy on|write policy for|write a policy on|write a policy for|enterprise hr policy|hr policy)\s*[:\-–—]?\s*/i,
+        ''
+      )
+      .trim();
+    cleaned = cleaned.replace(/^[\s#*"`'’“”]+/, '').replace(/[\s#*"`'’“”]+$/, '');
+  }
+
+  // Strip trailing "policy" so we can re-append it cleanly without duplication
+  cleaned = cleaned.replace(/(\s+policy)+$/i, '').trim();
+
+  if (!cleaned) return 'Enterprise HR Policy';
+
+  // Recognized acronyms to keep uppercase
+  const acronyms = new Set(['HR', 'IT', 'AI', 'POSH', 'BYOD', 'WFH', 'PTO', 'IP', 'NDA', 'CEO', 'CTO', 'CFO', 'PF', 'ESI', 'TDS', 'SOP']);
+  const lowercaseWords = new Set(['and', 'or', 'for', 'of', 'in', 'on', 'at', 'to', 'the', 'a', 'an', 'with', 'by']);
+
+  const words = cleaned.split(/\s+/).filter(Boolean);
+  const title = words
+    .map((w, idx) => {
+      const upper = w.toUpperCase();
+      if (acronyms.has(upper)) return upper;
+      const lower = w.toLowerCase();
+      if (idx > 0 && lowercaseWords.has(lower)) return lower;
+      return lower.charAt(0).toUpperCase() + lower.slice(1);
+    })
+    .join(' ');
+
+  return `${title} Policy`;
+}
+
+/**
+ * Sanitizes section titles, stripping markdown symbols (#, ##, **),
+ * repetitive leading section numbers ("1.0", "Section 1:"), and trailing colons.
+ */
+export function cleanSectionTitle(raw: string): string {
+  if (!raw || typeof raw !== 'string') return 'Policy Clause';
+  let cleaned = raw.trim();
+
+  // Strip markdown formatting
+  cleaned = cleaned.replace(/^[\s#*"`'’“”]+/, '').replace(/[\s#*"`'’“”]+$/, '');
+
+  // Strip redundant leading numbering e.g. "1.0", "1.0 -", "Section 1:", "Section 1.0"
+  cleaned = cleaned
+    .replace(/^(section\s*\d+(\.\d+)*\s*[:\-–—]?|\d+(\.\d+)*\s*[:\-–—.]?)\s*/i, '')
+    .trim();
+
+  // Strip leading directives like "Prompt:", "Topic:"
+  cleaned = cleaned.replace(/^(prompt|topic|title)\s*[:\-–—]?\s*/i, '').trim();
+
+  // Strip markdown formatting again if wrapped inside
+  cleaned = cleaned.replace(/^[\s#*"`'’“”]+/, '').replace(/[\s#*"`'’“”]+$/, '').trim();
+
+  return cleaned || 'Policy Clause';
+}
+
 const STORAGE_KEY = 'tasknera_custom_policies';
 const DELETED_STORAGE_KEY = 'tasknera_deleted_policy_codes';
 
@@ -12,7 +103,17 @@ export function getCustomPolicies(): PolicyDefinition[] {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return [];
     const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
+    if (!Array.isArray(parsed)) return [];
+    return parsed.map((p) => ({
+      ...p,
+      name: cleanPolicyTitle(p.name),
+      sections: Array.isArray(p.sections)
+        ? p.sections.map((s: any) => ({
+            ...s,
+            title: cleanSectionTitle(s.title),
+          }))
+        : [],
+    }));
   } catch (err) {
     console.error('Failed to load custom policies from localStorage:', err);
     return [];
@@ -126,9 +227,7 @@ export async function generatePolicyFromPrompt(
   try {
     const res = await fetch('/api/v1/ai/policy/generate', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: getAuthHeaders(),
       body: JSON.stringify({
         prompt: trimmed,
         category: categoryHint,
@@ -186,13 +285,11 @@ export async function editPolicySectionWithPrompt(
   try {
     const res = await fetch('/api/v1/ai/policy/edit-section', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: getAuthHeaders(),
       body: JSON.stringify({
-        policyName: policy.name,
+        policyName: cleanPolicyTitle(policy.name),
         sectionNumber: isNew ? `${policy.sections.length + 1}.0` : targetSec?.number || sectionNumber,
-        sectionTitle: isNew ? 'Additional Policy Provision' : targetSec?.title || 'Policy Clause',
+        sectionTitle: isNew ? 'Additional Policy Provision' : cleanSectionTitle(targetSec?.title || 'Policy Clause'),
         currentContent: isNew ? '' : targetSec?.content || '',
         editPrompt: trimmed,
       }),
@@ -425,19 +522,20 @@ function editSectionClientSide(
 function sanitizePolicyPayload(raw: any, originalPrompt: string): PolicyDefinition {
   const code = (raw.code || `POL_${Date.now()}`).toUpperCase().replace(/[^A-Z0-9_]/g, '_');
   const policyNumber = raw.policyNumber || `POL-GEN-${Math.floor(100 + Math.random() * 900)}`;
+  const cleanedName = cleanPolicyTitle(raw.name || originalPrompt);
 
   const sections = Array.isArray(raw.sections) && raw.sections.length > 0
     ? raw.sections.map((s: any, idx: number) => ({
         number: s.number || `${idx + 1}.0`,
-        title: s.title || `Section ${idx + 1}`,
+        title: cleanSectionTitle(s.title || `Section ${idx + 1}`),
         content: s.content || '',
         mandatory: s.mandatory !== false,
       }))
-    : synthesizeSections(raw.name || originalPrompt, raw.category || 'WORKPLACE_CONDUCT');
+    : synthesizeSections(cleanedName, raw.category || 'WORKPLACE_CONDUCT');
 
   return {
     code,
-    name: raw.name || 'Company Policy',
+    name: cleanedName,
     subtitle: raw.subtitle || 'Internal Governance & Operational Standard',
     category: raw.category || 'WORKPLACE_CONDUCT',
     categoryLabel: raw.categoryLabel || 'Workplace Governance',
@@ -464,27 +562,84 @@ function synthesizePolicyClientSide(prompt: string, categoryHint?: string): Poli
   let color = '#2563eb';
   let prefix = 'GEN';
 
-  if (lower.includes('remote') || lower.includes('hybrid') || lower.includes('work from home') || lower.includes('wfh') || lower.includes('travel')) {
-    category = 'WORK_ARRANGEMENTS';
-    categoryLabel = 'Work Arrangements';
-    color = '#0d9488';
-    prefix = 'WRK';
-  } else if (lower.includes('leave') || lower.includes('holiday') || lower.includes('vacation') || lower.includes('sick') || lower.includes('maternity') || lower.includes('attendance') || lower.includes('time off')) {
+  // 1. Attendance & Leave (prioritized to prevent leave/attendance being misclassified)
+  if (
+    lower.includes('leave') ||
+    lower.includes('attendance') ||
+    lower.includes('absence') ||
+    lower.includes('sick') ||
+    lower.includes('vacation') ||
+    lower.includes('holiday') ||
+    lower.includes('pto') ||
+    lower.includes('time off') ||
+    lower.includes('maternity') ||
+    lower.includes('paternity') ||
+    lower.includes('casual leave') ||
+    lower.includes('earned leave') ||
+    lower.includes('bereavement')
+  ) {
     category = 'ATTENDANCE_LEAVE';
     categoryLabel = 'Attendance & Leave';
     color = '#059669';
     prefix = 'LEAVE';
-  } else if (lower.includes('security') || lower.includes('data') || lower.includes('byod') || lower.includes('ai') || lower.includes('laptop') || lower.includes('device') || lower.includes('software') || lower.includes('cyber') || lower.includes('password') || lower.includes('access')) {
+  }
+  // 2. Work Arrangements
+  else if (
+    lower.includes('remote') ||
+    lower.includes('hybrid') ||
+    lower.includes('work from home') ||
+    lower.includes('wfh') ||
+    lower.includes('flexible hour') ||
+    lower.includes('shift')
+  ) {
+    category = 'WORK_ARRANGEMENTS';
+    categoryLabel = 'Work Arrangements';
+    color = '#0d9488';
+    prefix = 'WRK';
+  }
+  // 3. IT & Data Security
+  else if (
+    lower.includes('security') ||
+    lower.includes('data') ||
+    lower.includes('byod') ||
+    lower.includes('ai') ||
+    lower.includes('laptop') ||
+    lower.includes('device') ||
+    lower.includes('software') ||
+    lower.includes('cyber') ||
+    lower.includes('password') ||
+    lower.includes('access')
+  ) {
     category = 'IT_DATA_SECURITY';
     categoryLabel = 'IT & Data Security';
     color = '#4f46e5';
     prefix = 'IT';
-  } else if (lower.includes('expense') || lower.includes('travel') || lower.includes('reimburse') || lower.includes('allowance') || lower.includes('finance') || lower.includes('budget') || lower.includes('per diem')) {
+  }
+  // 4. Finance & Travel
+  else if (
+    lower.includes('expense') ||
+    lower.includes('travel') ||
+    lower.includes('reimburse') ||
+    lower.includes('allowance') ||
+    lower.includes('finance') ||
+    lower.includes('budget') ||
+    lower.includes('per diem')
+  ) {
     category = 'FINANCE_TRAVEL';
     categoryLabel = 'Finance & Travel';
     color = '#ea580c';
     prefix = 'FIN';
-  } else if (lower.includes('harassment') || lower.includes('posh') || lower.includes('conduct') || lower.includes('moonlight') || lower.includes('ethics') || lower.includes('conflict of interest') || lower.includes('social media')) {
+  }
+  // 5. Workplace Conduct
+  else if (
+    lower.includes('harassment') ||
+    lower.includes('posh') ||
+    lower.includes('conduct') ||
+    lower.includes('moonlight') ||
+    lower.includes('ethics') ||
+    lower.includes('conflict of interest') ||
+    lower.includes('social media')
+  ) {
     category = 'WORKPLACE_CONDUCT';
     categoryLabel = 'Workplace Conduct';
     color = '#2563eb';
@@ -492,7 +647,7 @@ function synthesizePolicyClientSide(prompt: string, categoryHint?: string): Poli
   }
 
   // Generate clean name
-  let policyName = formatTitleFromPrompt(prompt);
+  const policyName = cleanPolicyTitle(prompt);
   const code = `CUSTOM_POL_${prefix}_${Date.now()}`;
   const randomNum = Math.floor(100 + Math.random() * 900);
   const policyNumber = `POL-${prefix}-${randomNum}`;
@@ -517,18 +672,8 @@ function synthesizePolicyClientSide(prompt: string, categoryHint?: string): Poli
   };
 }
 
-function formatTitleFromPrompt(prompt: string): string {
-  let cleaned = prompt.replace(/^(create|generate|draft|write|make|a|an|the|policy for|policy on|policy regarding)\s+/gi, '').trim();
-  cleaned = cleaned.replace(/\s+policy$/i, '');
-  if (!cleaned) return 'Enterprise HR Policy';
-
-  // Capitalize words
-  const words = cleaned.split(/\s+/).slice(0, 6);
-  const title = words
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(' ');
-
-  return `${title} Policy`;
+export function formatTitleFromPrompt(prompt: string): string {
+  return cleanPolicyTitle(prompt);
 }
 
 function synthesizeSections(policyName: string, category: string, promptDetails: string = ''): Array<{
