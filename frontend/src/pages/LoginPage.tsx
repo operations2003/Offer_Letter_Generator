@@ -88,8 +88,86 @@ export const LoginPage: React.FC = () => {
           </p>
         </div>
 
-        {/* Demo Fast Login Pills */}
-        
+        {/* Quick 1-Click Access */}
+        <div
+          style={{
+            padding: '12px 14px',
+            borderRadius: 10,
+            background: '#f8fafc',
+            border: '1px solid #e2e8f0',
+            marginBottom: 20,
+          }}
+        >
+          <div
+            style={{
+              fontSize: '0.6875rem',
+              color: '#64748b',
+              fontWeight: 700,
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em',
+              marginBottom: 8,
+              textAlign: 'center',
+            }}
+          >
+            ⚡ Quick 1-Click Sign-In:
+          </div>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button
+              type="button"
+              onClick={() => handleDemoLogin('SUPER_ADMIN')}
+              style={{
+                flex: 1,
+                padding: '7px 6px',
+                fontSize: '0.75rem',
+                fontWeight: 700,
+                background: '#0f172a',
+                color: '#ffffff',
+                border: 'none',
+                borderRadius: 6,
+                cursor: 'pointer',
+              }}
+              title="Sign in as Sheetal Bedi (Super Admin)"
+            >
+              👑 Admin
+            </button>
+            <button
+              type="button"
+              onClick={() => handleDemoLogin('HR_MANAGER')}
+              style={{
+                flex: 1,
+                padding: '7px 6px',
+                fontSize: '0.75rem',
+                fontWeight: 700,
+                background: '#eff6ff',
+                color: '#1d4ed8',
+                border: '1px solid #bfdbfe',
+                borderRadius: 6,
+                cursor: 'pointer',
+              }}
+              title="Sign in as Sakshi Koparde (HR Manager)"
+            >
+              👩‍💼 Sakshi (HR)
+            </button>
+            <button
+              type="button"
+              onClick={() => handleDemoLogin('RECRUITER')}
+              style={{
+                flex: 1,
+                padding: '7px 6px',
+                fontSize: '0.75rem',
+                fontWeight: 700,
+                background: '#f8fafc',
+                color: '#334155',
+                border: '1px solid #cbd5e1',
+                borderRadius: 6,
+                cursor: 'pointer',
+              }}
+              title="Sign in as David Kim (Recruiter)"
+            >
+              🔍 Recruiter
+            </button>
+          </div>
+        </div>
 
         {/* Login Form */}
         <form onSubmit={handleSubmit} autoComplete="off">
@@ -106,7 +184,7 @@ export const LoginPage: React.FC = () => {
                 autoCapitalize="off"
                 spellCheck={false}
                 className="form-input"
-                placeholder="jhon@gmail.com"
+                placeholder="sheetalbedi@tasknera.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 style={{ paddingLeft: 38 }}
@@ -182,10 +260,54 @@ export const LoginPage: React.FC = () => {
           </Button>
         </form>
 
+        {/* Enterprise Credentials Guide */}
+        <div
+          style={{
+            marginTop: 18,
+            padding: '12px 14px',
+            backgroundColor: '#f8fafc',
+            border: '1px solid #e2e8f0',
+            borderRadius: 8,
+            fontSize: '0.75rem',
+            color: '#475569',
+            lineHeight: 1.5,
+          }}
+        >
+          <div style={{ fontWeight: 700, color: '#0f172a', marginBottom: 4 }}>
+            🔑 Enterprise Login Credentials:
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '3px 0' }}>
+            <span><strong>Admin</strong>: sheetalbedi@tasknera.com</span>
+            <button
+              type="button"
+              onClick={() => {
+                setEmail('sheetalbedi@tasknera.com');
+                setPassword('Tasknera@9312506515');
+              }}
+              style={{ border: 'none', background: 'none', color: '#2563eb', fontWeight: 600, fontSize: '0.7rem', cursor: 'pointer', textDecoration: 'underline' }}
+            >
+              Auto-fill
+            </button>
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '3px 0' }}>
+            <span><strong>HR Partner</strong>: hr@tasknera.com</span>
+            <button
+              type="button"
+              onClick={() => {
+                setEmail('hr@tasknera.com');
+                setPassword('Tasknera@123');
+              }}
+              style={{ border: 'none', background: 'none', color: '#2563eb', fontWeight: 600, fontSize: '0.7rem', cursor: 'pointer', textDecoration: 'underline' }}
+            >
+              Auto-fill
+            </button>
+          </div>
+        </div>
+
         {/* Security Notice */}
         <div
           style={{
-            marginTop: 24,
+            marginTop: 18,
             paddingTop: 16,
             borderTop: '1px solid #e2e8f0',
             display: 'flex',
