@@ -1100,7 +1100,7 @@ export const SalaryRevisionModal: React.FC<SalaryRevisionModalProps> = ({
                         <td style={{ padding: '8px 14px', fontWeight: 600 }}>Basic Salary</td>
                         <td style={{ padding: '6px 14px', textAlign: 'right' }}>
                           <input
-                            type="number"
+                            type="text" inputMode="numeric"
                             value={prevBasic}
                             onChange={(e) => setPrevBasic(e.target.value)}
                             style={{ width: '130px', padding: '6px 8px', textAlign: 'right', borderRadius: 4, border: '1px solid #cbd5e1' }}
@@ -1108,7 +1108,7 @@ export const SalaryRevisionModal: React.FC<SalaryRevisionModalProps> = ({
                         </td>
                         <td style={{ padding: '6px 14px', textAlign: 'right' }}>
                           <input
-                            type="number"
+                            type="text" inputMode="numeric"
                             value={revBasic}
                             onChange={(e) => setRevBasic(e.target.value)}
                             style={{ width: '130px', padding: '6px 8px', textAlign: 'right', borderRadius: 4, border: '1px solid #93c5fd', backgroundColor: '#eff6ff', fontWeight: 700 }}
@@ -1121,7 +1121,7 @@ export const SalaryRevisionModal: React.FC<SalaryRevisionModalProps> = ({
                         <td style={{ padding: '8px 14px', fontWeight: 600 }}>House Rent Allowance</td>
                         <td style={{ padding: '6px 14px', textAlign: 'right' }}>
                           <input
-                            type="number"
+                            type="text" inputMode="numeric"
                             value={prevHra}
                             onChange={(e) => setPrevHra(e.target.value)}
                             style={{ width: '130px', padding: '6px 8px', textAlign: 'right', borderRadius: 4, border: '1px solid #cbd5e1' }}
@@ -1129,7 +1129,7 @@ export const SalaryRevisionModal: React.FC<SalaryRevisionModalProps> = ({
                         </td>
                         <td style={{ padding: '6px 14px', textAlign: 'right' }}>
                           <input
-                            type="number"
+                            type="text" inputMode="numeric"
                             value={revHra}
                             onChange={(e) => setRevHra(e.target.value)}
                             style={{ width: '130px', padding: '6px 8px', textAlign: 'right', borderRadius: 4, border: '1px solid #93c5fd', backgroundColor: '#eff6ff', fontWeight: 700 }}
@@ -1142,7 +1142,7 @@ export const SalaryRevisionModal: React.FC<SalaryRevisionModalProps> = ({
                         <td style={{ padding: '8px 14px', fontWeight: 600 }}>Special / Other Allowance</td>
                         <td style={{ padding: '6px 14px', textAlign: 'right' }}>
                           <input
-                            type="number"
+                            type="text" inputMode="numeric"
                             value={prevSpecial}
                             onChange={(e) => setPrevSpecial(e.target.value)}
                             style={{ width: '130px', padding: '6px 8px', textAlign: 'right', borderRadius: 4, border: '1px solid #cbd5e1' }}
@@ -1150,7 +1150,7 @@ export const SalaryRevisionModal: React.FC<SalaryRevisionModalProps> = ({
                         </td>
                         <td style={{ padding: '6px 14px', textAlign: 'right' }}>
                           <input
-                            type="number"
+                            type="text" inputMode="numeric"
                             value={revSpecial}
                             onChange={(e) => setRevSpecial(e.target.value)}
                             style={{ width: '130px', padding: '6px 8px', textAlign: 'right', borderRadius: 4, border: '1px solid #93c5fd', backgroundColor: '#eff6ff', fontWeight: 700 }}
@@ -1174,7 +1174,7 @@ export const SalaryRevisionModal: React.FC<SalaryRevisionModalProps> = ({
                         <td style={{ padding: '8px 14px', color: '#475569' }}>Deduction: Provident Fund (if applicable)</td>
                         <td style={{ padding: '6px 14px', textAlign: 'right' }}>
                           <input
-                            type="number"
+                            type="text" inputMode="numeric"
                             value={prevPf}
                             onChange={(e) => setPrevPf(e.target.value)}
                             style={{ width: '130px', padding: '6px 8px', textAlign: 'right', borderRadius: 4, border: '1px solid #cbd5e1' }}
@@ -1182,7 +1182,7 @@ export const SalaryRevisionModal: React.FC<SalaryRevisionModalProps> = ({
                         </td>
                         <td style={{ padding: '6px 14px', textAlign: 'right' }}>
                           <input
-                            type="number"
+                            type="text" inputMode="numeric"
                             value={revPf}
                             onChange={(e) => setRevPf(e.target.value)}
                             style={{ width: '130px', padding: '6px 8px', textAlign: 'right', borderRadius: 4, border: '1px solid #cbd5e1' }}
@@ -1195,7 +1195,7 @@ export const SalaryRevisionModal: React.FC<SalaryRevisionModalProps> = ({
                         <td style={{ padding: '8px 14px', color: '#475569' }}>Deduction: Gratuity (if applicable)</td>
                         <td style={{ padding: '6px 14px', textAlign: 'right' }}>
                           <input
-                            type="number"
+                            type="text" inputMode="numeric"
                             value={prevGratuity}
                             onChange={(e) => setPrevGratuity(e.target.value)}
                             style={{ width: '130px', padding: '6px 8px', textAlign: 'right', borderRadius: 4, border: '1px solid #cbd5e1' }}
@@ -1203,7 +1203,7 @@ export const SalaryRevisionModal: React.FC<SalaryRevisionModalProps> = ({
                         </td>
                         <td style={{ padding: '6px 14px', textAlign: 'right' }}>
                           <input
-                            type="number"
+                            type="text" inputMode="numeric"
                             value={revGratuity}
                             onChange={(e) => setRevGratuity(e.target.value)}
                             style={{ width: '130px', padding: '6px 8px', textAlign: 'right', borderRadius: 4, border: '1px solid #cbd5e1' }}
@@ -1216,7 +1216,7 @@ export const SalaryRevisionModal: React.FC<SalaryRevisionModalProps> = ({
                         <td style={{ padding: '8px 14px', color: '#475569' }}>Deduction: Professional Tax / TDS</td>
                         <td style={{ padding: '6px 14px', textAlign: 'right' }}>
                           <input
-                            type="number"
+                            type="text" inputMode="numeric"
                             value={prevTax}
                             onChange={(e) => setPrevTax(e.target.value)}
                             style={{ width: '130px', padding: '6px 8px', textAlign: 'right', borderRadius: 4, border: '1px solid #cbd5e1' }}
@@ -1224,7 +1224,7 @@ export const SalaryRevisionModal: React.FC<SalaryRevisionModalProps> = ({
                         </td>
                         <td style={{ padding: '6px 14px', textAlign: 'right' }}>
                           <input
-                            type="number"
+                            type="text" inputMode="numeric"
                             value={revTax}
                             onChange={(e) => setRevTax(e.target.value)}
                             style={{ width: '130px', padding: '6px 8px', textAlign: 'right', borderRadius: 4, border: '1px solid #cbd5e1' }}

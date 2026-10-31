@@ -95,8 +95,9 @@ function numberToWords(amount: number): string {
 }
 
 // Format numbers as Indian currency representation without symbol
-function formatAmount(val: number): string {
-  return val.toLocaleString('en-IN', {
+function formatAmount(val: number | string): string {
+  const num = typeof val === 'number' ? val : (parseFloat(String(val).replace(/,/g, '')) || 0);
+  return num.toLocaleString('en-IN', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   });
@@ -147,19 +148,31 @@ export const SalarySlipModal: React.FC<SalarySlipModalProps> = ({
   const [lopDays, setLopDays] = useState<string>('0');
 
   // Earnings State
-  const [basicSalary, setBasicSalary] = useState<number>(35000);
-  const [hra, setHra] = useState<number>(17500);
-  const [conveyanceAllowance, setConveyanceAllowance] = useState<number>(3000);
-  const [medicalAllowance, setMedicalAllowance] = useState<number>(2500);
-  const [specialAllowance, setSpecialAllowance] = useState<number>(12000);
-  const [performanceBonus, setPerformanceBonus] = useState<number>(5000);
+  const [basicSalary, setBasicSalary] = useState<number | string>(35000);
+  const [hra, setHra] = useState<number | string>(17500);
+  const [conveyanceAllowance, setConveyanceAllowance] = useState<number | string>(3000);
+  const [medicalAllowance, setMedicalAllowance] = useState<number | string>(2500);
+  const [specialAllowance, setSpecialAllowance] = useState<number | string>(12000);
+  const [performanceBonus, setPerformanceBonus] = useState<number | string>(5000);
 
   // Deductions State
-  const [providentFund, setProvidentFund] = useState<number>(4200);
-  const [professionalTax, setProfessionalTax] = useState<number>(200);
-  const [incomeTax, setIncomeTax] = useState<number>(3500);
-  const [loanAdvanceRecovery, setLoanAdvanceRecovery] = useState<number>(0);
-  const [otherDeductions, setOtherDeductions] = useState<number>(0);
+  const [providentFund, setProvidentFund] = useState<number | string>(4200);
+  const [professionalTax, setProfessionalTax] = useState<number | string>(200);
+  const [incomeTax, setIncomeTax] = useState<number | string>(3500);
+  const [loanAdvanceRecovery, setLoanAdvanceRecovery] = useState<number | string>(0);
+  const [otherDeductions, setOtherDeductions] = useState<number | string>(0);
+
+  // Clean normal numeric input handler (no forced zeros, allows smooth backspacing/typing)
+  const handleAmountChange = (setter: React.Dispatch<React.SetStateAction<number | string>>) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    const raw = e.target.value;
+    if (raw === '') {
+      setter('');
+      return;
+    }
+    const clean = raw.replace(/[^0-9]/g, '');
+    const normalized = clean.length > 1 && clean.startsWith('0') ? clean.replace(/^0+/, '') : clean;
+    setter(normalized);
+  };
 
   // Lock body scroll while modal is open
   useEffect(() => {
@@ -268,22 +281,22 @@ export const SalarySlipModal: React.FC<SalarySlipModalProps> = ({
   // Calculations
   const grossEarnings = useMemo(() => {
     return (
-      (basicSalary || 0) +
-      (hra || 0) +
-      (conveyanceAllowance || 0) +
-      (medicalAllowance || 0) +
-      (specialAllowance || 0) +
-      (performanceBonus || 0)
+      (Number(basicSalary) || 0) +
+      (Number(hra) || 0) +
+      (Number(conveyanceAllowance) || 0) +
+      (Number(medicalAllowance) || 0) +
+      (Number(specialAllowance) || 0) +
+      (Number(performanceBonus) || 0)
     );
   }, [basicSalary, hra, conveyanceAllowance, medicalAllowance, specialAllowance, performanceBonus]);
 
   const totalDeductions = useMemo(() => {
     return (
-      (providentFund || 0) +
-      (professionalTax || 0) +
-      (incomeTax || 0) +
-      (loanAdvanceRecovery || 0) +
-      (otherDeductions || 0)
+      (Number(providentFund) || 0) +
+      (Number(professionalTax) || 0) +
+      (Number(incomeTax) || 0) +
+      (Number(loanAdvanceRecovery) || 0) +
+      (Number(otherDeductions) || 0)
     );
   }, [providentFund, professionalTax, incomeTax, loanAdvanceRecovery, otherDeductions]);
 
@@ -493,17 +506,17 @@ export const SalarySlipModal: React.FC<SalarySlipModalProps> = ({
             pfUanNumber,
             payableDays,
             lopDays,
-            basicSalary,
-            hra,
-            conveyanceAllowance,
-            medicalAllowance,
-            specialAllowance,
-            performanceBonus,
-            providentFund,
-            professionalTax,
-            incomeTax,
-            loanAdvanceRecovery,
-            otherDeductions,
+            basicSalary: Number(basicSalary) || 0,
+            hra: Number(hra) || 0,
+            conveyanceAllowance: Number(conveyanceAllowance) || 0,
+            medicalAllowance: Number(medicalAllowance) || 0,
+            specialAllowance: Number(specialAllowance) || 0,
+            performanceBonus: Number(performanceBonus) || 0,
+            providentFund: Number(providentFund) || 0,
+            professionalTax: Number(professionalTax) || 0,
+            incomeTax: Number(incomeTax) || 0,
+            loanAdvanceRecovery: Number(loanAdvanceRecovery) || 0,
+            otherDeductions: Number(otherDeductions) || 0,
             grossEarnings,
             totalDeductions,
             netPay,
@@ -1092,10 +1105,16 @@ export const SalarySlipModal: React.FC<SalarySlipModalProps> = ({
                         Basic Salary
                       </label>
                       <input
-                        type="number"
+                        type="text"
+                        inputMode="numeric"
+                        pattern="[0-9]*"
                         value={basicSalary}
-                        onChange={(e) => setBasicSalary(Number(e.target.value) || 0)}
-                        style={{ width: '100%', padding: '6px 10px', fontSize: '0.8125rem', borderRadius: 6, border: '1px solid #cbd5e1' }}
+                        onChange={handleAmountChange(setBasicSalary)}
+                        onFocus={(e) => {
+                          if (e.target.value === '0') e.target.select();
+                        }}
+                        placeholder="0"
+                        style={{ width: '100%', padding: '7px 10px', fontSize: '0.8125rem', borderRadius: 6, border: '1px solid #cbd5e1', outline: 'none' }}
                       />
                     </div>
 
@@ -1104,10 +1123,16 @@ export const SalarySlipModal: React.FC<SalarySlipModalProps> = ({
                         House Rent Allowance (HRA)
                       </label>
                       <input
-                        type="number"
+                        type="text"
+                        inputMode="numeric"
+                        pattern="[0-9]*"
                         value={hra}
-                        onChange={(e) => setHra(Number(e.target.value) || 0)}
-                        style={{ width: '100%', padding: '6px 10px', fontSize: '0.8125rem', borderRadius: 6, border: '1px solid #cbd5e1' }}
+                        onChange={handleAmountChange(setHra)}
+                        onFocus={(e) => {
+                          if (e.target.value === '0') e.target.select();
+                        }}
+                        placeholder="0"
+                        style={{ width: '100%', padding: '7px 10px', fontSize: '0.8125rem', borderRadius: 6, border: '1px solid #cbd5e1', outline: 'none' }}
                       />
                     </div>
 
@@ -1116,10 +1141,16 @@ export const SalarySlipModal: React.FC<SalarySlipModalProps> = ({
                         Conveyance Allowance
                       </label>
                       <input
-                        type="number"
+                        type="text"
+                        inputMode="numeric"
+                        pattern="[0-9]*"
                         value={conveyanceAllowance}
-                        onChange={(e) => setConveyanceAllowance(Number(e.target.value) || 0)}
-                        style={{ width: '100%', padding: '6px 10px', fontSize: '0.8125rem', borderRadius: 6, border: '1px solid #cbd5e1' }}
+                        onChange={handleAmountChange(setConveyanceAllowance)}
+                        onFocus={(e) => {
+                          if (e.target.value === '0') e.target.select();
+                        }}
+                        placeholder="0"
+                        style={{ width: '100%', padding: '7px 10px', fontSize: '0.8125rem', borderRadius: 6, border: '1px solid #cbd5e1', outline: 'none' }}
                       />
                     </div>
 
@@ -1128,10 +1159,16 @@ export const SalarySlipModal: React.FC<SalarySlipModalProps> = ({
                         Medical Allowance
                       </label>
                       <input
-                        type="number"
+                        type="text"
+                        inputMode="numeric"
+                        pattern="[0-9]*"
                         value={medicalAllowance}
-                        onChange={(e) => setMedicalAllowance(Number(e.target.value) || 0)}
-                        style={{ width: '100%', padding: '6px 10px', fontSize: '0.8125rem', borderRadius: 6, border: '1px solid #cbd5e1' }}
+                        onChange={handleAmountChange(setMedicalAllowance)}
+                        onFocus={(e) => {
+                          if (e.target.value === '0') e.target.select();
+                        }}
+                        placeholder="0"
+                        style={{ width: '100%', padding: '7px 10px', fontSize: '0.8125rem', borderRadius: 6, border: '1px solid #cbd5e1', outline: 'none' }}
                       />
                     </div>
 
@@ -1140,10 +1177,16 @@ export const SalarySlipModal: React.FC<SalarySlipModalProps> = ({
                         Special Allowance
                       </label>
                       <input
-                        type="number"
+                        type="text"
+                        inputMode="numeric"
+                        pattern="[0-9]*"
                         value={specialAllowance}
-                        onChange={(e) => setSpecialAllowance(Number(e.target.value) || 0)}
-                        style={{ width: '100%', padding: '6px 10px', fontSize: '0.8125rem', borderRadius: 6, border: '1px solid #cbd5e1' }}
+                        onChange={handleAmountChange(setSpecialAllowance)}
+                        onFocus={(e) => {
+                          if (e.target.value === '0') e.target.select();
+                        }}
+                        placeholder="0"
+                        style={{ width: '100%', padding: '7px 10px', fontSize: '0.8125rem', borderRadius: 6, border: '1px solid #cbd5e1', outline: 'none' }}
                       />
                     </div>
 
@@ -1152,10 +1195,16 @@ export const SalarySlipModal: React.FC<SalarySlipModalProps> = ({
                         Performance Bonus
                       </label>
                       <input
-                        type="number"
+                        type="text"
+                        inputMode="numeric"
+                        pattern="[0-9]*"
                         value={performanceBonus}
-                        onChange={(e) => setPerformanceBonus(Number(e.target.value) || 0)}
-                        style={{ width: '100%', padding: '6px 10px', fontSize: '0.8125rem', borderRadius: 6, border: '1px solid #cbd5e1' }}
+                        onChange={handleAmountChange(setPerformanceBonus)}
+                        onFocus={(e) => {
+                          if (e.target.value === '0') e.target.select();
+                        }}
+                        placeholder="0"
+                        style={{ width: '100%', padding: '7px 10px', fontSize: '0.8125rem', borderRadius: 6, border: '1px solid #cbd5e1', outline: 'none' }}
                       />
                     </div>
                   </div>
@@ -1179,10 +1228,16 @@ export const SalarySlipModal: React.FC<SalarySlipModalProps> = ({
                         Provident Fund (PF)
                       </label>
                       <input
-                        type="number"
+                        type="text"
+                        inputMode="numeric"
+                        pattern="[0-9]*"
                         value={providentFund}
-                        onChange={(e) => setProvidentFund(Number(e.target.value) || 0)}
-                        style={{ width: '100%', padding: '6px 10px', fontSize: '0.8125rem', borderRadius: 6, border: '1px solid #cbd5e1' }}
+                        onChange={handleAmountChange(setProvidentFund)}
+                        onFocus={(e) => {
+                          if (e.target.value === '0') e.target.select();
+                        }}
+                        placeholder="0"
+                        style={{ width: '100%', padding: '7px 10px', fontSize: '0.8125rem', borderRadius: 6, border: '1px solid #cbd5e1', outline: 'none' }}
                       />
                     </div>
 
@@ -1191,10 +1246,16 @@ export const SalarySlipModal: React.FC<SalarySlipModalProps> = ({
                         Professional Tax
                       </label>
                       <input
-                        type="number"
+                        type="text"
+                        inputMode="numeric"
+                        pattern="[0-9]*"
                         value={professionalTax}
-                        onChange={(e) => setProfessionalTax(Number(e.target.value) || 0)}
-                        style={{ width: '100%', padding: '6px 10px', fontSize: '0.8125rem', borderRadius: 6, border: '1px solid #cbd5e1' }}
+                        onChange={handleAmountChange(setProfessionalTax)}
+                        onFocus={(e) => {
+                          if (e.target.value === '0') e.target.select();
+                        }}
+                        placeholder="0"
+                        style={{ width: '100%', padding: '7px 10px', fontSize: '0.8125rem', borderRadius: 6, border: '1px solid #cbd5e1', outline: 'none' }}
                       />
                     </div>
 
@@ -1203,10 +1264,16 @@ export const SalarySlipModal: React.FC<SalarySlipModalProps> = ({
                         Income Tax (TDS)
                       </label>
                       <input
-                        type="number"
+                        type="text"
+                        inputMode="numeric"
+                        pattern="[0-9]*"
                         value={incomeTax}
-                        onChange={(e) => setIncomeTax(Number(e.target.value) || 0)}
-                        style={{ width: '100%', padding: '6px 10px', fontSize: '0.8125rem', borderRadius: 6, border: '1px solid #cbd5e1' }}
+                        onChange={handleAmountChange(setIncomeTax)}
+                        onFocus={(e) => {
+                          if (e.target.value === '0') e.target.select();
+                        }}
+                        placeholder="0"
+                        style={{ width: '100%', padding: '7px 10px', fontSize: '0.8125rem', borderRadius: 6, border: '1px solid #cbd5e1', outline: 'none' }}
                       />
                     </div>
 
@@ -1215,10 +1282,16 @@ export const SalarySlipModal: React.FC<SalarySlipModalProps> = ({
                         Loan / Advance Recovery
                       </label>
                       <input
-                        type="number"
+                        type="text"
+                        inputMode="numeric"
+                        pattern="[0-9]*"
                         value={loanAdvanceRecovery}
-                        onChange={(e) => setLoanAdvanceRecovery(Number(e.target.value) || 0)}
-                        style={{ width: '100%', padding: '6px 10px', fontSize: '0.8125rem', borderRadius: 6, border: '1px solid #cbd5e1' }}
+                        onChange={handleAmountChange(setLoanAdvanceRecovery)}
+                        onFocus={(e) => {
+                          if (e.target.value === '0') e.target.select();
+                        }}
+                        placeholder="0"
+                        style={{ width: '100%', padding: '7px 10px', fontSize: '0.8125rem', borderRadius: 6, border: '1px solid #cbd5e1', outline: 'none' }}
                       />
                     </div>
 
@@ -1227,10 +1300,16 @@ export const SalarySlipModal: React.FC<SalarySlipModalProps> = ({
                         Other Deductions
                       </label>
                       <input
-                        type="number"
+                        type="text"
+                        inputMode="numeric"
+                        pattern="[0-9]*"
                         value={otherDeductions}
-                        onChange={(e) => setOtherDeductions(Number(e.target.value) || 0)}
-                        style={{ width: '100%', padding: '6px 10px', fontSize: '0.8125rem', borderRadius: 6, border: '1px solid #cbd5e1' }}
+                        onChange={handleAmountChange(setOtherDeductions)}
+                        onFocus={(e) => {
+                          if (e.target.value === '0') e.target.select();
+                        }}
+                        placeholder="0"
+                        style={{ width: '100%', padding: '7px 10px', fontSize: '0.8125rem', borderRadius: 6, border: '1px solid #cbd5e1', outline: 'none' }}
                       />
                     </div>
 

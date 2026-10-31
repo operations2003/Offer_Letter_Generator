@@ -1385,3 +1385,14 @@ button, input, select, textarea {
     border: none !important;
   }
 }
+
+/* Remove native number input spinners across all browsers for normal clean input */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none !important;
+  margin: 0 !important;
+}
+input[type=number] {
+  -moz-appearance: textfield !important;
+  appearance: textfield !important;
+}
