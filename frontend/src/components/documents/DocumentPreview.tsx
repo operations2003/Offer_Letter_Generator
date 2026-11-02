@@ -190,7 +190,8 @@ export const DocumentPreview: React.FC<DocumentPreviewProps> = ({
       Number(payslipIncomeTax) +
       Number(payslipLoanAdvanceRecovery) +
       Number(payslipOtherDeductions));
-  const payslipNetPay = terms.netPay ?? (Number(payslipGrossEarnings) - Number(payslipTotalDeductions));
+  const computedNet = Number(payslipGrossEarnings) - Number(payslipTotalDeductions);
+  const payslipNetPay = terms.netPay && Number(terms.netPay) > 0 ? Number(terms.netPay) : (computedNet > 0 ? computedNet : Number(payslipGrossEarnings));
   const payslipAmountInWords = terms.amountInWords || 'Rupees Only';
 
   const formatSlipAmount = (val: number | string) => {

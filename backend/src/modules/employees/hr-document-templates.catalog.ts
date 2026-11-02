@@ -144,6 +144,74 @@ For {{company_name}}
 {{signatory_title}}`,
   },
 
+    // 2b. UNPAID HR INTERNSHIP OFFER LETTER
+  UNPAID_HR_INTERNSHIP_OFFER: {
+    code: 'UNPAID_HR_INTERNSHIP_OFFER',
+    category: 'Internship Offer',
+    name: 'Offer of Unpaid Internship - Human Resources',
+    description: 'Fixed 3-month unpaid HR internship covering role responsibilities, terms, and CEO endorsement.',
+    supportedFormats: ['PDF', 'DOCX'],
+    defaultDocxAvailable: true,
+    requiredEmployeePlaceholders: ['employee_name', 'designation', 'department', 'joining_date'],
+    docSpecificFields: [
+      { key: 'internship_duration', label: 'Internship Duration', type: 'string', defaultValue: 'Three (3) months' },
+      { key: 'internship_end_date', label: 'End Date', type: 'date' },
+      { key: 'work_location', label: 'Work Arrangement / Location', type: 'string', defaultValue: 'Hybrid / Delhi NCR, India' },
+      { key: 'reporting_manager', label: 'Reporting To', type: 'string', defaultValue: 'Rashmi Sharma (HR Operations Partner)' },
+      { key: 'valid_until', label: 'Acceptance By Date', type: 'date' },
+      { key: 'signatory_name', label: 'Signatory Name', type: 'string', defaultValue: 'Ms. Sheetal Bedi' },
+      { key: 'signatory_title', label: 'Signatory Title', type: 'string', defaultValue: 'Chief Executive Officer' },
+    ],
+    contentMarkup: `Date: {{issue_date}}
+To,
+{{employee_name}}
+{{personal_email}}
+
+INTERNSHIP OFFER LETTER
+Subject: Offer of Unpaid Internship - Human Resources
+
+Dear {{employee_name}},
+
+We are pleased to offer you an internship with Tasknera as an HR Intern for a fixed period of three (3) months. The internship is intended to provide practical exposure to human resources operations and help you develop relevant professional skills.
+
+| Position | HR Intern |
+| Internship Duration | Three (3) months |
+| Start Date | {{joining_date}} |
+| End Date | {{internship_end_date}} |
+| Work Arrangement / Location | {{work_location}} |
+| Reporting To | {{reporting_manager}} |
+
+1. Role and Responsibilities
+You will support the Human Resources function. Your responsibilities may include:
+- Candidate sourcing, resume screening, shortlisting and recruitment coordination.
+- Scheduling interviews and communicating with candidates and interviewers.
+- Supporting candidate documentation, onboarding and maintenance of HR records.
+- Assisting with employee engagement, HR reports and other assigned HR activities.
+
+2. Internship Terms
+The internship will run for the three-month period stated above. You are expected to maintain regular attendance, follow the schedule communicated by your reporting manager, complete assigned tasks responsibly and participate in review discussions.
+
+3. Unpaid Internship
+This is an unpaid internship. No salary, stipend or other monetary remuneration will be payable during the internship. Work-related expenses may be reimbursed only if approved by Tasknera in writing in advance and supported by receipts. Any extension or subsequent paid engagement will require a separate written offer or agreement.
+
+4. Professional Conduct and Confidentiality
+You must act professionally and follow Tasknera’s workplace instructions and policies. Candidate resumes, contact details, employee records and other non-public business information must be used only for authorised work, kept secure, and not disclosed or transferred to unauthorised persons, accounts or platforms. These confidentiality and information-security obligations continue after the internship ends.
+
+5. Company Information and Completion
+Company documents, records, credentials and other materials must be handled responsibly and returned or securely deleted as instructed when the internship ends. A completion certificate may be issued subject to satisfactory completion and handover of assigned work and Company property.
+
+Please sign below and return a copy to careers@tasknera.com by {{valid_until}} to confirm your acceptance. We look forward to welcoming you to Tasknera.
+
+For and on behalf of TASKNERA
+______________________________
+Ms. Sheetal Bedi
+Chief Executive Officer
+
+ACCEPTANCE BY THE INTERN
+I, {{employee_name}}, have read and understood the terms of this offer and accept the unpaid HR internship on the terms stated above.
+Signature: __________________________     Date: __________________     Place: __________________`,
+  },
+
   // 3. EMPLOYMENT CONTRACT
   EMPLOYMENT_CONTRACT: {
     code: 'EMPLOYMENT_CONTRACT',

@@ -106,6 +106,96 @@ Signatory: Sarah Jenkins (VP of Global Talent) | Offer Validity: October 15, 202
   // 2. INTERNSHIP LETTER
   INTERNSHIP_LETTER: [
     {
+      id: 'tmpl_internship_unpaid_hr_tasknera',
+      documentTypeCode: 'INTERNSHIP_LETTER',
+      name: 'Offer of Unpaid Internship - Human Resources (TaskNera)',
+      description: 'Official TaskNera 3-month unpaid HR internship offer letter with role responsibilities, confidentiality covenants, and CEO signatory.',
+      version: 'v1.0',
+      category: 'EMPLOYMENT',
+      content: `Date: {{issue_date}}
+To,
+{{candidate_name}}
+{{personal_email}}
+
+INTERNSHIP OFFER LETTER
+Subject: Offer of Unpaid Internship - Human Resources
+
+Dear {{candidate_name}},
+
+We are pleased to offer you an internship with Tasknera as an HR Intern for a fixed period of three (3) months. The internship is intended to provide practical exposure to human resources operations and help you develop relevant professional skills.
+
+| Position | HR Intern |
+| Internship Duration | Three (3) months |
+| Start Date | {{start_date}} |
+| End Date | {{end_date}} |
+| Work Arrangement / Location | {{location}} |
+| Reporting To | {{reporting_manager}} |
+
+1. Role and Responsibilities
+You will support the Human Resources function. Your responsibilities may include:
+- Candidate sourcing, resume screening, shortlisting and recruitment coordination.
+- Scheduling interviews and communicating with candidates and interviewers.
+- Supporting candidate documentation, onboarding and maintenance of HR records.
+- Assisting with employee engagement, HR reports and other assigned HR activities.
+
+2. Internship Terms
+The internship will run for the three-month period stated above. You are expected to maintain regular attendance, follow the schedule communicated by your reporting manager, complete assigned tasks responsibly and participate in review discussions.
+
+3. Unpaid Internship
+This is an unpaid internship. No salary, stipend or other monetary remuneration will be payable during the internship. Work-related expenses may be reimbursed only if approved by Tasknera in writing in advance and supported by receipts. Any extension or subsequent paid engagement will require a separate written offer or agreement.
+
+4. Professional Conduct and Confidentiality
+You must act professionally and follow Tasknera’s workplace instructions and policies. Candidate resumes, contact details, employee records and other non-public business information must be used only for authorised work, kept secure, and not disclosed or transferred to unauthorised persons, accounts or platforms. These confidentiality and information-security obligations continue after the internship ends.
+
+5. Company Information and Completion
+Company documents, records, credentials and other materials must be handled responsibly and returned or securely deleted as instructed when the internship ends. A completion certificate may be issued subject to satisfactory completion and handover of assigned work and Company property.
+
+Please sign below and return a copy to careers@tasknera.com by {{valid_until}} to confirm your acceptance. We look forward to welcoming you to Tasknera.
+
+For and on behalf of TASKNERA
+______________________________
+Ms. Sheetal Bedi
+Chief Executive Officer
+
+ACCEPTANCE BY THE INTERN
+I, {{candidate_name}}, have read and understood the terms of this offer and accept the unpaid HR internship on the terms stated above.
+Signature: __________________________     Date: __________________     Place: __________________`,
+      sampleInputText: `INTERNSHIP CANDIDATE PROFILE: Ananya Sharma | ananya.sharma@example.com
+Role: HR Intern | Department: Human Resources | Location: Hybrid / Delhi NCR, India
+Internship Duration: Three (3) months (November 15, 2026 to February 15, 2027)
+Reporting To: Rashmi Sharma (HR Operations Partner) | Offer Valid Until: November 10, 2026
+Stipend: Unpaid Internship | Signatory: Ms. Sheetal Bedi (Chief Executive Officer)`,
+      sampleHrData: {
+        candidateName: 'Ananya Sharma',
+        email: 'ananya.sharma@example.com',
+        internshipRole: 'HR Intern',
+        department: 'Human Resources',
+        location: 'Hybrid / Delhi NCR, India',
+        startDate: '2026-11-15',
+        endDate: '2027-02-15',
+        workingArrangement: 'HYBRID',
+        monthlyStipend: 0,
+        currency: 'INR',
+        mentorName: 'Rashmi Sharma',
+        mentorTitle: 'HR Operations Partner',
+        weeklyHoursCommitment: 40,
+        offerValidUntil: '2026-11-10',
+        signatoryName: 'Ms. Sheetal Bedi',
+        signatoryTitle: 'Chief Executive Officer',
+      },
+      sampleAiExtractions: {
+        candidateName: { value: 'Ananya Sharma', confidence: 0.99, sourceQuote: 'Candidate: Ananya Sharma' },
+        email: { value: 'ananya.sharma@example.com', confidence: 0.98, sourceQuote: 'ananya.sharma@example.com' },
+        internshipRole: { value: 'HR Intern', confidence: 0.99, sourceQuote: 'Role: HR Intern' },
+        department: { value: 'Human Resources', confidence: 0.98, sourceQuote: 'Department: Human Resources' },
+        startDate: { value: '2026-11-15', confidence: 0.96, sourceQuote: 'November 15, 2026' },
+        endDate: { value: '2027-02-15', confidence: 0.96, sourceQuote: 'February 15, 2027' },
+        location: { value: 'Hybrid / Delhi NCR, India', confidence: 0.95, sourceQuote: 'Location: Hybrid / Delhi NCR, India' },
+        signatoryName: { value: 'Ms. Sheetal Bedi', confidence: 0.99, sourceQuote: 'Ms. Sheetal Bedi' },
+        signatoryTitle: { value: 'Chief Executive Officer', confidence: 0.99, sourceQuote: 'Chief Executive Officer' },
+      },
+    },
+    {
       id: 'tmpl_internship_standard',
       documentTypeCode: 'INTERNSHIP_LETTER',
       name: 'Engineering & Research Internship Appointment',

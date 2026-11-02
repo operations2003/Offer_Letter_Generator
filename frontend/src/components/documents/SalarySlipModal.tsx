@@ -301,7 +301,8 @@ export const SalarySlipModal: React.FC<SalarySlipModalProps> = ({
   }, [providentFund, professionalTax, incomeTax, loanAdvanceRecovery, otherDeductions]);
 
   const netPay = useMemo(() => {
-    return Math.max(0, grossEarnings - totalDeductions);
+    const calculated = grossEarnings - totalDeductions;
+    return calculated > 0 ? calculated : grossEarnings;
   }, [grossEarnings, totalDeductions]);
 
   const amountInWords = useMemo(() => {

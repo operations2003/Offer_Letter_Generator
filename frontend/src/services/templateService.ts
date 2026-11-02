@@ -243,6 +243,170 @@ export const SAMPLE_CANDIDATE_DATA: Record<string, string> = {
 // In-Memory / LocalStorage Seed Templates
 const INITIAL_TEMPLATES: OfferTemplate[] = [
   {
+    id: 'tpl_tasknera_unpaid_hr_internship',
+    companyId: 'cmp_tasknera_001',
+    title: 'Offer of Unpaid Internship - Human Resources',
+    description: 'Official TaskNera 3-month unpaid HR internship offer letter with role responsibilities, confidentiality covenants, and executive signatory.',
+    category: 'INTERNSHIP',
+    isActive: true,
+    currentVersionId: 'ver_tasknera_unpaid_001',
+    createdBy: 'usr_tasknera_admin',
+    creator: { firstName: 'Sheetal', lastName: 'Bedi', email: 'careers@tasknera.com' },
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    _count: { versions: 1 },
+    currentVersion: {
+      id: 'ver_tasknera_unpaid_001',
+      templateId: 'tpl_tasknera_unpaid_hr_internship',
+      versionNumber: 1,
+      isPublished: true,
+      changeSummary: 'TaskNera official unpaid HR internship offer template',
+      createdAt: new Date().toISOString(),
+      creator: { firstName: 'Sheetal', lastName: 'Bedi', email: 'careers@tasknera.com' },
+      placeholdersSchema: [
+        'candidate_name',
+        'personal_email',
+        'job_title',
+        'internship_duration',
+        'joining_date',
+        'end_date',
+        'work_location',
+        'reporting_manager',
+        'valid_until',
+        'signatory_name',
+        'signatory_title',
+      ],
+      headerMarkup: `<div style="position:relative; margin-bottom:24px; font-family:'Inter',system-ui,sans-serif;">
+  <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
+    <div style="width:280px; height:18px; background:#fae1c3; border-bottom-right-radius:14px;"></div>
+    <div style="width:220px; height:8px; background:#9c7a82;"></div>
+  </div>
+  <div style="display:flex; justify-content:space-between; align-items:center; padding:0 12px 14px;">
+    <div style="display:flex; align-items:center; gap:12px;">
+      <img src="/logo.png" alt="TaskNera" style="width:40px; height:40px; object-fit:contain;" />
+      <div>
+        <div style="font-size:24px; font-weight:800; letter-spacing:-0.01em; line-height:1.1;">
+          <span style="color:#252c38;">Task</span><span style="color:#f56637;">Nera</span>
+        </div>
+        <div style="font-size:10px; font-weight:500; color:#334155; letter-spacing:0.01em; margin-top:2px;">
+          People. Processes. Performance.
+        </div>
+      </div>
+    </div>
+    <div style="border-left:2px solid #0f172a; padding-left:14px; font-size:11px; line-height:1.5; color:#1e293b;">
+      <div><strong>Phone:</strong> +91 7065278229</div>
+      <div><strong>Email:</strong> careers@tasknera.com</div>
+      <div><strong>ADD:</strong> D-57 Dilshad Colony, Delhi, 110095</div>
+    </div>
+  </div>
+  <div style="height:3px; background:#1e293b; width:100%;"></div>
+</div>`,
+      footerMarkup: `<div style="margin-top:40px; position:relative; font-family:'Inter',system-ui,sans-serif;">
+  <div style="display:flex; justify-content:flex-end; margin-bottom:32px; padding-right:12px;">
+    <div style="text-align:right;">
+      <div style="font-weight:700; font-size:14px; color:#0f172a;">Ms. Sheetal Bedi</div>
+      <div style="font-size:12px; font-weight:600; color:#475569;">Chief Executive Officer</div>
+      <div style="font-size:11px; color:#94a3b8;">TASKNERA</div>
+    </div>
+  </div>
+  <div style="display:flex; justify-content:center;">
+    <div style="width:240px; height:16px; background:#9c7a82; border-top-left-radius:12px; border-top-right-radius:12px;"></div>
+  </div>
+</div>`,
+      styleCss: `body { font-family: 'Inter', system-ui, sans-serif; line-height: 1.6; color: #1f2937; }
+h1, h2, h3 { color: #111827; }
+.terms-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13px; }
+.terms-table td, .terms-table th { padding: 9px 12px; border: 1px solid #e2e8f0; }
+.terms-table td.label { font-weight: 600; color: #475569; width: 35%; background: #f8fafc; }`,
+      contentMarkup: `<p><strong>Date:</strong> {{issue_date}}</p>
+<p><strong>To,</strong><br />
+<strong>{{candidate_name}}</strong><br />
+{{personal_email}}</p>
+
+<h2 style="text-align:center; margin-top:20px; font-weight:800; color:#0f172a;">INTERNSHIP OFFER LETTER</h2>
+<h4 style="text-align:center; margin-bottom:24px; color:#475569;">Subject: Offer of Unpaid Internship - Human Resources</h4>
+
+<p>Dear <strong>{{candidate_name}}</strong>,</p>
+
+<p>We are pleased to offer you an internship with <strong>Tasknera</strong> as an <strong>HR Intern</strong> for a fixed period of <strong>three (3) months</strong>. The internship is intended to provide practical exposure to human resources operations and help you develop relevant professional skills.</p>
+
+<table class="terms-table">
+  <tbody>
+    <tr>
+      <td class="label">Position</td>
+      <td><strong>{{job_title}}</strong></td>
+    </tr>
+    <tr>
+      <td class="label">Internship Duration</td>
+      <td><strong>{{internship_duration}}</strong></td>
+    </tr>
+    <tr>
+      <td class="label">Start Date</td>
+      <td><strong>{{joining_date}}</strong></td>
+    </tr>
+    <tr>
+      <td class="label">End Date</td>
+      <td><strong>{{end_date}}</strong></td>
+    </tr>
+    <tr>
+      <td class="label">Work Arrangement / Location</td>
+      <td>{{work_location}}</td>
+    </tr>
+    <tr>
+      <td class="label">Reporting To</td>
+      <td>{{reporting_manager}}</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>1. Role and Responsibilities</h3>
+<p>You will support the Human Resources function. Your responsibilities may include:</p>
+<ul>
+  <li>Candidate sourcing, resume screening, shortlisting and recruitment coordination.</li>
+  <li>Scheduling interviews and communicating with candidates and interviewers.</li>
+  <li>Supporting candidate documentation, onboarding and maintenance of HR records.</li>
+  <li>Assisting with employee engagement, HR reports and other assigned HR activities.</li>
+</ul>
+
+<h3>2. Internship Terms</h3>
+<p>The internship will run for the three-month period stated above. You are expected to maintain regular attendance, follow the schedule communicated by your reporting manager, complete assigned tasks responsibly and participate in review discussions.</p>
+
+<h3>3. Unpaid Internship</h3>
+<p>This is an unpaid internship. No salary, stipend or other monetary remuneration will be payable during the internship. Work-related expenses may be reimbursed only if approved by Tasknera in writing in advance and supported by receipts. Any extension or subsequent paid engagement will require a separate written offer or agreement.</p>
+
+<h3>4. Professional Conduct and Confidentiality</h3>
+<p>You must act professionally and follow Tasknera’s workplace instructions and policies. Candidate resumes, contact details, employee records and other non-public business information must be used only for authorised work, kept secure, and not disclosed or transferred to unauthorised persons, accounts or platforms. These confidentiality and information-security obligations continue after the internship ends.</p>
+
+<h3>5. Company Information and Completion</h3>
+<p>Company documents, records, credentials and other materials must be handled responsibly and returned or securely deleted as instructed when the internship ends. A completion certificate may be issued subject to satisfactory completion and handover of assigned work and Company property.</p>
+
+<p>Please sign below and return a copy to <strong>careers@tasknera.com</strong> by <strong>{{valid_until}}</strong> to confirm your acceptance. We look forward to welcoming you to Tasknera.</p>
+
+<p>For and on behalf of <strong>TASKNERA</strong></p>
+<p>______________________________<br />
+<strong>Ms. Sheetal Bedi</strong><br />
+Chief Executive Officer</p>
+
+<div style="margin-top:30px; padding:16px; border:1px solid #cbd5e1; border-radius:8px; background:#f8fafc;">
+  <h4 style="margin-top:0; font-weight:700;">ACCEPTANCE BY THE INTERN</h4>
+  <p>I, <strong>{{candidate_name}}</strong>, have read and understood the terms of this offer and accept the unpaid HR internship on the terms stated above.</p>
+  <p>Signature: __________________________ &nbsp;&nbsp;&nbsp;&nbsp; Date: __________________ &nbsp;&nbsp;&nbsp;&nbsp; Place: __________________</p>
+</div>`,
+    },
+    versions: [
+      {
+        id: 'ver_tasknera_unpaid_001',
+        templateId: 'tpl_tasknera_unpaid_hr_internship',
+        versionNumber: 1,
+        isPublished: true,
+        changeSummary: 'TaskNera official unpaid HR internship offer template',
+        createdAt: new Date().toISOString(),
+        placeholdersSchema: ['candidate_name', 'personal_email', 'joining_date', 'end_date'],
+        contentMarkup: '',
+      },
+    ],
+  },
+  {
     id: 'tpl_tasknera_official_001',
     companyId: 'cmp_tasknera_001',
     title: 'TaskNera Official Corporate Letterhead Offer',

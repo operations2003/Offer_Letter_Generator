@@ -453,6 +453,87 @@ Date: ___________________________`,
     },
   },
 
+    // 5b. Offer of Unpaid Internship - Human Resources
+  {
+    value: 'Unpaid HR Internship Offer',
+    legacyValue: 'UNPAID_HR_INTERNSHIP_OFFER',
+    label: 'Offer of Unpaid Internship - Human Resources',
+    group: 'templates',
+    groupLabel: 'Internship Offer',
+    defaultTitle: 'Offer of Unpaid Internship - Human Resources',
+    blueprintContent: `**Date**: {{issue_date}}
+
+To,
+**{{candidate_name}}**
+{{personal_email}}
+
+# **INTERNSHIP OFFER LETTER**
+### **Subject: Offer of Unpaid Internship - Human Resources**
+
+Dear **{{candidate_name}}**,
+
+We are pleased to offer you an internship with **Tasknera** as an **HR Intern** for a fixed period of **three (3) months**. The internship is intended to provide practical exposure to human resources operations and help you develop relevant professional skills.
+
+| Engagement Parameter | Terms & Details |
+| :--- | :--- |
+| **Position** | **{{job_title}}** |
+| **Internship Duration** | **{{internship_duration}}** |
+| **Start Date** | **{{joining_date}}** |
+| **End Date** | **{{end_date}}** |
+| **Work Arrangement / Location** | **{{work_location}}** |
+| **Reporting To** | **{{reporting_manager}}** |
+
+**1. Role and Responsibilities**
+You will support the Human Resources function. Your responsibilities may include:
+• Candidate sourcing, resume screening, shortlisting and recruitment coordination.
+• Scheduling interviews and communicating with candidates and interviewers.
+• Supporting candidate documentation, onboarding and maintenance of HR records.
+• Assisting with employee engagement, HR reports and other assigned HR activities.
+
+**2. Internship Terms**
+The internship will run for the three-month period stated above. You are expected to maintain regular attendance, follow the schedule communicated by your reporting manager, complete assigned tasks responsibly and participate in review discussions.
+
+**3. Unpaid Internship**
+This is an unpaid internship. No salary, stipend or other monetary remuneration will be payable during the internship. Work-related expenses may be reimbursed only if approved by Tasknera in writing in advance and supported by receipts. Any extension or subsequent paid engagement will require a separate written offer or agreement.
+
+**4. Professional Conduct and Confidentiality**
+You must act professionally and follow Tasknera’s workplace instructions and policies. Candidate resumes, contact details, employee records and other non-public business information must be used only for authorised work, kept secure, and not disclosed or transferred to unauthorised persons, accounts or platforms. These confidentiality and information-security obligations continue after the internship ends.
+
+**5. Company Information and Completion**
+Company documents, records, credentials and other materials must be handled responsibly and returned or securely deleted as instructed when the internship ends. A completion certificate may be issued subject to satisfactory completion and handover of assigned work and Company property.
+
+Please sign below and return a copy to **careers@tasknera.com** by **{{valid_until}}** to confirm your acceptance. We look forward to welcoming you to Tasknera.
+
+For and on behalf of **TASKNERA**
+
+______________________________
+**Ms. Sheetal Bedi**
+Chief Executive Officer
+
+---
+
+### **ACCEPTANCE BY THE INTERN**
+I, **{{candidate_name}}**, have read and understood the terms of this offer and accept the unpaid HR internship on the terms stated above.
+
+Signature: __________________________     Date: __________________     Place: __________________`,
+    sampleData: {
+      reference_number: 'TSK-INT-HR-2026-001',
+      candidate_name: 'Ananya Sharma',
+      personal_email: 'ananya.sharma@example.com',
+      company_name: 'Tasknera',
+      issue_date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
+      job_title: 'HR Intern',
+      internship_duration: 'Three (3) months',
+      joining_date: 'November 15, 2026',
+      end_date: 'February 15, 2027',
+      work_location: 'Hybrid / Delhi NCR, India',
+      reporting_manager: 'Rashmi Sharma (HR Operations Partner)',
+      valid_until: 'November 10, 2026',
+      signatory_name: 'Sheetal Bedi',
+      signatory_title: 'Chief Executive Officer',
+    },
+  },
+
   // 6. Recruitment Agreement (MRSA) / NDA
   {
     value: 'Recruitment Agreement',
