@@ -87,6 +87,12 @@ import { SalaryRevisionModal } from '../components/documents/SalaryRevisionModal
 import { PromotionLetterModal } from '../components/documents/PromotionLetterModal.js';
 import { InternshipExtensionModal } from '../components/documents/InternshipExtensionModal.js';
 import { UnpaidInternshipModal } from '../components/documents/UnpaidInternshipModal.js';
+import { SavedTemplateGeneratorModal } from '../components/offers/SavedTemplateGeneratorModal.js';
+import {
+  CustomTemplateService,
+  SavedCustomTemplate,
+  TEMPLATES_UPDATED_EVENT,
+} from '../services/customTemplateService.js';
 import { AttendanceWarningModal } from '../components/documents/AttendanceWarningModal.js';
 import { DisciplinaryOutcomeModal } from '../components/documents/DisciplinaryOutcomeModal.js';
 import { ShowCauseNoticeModal } from '../components/documents/ShowCauseNoticeModal.js';
@@ -195,6 +201,31 @@ export const OffersPage: React.FC = () => {
   const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
   const [emailSendOffer, setEmailSendOffer] = useState<OfferListItem | null>(null);
   const [emailHistoryOffer, setEmailHistoryOffer] = useState<OfferListItem | null>(null);
+
+  // Custom Saved Templates from PDF / Letterhead uploads
+  const [customTemplates, setCustomTemplates] = useState<SavedCustomTemplate[]>(() =>
+    CustomTemplateService.getSavedTemplates()
+  );
+  const [selectedCustomTemplate, setSelectedCustomTemplate] = useState<SavedCustomTemplate | null>(null);
+  const [isSavedTemplateModalOpen, setIsSavedTemplateModalOpen] = useState(false);
+
+  useEffect(() => {
+    const handleTemplatesUpdate = () => {
+      setCustomTemplates(CustomTemplateService.getSavedTemplates());
+    };
+    window.addEventListener(TEMPLATES_UPDATED_EVENT, handleTemplatesUpdate);
+    return () => {
+      window.removeEventListener(TEMPLATES_UPDATED_EVENT, handleTemplatesUpdate);
+    };
+  }, []);
+
+  const handleDeleteCustomTemplate = (e: React.MouseEvent, tplId: string, title: string) => {
+    e.stopPropagation();
+    if (window.confirm(`Are you sure you want to delete the saved template "${title}"?`)) {
+      CustomTemplateService.deleteTemplate(tplId);
+      success(`Template "${title}" removed.`);
+    }
+  };
 
   // Policies Section State
   const [selectedPolicyForView, setSelectedPolicyForView] = useState<PolicyDefinition | null>(null);
@@ -507,7 +538,26 @@ export const OffersPage: React.FC = () => {
     }
   };
 
+  const customTemplateCards = customTemplates.map((tpl) => ({
+    id: tpl.id,
+    title: tpl.title,
+    description: tpl.description || `Custom reusable template with ${tpl.sections?.length || 0} clauses & terms.`,
+    icon: <FileText size={22} style={{ color: tpl.color || '#16a34a' }} />,
+    badge: tpl.badge || 'Saved Template',
+    badgeColor: tpl.color || '#16a34a',
+    badgeBg: `${tpl.color || '#16a34a'}15`,
+    badgeBorder: `${tpl.color || '#16a34a'}40`,
+    active: true,
+    isCustomSavedTemplate: true,
+    templateData: tpl,
+    onClick: () => {
+      setSelectedCustomTemplate(tpl);
+      setIsSavedTemplateModalOpen(true);
+    },
+  }));
+
   const documentCards = [
+    ...customTemplateCards,
     {
       id: 'subscription_plans',
       title: 'Subscription Plans & Pricing',
@@ -1126,9 +1176,32 @@ export const OffersPage: React.FC = () => {
                 </span>
               </div>
               <p style={{ fontSize: '0.8125rem', color: '#64748b', margin: '2px 0 0 0' }}>
-                Select a template to generate a document.
+                Select a template to generate a document, or upload a reference PDF to save a new template.
               </p>
             </div>
+
+            <button
+              type="button"
+              onClick={() => setIsGeneratePdfModalOpen(true)}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 6,
+                padding: '7px 14px',
+                fontSize: '0.8125rem',
+                fontWeight: 700,
+                borderRadius: 8,
+                border: '1px solid #2563eb',
+                backgroundColor: '#eff6ff',
+                color: '#1d4ed8',
+                cursor: 'pointer',
+                boxShadow: '0 1px 3px rgba(37,99,235,0.1)',
+                transition: 'all 0.15s ease',
+              }}
+            >
+              <FileText size={15} />
+              <span>+ Upload & Save New Template</span>
+            </button>
           </div>
 
           <div
@@ -1188,23 +1261,47 @@ export const OffersPage: React.FC = () => {
                       >
                         {card.icon}
                       </div>
-                      <span
-                        style={{
-                          fontSize: '0.72rem',
-                          fontWeight: 700,
-                          padding: '3px 8px',
-                          borderRadius: 20,
-                          color: card.badgeColor,
-                          backgroundColor: card.badgeBg,
-                          border: `1px solid ${card.badgeBorder}`,
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: 4,
-                        }}
-                      >
-                        {isOffer && <span style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: '#16a34a' }} />}
-                        {card.badge}
-                      </span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <span
+                          style={{
+                            fontSize: '0.72rem',
+                            fontWeight: 700,
+                            padding: '3px 8px',
+                            borderRadius: 20,
+                            color: card.badgeColor,
+                            backgroundColor: card.badgeBg,
+                            border: `1px solid ${card.badgeBorder}`,
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: 4,
+                          }}
+                        >
+                          {isOffer && <span style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: '#16a34a' }} />}
+                          {card.badge}
+                        </span>
+                        {(card as any).isCustomSavedTemplate && (
+                          <button
+                            type="button"
+                            title="Delete this saved template"
+                            onClick={(e) => handleDeleteCustomTemplate(e, card.id, card.title)}
+                            style={{
+                              background: 'none',
+                              border: 'none',
+                              padding: '2px 4px',
+                              cursor: 'pointer',
+                              color: '#94a3b8',
+                              borderRadius: 4,
+                              display: 'flex',
+                              alignItems: 'center',
+                              transition: 'color 0.15s',
+                            }}
+                            onMouseEnter={(e) => (e.currentTarget.style.color = '#ef4444')}
+                            onMouseLeave={(e) => (e.currentTarget.style.color = '#94a3b8')}
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        )}
+                      </div>
                     </div>
 
                     {/* Title & Description */}
@@ -2294,6 +2391,19 @@ export const OffersPage: React.FC = () => {
         onClose={() => setIsClientOrderModalOpen(false)}
         onSuccess={() => fetchOffers()}
       />
+
+      {/* Dynamic Saved Template Document Generator Modal */}
+      {selectedCustomTemplate && (
+        <SavedTemplateGeneratorModal
+          isOpen={isSavedTemplateModalOpen}
+          onClose={() => {
+            setIsSavedTemplateModalOpen(false);
+            setSelectedCustomTemplate(null);
+          }}
+          template={selectedCustomTemplate}
+          onSuccess={() => fetchOffers()}
+        />
+      )}
     </div>
   );
 };

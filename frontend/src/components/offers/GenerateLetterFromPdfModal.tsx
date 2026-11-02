@@ -33,9 +33,12 @@ import {
   Trash2,
   Tag,
   FolderPlus,
+  Bookmark,
+  Save,
 } from 'lucide-react';
 import { offerService } from '../../services/offerService.js';
 import { Employee, EmployeeService } from '../../services/employeeService.js';
+import { CustomTemplateService } from '../../services/customTemplateService.js';
 import { useToast } from '../../context/ToastContext.js';
 
 interface GenerateLetterFromPdfModalProps {
@@ -355,6 +358,12 @@ export const GenerateLetterFromPdfModal: React.FC<GenerateLetterFromPdfModalProp
   const [emailSentSuccess, setEmailSentSuccess] = useState(false);
   const modalBodyRef = useRef<HTMLDivElement>(null);
 
+  // Reusable Template Saving State
+  const [saveTemplateTitle, setSaveTemplateTitle] = useState('');
+  const [saveTemplateDesc, setSaveTemplateDesc] = useState('');
+  const [saveTemplateBadge, setSaveTemplateBadge] = useState('');
+  const [isTemplateSaved, setIsTemplateSaved] = useState(false);
+
   useEffect(() => {
     if (modalBodyRef.current) {
       modalBodyRef.current.scrollTop = 0;
@@ -378,6 +387,10 @@ export const GenerateLetterFromPdfModal: React.FC<GenerateLetterFromPdfModalProp
       setSavedDocument(null);
       setEmailSentSuccess(false);
       setIsAddCategoryOpen(false);
+      setIsTemplateSaved(false);
+      setSaveTemplateTitle('');
+      setSaveTemplateDesc('');
+      setSaveTemplateBadge('');
       loadEmployees();
     }
   }, [isOpen]);
@@ -524,6 +537,12 @@ export const GenerateLetterFromPdfModal: React.FC<GenerateLetterFromPdfModalProp
       const data = await offerService.convertPdfToStructuredLetter(file);
       setExtractedData(data);
 
+      const defaultTplTitle = docTitle || file.name.replace(/\.[^/.]+$/, '').replace(/[_-]/g, ' ');
+      setSaveTemplateTitle(defaultTplTitle);
+      setSaveTemplateDesc(`Custom template parsed from ${file.name} with ${data.sections?.length || 0} clauses & terms.`);
+      setSaveTemplateBadge(selectedCategory.badge || 'Template');
+      setIsTemplateSaved(false);
+
       // Auto-bind with selected employee or first employee
       const activeEmp = selectedEmployee || (employees.length > 0 ? employees[0] : null);
       if (activeEmp) {
@@ -534,13 +553,48 @@ export const GenerateLetterFromPdfModal: React.FC<GenerateLetterFromPdfModalProp
       }
 
       success(`Successfully parsed ${data.totalPages} pages, ${data.sections?.length || 0} legal clauses, and tables from ${file.name}!`);
-      // Proceed to Step 3: Select Employee
-      setStep(3);
     } catch (err: any) {
       error(err.message || 'Failed to extract text from PDF. You can still proceed or try another document.');
     } finally {
       setIsExtractingPdf(false);
     }
+  };
+
+  // Save Extracted PDF as Reusable Template in Offers
+  const handleSaveAsTemplate = () => {
+    if (!extractedData) {
+      error('Please upload a PDF document first.');
+      return;
+    }
+
+    const titleToUse =
+      saveTemplateTitle.trim() ||
+      docTitle ||
+      uploadedPdfFile?.name.replace(/\.[^/.]+$/, '') ||
+      'Custom Letter Template';
+
+    const saved = CustomTemplateService.saveTemplate({
+      title: titleToUse,
+      category: selectedCategory.id,
+      categoryCode: selectedCategory.code,
+      categoryName: selectedCategory.name,
+      description:
+        saveTemplateDesc.trim() ||
+        `Custom template parsed from ${uploadedPdfFile?.name || 'document'} with ${extractedData.sections?.length || 0} clauses.`,
+      badge: saveTemplateBadge.trim() || selectedCategory.badge || 'Template',
+      color: selectedCategory.color || '#2563eb',
+      iconName: selectedCategory.iconName || 'FileText',
+      fileName: uploadedPdfFile?.name,
+      totalPages: extractedData.totalPages,
+      totalDetectedTables: extractedData.totalDetectedTables,
+      sections: extractedData.sections || [],
+      extractedValues: extractedData.extractedValues,
+      detectedVariables: extractedData.detectedVariables,
+      fullStructuredHtml: extractedData.fullStructuredHtml,
+    });
+
+    setIsTemplateSaved(true);
+    success(`Template "${saved.title}" saved to Offers! You can now generate forms from it.`);
   };
 
   // STEP 3: Handle Employee Selection
@@ -1565,6 +1619,136 @@ export const GenerateLetterFromPdfModal: React.FC<GenerateLetterFromPdfModalProp
                       Tables: {extractedData.totalDetectedTables || 0}
                     </span>
                   </div>
+
+                  {/* Reusable Template Saving Box in Offers */}
+                  <div
+                    style={{
+                      marginTop: 14,
+                      padding: '14px 16px',
+                      backgroundColor: '#ffffff',
+                      border: '1.5px solid #86efac',
+                      borderRadius: 10,
+                      boxShadow: '0 2px 8px rgba(22, 163, 74, 0.08)',
+                    }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10, flexWrap: 'wrap', gap: 8 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <div
+                          style={{
+                            width: 34,
+                            height: 34,
+                            borderRadius: 8,
+                            backgroundColor: '#dcfce7',
+                            color: '#15803d',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                          }}
+                        >
+                          <Bookmark size={18} strokeWidth={2.5} />
+                        </div>
+                        <div>
+                          <h4 style={{ margin: 0, fontSize: '0.9rem', fontWeight: 800, color: '#166534' }}>
+                            Save as Reusable Template in Offers
+                          </h4>
+                          <p style={{ margin: 0, fontSize: '0.76rem', color: '#15803d' }}>
+                            Save this template to your Offers page so you can generate new candidate letters from it anytime.
+                          </p>
+                        </div>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={handleSaveAsTemplate}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 6,
+                          padding: '8px 16px',
+                          fontSize: '0.8125rem',
+                          fontWeight: 700,
+                          backgroundColor: isTemplateSaved ? '#15803d' : '#16a34a',
+                          color: '#ffffff',
+                          border: 'none',
+                          borderRadius: 8,
+                          cursor: 'pointer',
+                          boxShadow: '0 2px 6px rgba(22, 163, 74, 0.25)',
+                          transition: 'all 0.15s ease',
+                        }}
+                      >
+                        {isTemplateSaved ? <CheckCircle2 size={16} /> : <Save size={16} />}
+                        <span>{isTemplateSaved ? 'Template Saved to Offers ✓' : 'Save Template in Offers'}</span>
+                      </button>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 10 }}>
+                      <div>
+                        <label style={{ fontSize: '0.75rem', fontWeight: 700, color: '#334155', display: 'block', marginBottom: 3 }}>
+                          Template Title in Offers:
+                        </label>
+                        <input
+                          type="text"
+                          value={saveTemplateTitle}
+                          onChange={(e) => setSaveTemplateTitle(e.target.value)}
+                          placeholder="e.g. Work Letter Agreement"
+                          style={{
+                            width: '100%',
+                            padding: '7px 10px',
+                            fontSize: '0.82rem',
+                            border: '1px solid #cbd5e1',
+                            borderRadius: 6,
+                            backgroundColor: '#f8fafc',
+                            boxSizing: 'border-box',
+                            fontWeight: 600,
+                            color: '#0f172a',
+                          }}
+                        />
+                      </div>
+                      <div>
+                        <label style={{ fontSize: '0.75rem', fontWeight: 700, color: '#334155', display: 'block', marginBottom: 3 }}>
+                          Badge Tag:
+                        </label>
+                        <input
+                          type="text"
+                          value={saveTemplateBadge}
+                          onChange={(e) => setSaveTemplateBadge(e.target.value)}
+                          placeholder="e.g. Work, Template"
+                          style={{
+                            width: '100%',
+                            padding: '7px 10px',
+                            fontSize: '0.82rem',
+                            border: '1px solid #cbd5e1',
+                            borderRadius: 6,
+                            backgroundColor: '#f8fafc',
+                            boxSizing: 'border-box',
+                            color: '#0f172a',
+                          }}
+                        />
+                      </div>
+                    </div>
+
+                    <div style={{ marginTop: 8 }}>
+                      <label style={{ fontSize: '0.75rem', fontWeight: 700, color: '#334155', display: 'block', marginBottom: 3 }}>
+                        Template Description:
+                      </label>
+                      <input
+                        type="text"
+                        value={saveTemplateDesc}
+                        onChange={(e) => setSaveTemplateDesc(e.target.value)}
+                        placeholder="Brief description for HR team..."
+                        style={{
+                          width: '100%',
+                          padding: '7px 10px',
+                          fontSize: '0.8rem',
+                          border: '1px solid #cbd5e1',
+                          borderRadius: 6,
+                          backgroundColor: '#f8fafc',
+                          boxSizing: 'border-box',
+                          color: '#475569',
+                        }}
+                      />
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
@@ -1777,6 +1961,27 @@ export const GenerateLetterFromPdfModal: React.FC<GenerateLetterFromPdfModalProp
                   >
                     {isSendingEmail ? <Loader2 size={14} className="animate-spin" /> : <Mail size={14} />}
                     <span>{emailSentSuccess ? 'Email Dispatched!' : 'Send by Email'}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleSaveAsTemplate}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 6,
+                      padding: '7px 14px',
+                      fontSize: '0.8125rem',
+                      fontWeight: 600,
+                      backgroundColor: isTemplateSaved ? '#f0fdf4' : '#ffffff',
+                      color: isTemplateSaved ? '#15803d' : '#0f172a',
+                      border: isTemplateSaved ? '1px solid #86efac' : '1px solid #cbd5e1',
+                      borderRadius: 8,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    {isTemplateSaved ? <CheckCircle2 size={14} color="#16a34a" /> : <Bookmark size={14} color="#16a34a" />}
+                    <span>{isTemplateSaved ? 'Template Saved ✓' : 'Save as Template in Offers'}</span>
                   </button>
 
                   <button
