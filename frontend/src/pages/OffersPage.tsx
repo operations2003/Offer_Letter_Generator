@@ -86,6 +86,7 @@ import { ResignationAcceptanceModal } from '../components/documents/ResignationA
 import { SalaryRevisionModal } from '../components/documents/SalaryRevisionModal.js';
 import { PromotionLetterModal } from '../components/documents/PromotionLetterModal.js';
 import { InternshipExtensionModal } from '../components/documents/InternshipExtensionModal.js';
+import { UnpaidInternshipModal } from '../components/documents/UnpaidInternshipModal.js';
 import { AttendanceWarningModal } from '../components/documents/AttendanceWarningModal.js';
 import { DisciplinaryOutcomeModal } from '../components/documents/DisciplinaryOutcomeModal.js';
 import { ShowCauseNoticeModal } from '../components/documents/ShowCauseNoticeModal.js';
@@ -169,6 +170,7 @@ export const OffersPage: React.FC = () => {
   const [isSalaryRevisionModalOpen, setIsSalaryRevisionModalOpen] = useState(false);
   const [isPromotionModalOpen, setIsPromotionModalOpen] = useState(false);
   const [isInternshipExtensionModalOpen, setIsInternshipExtensionModalOpen] = useState(false);
+  const [isUnpaidInternshipModalOpen, setIsUnpaidInternshipModalOpen] = useState(false);
   const [isAttendanceWarningModalOpen, setIsAttendanceWarningModalOpen] = useState(false);
   const [isDisciplinaryOutcomeModalOpen, setIsDisciplinaryOutcomeModalOpen] = useState(false);
   const [isShowCauseNoticeModalOpen, setIsShowCauseNoticeModalOpen] = useState(false);
@@ -793,6 +795,18 @@ export const OffersPage: React.FC = () => {
       badgeBorder: '#ddd6fe',
       active: true,
       onClick: () => setIsFnfModalOpen(true),
+    },
+    {
+      id: 'unpaid_hr_internship',
+      title: 'Offer of Unpaid HR Internship',
+      description: 'Official 3-month unpaid HR internship offer letter with role responsibilities, terms & CEO sign-off.',
+      icon: <GraduationCap size={22} style={{ color: '#0284c7' }} />,
+      badge: 'TN/HR/INT Format',
+      badgeColor: '#0284c7',
+      badgeBg: '#f0f9ff',
+      badgeBorder: '#bae6fd',
+      active: true,
+      onClick: () => setIsUnpaidInternshipModalOpen(true),
     },
     {
       id: 'internship_extension',
@@ -2145,6 +2159,13 @@ export const OffersPage: React.FC = () => {
       <PromotionLetterModal
         isOpen={isPromotionModalOpen}
         onClose={() => setIsPromotionModalOpen(false)}
+        onSuccess={() => fetchOffers()}
+      />
+
+      {/* Official Offer of Unpaid HR Internship (TN/HR/INT) Modal */}
+      <UnpaidInternshipModal
+        isOpen={isUnpaidInternshipModalOpen}
+        onClose={() => setIsUnpaidInternshipModalOpen(false)}
         onSuccess={() => fetchOffers()}
       />
 

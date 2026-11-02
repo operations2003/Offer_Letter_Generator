@@ -566,8 +566,14 @@ class TemplateServiceClass {
               !t.title?.toLowerCase().includes('dummy'))
         );
         if (cleaned.length > 0) {
-          const hasTasknera = cleaned.some((t) => t.id === 'tpl_tasknera_official_001');
-          this.templates = hasTasknera ? cleaned : [INITIAL_TEMPLATES[0], ...cleaned];
+          const existingIds = new Set(cleaned.map((t) => t.id));
+          const merged = [...cleaned];
+          for (const initT of INITIAL_TEMPLATES) {
+            if (!existingIds.has(initT.id)) {
+              merged.push(initT);
+            }
+          }
+          this.templates = merged;
           this.saveToStorage();
           return;
         }
