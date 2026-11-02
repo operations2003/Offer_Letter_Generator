@@ -29,6 +29,10 @@ import {
   Edit3,
   Calendar,
   Check,
+  Plus,
+  Trash2,
+  Tag,
+  FolderPlus,
 } from 'lucide-react';
 import { offerService } from '../../services/offerService.js';
 import { Employee, EmployeeService } from '../../services/employeeService.js';
@@ -42,7 +46,7 @@ interface GenerateLetterFromPdfModalProps {
 
 type StepType = 1 | 2 | 3 | 4;
 
-interface LetterCategoryItem {
+export interface LetterCategoryItem {
   id: string;
   code: string;
   name: string;
@@ -50,10 +54,14 @@ interface LetterCategoryItem {
   description: string;
   badge: string;
   color: string;
-  icon: React.ReactNode;
+  icon?: React.ReactNode;
+  iconName?: string;
+  isCustom?: boolean;
 }
 
-const LETTER_CATEGORIES: LetterCategoryItem[] = [
+export const CUSTOM_CATEGORIES_KEY = 'tasknera_custom_letter_categories';
+
+export const DEFAULT_LETTER_CATEGORIES: LetterCategoryItem[] = [
   {
     id: 'offer',
     code: 'OFFER_LETTER',
@@ -62,7 +70,7 @@ const LETTER_CATEGORIES: LetterCategoryItem[] = [
     description: 'Formal employment offer with salary structure, position terms, and joining date.',
     badge: 'Offer Letter',
     color: '#2563eb',
-    icon: <FileText size={22} color="#2563eb" />,
+    iconName: 'FileText',
   },
   {
     id: 'appointment',
@@ -72,7 +80,7 @@ const LETTER_CATEGORIES: LetterCategoryItem[] = [
     description: 'Official letter confirming employee appointment, duties, covenants, and terms.',
     badge: 'Appointment',
     color: '#7c3aed',
-    icon: <FileCheck size={22} color="#7c3aed" />,
+    iconName: 'FileCheck',
   },
   {
     id: 'increment',
@@ -82,7 +90,7 @@ const LETTER_CATEGORIES: LetterCategoryItem[] = [
     description: 'Annual performance appraisal, revised CTC compensation, and effective date.',
     badge: 'Increment',
     color: '#16a34a',
-    icon: <DollarSign size={22} color="#16a34a" />,
+    iconName: 'DollarSign',
   },
   {
     id: 'experience',
@@ -92,7 +100,7 @@ const LETTER_CATEGORIES: LetterCategoryItem[] = [
     description: 'Official service certificate verifying employment tenure, role, and conduct.',
     badge: 'Experience',
     color: '#ea580c',
-    icon: <Briefcase size={22} color="#ea580c" />,
+    iconName: 'Briefcase',
   },
   {
     id: 'relieving',
@@ -102,7 +110,7 @@ const LETTER_CATEGORIES: LetterCategoryItem[] = [
     description: 'Separation letter confirming acceptance of resignation and clearance.',
     badge: 'Relieving',
     color: '#d97706',
-    icon: <FileCheck size={22} color="#d97706" />,
+    iconName: 'FileCheck',
   },
   {
     id: 'internship',
@@ -112,7 +120,7 @@ const LETTER_CATEGORIES: LetterCategoryItem[] = [
     description: 'Fixed-term student/graduate internship detailing mentor, stipend, and project scope.',
     badge: 'Internship',
     color: '#c2410c',
-    icon: <GraduationCap size={22} color="#c2410c" />,
+    iconName: 'GraduationCap',
   },
   {
     id: 'contract',
@@ -122,7 +130,7 @@ const LETTER_CATEGORIES: LetterCategoryItem[] = [
     description: 'Consultant / contractor scope of work, milestone deliverables, and fees.',
     badge: 'Contract',
     color: '#0284c7',
-    icon: <Briefcase size={22} color="#0284c7" />,
+    iconName: 'Briefcase',
   },
   {
     id: 'custom',
@@ -132,9 +140,65 @@ const LETTER_CATEGORIES: LetterCategoryItem[] = [
     description: 'Custom organizational letter, internal policy agreement, or notification.',
     badge: 'Custom',
     color: '#64748b',
-    icon: <FileCode size={22} color="#64748b" />,
+    iconName: 'FileCode',
   },
 ];
+
+export const COLOR_PRESETS = [
+  { name: 'Blue', hex: '#2563eb' },
+  { name: 'Purple', hex: '#7c3aed' },
+  { name: 'Emerald', hex: '#16a34a' },
+  { name: 'Orange', hex: '#ea580c' },
+  { name: 'Amber', hex: '#d97706' },
+  { name: 'Rose', hex: '#e11d48' },
+  { name: 'Indigo', hex: '#4f46e5' },
+  { name: 'Teal', hex: '#0d9488' },
+  { name: 'Slate', hex: '#475569' },
+];
+
+export const ICON_PRESETS = [
+  { id: 'FileText', label: 'Document' },
+  { id: 'FileCheck', label: 'Approved' },
+  { id: 'Briefcase', label: 'Work' },
+  { id: 'DollarSign', label: 'Finance' },
+  { id: 'GraduationCap', label: 'Intern' },
+  { id: 'ShieldCheck', label: 'Compliance' },
+  { id: 'Building', label: 'Office' },
+  { id: 'Sparkles', label: 'Merit' },
+  { id: 'Tag', label: 'Tag' },
+  { id: 'FolderPlus', label: 'Folder' },
+];
+
+export const renderCategoryIcon = (cat: LetterCategoryItem) => {
+  if (cat.icon) return cat.icon;
+  const color = cat.color || '#2563eb';
+  switch (cat.iconName) {
+    case 'FileText':
+      return <FileText size={22} color={color} />;
+    case 'FileCheck':
+      return <FileCheck size={22} color={color} />;
+    case 'DollarSign':
+      return <DollarSign size={22} color={color} />;
+    case 'Briefcase':
+      return <Briefcase size={22} color={color} />;
+    case 'GraduationCap':
+      return <GraduationCap size={22} color={color} />;
+    case 'ShieldCheck':
+      return <ShieldCheck size={22} color={color} />;
+    case 'Building':
+      return <Building size={22} color={color} />;
+    case 'Sparkles':
+      return <Sparkles size={22} color={color} />;
+    case 'Tag':
+      return <Tag size={22} color={color} />;
+    case 'FolderPlus':
+      return <FolderPlus size={22} color={color} />;
+    case 'FileCode':
+      return <FileCode size={22} color={color} />;
+    default:
+      return <FileText size={22} color={color} />;
+  }
+};
 
 export const GenerateLetterFromPdfModal: React.FC<GenerateLetterFromPdfModalProps> = ({
   isOpen,
@@ -149,9 +213,112 @@ export const GenerateLetterFromPdfModal: React.FC<GenerateLetterFromPdfModalProp
   // Step 4: Official Letterhead Preview & Action
   const [step, setStep] = useState<StepType>(1);
 
+  // Categories State (Default + Custom from localStorage)
+  const [categories, setCategories] = useState<LetterCategoryItem[]>(() => {
+    try {
+      const saved = localStorage.getItem(CUSTOM_CATEGORIES_KEY);
+      if (saved) {
+        const parsed: LetterCategoryItem[] = JSON.parse(saved);
+        return [...DEFAULT_LETTER_CATEGORIES, ...parsed];
+      }
+    } catch (e) {
+      console.error('Failed to parse custom categories', e);
+    }
+    return DEFAULT_LETTER_CATEGORIES;
+  });
+
   // Category & Document Metadata
-  const [selectedCategory, setSelectedCategory] = useState<LetterCategoryItem>(LETTER_CATEGORIES[0]);
-  const [docTitle, setDocTitle] = useState(LETTER_CATEGORIES[0].defaultTitle);
+  const [selectedCategory, setSelectedCategory] = useState<LetterCategoryItem>(
+    DEFAULT_LETTER_CATEGORIES[0]
+  );
+  const [docTitle, setDocTitle] = useState(DEFAULT_LETTER_CATEGORIES[0].defaultTitle);
+
+  // Add Category Modal State
+  const [isAddCategoryOpen, setIsAddCategoryOpen] = useState(false);
+  const [newCatName, setNewCatName] = useState('');
+  const [newCatTitle, setNewCatTitle] = useState('');
+  const [newCatBadge, setNewCatBadge] = useState('');
+  const [newCatDescription, setNewCatDescription] = useState('');
+  const [newCatColor, setNewCatColor] = useState('#2563eb');
+  const [newCatIcon, setNewCatIcon] = useState('FileText');
+
+  // Handle Add Category
+  const handleCreateCategory = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    const trimmedName = newCatName.trim();
+    if (!trimmedName) {
+      error('Please enter a category name.');
+      return;
+    }
+
+    const code =
+      trimmedName
+        .toUpperCase()
+        .replace(/[^A-Z0-9]+/g, '_')
+        .replace(/^_+|_+$/g, '') || `CUSTOM_${Date.now()}`;
+
+    const newCat: LetterCategoryItem = {
+      id: `custom_${Date.now()}`,
+      code,
+      name: trimmedName,
+      defaultTitle: newCatTitle.trim() || trimmedName,
+      description:
+        newCatDescription.trim() || `Official ${trimmedName} document.`,
+      badge:
+        newCatBadge.trim() ||
+        (trimmedName.length > 14 ? trimmedName.slice(0, 12) + '...' : trimmedName),
+      color: newCatColor,
+      iconName: newCatIcon,
+      isCustom: true,
+    };
+
+    const updated = [...categories, newCat];
+    setCategories(updated);
+
+    try {
+      const customOnly = updated.filter((c) => c.isCustom);
+      localStorage.setItem(CUSTOM_CATEGORIES_KEY, JSON.stringify(customOnly));
+    } catch (err) {
+      console.error('Failed to save category to localStorage', err);
+    }
+
+    setSelectedCategory(newCat);
+    setDocTitle(newCat.defaultTitle);
+    success(`Category "${newCat.name}" added and selected!`);
+
+    // Reset form
+    setNewCatName('');
+    setNewCatTitle('');
+    setNewCatBadge('');
+    setNewCatDescription('');
+    setNewCatColor('#2563eb');
+    setNewCatIcon('FileText');
+    setIsAddCategoryOpen(false);
+  };
+
+  // Delete Custom Category
+  const handleDeleteCustomCategory = (e: React.MouseEvent, catId: string) => {
+    e.stopPropagation();
+    const catToDelete = categories.find((c) => c.id === catId);
+    if (!catToDelete || !catToDelete.isCustom) return;
+
+    if (window.confirm(`Are you sure you want to delete the custom category "${catToDelete.name}"?`)) {
+      const updated = categories.filter((c) => c.id !== catId);
+      setCategories(updated);
+      try {
+        const customOnly = updated.filter((c) => c.isCustom);
+        localStorage.setItem(CUSTOM_CATEGORIES_KEY, JSON.stringify(customOnly));
+      } catch (err) {
+        console.error('Failed to update custom categories in localStorage', err);
+      }
+
+      if (selectedCategory.id === catId) {
+        setSelectedCategory(DEFAULT_LETTER_CATEGORIES[0]);
+        setDocTitle(DEFAULT_LETTER_CATEGORIES[0].defaultTitle);
+      }
+      info(`Category "${catToDelete.name}" removed.`);
+    }
+  };
 
   // PDF Upload & Extraction State
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -197,8 +364,11 @@ export const GenerateLetterFromPdfModal: React.FC<GenerateLetterFromPdfModalProp
   useEffect(() => {
     if (isOpen) {
       setStep(1);
-      setSelectedCategory(LETTER_CATEGORIES[0]);
-      setDocTitle(LETTER_CATEGORIES[0].defaultTitle);
+      setSelectedCategory((prev) => {
+        const found = categories.find((c) => c.id === prev?.id);
+        return found || categories[0] || DEFAULT_LETTER_CATEGORIES[0];
+      });
+      setDocTitle((prev) => prev || categories[0]?.defaultTitle || DEFAULT_LETTER_CATEGORIES[0].defaultTitle);
       setUploadedPdfFile(null);
       setExtractedData(null);
       setSelectedEmployee(null);
@@ -207,6 +377,7 @@ export const GenerateLetterFromPdfModal: React.FC<GenerateLetterFromPdfModalProp
       setEditedBodyHtml('');
       setSavedDocument(null);
       setEmailSentSuccess(false);
+      setIsAddCategoryOpen(false);
       loadEmployees();
     }
   }, [isOpen]);
@@ -704,9 +875,48 @@ export const GenerateLetterFromPdfModal: React.FC<GenerateLetterFromPdfModalProp
           {/* ========================================================================= */}
           {step === 1 && (
             <div>
-              <p style={{ fontSize: '0.8125rem', color: '#475569', marginBottom: 12, marginTop: 0 }}>
-                Choose the category for this letter. The text and clauses will be extracted from your PDF file in the next step:
-              </p>
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  marginBottom: 12,
+                  flexWrap: 'wrap',
+                  gap: 8,
+                }}
+              >
+                <p style={{ fontSize: '0.8125rem', color: '#475569', margin: 0 }}>
+                  Choose the category for this letter. The text and clauses will be extracted from your PDF file in the next step:
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setIsAddCategoryOpen(true)}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    padding: '6px 14px',
+                    fontSize: '0.8rem',
+                    fontWeight: 700,
+                    borderRadius: 8,
+                    border: '1px solid #2563eb',
+                    backgroundColor: '#eff6ff',
+                    color: '#1d4ed8',
+                    cursor: 'pointer',
+                    boxShadow: '0 1px 2px rgba(37,99,235,0.08)',
+                    transition: 'all 0.15s ease',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#dbeafe';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = '#eff6ff';
+                  }}
+                >
+                  <Plus size={15} strokeWidth={2.5} />
+                  <span>Add New Category</span>
+                </button>
+              </div>
 
               {/* Category Cards Grid */}
               <div
@@ -717,7 +927,7 @@ export const GenerateLetterFromPdfModal: React.FC<GenerateLetterFromPdfModalProp
                   marginBottom: 14,
                 }}
               >
-                {LETTER_CATEGORIES.map((cat) => {
+                {categories.map((cat) => {
                   const isSelected = selectedCategory.id === cat.id;
                   return (
                     <div
@@ -727,6 +937,7 @@ export const GenerateLetterFromPdfModal: React.FC<GenerateLetterFromPdfModalProp
                         setDocTitle(cat.defaultTitle);
                       }}
                       style={{
+                        position: 'relative',
                         padding: '10px 14px',
                         borderRadius: 10,
                         border: isSelected ? '2px solid #2563eb' : '1px solid #e2e8f0',
@@ -748,20 +959,43 @@ export const GenerateLetterFromPdfModal: React.FC<GenerateLetterFromPdfModalProp
                             justifyContent: 'center',
                           }}
                         >
-                          {cat.icon}
+                          {renderCategoryIcon(cat)}
                         </div>
-                        <span
-                          style={{
-                            fontSize: '0.6875rem',
-                            fontWeight: 700,
-                            color: cat.color,
-                            backgroundColor: `${cat.color}15`,
-                            padding: '2px 8px',
-                            borderRadius: 10,
-                          }}
-                        >
-                          {cat.badge}
-                        </span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                          <span
+                            style={{
+                              fontSize: '0.6875rem',
+                              fontWeight: 700,
+                              color: cat.color,
+                              backgroundColor: `${cat.color}15`,
+                              padding: '2px 8px',
+                              borderRadius: 10,
+                            }}
+                          >
+                            {cat.badge}
+                          </span>
+                          {cat.isCustom && (
+                            <button
+                              type="button"
+                              title="Delete this custom category"
+                              onClick={(e) => handleDeleteCustomCategory(e, cat.id)}
+                              style={{
+                                background: 'none',
+                                border: 'none',
+                                cursor: 'pointer',
+                                padding: 2,
+                                color: '#94a3b8',
+                                borderRadius: 4,
+                                display: 'flex',
+                                alignItems: 'center',
+                              }}
+                              onMouseEnter={(e) => (e.currentTarget.style.color = '#ef4444')}
+                              onMouseLeave={(e) => (e.currentTarget.style.color = '#94a3b8')}
+                            >
+                              <Trash2 size={13} />
+                            </button>
+                          )}
+                        </div>
                       </div>
                       <h4 style={{ fontSize: '0.875rem', fontWeight: 700, color: '#0f172a', margin: '8px 0 2px 0' }}>
                         {cat.name}
@@ -772,7 +1006,394 @@ export const GenerateLetterFromPdfModal: React.FC<GenerateLetterFromPdfModalProp
                     </div>
                   );
                 })}
+
+                {/* Dedicated "+ Add New Category" Interactive Card */}
+                <div
+                  onClick={() => setIsAddCategoryOpen(true)}
+                  style={{
+                    padding: '12px 14px',
+                    borderRadius: 10,
+                    border: '2px dashed #93c5fd',
+                    backgroundColor: '#f8fafc',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                    minHeight: 110,
+                    transition: 'all 0.15s ease',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.borderColor = '#2563eb';
+                    e.currentTarget.style.backgroundColor = '#eff6ff';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.borderColor = '#93c5fd';
+                    e.currentTarget.style.backgroundColor = '#f8fafc';
+                  }}
+                >
+                  <div
+                    style={{
+                      width: 36,
+                      height: 36,
+                      borderRadius: '50%',
+                      backgroundColor: '#dbeafe',
+                      color: '#2563eb',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      marginBottom: 6,
+                    }}
+                  >
+                    <Plus size={20} strokeWidth={2.5} />
+                  </div>
+                  <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#1e40af' }}>
+                    + Add New Category
+                  </div>
+                  <div style={{ fontSize: '0.72rem', color: '#64748b', textAlign: 'center', marginTop: 2 }}>
+                    Create custom letter type
+                  </div>
+                </div>
               </div>
+
+              {/* Add Category Modal Dialog */}
+              {isAddCategoryOpen && (
+                <div
+                  style={{
+                    position: 'fixed',
+                    inset: 0,
+                    backgroundColor: 'rgba(15, 23, 42, 0.65)',
+                    backdropFilter: 'blur(3px)',
+                    zIndex: 100000,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: 16,
+                  }}
+                  onClick={() => setIsAddCategoryOpen(false)}
+                >
+                  <div
+                    style={{
+                      backgroundColor: '#ffffff',
+                      borderRadius: 14,
+                      width: '100%',
+                      maxWidth: 520,
+                      maxHeight: '90vh',
+                      overflowY: 'auto',
+                      padding: 22,
+                      boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.35)',
+                      boxSizing: 'border-box',
+                    }}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    {/* Header */}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
+                      <div>
+                        <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0f172a', margin: '0 0 4px 0' }}>
+                          Add New Letter Category
+                        </h3>
+                        <p style={{ fontSize: '0.78125rem', color: '#64748b', margin: 0 }}>
+                          Define a custom category with its own title, badge, icon, and theme color.
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setIsAddCategoryOpen(false)}
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          padding: 4,
+                          cursor: 'pointer',
+                          color: '#64748b',
+                          borderRadius: 6,
+                        }}
+                      >
+                        <X size={18} />
+                      </button>
+                    </div>
+
+                    <form onSubmit={handleCreateCategory}>
+                      {/* Category Name */}
+                      <div style={{ marginBottom: 12 }}>
+                        <label style={{ fontSize: '0.78125rem', fontWeight: 700, color: '#334155', display: 'block', marginBottom: 4 }}>
+                          Category Name <span style={{ color: '#ef4444' }}>*</span>
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          autoFocus
+                          placeholder="e.g. Probation Confirmation, Warning Letter, Promotion Letter"
+                          value={newCatName}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            setNewCatName(val);
+                            if (!newCatTitle || newCatTitle === newCatName) {
+                              setNewCatTitle(val);
+                            }
+                            if (!newCatBadge || newCatBadge === newCatName.slice(0, 14)) {
+                              setNewCatBadge(val.slice(0, 14));
+                            }
+                            if (!newCatDescription || newCatDescription.startsWith('Official')) {
+                              setNewCatDescription(val ? `Official ${val} document.` : '');
+                            }
+                          }}
+                          style={{
+                            width: '100%',
+                            padding: '8px 12px',
+                            fontSize: '0.84rem',
+                            border: '1px solid #cbd5e1',
+                            borderRadius: 6,
+                            boxSizing: 'border-box',
+                            outline: 'none',
+                          }}
+                        />
+                      </div>
+
+                      {/* Letter Title & Badge */}
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 12 }}>
+                        <div>
+                          <label style={{ fontSize: '0.78125rem', fontWeight: 700, color: '#334155', display: 'block', marginBottom: 4 }}>
+                            Default Letter Title:
+                          </label>
+                          <input
+                            type="text"
+                            placeholder="e.g. Letter of Probation Confirmation"
+                            value={newCatTitle}
+                            onChange={(e) => setNewCatTitle(e.target.value)}
+                            style={{
+                              width: '100%',
+                              padding: '8px 12px',
+                              fontSize: '0.84rem',
+                              border: '1px solid #cbd5e1',
+                              borderRadius: 6,
+                              boxSizing: 'border-box',
+                            }}
+                          />
+                        </div>
+                        <div>
+                          <label style={{ fontSize: '0.78125rem', fontWeight: 700, color: '#334155', display: 'block', marginBottom: 4 }}>
+                            Badge Label:
+                          </label>
+                          <input
+                            type="text"
+                            placeholder="e.g. Probation, Warning"
+                            value={newCatBadge}
+                            onChange={(e) => setNewCatBadge(e.target.value)}
+                            style={{
+                              width: '100%',
+                              padding: '8px 12px',
+                              fontSize: '0.84rem',
+                              border: '1px solid #cbd5e1',
+                              borderRadius: 6,
+                              boxSizing: 'border-box',
+                            }}
+                          />
+                        </div>
+                      </div>
+
+                      {/* Description */}
+                      <div style={{ marginBottom: 14 }}>
+                        <label style={{ fontSize: '0.78125rem', fontWeight: 700, color: '#334155', display: 'block', marginBottom: 4 }}>
+                          Short Description:
+                        </label>
+                        <textarea
+                          rows={2}
+                          placeholder="Briefly describe what this letter category is for..."
+                          value={newCatDescription}
+                          onChange={(e) => setNewCatDescription(e.target.value)}
+                          style={{
+                            width: '100%',
+                            padding: '8px 12px',
+                            fontSize: '0.84rem',
+                            border: '1px solid #cbd5e1',
+                            borderRadius: 6,
+                            boxSizing: 'border-box',
+                            resize: 'none',
+                          }}
+                        />
+                      </div>
+
+                      {/* Color Preset Palette */}
+                      <div style={{ marginBottom: 14 }}>
+                        <label style={{ fontSize: '0.78125rem', fontWeight: 700, color: '#334155', display: 'block', marginBottom: 6 }}>
+                          Color Accent:
+                        </label>
+                        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                          {COLOR_PRESETS.map((col) => {
+                            const isChosen = newCatColor === col.hex;
+                            return (
+                              <div
+                                key={col.hex}
+                                onClick={() => setNewCatColor(col.hex)}
+                                title={col.name}
+                                style={{
+                                  width: 28,
+                                  height: 28,
+                                  borderRadius: '50%',
+                                  backgroundColor: col.hex,
+                                  cursor: 'pointer',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  border: isChosen ? '3px solid #0f172a' : '2px solid transparent',
+                                  boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                                  transition: 'transform 0.15s ease',
+                                  transform: isChosen ? 'scale(1.15)' : 'scale(1)',
+                                }}
+                              >
+                                {isChosen && <Check size={14} color="#ffffff" strokeWidth={3} />}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      {/* Icon Selection */}
+                      <div style={{ marginBottom: 16 }}>
+                        <label style={{ fontSize: '0.78125rem', fontWeight: 700, color: '#334155', display: 'block', marginBottom: 6 }}>
+                          Category Icon:
+                        </label>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 6 }}>
+                          {ICON_PRESETS.map((ico) => {
+                            const isChosen = newCatIcon === ico.id;
+                            return (
+                              <button
+                                key={ico.id}
+                                type="button"
+                                onClick={() => setNewCatIcon(ico.id)}
+                                style={{
+                                  padding: '8px 4px',
+                                  borderRadius: 8,
+                                  border: isChosen ? `2px solid ${newCatColor}` : '1px solid #e2e8f0',
+                                  backgroundColor: isChosen ? `${newCatColor}10` : '#f8fafc',
+                                  color: isChosen ? newCatColor : '#64748b',
+                                  cursor: 'pointer',
+                                  display: 'flex',
+                                  flexDirection: 'column',
+                                  alignItems: 'center',
+                                  gap: 4,
+                                  fontSize: '0.6875rem',
+                                  fontWeight: isChosen ? 700 : 500,
+                                }}
+                              >
+                                {renderCategoryIcon({
+                                  id: 'temp',
+                                  code: 'TEMP',
+                                  name: '',
+                                  defaultTitle: '',
+                                  description: '',
+                                  badge: '',
+                                  color: isChosen ? newCatColor : '#64748b',
+                                  iconName: ico.id,
+                                })}
+                                <span>{ico.label}</span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      {/* Live Card Preview */}
+                      <div style={{ marginBottom: 18, backgroundColor: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 10, padding: 12 }}>
+                        <div style={{ fontSize: '0.72rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', marginBottom: 6 }}>
+                          Live Preview:
+                        </div>
+                        <div
+                          style={{
+                            padding: '10px 14px',
+                            borderRadius: 10,
+                            border: `2px solid ${newCatColor}`,
+                            backgroundColor: '#ffffff',
+                            boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
+                          }}
+                        >
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <div
+                              style={{
+                                padding: 6,
+                                borderRadius: 6,
+                                backgroundColor: '#f8fafc',
+                                border: '1px solid #e2e8f0',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                              }}
+                            >
+                              {renderCategoryIcon({
+                                id: 'preview',
+                                code: 'PREVIEW',
+                                name: '',
+                                defaultTitle: '',
+                                description: '',
+                                badge: '',
+                                color: newCatColor,
+                                iconName: newCatIcon,
+                              })}
+                            </div>
+                            <span
+                              style={{
+                                fontSize: '0.6875rem',
+                                fontWeight: 700,
+                                color: newCatColor,
+                                backgroundColor: `${newCatColor}18`,
+                                padding: '2px 8px',
+                                borderRadius: 10,
+                              }}
+                            >
+                              {newCatBadge || newCatName || 'Category'}
+                            </span>
+                          </div>
+                          <h4 style={{ fontSize: '0.875rem', fontWeight: 700, color: '#0f172a', margin: '8px 0 2px 0' }}>
+                            {newCatName || 'Category Name'}
+                          </h4>
+                          <p style={{ fontSize: '0.75rem', color: '#64748b', margin: 0, lineHeight: 1.35 }}>
+                            {newCatDescription || 'Brief description of this letter category.'}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Action Buttons */}
+                      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
+                        <button
+                          type="button"
+                          onClick={() => setIsAddCategoryOpen(false)}
+                          style={{
+                            padding: '8px 16px',
+                            fontSize: '0.8125rem',
+                            fontWeight: 600,
+                            backgroundColor: '#f1f5f9',
+                            color: '#475569',
+                            border: 'none',
+                            borderRadius: 8,
+                            cursor: 'pointer',
+                          }}
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          type="submit"
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 6,
+                            padding: '8px 18px',
+                            fontSize: '0.8125rem',
+                            fontWeight: 700,
+                            backgroundColor: '#2563eb',
+                            color: '#ffffff',
+                            border: 'none',
+                            borderRadius: 8,
+                            cursor: 'pointer',
+                          }}
+                        >
+                          <Check size={16} />
+                          <span>Create & Select Category</span>
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              )}
 
               {/* Title Input */}
               <div
