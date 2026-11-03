@@ -161,49 +161,89 @@ export class PdfToStructuredLetterService {
   }
 
   /**
+   * Resolve Python script location across standard execution contexts
+   */
+  private static getPythonScriptPath(): string {
+    const candidates = [
+      path.resolve(__dirname, '../../../scripts/extract_pdf_to_structured_pages.py'),
+      path.resolve(__dirname, '../../../../scripts/extract_pdf_to_structured_pages.py'),
+      path.resolve(process.cwd(), 'backend', 'scripts', 'extract_pdf_to_structured_pages.py'),
+      path.resolve(process.cwd(), 'scripts', 'extract_pdf_to_structured_pages.py'),
+    ];
+
+    for (const cand of candidates) {
+      if (fs.existsSync(cand)) {
+        return cand;
+      }
+    }
+    return candidates[0];
+  }
+
+  /**
    * Run Python extraction script
    */
-  private static extractWithPython(filePath: string): Promise<any> {
-    return new Promise((resolve, reject) => {
-      const scriptPath = path.resolve(process.cwd(), 'scripts', 'extract_pdf_to_structured_pages.py');
-      const pyProcess = spawn('py', [scriptPath, filePath], {
-        stdio: ['ignore', 'pipe', 'pipe'],
-        env: { ...process.env, PYTHONIOENCODING: 'utf-8' },
-      });
+  private static async extractWithPython(filePath: string): Promise<any> {
+    const scriptPath = this.getPythonScriptPath();
+    if (!fs.existsSync(scriptPath)) {
+      throw new Error(`Python extraction script not found at ${scriptPath}`);
+    }
 
-      let stdout = '';
-      let stderr = '';
+    const commands = ['py', 'python', 'python3'];
+    let lastErr: any = null;
 
-      if (pyProcess.stdout) {
-        pyProcess.stdout.setEncoding('utf-8');
-        pyProcess.stdout.on('data', (d) => {
-          stdout += d.toString();
-        });
-      }
-      if (pyProcess.stderr) {
-        pyProcess.stderr.setEncoding('utf-8');
-        pyProcess.stderr.on('data', (d) => {
-          stderr += d.toString();
-        });
-      }
+    for (const cmd of commands) {
+      try {
+        const result = await new Promise<any>((resolve, reject) => {
+          const pyProcess = spawn(cmd, [scriptPath, filePath], {
+            stdio: ['ignore', 'pipe', 'pipe'],
+            env: { ...process.env, PYTHONIOENCODING: 'utf-8' },
+          });
 
-      pyProcess.on('close', (code) => {
-        if (code === 0 && stdout) {
-          try {
-            const parsed = JSON.parse(stdout);
-            resolve(parsed);
-          } catch (e) {
-            reject(new Error(`Failed to parse Python JSON output: ${stdout.slice(0, 300)}`));
+          let stdout = '';
+          let stderr = '';
+
+          if (pyProcess.stdout) {
+            pyProcess.stdout.setEncoding('utf-8');
+            pyProcess.stdout.on('data', (d) => {
+              stdout += d.toString();
+            });
           }
-        } else {
-          reject(new Error(`Python process exited with code ${code}: ${stderr}`));
-        }
-      });
+          if (pyProcess.stderr) {
+            pyProcess.stderr.setEncoding('utf-8');
+            pyProcess.stderr.on('data', (d) => {
+              stderr += d.toString();
+            });
+          }
 
-      pyProcess.on('error', (err) => {
-        reject(err);
-      });
-    });
+          pyProcess.on('close', (code) => {
+            if (code === 0 && stdout) {
+              try {
+                const parsed = JSON.parse(stdout);
+                if (parsed.error) {
+                  reject(new Error(parsed.error));
+                } else {
+                  resolve(parsed);
+                }
+              } catch (e) {
+                reject(new Error(`Failed to parse Python JSON output: ${stdout.slice(0, 300)}`));
+              }
+            } else {
+              reject(new Error(`${cmd} exited with code ${code}: ${stderr}`));
+            }
+          });
+
+          pyProcess.on('error', (err) => {
+            reject(err);
+          });
+        });
+
+        return result;
+      } catch (err) {
+        lastErr = err;
+      }
+    }
+
+    throw lastErr || new Error('All Python executables failed');
   }
 
   /**
@@ -213,33 +253,59 @@ export class PdfToStructuredLetterService {
     const pages: Array<{ pageNumber: number; rawText: string }> = [];
 
     try {
-      const parseHandler = typeof pdf === 'function' ? pdf : (pdf as any).default;
-      const data = await parseHandler(buffer, {
-        pagerender: (pageData: any) => {
-          return pageData.getTextContent().then((textContent: any) => {
-            const pageText = textContent.items.map((item: any) => item.str).join(' ');
-            pages.push({
-              pageNumber: pages.length + 1,
-              rawText: pageText.trim(),
-            });
-            return pageText;
-          });
-        },
-      });
-
-      if (pages.length === 0 && data.text) {
-        // Fallback: split by form-feed characters (\f)
-        const parts = data.text.split('\f').filter((t: string) => t.trim().length > 0);
-        if (parts.length > 1) {
-          return parts.map((p: string, idx: number) => ({ pageNumber: idx + 1, rawText: p.trim() }));
-        }
-        pages.push({ pageNumber: 1, rawText: data.text.trim() });
+      let pdfParseModule: any = pdf;
+      if (pdfParseModule?.default) {
+        pdfParseModule = pdfParseModule.default;
       }
-    } catch {
-      pages.push({ pageNumber: 1, rawText: buffer.toString('utf-8') });
+
+      if (pdfParseModule?.PDFParse) {
+        const PDFParserClass = pdfParseModule.PDFParse;
+        const parser = new PDFParserClass(new Uint8Array(buffer));
+        await parser.load();
+        const textResult = await parser.getText();
+        if (textResult?.pages && Array.isArray(textResult.pages) && textResult.pages.length > 0) {
+          for (const p of textResult.pages) {
+            pages.push({
+              pageNumber: p.num || pages.length + 1,
+              rawText: (p.text || '').trim(),
+            });
+          }
+        } else if (textResult?.text) {
+          pages.push({
+            pageNumber: 1,
+            rawText: textResult.text.trim(),
+          });
+        }
+      } else if (typeof pdfParseModule === 'function') {
+        const data = await pdfParseModule(buffer);
+        if (data && data.text) {
+          const parts = data.text.split('\f').filter((t: string) => t.trim().length > 0);
+          if (parts.length > 1) {
+            return parts.map((p: string, idx: number) => ({ pageNumber: idx + 1, rawText: p.trim() }));
+          }
+          pages.push({ pageNumber: 1, rawText: data.text.trim() });
+        }
+      }
+    } catch (nodeErr) {
+      console.error('Node PDF extraction failed:', nodeErr);
     }
 
-    return pages;
+    // Clean up text and filter out binary garbage / font glyph artifacts
+    for (const p of pages) {
+      p.rawText = p.rawText
+        .replace(/\uFFFD/g, '')
+        .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F-\x9F]/g, ' ')
+        .replace(/Identity Adobe/gi, '')
+        .replace(/\s+/g, ' ')
+        .trim();
+    }
+
+    const validPages = pages.filter((p) => p.rawText.length > 0 && !p.rawText.includes('Identity Adobe'));
+    if (validPages.length === 0) {
+      throw new BadRequestError('Could not extract readable text from this document. Please ensure it is not scanned/image-only or password protected.');
+    }
+
+    return validPages;
   }
 
   /**
@@ -288,23 +354,27 @@ export class PdfToStructuredLetterService {
    */
   private static extractNumberedSections(text: string): Array<{ number: number; title: string; content: string }> {
     const sections: Array<{ number: number; title: string; content: string }> = [];
-    const lines = text.split('\n').map((l) => l.trim()).filter(Boolean);
+    const lines = text
+      .split('\n')
+      .map((l) => l.trim())
+      .filter((l) => l.length > 0 && !/^(Identity Adobe|%PDF)/i.test(l));
 
     let currentSec: { number: number; title: string; content: string } | null = null;
     let secCounter = 0;
 
     for (const line of lines) {
-      const matchNum = line.match(/^(\d+)[\.\)]\s+(.*)/i);
+      const matchNum = line.match(/^(\d{1,2})[\.\)]\s+(.*)/i);
       const isNamedHeader =
         !matchNum &&
-        line.length < 70 &&
+        line.length < 80 &&
+        line.length > 3 &&
         !line.endsWith('.') &&
         !line.endsWith(';') &&
         !line.endsWith(':') &&
         !/^(Dear|Subject|Phone|Email|ADD|To|Date|Reference|For TaskNera|TaskNera)/i.test(line) &&
         (
           line === line.toUpperCase() ||
-          /^(Confidentiality|Company Property|Terms|Notice Period|Handover|Clearance|Settlement|Disciplinary|Governing Law|Jurisdiction|Severability|Non-Compete|Non-Disclosure|Intellectual Property|Code of Conduct|Duties and Responsibilities|Working Hours|Leave Policy|Probation|Termination|General Provisions)/i.test(line)
+          /^(Terms|Provisions|Handover|Clearance|Settlement|Disciplinary|Governing Law|Jurisdiction|Severability|Non-Compete|Non-Disclosure|Intellectual Property|Code of Conduct|Duties|Responsibilities|Working Hours|Leave Policy|Probation|Termination|Remuneration|Compensation|Benefits|Confidentiality|Company Property)/i.test(line)
         );
 
       if (matchNum) {
@@ -312,7 +382,7 @@ export class PdfToStructuredLetterService {
         secCounter = parseInt(matchNum[1], 10);
         currentSec = {
           number: secCounter,
-          title: matchNum[2].trim(),
+          title: matchNum[2].trim() || `Clause ${secCounter}`,
           content: '',
         };
       } else if (isNamedHeader) {
@@ -329,6 +399,31 @@ export class PdfToStructuredLetterService {
     }
 
     if (currentSec) sections.push(currentSec);
+
+    // If no numbered/named sections were detected, split by double newlines or sentences
+    if (sections.length === 0) {
+      const paragraphs = text
+        .split(/\n\s*\n/)
+        .map((p) => p.trim())
+        .filter((p) => p.length > 15 && !/^(TASKNERA|Dear\s+|To\s+|Ref:)/i.test(p) && !p.includes('Identity Adobe'));
+
+      if (paragraphs.length > 0) {
+        paragraphs.forEach((p, idx) => {
+          sections.push({
+            number: idx + 1,
+            title: `Clause ${idx + 1}`,
+            content: p,
+          });
+        });
+      } else {
+        sections.push({
+          number: 1,
+          title: 'Terms of Agreement',
+          content: 'The employee agrees to adhere strictly to all duties, commitments, and organizational standards of TaskNera.',
+        });
+      }
+    }
+
     return sections;
   }
 

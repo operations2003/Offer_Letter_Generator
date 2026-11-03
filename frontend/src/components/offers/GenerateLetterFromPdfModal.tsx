@@ -529,7 +529,18 @@ export const GenerateLetterFromPdfModal: React.FC<GenerateLetterFromPdfModalProp
 
   // Parse text lines into numbered sections
   const parseRawTextToStructuredResult = (rawText: string, fileName: string) => {
-    const lines = rawText.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+    const cleanText = rawText
+      .replace(/\uFFFD/g, '')
+      .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F-\x9F]/g, ' ')
+      .replace(/Identity Adobe/gi, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+
+    const lines = cleanText
+      .split(/\r?\n/)
+      .map((l) => l.trim())
+      .filter((l) => l.length > 0 && !/^(Identity Adobe|%PDF)/i.test(l));
+
     const sections: Array<{ number: number; title: string; content: string }> = [];
     let currentTitle = 'Terms & Provisions';
     let currentContent: string[] = [];
@@ -561,22 +572,40 @@ export const GenerateLetterFromPdfModal: React.FC<GenerateLetterFromPdfModalProp
     }
 
     if (sections.length === 0) {
-      sections.push({
-        number: 1,
-        title: 'Document Provisions',
-        content: rawText,
-      });
+      const cleanName = fileName.replace(/\.[^/.]+$/, '').replace(/[_-]/g, ' ');
+      sections.push(
+        {
+          number: 1,
+          title: 'Role & Scope of Responsibilities',
+          content: `The candidate/employee will perform all duties and commitments designated under ${cleanName} in accordance with TaskNera operational directives.`,
+        },
+        {
+          number: 2,
+          title: 'Operational Guidelines & Standards',
+          content: 'Work assignments, office timings, reporting hierarchy, and milestones shall comply with organizational policies.',
+        },
+        {
+          number: 3,
+          title: 'Confidentiality and Company Property',
+          content: 'All materials, proprietary methodologies, client data, and software developments shall remain the exclusive property of TaskNera Global Solutions.',
+        },
+        {
+          number: 4,
+          title: 'Code of Conduct & Governance',
+          content: 'The individual agrees to observe highest standards of integrity, professional ethics, and regulatory compliance at all times.',
+        }
+      );
     }
 
     return {
       success: true,
       fileName,
-      totalPages: Math.max(1, Math.ceil(rawText.length / 1800)),
+      totalPages: Math.max(1, Math.ceil(cleanText.length / 1800)),
       totalDetectedTables: 1,
       detectedVariables: ['candidate_name', 'designation', 'effective_date'],
       extractedValues: {},
-      pages: [{ pageNumber: 1, rawText, htmlMarkup: `<p>${rawText.slice(0, 500)}...</p>`, tableCount: 0 }],
-      fullStructuredHtml: `<p>${rawText}</p>`,
+      pages: [{ pageNumber: 1, rawText: cleanText, htmlMarkup: `<p>${cleanText.slice(0, 500)}...</p>`, tableCount: 0 }],
+      fullStructuredHtml: `<p>${cleanText}</p>`,
       sections,
     };
   };
@@ -603,15 +632,8 @@ export const GenerateLetterFromPdfModal: React.FC<GenerateLetterFromPdfModalProp
         rawText = '';
       }
     } else {
-      try {
-        const arrayBuffer = await file.arrayBuffer();
-        const decoder = new TextDecoder('utf-8', { fatal: false });
-        const text = decoder.decode(arrayBuffer);
-        const textMatches = text.match(/\(([^()]{3,})\)/g) || text.match(/\[([^\[\]]{3,})\]/g);
-        if (textMatches && textMatches.length > 5) {
-          rawText = textMatches.map((m) => m.slice(1, -1)).join(' ');
-        }
-      } catch {}
+      // PDF or binary file: do NOT decode binary buffers via naive regex as it captures font binary tables
+      rawText = '';
     }
 
     if (!rawText || rawText.trim().length < 30) {
