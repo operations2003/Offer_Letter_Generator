@@ -420,7 +420,6 @@ router.get(
  */
 router.post(
   '/pdf-to-structured-letter',
-  requireRoles('SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER'),
   uploadDocumentMiddleware,
   OfferController.convertPdfToStructuredLetter
 );

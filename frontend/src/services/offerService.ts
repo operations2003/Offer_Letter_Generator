@@ -1498,10 +1498,9 @@ class OfferServiceClass {
     const token =
       localStorage.getItem('offergen_token') ||
       localStorage.getItem('token') ||
-      localStorage.getItem('auth_token') ||
-      'demo_jwt_token_sample';
+      localStorage.getItem('auth_token');
     const headers: HeadersInit = {
-      Authorization: `Bearer ${token}`,
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
     };
 
     const response = await fetch('/api/v1/offers/pdf-to-structured-letter', {

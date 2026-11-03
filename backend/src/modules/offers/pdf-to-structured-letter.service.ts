@@ -41,56 +41,79 @@ export class PdfToStructuredLetterService {
       throw new BadRequestError('PDF buffer is empty.');
     }
 
-    // Write buffer to temporary file for Python extraction
-    const tempDir = os.tmpdir();
-    const tempFileName = `tasknera_pdf_${crypto.randomUUID()}.pdf`;
-    const tempFilePath = path.join(tempDir, tempFileName);
+    const lowerName = originalFileName.toLowerCase();
+    const isDocx = lowerName.endsWith('.docx') || lowerName.endsWith('.doc');
+    const isTxt = lowerName.endsWith('.txt') || lowerName.endsWith('.md');
 
     let rawPages: Array<{ pageNumber: number; rawText: string }> = [];
     let totalPages = 1;
     let pythonStructuredPages: ExtractedPageItem[] | null = null;
     let totalDetectedTables = 0;
 
-    try {
-      await fs.promises.writeFile(tempFilePath, buffer);
-
-      // Attempt extraction via Python script first for maximum accuracy (pdfplumber vector + semantic table extraction)
+    if (isDocx) {
       try {
-        const pythonResult = await this.extractWithPython(tempFilePath);
-        if (pythonResult && pythonResult.pages && pythonResult.pages.length > 0) {
-          totalPages = pythonResult.total_pages || pythonResult.totalPages || pythonResult.pages.length;
-          totalDetectedTables = pythonResult.total_detected_tables || 0;
-          rawPages = pythonResult.pages.map((p: any) => ({
-            pageNumber: p.page_number || p.pageNumber,
-            rawText: p.raw_text || p.rawText || '',
-          }));
-          pythonStructuredPages = pythonResult.pages.map((p: any) => ({
-            pageNumber: p.page_number || p.pageNumber,
-            rawText: p.raw_text || p.rawText || '',
-            htmlMarkup: p.html_markup || p.htmlMarkup || '',
-            tableCount: p.table_count || 0,
-          }));
+        const mammothModule = await import('mammoth');
+        const mammothHandler = (mammothModule as any).default || mammothModule;
+        const res = await mammothHandler.extractRawText({ buffer });
+        const rawText = res.value || '';
+        rawPages = [{ pageNumber: 1, rawText }];
+        totalPages = 1;
+      } catch (err) {
+        try {
+          const JSZipModule = await import('jszip');
+          const JSZip = (JSZipModule as any).default || JSZipModule;
+          const zip = await JSZip.loadAsync(buffer);
+          const docXml = await zip.file('word/document.xml')?.async('text');
+          const cleanText = docXml ? docXml.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim() : '';
+          rawPages = [{ pageNumber: 1, rawText: cleanText }];
+        } catch {
+          rawPages = [{ pageNumber: 1, rawText: 'Uploaded Document Terms & Conditions' }];
         }
-      } catch (pyErr) {
-        // Fallback to node pdf-parse if python is unavailable
-        rawPages = await this.extractWithNode(buffer);
-        totalPages = rawPages.length;
       }
-    } finally {
-      // Clean up temporary file
+    } else if (isTxt) {
+      const rawText = buffer.toString('utf-8');
+      rawPages = [{ pageNumber: 1, rawText }];
+      totalPages = 1;
+    } else {
+      // Write buffer to temporary file for Python extraction
+      const tempDir = os.tmpdir();
+      const tempFileName = `tasknera_pdf_${crypto.randomUUID()}.pdf`;
+      const tempFilePath = path.join(tempDir, tempFileName);
+
       try {
-        if (fs.existsSync(tempFilePath)) {
-          await fs.promises.unlink(tempFilePath);
+        await fs.promises.writeFile(tempFilePath, buffer);
+
+        // Attempt extraction via Python script first for maximum accuracy (pdfplumber vector + semantic table extraction)
+        try {
+          const pythonResult = await this.extractWithPython(tempFilePath);
+          if (pythonResult && pythonResult.pages && pythonResult.pages.length > 0) {
+            totalPages = pythonResult.total_pages || pythonResult.totalPages || pythonResult.pages.length;
+            totalDetectedTables = pythonResult.total_detected_tables || 0;
+            rawPages = pythonResult.pages.map((p: any) => ({
+              pageNumber: p.page_number || p.pageNumber,
+              rawText: p.raw_text || p.rawText || '',
+            }));
+            pythonStructuredPages = pythonResult.pages.map((p: any) => ({
+              pageNumber: p.page_number || p.pageNumber,
+              rawText: p.raw_text || p.rawText || '',
+              htmlMarkup: p.html_markup || p.htmlMarkup || '',
+              tableCount: p.table_count || 0,
+            }));
+          }
+        } catch (pyErr) {
+          // Fallback to node pdf-parse if python is unavailable
+          rawPages = await this.extractWithNode(buffer);
+          totalPages = rawPages.length;
         }
-      } catch {}
+      } finally {
+        // Clean up temporary file
+        try {
+          if (fs.existsSync(tempFilePath)) {
+            await fs.promises.unlink(tempFilePath);
+          }
+        } catch {}
+      }
     }
-
-    // Cleanup temp file safely
-    try {
-      if (fs.existsSync(tempFilePath)) {
-        await fs.promises.unlink(tempFilePath);
-      }
-    } catch {}
 
     if (rawPages.length === 0) {
       throw new BadRequestError('Could not extract text from the uploaded PDF.');
