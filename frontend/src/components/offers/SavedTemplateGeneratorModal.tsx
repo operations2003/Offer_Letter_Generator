@@ -146,12 +146,15 @@ export const SavedTemplateGeneratorModal: React.FC<SavedTemplateGeneratorModalPr
   const interpolateText = (text: string): string => {
     if (!text) return '';
     return text
-      .replace(/\[Candidate Name\]|\[Employee Name\]|{{candidate_name}}|{{employee_name}}/gi, candidateFullName)
+      .replace(/\[Candidate Full Name\]|\[Candidate Name\]|\[Employee Full Name\]|\[Employee Name\]|{{candidate_name}}|{{employee_name}}/gi, candidateFullName)
+      .replace(/\[Candidate Email Address\]|\[Candidate Email\]|\[Email Address\]|{{candidate_email}}|{{email}}/gi, candidateEmail)
       .replace(/\[Position\]|\[Designation\]|\[Job Title\]|{{designation}}|{{position}}/gi, positionTitle)
       .replace(/\[Department\]|{{department}}/gi, department)
-      .replace(/\[Effective Date\]|\[Start Date\]|\[Joining Date\]|{{effective_date}}|{{joining_date}}/gi, effectiveDate)
-      .replace(/\[Location\]|\[Work Location\]|{{location}}/gi, workLocation)
-      .replace(/\[Reporting Manager\]|\[Reporting To\]|{{reporting_manager}}/gi, reportingTo)
+      .replace(/\[Effective Date\]|\[Start Date\]|\[Joining Date\]|\[DD Month YYYY\]|{{effective_date}}|{{joining_date}}|{{date}}/gi, effectiveDate)
+      .replace(/\[End Date\]/gi, new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }))
+      .replace(/\[Acceptance Date\]/gi, new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }))
+      .replace(/\[Work Arrangement \/ Location\]|\[On-site \/ Hybrid \/ Remote; Location\]|\[Location\]|\[Work Location\]|{{location}}/gi, workLocation || 'Hybrid / Remote (Delhi NCR)')
+      .replace(/\[Reporting Manager\]|\[Reporting To\]|\[Name \/ Designation\]|{{reporting_manager}}/gi, reportingTo || 'Ms. Sheetal Bedi / CEO')
       .replace(/\[Compensation\]|\[Salary\]|\[CTC\]|{{salary}}|{{ctc}}/gi, compensationText)
       .replace(/\[Company Name\]|TaskNera|TASKNERA/g, 'TaskNera');
   };
@@ -196,18 +199,30 @@ export const SavedTemplateGeneratorModal: React.FC<SavedTemplateGeneratorModalPr
       const clausesHtml = sections
         .map((s) => {
           const titleHtml = s.title
-            ? `<h3 style="font-size:13.5px; font-weight:700; color:#1e3a8a; border-bottom:1px solid #bfdbfe; padding-bottom:3px; margin:16px 0 6px; font-family:'Georgia',serif;">${s.number ? `${s.number}. ` : ''}${s.title}</h3>`
+            ? `<h3 style="font-size:13.5px; font-weight:700; color:#0f172a; border-bottom:1px solid #e2e8f0; padding-bottom:3px; margin:16px 0 6px; font-family:'Georgia',serif;">${s.number ? `${s.number}. ` : ''}${s.title}</h3>`
             : '';
 
-          const contentLines = s.content.split('\n').filter(Boolean);
-          const bodyHtml = contentLines
-            .map(
-              (line) =>
-                `<p style="font-size:12.8px; line-height:1.65; color:#334155; text-align:justify; margin-bottom:8px;">${interpolateText(
-                  line
-                )}</p>`
-            )
-            .join('');
+          const contentLines = s.content.split('\n').map((l) => l.trim()).filter(Boolean);
+          let bodyHtml = '';
+          let inList = false;
+
+          for (const line of contentLines) {
+            if (line.startsWith('•') || line.startsWith('- ') || line.startsWith('* ') || line.startsWith('')) {
+              const bulletText = line.replace(/^[•\-\*]\s*/, '').trim();
+              if (!inList) {
+                bodyHtml += '<ul style="margin:6px 0 10px 22px; padding:0; list-style-type:disc; font-size:12.8px; color:#334155; line-height:1.65;">';
+                inList = true;
+              }
+              bodyHtml += `<li style="margin-bottom:4px;">${interpolateText(bulletText)}</li>`;
+            } else {
+              if (inList) {
+                bodyHtml += '</ul>';
+                inList = false;
+              }
+              bodyHtml += `<p style="font-size:12.8px; line-height:1.65; color:#334155; text-align:justify; margin-bottom:8px;">${interpolateText(line)}</p>`;
+            }
+          }
+          if (inList) bodyHtml += '</ul>';
 
           return `<div style="margin-bottom:14px;">${titleHtml}${bodyHtml}</div>`;
         })
@@ -228,7 +243,7 @@ export const SavedTemplateGeneratorModal: React.FC<SavedTemplateGeneratorModalPr
       parts.push(
         `<div style="margin-top:24px; border:1.5px solid #cbd5e1; border-radius:8px; padding:16px 18px; background:#f8fafc;">` +
           `<div style="font-size:12.5px; font-weight:800; color:#0f172a; margin-bottom:8px; text-transform:uppercase; letter-spacing:0.03em;">` +
-            `ACCEPTANCE OF TERMS` +
+            `ACCEPTANCE BY THE ${template.title?.toLowerCase().includes('internship') ? 'INTERN' : 'CANDIDATE'}` +
           `</div>` +
           `<p style="font-size:12px; line-height:1.6; color:#334155; margin-bottom:14px;">` +
             interpolateText(template.acceptanceText) +
@@ -862,94 +877,108 @@ export const SavedTemplateGeneratorModal: React.FC<SavedTemplateGeneratorModalPr
                   margin: '0 auto',
                 }}
               >
-                {/* Official Letterhead Header */}
+                {/* Official Letterhead Header - EXACT MATCH TO PDF */}
                 <div
                   style={{
                     display: 'flex',
                     justifyContent: 'space-between',
                     alignItems: 'flex-start',
-                    borderBottom: '2.5px solid #1e3a8a',
-                    paddingBottom: 16,
-                    marginBottom: 24,
+                    borderBottom: '2.5px solid #0072bc',
+                    paddingBottom: 14,
+                    marginBottom: 20,
                   }}
                 >
                   <div>
                     <h1
                       style={{
                         margin: 0,
-                        fontSize: '24px',
+                        fontSize: '28px',
                         fontWeight: 900,
-                        color: '#1e3a8a',
-                        letterSpacing: '0.5px',
+                        color: '#0072bc',
+                        letterSpacing: '0.04em',
+                        lineHeight: 1,
+                      }}
+                    >
+                      TASKNERA
+                    </h1>
+                    <div
+                      style={{
+                        fontSize: '9.5px',
+                        color: '#00838f',
+                        marginTop: 6,
+                        fontWeight: 700,
+                        letterSpacing: '0.06em',
                         textTransform: 'uppercase',
                       }}
                     >
-                      TaskNera
-                    </h1>
-                    <div style={{ fontSize: '11px', color: '#64748b', marginTop: 2, fontWeight: 600 }}>
-                      TASKNERA GLOBAL SOLUTIONS PRIVATE LIMITED
-                    </div>
-                    <div style={{ fontSize: '10.5px', color: '#64748b', marginTop: 1 }}>
-                      Corporate Towers, DLF CyberCity, Gurugram, Delhi NCR, India
+                      GLOBAL HR SOLUTIONS | RECRUITMENT | WORKFORCE SUPPORT
                     </div>
                   </div>
 
-                  <div style={{ textAlign: 'right', fontSize: '11px', color: '#475569' }}>
-                    <div>
-                      <strong>Ref:</strong> {referenceNumber}
-                    </div>
-                    <div>
+                  <div style={{ textAlign: 'right', fontSize: '11px', lineHeight: 1.5, color: '#475569' }}>
+                    <div style={{ fontWeight: 500 }}>D-57, Dilshad Colony, Delhi - 110095, India</div>
+                    <div style={{ color: '#0072bc', fontWeight: 600 }}>careers@tasknera.com</div>
+                    <div style={{ marginTop: 4, color: '#1e293b', fontWeight: 600 }}>
                       <strong>Date:</strong> {effectiveDate}
                     </div>
                   </div>
                 </div>
 
-                {/* Recipient Address Block */}
-                <div style={{ marginBottom: 20, fontSize: '12.5px', lineHeight: 1.5, color: '#1e293b' }}>
-                  <div>
-                    To,
-                  </div>
+                {/* Recipient Address Block - EXACT MATCH TO PDF */}
+                <div style={{ marginBottom: 18, fontSize: '12.5px', lineHeight: 1.55, color: '#1e293b' }}>
+                  <div style={{ color: '#475569' }}>To,</div>
                   <div style={{ fontWeight: 800, fontSize: '13.5px', color: '#0f172a' }}>
                     {candidateFullName}
                   </div>
-                  <div>{candidateAddress}</div>
-                  <div>Email: {candidateEmail}</div>
-                  {candidatePhone && <div>Phone: {candidatePhone}</div>}
+                  {candidateEmail && <div style={{ color: '#334155' }}>{candidateEmail}</div>}
                 </div>
 
-                {/* Document Title Banner */}
+                {/* Document Title Banner - EXACT MATCH TO PDF */}
                 <div
                   style={{
                     textAlign: 'center',
-                    margin: '18px 0 22px 0',
-                    padding: '8px 12px',
-                    backgroundColor: '#f1f5f9',
-                    borderLeft: '4px solid #1e3a8a',
+                    margin: '18px 0 10px 0',
+                    borderBottom: '2px solid #0072bc',
+                    paddingBottom: 8,
                   }}
                 >
                   <h2
                     style={{
                       margin: 0,
-                      fontSize: '15px',
+                      fontSize: '17px',
                       fontWeight: 800,
-                      color: '#1e3a8a',
-                      letterSpacing: '0.04em',
+                      color: '#0072bc',
+                      letterSpacing: '0.06em',
                       textTransform: 'uppercase',
                     }}
                   >
-                    {template.title}
+                    {template.title || 'INTERNSHIP OFFER LETTER'}
                   </h2>
                 </div>
 
+                {/* Subject Line - EXACT MATCH TO PDF */}
+                {(template.subject || template.title?.toLowerCase().includes('internship')) && (
+                  <div
+                    style={{
+                      fontSize: '13px',
+                      fontWeight: 700,
+                      color: '#0f172a',
+                      margin: '12px 0 14px 0',
+                    }}
+                  >
+                    Subject: {interpolateText(template.subject || 'Offer of Unpaid Internship - Human Resources')}
+                  </div>
+                )}
+
                 {/* Preamble */}
-                <div style={{ fontSize: '12.8px', lineHeight: 1.65, color: '#334155', marginBottom: 16 }}>
+                <div style={{ fontSize: '12.8px', lineHeight: 1.65, color: '#334155', marginBottom: 14 }}>
                   Dear <strong>{candidateFullName}</strong>,
                 </div>
 
                 {/* Body Content */}
                 {isDirectEditMode ? (
                   <textarea
-                    rows={12}
+                    rows={14}
                     value={editedBodyHtml || getCompiledBody()}
                     onChange={(e) => setEditedBodyHtml(e.target.value)}
                     style={{
@@ -969,49 +998,90 @@ export const SavedTemplateGeneratorModal: React.FC<SavedTemplateGeneratorModalPr
                   />
                 )}
 
-                {/* Sign-Off & Acceptance Block */}
-                <div style={{ marginTop: 36, paddingTop: 16, borderTop: '1px solid #e2e8f0' }}>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 32 }}>
-                    {/* Company Sign-Off */}
-                    <div>
-                      <div style={{ fontSize: '12px', color: '#475569', marginBottom: 4 }}>
-                        Yours sincerely,
-                      </div>
-                      <div style={{ fontSize: '12.5px', fontWeight: 800, color: '#0f172a', marginBottom: 6 }}>
-                        For and on behalf of TASKNERA
-                      </div>
-                      <div style={{ margin: '8px 0' }}>
-                        <img
-                          src={SHEETAL_BEDI_SIGNATURE_DATA_URL}
-                          alt="Signature of CEO"
-                          style={{ maxHeight: 46, objectFit: 'contain' }}
-                        />
-                      </div>
-                      <div style={{ fontSize: '12.5px', fontWeight: 800, color: '#0f172a' }}>
-                        Ms. Sheetal Bedi
-                      </div>
-                      <div style={{ fontSize: '11.5px', color: '#64748b' }}>
-                        Chief Executive Officer (CEO)
-                      </div>
-                      <div style={{ fontSize: '11.5px', color: '#64748b' }}>
-                        TaskNera Global Solutions Private Limited
-                      </div>
+                {/* Sign-Off & Acceptance Block - EXACT MATCH TO PDF */}
+                <div style={{ marginTop: 32, paddingTop: 16 }}>
+                  {/* Company Sign-Off */}
+                  <div style={{ marginBottom: 28 }}>
+                    <div style={{ fontSize: '12.5px', fontWeight: 700, color: '#0f172a', marginBottom: 6 }}>
+                      For and on behalf of TASKNERA
                     </div>
+                    <div style={{ margin: '8px 0' }}>
+                      <img
+                        src={SHEETAL_BEDI_SIGNATURE_DATA_URL}
+                        alt="Signature of CEO"
+                        style={{ maxHeight: 44, objectFit: 'contain' }}
+                      />
+                    </div>
+                    <div style={{ fontSize: '12.5px', fontWeight: 800, color: '#0f172a' }}>
+                      Ms. Sheetal Bedi
+                    </div>
+                    <div style={{ fontSize: '11.5px', color: '#64748b' }}>
+                      Chief Executive Officer
+                    </div>
+                  </div>
 
-                    {/* Intern / Candidate Acceptance */}
-                    <div style={{ borderLeft: '1px dashed #cbd5e1', paddingLeft: 24 }}>
-                      <div style={{ fontSize: '12.5px', fontWeight: 800, color: '#0f172a', marginBottom: 4 }}>
-                        ACCEPTANCE & ACKNOWLEDGMENT
-                      </div>
-                      <div style={{ fontSize: '11px', color: '#64748b', lineHeight: 1.45, marginBottom: 14 }}>
-                        I have read, understood, and accept all the terms, conditions, and provisions set forth in this document.
-                      </div>
-                      <div style={{ borderBottom: '1px solid #94a3b8', width: 180, height: 28, marginBottom: 6 }} />
-                      <div style={{ fontSize: '11.5px', fontWeight: 700, color: '#0f172a' }}>
-                        {candidateFullName}
-                      </div>
-                      <div style={{ fontSize: '11px', color: '#64748b' }}>Date & Signature</div>
+                  {/* Intern / Candidate Acceptance Box */}
+                  <div
+                    style={{
+                      border: '1.5px solid #cbd5e1',
+                      borderRadius: 6,
+                      padding: '14px 18px',
+                      backgroundColor: '#f8fafc',
+                    }}
+                  >
+                    <div
+                      style={{
+                        fontSize: '12px',
+                        fontWeight: 800,
+                        color: '#0f172a',
+                        marginBottom: 6,
+                        letterSpacing: '0.04em',
+                        textTransform: 'uppercase',
+                      }}
+                    >
+                      ACCEPTANCE BY THE {template.title?.toLowerCase().includes('internship') ? 'INTERN' : 'CANDIDATE'}
                     </div>
+                    <p style={{ fontSize: '11.5px', lineHeight: 1.55, color: '#334155', margin: '0 0 12px 0' }}>
+                      {interpolateText(
+                        template.acceptanceText ||
+                          `I, [Candidate Full Name], have read and understood the terms of this offer and accept the unpaid HR internship on the terms stated above.`
+                      )}
+                    </p>
+                    <div
+                      style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        fontSize: '11px',
+                        color: '#475569',
+                        borderTop: '1px dashed #cbd5e1',
+                        paddingTop: 10,
+                      }}
+                    >
+                      <span>
+                        <strong>Signature:</strong> __________________________
+                      </span>
+                      <span>
+                        <strong>Date:</strong> __________________
+                      </span>
+                      <span>
+                        <strong>Place:</strong> __________________
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Page Footer */}
+                  <div
+                    style={{
+                      marginTop: 32,
+                      paddingTop: 12,
+                      borderTop: '1px solid #e2e8f0',
+                      textAlign: 'center',
+                      fontSize: '10.5px',
+                      color: '#64748b',
+                      letterSpacing: '0.02em',
+                    }}
+                  >
+                    TASKNERA | D-57, Dilshad Colony, Delhi - 110095, India | careers@tasknera.com
                   </div>
                 </div>
               </div>

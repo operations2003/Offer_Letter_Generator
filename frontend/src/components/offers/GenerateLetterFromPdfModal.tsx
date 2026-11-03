@@ -2942,105 +2942,102 @@ export const GenerateLetterFromPdfModal: React.FC<GenerateLetterFromPdfModalProp
                         <div style={{ width: 280, height: 16, background: '#fae1c3', borderRadius: '0 0 14px 0' }} />
                         <div style={{ width: 220, height: 7, background: '#9c7a82' }} />
                       </div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 8px 8px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                          <img src="/logo.png" alt="TaskNera" style={{ width: 44, height: 44, objectFit: 'contain' }} />
-                          <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                            <div
-                              style={{
-                                fontSize: '24px',
-                                fontWeight: 800,
-                                letterSpacing: '-0.02em',
-                                lineHeight: 1.1,
-                                fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
-                              }}
-                            >
-                              <span style={{ color: '#252c38' }}>Task</span>
-                              <span style={{ color: '#f56637' }}>Nera</span>
-                            </div>
-                            <div
-                              style={{
-                                fontSize: '10px',
-                                fontWeight: 600,
-                                color: '#475569',
-                                letterSpacing: '0.02em',
-                                marginTop: 2,
-                                fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
-                              }}
-                            >
-                              People. Processes. Performance.
-                            </div>
+                      {/* Official Letterhead Header - EXACT MATCH TO PDF */}
+                      <div
+                        style={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'flex-start',
+                          padding: '0 4px 12px',
+                        }}
+                      >
+                        <div>
+                          <h1
+                            style={{
+                              margin: 0,
+                              fontSize: '28px',
+                              fontWeight: 900,
+                              color: '#0072bc',
+                              letterSpacing: '0.04em',
+                              lineHeight: 1,
+                            }}
+                          >
+                            TASKNERA
+                          </h1>
+                          <div
+                            style={{
+                              fontSize: '9.5px',
+                              color: '#00838f',
+                              marginTop: 6,
+                              fontWeight: 700,
+                              letterSpacing: '0.06em',
+                              textTransform: 'uppercase',
+                            }}
+                          >
+                            GLOBAL HR SOLUTIONS | RECRUITMENT | WORKFORCE SUPPORT
                           </div>
                         </div>
-                        <div style={{ borderLeft: '2px solid #0f172a', paddingLeft: 14, fontSize: '11px', lineHeight: 1.5, color: '#1e293b' }}>
-                          <div><strong>Phone:</strong> +91 7065278229</div>
-                          <div><strong>Email:</strong> careers@tasknera.com</div>
-                          <div><strong>ADD:</strong> D-57 Dilshad Colony, Delhi, 110095</div>
+
+                        <div style={{ textAlign: 'right', fontSize: '11px', lineHeight: 1.5, color: '#475569' }}>
+                          <div style={{ fontWeight: 500 }}>D-57, Dilshad Colony, Delhi - 110095, India</div>
+                          <div style={{ color: '#0072bc', fontWeight: 600 }}>careers@tasknera.com</div>
+                          <div style={{ marginTop: 4, color: '#1e293b', fontWeight: 600 }}>
+                            <strong>Date:</strong> {dynamicValues['issue_date'] || dynamicValues['date'] || new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                          </div>
                         </div>
                       </div>
-                      <div style={{ height: 2.5, background: '#1e293b', width: '100%' }} />
+                      <div style={{ height: 2.5, background: '#0072bc', width: '100%', marginBottom: 18 }} />
                     </div>
 
-                    {/* 2. Top Metadata */}
-                    <div style={{ fontSize: '12.8px', lineHeight: 1.6, marginBottom: 14, color: '#1e293b' }}>
-                      <p style={{ margin: '2px 0' }}>
-                        <strong>Reference:</strong> {dynamicValues['reference_number'] || `TN/${selectedCategory.code}/${new Date().getFullYear()}/${selectedEmployee.employeeId}`}
-                      </p>
-                      <p style={{ margin: '2px 0' }}>
-                        <strong>Date:</strong> {dynamicValues['issue_date'] || dynamicValues['date'] || new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
-                      </p>
-                      <p style={{ margin: '8px 0 2px' }}>
-                        <strong>Employee Name:</strong> {selectedEmployee.fullName}
-                      </p>
-                      <p style={{ margin: '2px 0' }}>
-                        <strong>Designation:</strong> {selectedEmployee.designation}
-                      </p>
-                      {selectedEmployee.department && (
-                        <p style={{ margin: '2px 0' }}>
-                          <strong>Department:</strong> {selectedEmployee.department}
-                        </p>
-                      )}
-                      <p style={{ margin: '2px 0' }}>
-                        <strong>Address:</strong> {dynamicValues['candidate_address'] || selectedEmployee.workLocation || 'D-57 Dilshad Colony, Delhi, 110095'}
-                      </p>
-                      <p style={{ margin: '2px 0' }}>
-                        <strong>Email:</strong> {selectedEmployee.officialEmail || selectedEmployee.personalEmail}
-                      </p>
-                      {selectedEmployee.phone && (
-                        <p style={{ margin: '2px 0' }}>
-                          <strong>Phone:</strong> {selectedEmployee.phone}
-                        </p>
-                      )}
+                    {/* 2. Recipient Block - EXACT MATCH TO PDF */}
+                    <div style={{ fontSize: '12.5px', lineHeight: 1.55, marginBottom: 16, color: '#1e293b' }}>
+                      <div style={{ color: '#475569' }}>To,</div>
+                      <div style={{ fontWeight: 800, fontSize: '13.5px', color: '#0f172a' }}>
+                        {selectedEmployee.fullName}
+                      </div>
+                      <div style={{ color: '#334155' }}>
+                        {selectedEmployee.officialEmail || selectedEmployee.personalEmail || `${selectedEmployee.firstName?.toLowerCase() || 'intern'}@tasknera.com`}
+                      </div>
                     </div>
 
-                    {/* 3. Centered Brown Document Title in Georgia Serif */}
-                    <h2
+                    {/* 3. Document Title Banner - EXACT MATCH TO PDF */}
+                    <div
                       style={{
                         textAlign: 'center',
-                        fontSize: '21px',
-                        fontWeight: 700,
-                        color: '#a35d39',
-                        margin: '14px 0 12px',
-                        fontFamily: "'Georgia', serif",
-                        letterSpacing: '0.02em',
-                        textTransform: 'uppercase',
+                        margin: '18px 0 10px 0',
+                        borderBottom: '2px solid #0072bc',
+                        paddingBottom: 8,
                       }}
                     >
-                      {docTitle}
-                    </h2>
+                      <h2
+                        style={{
+                          margin: 0,
+                          fontSize: '17px',
+                          fontWeight: 800,
+                          color: '#0072bc',
+                          letterSpacing: '0.06em',
+                          textTransform: 'uppercase',
+                        }}
+                      >
+                        {docTitle || 'INTERNSHIP OFFER LETTER'}
+                      </h2>
+                    </div>
 
-                    {/* 4. Subject & Salutation */}
-                    {letterSubject ? (
-                      <p style={{ marginBottom: 12, fontWeight: 700, fontSize: '13px', color: '#0f172a' }}>
-                        {interpolatePlaceholders(letterSubject)}
-                      </p>
-                    ) : (
-                      <p style={{ marginBottom: 12, fontWeight: 700, fontSize: '13px', color: '#0f172a' }}>
-                        Subject: {docTitle} — {selectedEmployee.designation}
-                      </p>
+                    {/* 4. Subject & Salutation - EXACT MATCH TO PDF */}
+                    {(letterSubject || docTitle?.toLowerCase().includes('internship')) && (
+                      <div
+                        style={{
+                          fontSize: '13px',
+                          fontWeight: 700,
+                          color: '#0f172a',
+                          margin: '12px 0 14px 0',
+                        }}
+                      >
+                        Subject: {interpolatePlaceholders(letterSubject || 'Offer of Unpaid Internship - Human Resources')}
+                      </div>
                     )}
 
-                    <p style={{ marginBottom: 10, fontSize: '12.8px', color: '#1e293b' }}>
+                    <p style={{ marginBottom: 12, fontSize: '12.8px', color: '#334155' }}>
                       Dear <strong>{selectedEmployee.fullName}</strong>,
                     </p>
 
@@ -3280,18 +3277,16 @@ export const GenerateLetterFromPdfModal: React.FC<GenerateLetterFromPdfModalProp
                     <div
                       className="tasknera-page-footer"
                       style={{
-                        marginTop: 'auto',
+                        marginTop: 32,
                         borderTop: '1px solid #e2e8f0',
-                        paddingTop: 10,
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        fontSize: '11px',
-                        color: '#94a3b8',
+                        paddingTop: 12,
+                        textAlign: 'center',
+                        fontSize: '10.5px',
+                        color: '#64748b',
+                        letterSpacing: '0.02em',
                       }}
                     >
-                      <span style={{ fontWeight: 600, color: '#0f172a' }}>TaskNera</span>
-                      <span>TaskNera | Page 1 of 1</span>
+                      TASKNERA | D-57, Dilshad Colony, Delhi - 110095, India | careers@tasknera.com
                     </div>
                   </div>
                 </div>
