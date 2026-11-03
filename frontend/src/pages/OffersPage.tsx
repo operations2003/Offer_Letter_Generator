@@ -220,49 +220,105 @@ export const OffersPage: React.FC = () => {
     };
   }, []);
 
-  const handleDeleteCustomTemplate = (e: React.MouseEvent, tplId: string, title: string) => {
-    e.stopPropagation();
-    if (window.confirm(`Are you sure you want to delete the saved template "${title}"?`)) {
-      CustomTemplateService.deleteTemplate(tplId);
-      success(`Template "${title}" removed.`);
+  // Hidden / Deleted Card IDs
+  const [deletedCardIds, setDeletedCardIds] = useState<string[]>(() => {
+    try {
+      const raw = localStorage.getItem('tasknera_deleted_offer_cards');
+      return raw ? JSON.parse(raw) : [];
+    } catch {
+      return [];
     }
-  };
+  });
+
+  // User-customized card titles, descriptions, badges, and blueprints
+  const [customizedCards, setCustomizedCards] = useState<Record<string, {
+    title?: string;
+    description?: string;
+    badge?: string;
+    blueprintContent?: string;
+  }>>(() => {
+    try {
+      const raw = localStorage.getItem('tasknera_customized_offer_cards');
+      return raw ? JSON.parse(raw) : {};
+    } catch {
+      return {};
+    }
+  });
 
   const [templateToEdit, setTemplateToEdit] = useState<TemplateEditData | null>(null);
   const [isEditTemplateModalOpen, setIsEditTemplateModalOpen] = useState(false);
 
-  const handleEditCustomTemplate = (e: React.MouseEvent, tpl: SavedCustomTemplate) => {
+  // Delete Card Handler (Custom saved or Built-in template card)
+  const handleDeleteCard = (e: React.MouseEvent, cardId: string, title: string, isCustomSaved?: boolean) => {
     e.stopPropagation();
-    const content =
-      tpl.blueprintContent ||
-      (tpl.sections && tpl.sections.length > 0
-        ? tpl.sections.map((s) => `## ${s.title}\n${s.content}`).join('\n\n')
-        : '');
+    if (window.confirm(`Are you sure you want to delete template "${title}"?`)) {
+      if (isCustomSaved) {
+        CustomTemplateService.deleteTemplate(cardId);
+      } else {
+        const next = [...deletedCardIds, cardId];
+        setDeletedCardIds(next);
+        localStorage.setItem('tasknera_deleted_offer_cards', JSON.stringify(next));
+      }
+      success(`Template "${title}" removed.`);
+    }
+  };
+
+  // Restore Default Cards Handler
+  const handleRestoreDefaultCards = () => {
+    setDeletedCardIds([]);
+    localStorage.removeItem('tasknera_deleted_offer_cards');
+    success('Restored all default template cards.');
+  };
+
+  // Edit Card Handler (Custom saved or Built-in template card)
+  const handleEditCard = (e: React.MouseEvent, card: any) => {
+    e.stopPropagation();
+    const custom = customizedCards[card.id];
+    const defaultBlueprint =
+      card.templateData?.blueprintContent ||
+      (card.templateData?.sections && card.templateData.sections.length > 0
+        ? card.templateData.sections.map((s: any) => `## ${s.title}\n${s.content}`).join('\n\n')
+        : `# ${custom?.title || card.title}\n\nReference: {{reference_number}}\nDate: {{issue_date}}\n\nTo: **{{candidate_name}}**\n{{job_title}} — {{department}}\n\n${custom?.description || card.description}\n\nSincerely,\n**Tasknera HR Solutions**\n___________________________\n**Sheetal Bedi**\nChief Executive Officer`);
 
     setTemplateToEdit({
-      id: tpl.id,
-      title: tpl.title,
-      category: tpl.categoryName || tpl.category || 'Custom Template',
-      badge: tpl.badge || 'Saved Template',
-      description: tpl.description || '',
-      blueprintContent: content,
-      fileName: tpl.fileName,
-      isCertificate: tpl.isCertificate,
-      isCustomUploaded: true,
+      id: card.id,
+      title: custom?.title || card.title,
+      category: card.badge || 'Document Template',
+      badge: custom?.badge || card.badge || 'Template',
+      description: custom?.description || card.description || '',
+      blueprintContent: custom?.blueprintContent || defaultBlueprint,
+      fileName: card.templateData?.fileName,
+      isCertificate: card.id.includes('certificate'),
+      isCustomUploaded: Boolean(card.isCustomSavedTemplate),
     });
     setIsEditTemplateModalOpen(true);
   };
 
-  const handleSaveCustomTemplateEdit = (saved: TemplateEditData) => {
+  // Save Card Edit Handler
+  const handleSaveCardEdit = (saved: TemplateEditData) => {
     if (!saved.id) return;
-    CustomTemplateService.updateTemplate(saved.id, {
-      title: saved.title,
-      description: saved.description,
-      badge: saved.badge,
-      categoryName: saved.category,
-      blueprintContent: saved.blueprintContent,
-      isCertificate: saved.isCertificate,
-    });
+    if (saved.isCustomUploaded) {
+      CustomTemplateService.updateTemplate(saved.id, {
+        title: saved.title,
+        description: saved.description,
+        badge: saved.badge,
+        categoryName: saved.category,
+        blueprintContent: saved.blueprintContent,
+        isCertificate: saved.isCertificate,
+      });
+    } else {
+      const nextCustom = {
+        ...customizedCards,
+        [saved.id]: {
+          title: saved.title,
+          description: saved.description,
+          badge: saved.badge,
+          blueprintContent: saved.blueprintContent,
+        },
+      };
+      setCustomizedCards(nextCustom);
+      localStorage.setItem('tasknera_customized_offer_cards', JSON.stringify(nextCustom));
+    }
     success(`Template "${saved.title}" updated.`);
   };
 
@@ -1211,7 +1267,7 @@ export const OffersPage: React.FC = () => {
                     border: '1px solid #e2e8f0',
                   }}
                 >
-                  {documentCards.length} Available
+                  {documentCards.length - deletedCardIds.length} Available
                 </span>
               </div>
               <p style={{ fontSize: '0.8125rem', color: '#64748b', margin: '2px 0 0 0' }}>
@@ -1219,28 +1275,55 @@ export const OffersPage: React.FC = () => {
               </p>
             </div>
 
-            <button
-              type="button"
-              onClick={() => setIsGeneratePdfModalOpen(true)}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 6,
-                padding: '7px 14px',
-                fontSize: '0.8125rem',
-                fontWeight: 700,
-                borderRadius: 8,
-                border: '1px solid #2563eb',
-                backgroundColor: '#eff6ff',
-                color: '#1d4ed8',
-                cursor: 'pointer',
-                boxShadow: '0 1px 3px rgba(37,99,235,0.1)',
-                transition: 'all 0.15s ease',
-              }}
-            >
-              <FileText size={15} />
-              <span>+ Upload & Save New Template</span>
-            </button>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+              {deletedCardIds.length > 0 && (
+                <button
+                  type="button"
+                  onClick={handleRestoreDefaultCards}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    padding: '7px 14px',
+                    fontSize: '0.8125rem',
+                    fontWeight: 600,
+                    borderRadius: 8,
+                    border: '1px solid #cbd5e1',
+                    backgroundColor: '#f8fafc',
+                    color: '#475569',
+                    cursor: 'pointer',
+                    boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
+                    transition: 'all 0.15s ease',
+                  }}
+                >
+                  <RotateCcw size={14} />
+                  <span>Restore Defaults ({deletedCardIds.length})</span>
+                </button>
+              )}
+
+              <button
+                type="button"
+                onClick={() => setIsGeneratePdfModalOpen(true)}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  padding: '7px 14px',
+                  fontSize: '0.8125rem',
+                  fontWeight: 700,
+                  borderRadius: 8,
+                  border: '1px solid #2563eb',
+                  backgroundColor: '#eff6ff',
+                  color: '#1d4ed8',
+                  cursor: 'pointer',
+                  boxShadow: '0 1px 3px rgba(37,99,235,0.1)',
+                  transition: 'all 0.15s ease',
+                }}
+              >
+                <FileText size={15} />
+                <span>+ Upload & Save New Template</span>
+              </button>
+            </div>
           </div>
 
           <div
@@ -1250,80 +1333,86 @@ export const OffersPage: React.FC = () => {
               gap: 16,
             }}
           >
-            {documentCards.map((card) => {
-              const isOffer = card.active;
-              return (
-                <div
-                  key={card.id}
-                  onClick={card.onClick}
-                  style={{
-                    backgroundColor: '#ffffff',
-                    borderRadius: 12,
-                    padding: '20px',
-                    border: isOffer ? '1.5px solid #2563eb' : '1px solid #e2e8f0',
-                    boxShadow: isOffer ? '0 4px 16px rgba(37, 99, 235, 0.08)' : '0 1px 3px rgba(0, 0, 0, 0.05)',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'space-between',
-                    transition: 'all 0.2s ease',
-                    position: 'relative',
-                    overflow: 'hidden',
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = 'translateY(-2px)';
-                    e.currentTarget.style.boxShadow = isOffer
-                      ? '0 8px 24px rgba(37, 99, 235, 0.16)'
-                      : '0 6px 18px rgba(0, 0, 0, 0.08)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = 'translateY(0)';
-                    e.currentTarget.style.boxShadow = isOffer
-                      ? '0 4px 16px rgba(37, 99, 235, 0.08)'
-                      : '0 1px 3px rgba(0, 0, 0, 0.05)';
-                  }}
-                >
-                  {/* Top: Icon + Badge */}
-                  <div>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-                      <div
-                        style={{
-                          width: 44,
-                          height: 44,
-                          borderRadius: 10,
-                          backgroundColor: isOffer ? '#eff6ff' : '#f8fafc',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          border: isOffer ? '1px solid #bfdbfe' : '1px solid #f1f5f9',
-                        }}
-                      >
-                        {card.icon}
-                      </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                        <span
+            {documentCards
+              .filter((card) => !deletedCardIds.includes(card.id))
+              .map((card) => {
+                const custom = customizedCards[card.id];
+                const displayTitle = custom?.title || card.title;
+                const displayDesc = custom?.description || card.description;
+                const displayBadge = custom?.badge || card.badge;
+                const isOffer = card.active;
+                return (
+                  <div
+                    key={card.id}
+                    onClick={card.onClick}
+                    style={{
+                      backgroundColor: '#ffffff',
+                      borderRadius: 12,
+                      padding: '20px',
+                      border: isOffer ? '1.5px solid #2563eb' : '1px solid #e2e8f0',
+                      boxShadow: isOffer ? '0 4px 16px rgba(37, 99, 235, 0.08)' : '0 1px 3px rgba(0, 0, 0, 0.05)',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'space-between',
+                      transition: 'all 0.2s ease',
+                      position: 'relative',
+                      overflow: 'hidden',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = 'translateY(-2px)';
+                      e.currentTarget.style.boxShadow = isOffer
+                        ? '0 8px 24px rgba(37, 99, 235, 0.16)'
+                        : '0 6px 18px rgba(0, 0, 0, 0.08)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = 'translateY(0)';
+                      e.currentTarget.style.boxShadow = isOffer
+                        ? '0 4px 16px rgba(37, 99, 235, 0.08)'
+                        : '0 1px 3px rgba(0, 0, 0, 0.05)';
+                    }}
+                  >
+                    {/* Top: Icon + Badge + Edit/Delete Actions */}
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+                        <div
                           style={{
-                            fontSize: '0.72rem',
-                            fontWeight: 700,
-                            padding: '3px 8px',
-                            borderRadius: 20,
-                            color: card.badgeColor,
-                            backgroundColor: card.badgeBg,
-                            border: `1px solid ${card.badgeBorder}`,
-                            display: 'inline-flex',
+                            width: 44,
+                            height: 44,
+                            borderRadius: 10,
+                            backgroundColor: isOffer ? '#eff6ff' : '#f8fafc',
+                            display: 'flex',
                             alignItems: 'center',
-                            gap: 4,
+                            justifyContent: 'center',
+                            border: isOffer ? '1px solid #bfdbfe' : '1px solid #f1f5f9',
                           }}
                         >
-                          {isOffer && <span style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: '#16a34a' }} />}
-                          {card.badge}
-                        </span>
-                        {(card as any).isCustomSavedTemplate && (
+                          {card.icon}
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                          <span
+                            style={{
+                              fontSize: '0.72rem',
+                              fontWeight: 700,
+                              padding: '3px 8px',
+                              borderRadius: 20,
+                              color: card.badgeColor,
+                              backgroundColor: card.badgeBg,
+                              border: `1px solid ${card.badgeBorder}`,
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: 4,
+                            }}
+                          >
+                            {isOffer && <span style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: '#16a34a' }} />}
+                            {displayBadge}
+                          </span>
+
                           <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                             <button
                               type="button"
-                              title="Edit this saved template"
-                              onClick={(e) => handleEditCustomTemplate(e, (card as any).templateData)}
+                              title="Edit this template"
+                              onClick={(e) => handleEditCard(e, card)}
                               style={{
                                 background: 'none',
                                 border: 'none',
@@ -1342,8 +1431,8 @@ export const OffersPage: React.FC = () => {
                             </button>
                             <button
                               type="button"
-                              title="Delete this saved template"
-                              onClick={(e) => handleDeleteCustomTemplate(e, card.id, card.title)}
+                              title="Delete this template"
+                              onClick={(e) => handleDeleteCard(e, card.id, displayTitle, (card as any).isCustomSavedTemplate)}
                               style={{
                                 background: 'none',
                                 border: 'none',
@@ -1361,18 +1450,17 @@ export const OffersPage: React.FC = () => {
                               <Trash2 size={14} />
                             </button>
                           </div>
-                        )}
+                        </div>
                       </div>
-                    </div>
 
-                    {/* Title & Description */}
-                    <h4 style={{ fontSize: '0.98rem', fontWeight: 700, color: '#0f172a', margin: '0 0 6px 0' }}>
-                      {card.title}
-                    </h4>
-                    <p style={{ fontSize: '0.8125rem', color: '#64748b', lineHeight: 1.45, margin: 0 }}>
-                      {card.description}
-                    </p>
-                  </div>
+                      {/* Title & Description */}
+                      <h4 style={{ fontSize: '0.98rem', fontWeight: 700, color: '#0f172a', margin: '0 0 6px 0' }}>
+                        {displayTitle}
+                      </h4>
+                      <p style={{ fontSize: '0.8125rem', color: '#64748b', lineHeight: 1.45, margin: 0 }}>
+                        {displayDesc}
+                      </p>
+                    </div>
 
                   {/* Bottom Action Footer */}
                   <div
@@ -2474,7 +2562,7 @@ export const OffersPage: React.FC = () => {
           setTemplateToEdit(null);
         }}
         template={templateToEdit}
-        onSave={handleSaveCustomTemplateEdit}
+        onSave={handleSaveCardEdit}
       />
     </div>
   );
