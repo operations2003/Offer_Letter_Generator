@@ -20,6 +20,12 @@ export interface PdfToStructuredLetterResult {
   totalDetectedTables?: number;
   detectedVariables: string[];
   extractedValues: Record<string, string>;
+  title?: string;
+  subject?: string;
+  introParagraph?: string;
+  keyDetails?: Array<{ label: string; value: string }>;
+  closingText?: string;
+  acceptanceText?: string;
   pages: ExtractedPageItem[];
   fullStructuredHtml: string;
   sections: Array<{
@@ -144,8 +150,9 @@ export class PdfToStructuredLetterService {
 
     const fullStructuredHtml = structuredPages.map((p) => p.htmlMarkup).join('\n\n');
 
-    // Extract numbered sections from text
-    const sections = this.extractNumberedSections(combinedRawText);
+    // Extract numbered sections and structured document elements
+    const docStructure = this.parseDocumentStructure(combinedRawText, originalFileName);
+    const sections = docStructure.sections.length > 0 ? docStructure.sections : this.extractNumberedSections(combinedRawText);
 
     return {
       success: true,
@@ -153,11 +160,210 @@ export class PdfToStructuredLetterService {
       totalPages,
       totalDetectedTables,
       detectedVariables,
-      extractedValues,
+      extractedValues: {
+        ...extractedValues,
+        ...(docStructure.keyDetails.reduce((acc, kd) => ({ ...acc, [kd.label.toLowerCase().replace(/[\s\/]+/g, '_')]: kd.value }), {})),
+      },
+      title: docStructure.title,
+      subject: docStructure.subject,
+      introParagraph: docStructure.introParagraph,
+      keyDetails: docStructure.keyDetails,
+      closingText: docStructure.closingText,
+      acceptanceText: docStructure.acceptanceText,
       pages: structuredPages,
       fullStructuredHtml,
       sections,
     };
+  }
+
+  /**
+   * Smart Document Structure Parser: extracts title, subject, intro, keyDetails, numbered sections, closing, and acceptance block
+   */
+  public static parseDocumentStructure(text: string, originalFileName: string = ''): {
+    title: string;
+    subject: string;
+    introParagraph: string;
+    keyDetails: Array<{ label: string; value: string }>;
+    sections: Array<{ number: number; title: string; content: string }>;
+    closingText: string;
+    acceptanceText: string;
+  } {
+    const clean = text
+      .replace(/\uFFFD/g, '')
+      .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F-\x9F]/g, ' ')
+      .replace(/Identity Adobe/gi, '')
+      .trim();
+
+    const lines = clean
+      .split(/\r?\n/)
+      .map((l) => l.trim())
+      .filter((l) => l.length > 0 && !/^(Identity Adobe|%PDF|--\s*\d+\s*of\s*\d+\s*--)/i.test(l));
+
+    let title = '';
+    let subject = '';
+    let introParagraph = '';
+    let inIntro = false;
+    const keyDetails: Array<{ label: string; value: string }> = [];
+    const sections: Array<{ number: number; title: string; content: string }> = [];
+    let closingText = '';
+    let inClosing = false;
+    let acceptanceText = '';
+    let inAcceptance = false;
+
+    let currentSec: { number: number; title: string; content: string } | null = null;
+    let secCounter = 1;
+
+    const keyPattern = /^((?:Work Arrangement \/ Location|Internship Duration|Date of Joining|Reporting Manager|Work Arrangement|Start Date|End Date|Reporting To|Annual CTC|Position|Designation|Department|Location|Duration|Stipend|Salary|Role))\s*[:\-]?\s*(.+)$/i;
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+
+      // 1. Acceptance block detection
+      if (/^ACCEPTANCE\s+(?:BY|OF)/i.test(line)) {
+        if (currentSec) {
+          sections.push(currentSec);
+          currentSec = null;
+        }
+        inAcceptance = true;
+        inClosing = false;
+        inIntro = false;
+        continue;
+      }
+
+      if (inAcceptance) {
+        if (/^(?:TASKNERA\s*\||--\s*\d+|Signature:|Date:|Place:)/i.test(line) || /^_{3,}/.test(line)) {
+          continue;
+        }
+        acceptanceText += (acceptanceText ? ' ' : '') + line;
+        continue;
+      }
+
+      // 2. Closing paragraph detection
+      if (/^(?:Please sign below|We look forward to)/i.test(line)) {
+        if (currentSec) {
+          sections.push(currentSec);
+          currentSec = null;
+        }
+        inClosing = true;
+        inIntro = false;
+        closingText += (closingText ? ' ' : '') + line;
+        continue;
+      }
+
+      if (inClosing) {
+        if (/^(?:For and on behalf|Ms\.\s+Sheetal|Chief Executive|ACCEPTANCE)/i.test(line) || /^_{3,}/.test(line)) {
+          inClosing = false;
+          if (/^ACCEPTANCE/i.test(line)) {
+            inAcceptance = true;
+          }
+          continue;
+        }
+        closingText += (closingText ? ' ' : '') + line;
+        continue;
+      }
+
+      // 3. Numbered clause detection
+      const numMatch = line.match(/^(\d{1,2})[\.\)]\s+(.*)/i);
+      if (numMatch) {
+        if (currentSec) sections.push(currentSec);
+        inIntro = false;
+        const parsedNum = parseInt(numMatch[1], 10);
+        currentSec = {
+          number: isNaN(parsedNum) ? secCounter++ : parsedNum,
+          title: numMatch[2].trim(),
+          content: '',
+        };
+        continue;
+      }
+
+      if (currentSec) {
+        if (/^(?:For and on behalf|Ms\.\s+Sheetal Bedi|Chief Executive|Please sign below|We look forward)/i.test(line)) {
+          sections.push(currentSec);
+          currentSec = null;
+          if (/^(?:Please sign below|We look forward)/i.test(line)) {
+            inClosing = true;
+            closingText += (closingText ? ' ' : '') + line;
+          }
+        } else {
+          currentSec.content += (currentSec.content ? '\n' : '') + line;
+        }
+        continue;
+      }
+
+      // 4. Header title detection
+      if (
+        /^(?:INTERNSHIP OFFER LETTER|OFFER LETTER|APPOINTMENT LETTER|CONTRACT AGREEMENT|SERVICE AGREEMENT|EXPERIENCE CERTIFICATE|RELIEVING LETTER)/i.test(
+          line
+        ) &&
+        !title
+      ) {
+        title = line;
+        continue;
+      }
+
+      // 5. Subject detection
+      if (/^Subject:\s*(.*)/i.test(line)) {
+        subject = line.replace(/^Subject:\s*/i, '').trim();
+        continue;
+      }
+
+      // Skip common recipient & letterhead lines
+      if (
+        /^Dear\s+/i.test(line) ||
+        /^To,/i.test(line) ||
+        /^\[Candidate/i.test(line) ||
+        /^Date:/i.test(line) ||
+        /^TASKNERA/i.test(line) ||
+        /^GLOBAL HR/i.test(line) ||
+        /^careers@/i.test(line) ||
+        /^D-57/i.test(line)
+      ) {
+        continue;
+      }
+
+      // 6. Intro paragraph start
+      if (/^(?:We are pleased to|This is to confirm|On behalf of|It is our pleasure)/i.test(line)) {
+        inIntro = true;
+        introParagraph = line;
+        continue;
+      }
+
+      // 7. Key details check
+      const kMatch = line.match(keyPattern);
+      if (kMatch) {
+        inIntro = false;
+        keyDetails.push({ label: kMatch[1].trim(), value: kMatch[2].trim() });
+        continue;
+      }
+
+      // If still in intro paragraph, accumulate continuation lines
+      if (inIntro) {
+        introParagraph += ' ' + line;
+        continue;
+      }
+    }
+
+    if (currentSec) sections.push(currentSec);
+
+    // If no numbered sections, try paragraph fallback
+    if (sections.length === 0) {
+      const paragraphs = clean
+        .split(/\r?\n\s*\r?\n/)
+        .map((p) => p.trim())
+        .filter((p) => p.length > 20 && !/^(TASKNERA|Dear\s+|To\s+|Ref:)/i.test(p));
+
+      if (paragraphs.length > 0) {
+        paragraphs.forEach((p, idx) => {
+          sections.push({
+            number: idx + 1,
+            title: `Clause ${idx + 1}`,
+            content: p,
+          });
+        });
+      }
+    }
+
+    return { title, subject, introParagraph, keyDetails, sections, closingText, acceptanceText };
   }
 
   /**

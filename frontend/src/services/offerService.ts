@@ -1488,6 +1488,12 @@ class OfferServiceClass {
     totalDetectedTables?: number;
     detectedVariables: string[];
     extractedValues: Record<string, string>;
+    title?: string;
+    subject?: string;
+    introParagraph?: string;
+    keyDetails?: Array<{ label: string; value: string }>;
+    closingText?: string;
+    acceptanceText?: string;
     pages: Array<{ pageNumber: number; rawText: string; htmlMarkup: string; tableCount?: number }>;
     fullStructuredHtml: string;
     sections: Array<{ number: number; title: string; content: string }>;

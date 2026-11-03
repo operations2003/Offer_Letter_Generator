@@ -162,8 +162,38 @@ export const SavedTemplateGeneratorModal: React.FC<SavedTemplateGeneratorModalPr
       return interpolateText(editedBodyHtml);
     }
 
+    const parts: string[] = [];
+
+    if (template?.introParagraph) {
+      parts.push(
+        `<p style="font-size:12.8px; line-height:1.65; color:#334155; text-align:justify; margin-bottom:14px;">${interpolateText(
+          template.introParagraph
+        )}</p>`
+      );
+    }
+
+    if (template?.keyDetails && template.keyDetails.length > 0) {
+      const rowsHtml = template.keyDetails
+        .map(
+          (kd) => `
+        <tr style="border-bottom:1px solid #e2e8f0;">
+          <td style="padding:9px 14px; font-weight:700; color:#334155; width:36%; background:#f8fafc; border-right:1px solid #e2e8f0;">${interpolateText(
+            kd.label
+          )}</td>
+          <td style="padding:9px 14px; color:#0f172a; font-weight:500;">${interpolateText(kd.value)}</td>
+        </tr>`
+        )
+        .join('');
+
+      parts.push(
+        `<table style="width:100%; border-collapse:collapse; margin:14px 0 20px; font-size:12.8px; border:1px solid #cbd5e1; font-family:system-ui,-apple-system,sans-serif;">` +
+          `<tbody>${rowsHtml}</tbody>` +
+        `</table>`
+      );
+    }
+
     if (sections && sections.length > 0) {
-      return sections
+      const clausesHtml = sections
         .map((s) => {
           const titleHtml = s.title
             ? `<h3 style="font-size:13.5px; font-weight:700; color:#1e3a8a; border-bottom:1px solid #bfdbfe; padding-bottom:3px; margin:16px 0 6px; font-family:'Georgia',serif;">${s.number ? `${s.number}. ` : ''}${s.title}</h3>`
@@ -182,9 +212,37 @@ export const SavedTemplateGeneratorModal: React.FC<SavedTemplateGeneratorModalPr
           return `<div style="margin-bottom:14px;">${titleHtml}${bodyHtml}</div>`;
         })
         .join('');
+
+      parts.push(clausesHtml);
     }
 
-    return '<p>No content specified.</p>';
+    if (template?.closingText) {
+      parts.push(
+        `<p style="font-size:12.8px; line-height:1.65; color:#334155; margin:16px 0 12px; text-align:justify;">${interpolateText(
+          template.closingText
+        )}</p>`
+      );
+    }
+
+    if (template?.acceptanceText) {
+      parts.push(
+        `<div style="margin-top:24px; border:1.5px solid #cbd5e1; border-radius:8px; padding:16px 18px; background:#f8fafc;">` +
+          `<div style="font-size:12.5px; font-weight:800; color:#0f172a; margin-bottom:8px; text-transform:uppercase; letter-spacing:0.03em;">` +
+            `ACCEPTANCE OF TERMS` +
+          `</div>` +
+          `<p style="font-size:12px; line-height:1.6; color:#334155; margin-bottom:14px;">` +
+            interpolateText(template.acceptanceText) +
+          `</p>` +
+          `<div style="display:flex; justify-content:space-between; align-items:center; font-size:11.5px; color:#475569; border-top:1px dashed #cbd5e1; padding-top:10px; margin-top:8px;">` +
+            `<span><strong>Signature:</strong> _______________________</span>` +
+            `<span><strong>Date:</strong> __________________</span>` +
+            `<span><strong>Place:</strong> __________________</span>` +
+          `</div>` +
+        `</div>`
+      );
+    }
+
+    return parts.length > 0 ? parts.join('\n') : '<p>No content specified.</p>';
   };
 
   // Save Document to Records

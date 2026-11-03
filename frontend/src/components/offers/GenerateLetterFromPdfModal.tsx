@@ -351,6 +351,15 @@ export const GenerateLetterFromPdfModal: React.FC<GenerateLetterFromPdfModalProp
   const [editedBodyHtml, setEditedBodyHtml] = useState('');
   const [previewTab, setPreviewTab] = useState<'visual' | 'raw'>('visual');
 
+  // Editable Document Structure State
+  const [sections, setSections] = useState<Array<{ number: number; title: string; content: string }>>([]);
+  const [letterSubject, setLetterSubject] = useState('');
+  const [introParagraph, setIntroParagraph] = useState('');
+  const [keyDetails, setKeyDetails] = useState<Array<{ label: string; value: string }>>([]);
+  const [closingText, setClosingText] = useState('');
+  const [acceptanceText, setAcceptanceText] = useState('');
+  const [isEditClausesModalOpen, setIsEditClausesModalOpen] = useState(false);
+
   // Action / Saving State
   const [isSaving, setIsSaving] = useState(false);
   const [isSendingEmail, setIsSendingEmail] = useState(false);
@@ -388,6 +397,13 @@ export const GenerateLetterFromPdfModal: React.FC<GenerateLetterFromPdfModalProp
       setDynamicValues({});
       setIsDirectEditMode(false);
       setEditedBodyHtml('');
+      setSections([]);
+      setLetterSubject('');
+      setIntroParagraph('');
+      setKeyDetails([]);
+      setClosingText('');
+      setAcceptanceText('');
+      setIsEditClausesModalOpen(false);
       setSavedDocument(null);
       setEmailSentSuccess(false);
       setIsAddCategoryOpen(false);
@@ -504,7 +520,13 @@ export const GenerateLetterFromPdfModal: React.FC<GenerateLetterFromPdfModalProp
       resignation_date: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
 
       // Bracketed formatting keys common in PDF extractions: [Candidate Name], [Designation], [Annual CTC]
+      'Candidate Full Name': emp.fullName,
       'Candidate Name': emp.fullName,
+      'Candidate Email Address': emp.officialEmail || emp.personalEmail || `${emp.firstName?.toLowerCase() || 'intern'}@tasknera.com`,
+      'DD Month YYYY': today,
+      'Acceptance Date': new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
+      'Name / Designation': emp.reportingManager || 'Sheetal Bedi (CEO)',
+      'On-site / Hybrid / Remote; Location': emp.workLocation || 'Hybrid / Remote (Delhi NCR)',
       'Employee Name': emp.fullName,
       'Employee Full Name': emp.fullName,
       'Designation': emp.designation,
@@ -527,87 +549,210 @@ export const GenerateLetterFromPdfModal: React.FC<GenerateLetterFromPdfModalProp
     return mapping;
   };
 
-  // Parse text lines into numbered sections
-  const parseRawTextToStructuredResult = (rawText: string, fileName: string) => {
+  // Smart Document Structure Parser
+  const parseDocumentStructure = (rawText: string, fileName: string) => {
     const cleanText = rawText
       .replace(/\uFFFD/g, '')
       .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F-\x9F]/g, ' ')
       .replace(/Identity Adobe/gi, '')
-      .replace(/\s+/g, ' ')
       .trim();
 
     const lines = cleanText
       .split(/\r?\n/)
       .map((l) => l.trim())
-      .filter((l) => l.length > 0 && !/^(Identity Adobe|%PDF)/i.test(l));
+      .filter((l) => l.length > 0 && !/^(Identity Adobe|%PDF|--\s*\d+\s*of\s*\d+\s*--)/i.test(l));
 
-    const sections: Array<{ number: number; title: string; content: string }> = [];
-    let currentTitle = 'Terms & Provisions';
-    let currentContent: string[] = [];
-    let secNum = 1;
+    let detectedTitle = '';
+    let detectedSubject = '';
+    let detectedIntro = '';
+    let inIntro = false;
+    const detectedKeyDetails: Array<{ label: string; value: string }> = [];
+    const parsedSections: Array<{ number: number; title: string; content: string }> = [];
+    let detectedClosing = '';
+    let inClosing = false;
+    let detectedAcceptance = '';
+    let inAcceptance = false;
 
-    for (const line of lines) {
-      const secMatch = line.match(/^(\d{1,2}[\.\)]|(?:Section|Clause|Article)\s+\d+)[\s:\t]+(.+)/i);
-      if (secMatch) {
-        if (currentContent.length > 0) {
-          sections.push({
-            number: secNum++,
-            title: currentTitle,
-            content: currentContent.join('\n'),
-          });
-          currentContent = [];
+    let currentSec: { number: number; title: string; content: string } | null = null;
+    let secCounter = 1;
+
+    const keyPattern = /^((?:Work Arrangement \/ Location|Internship Duration|Date of Joining|Reporting Manager|Work Arrangement|Start Date|End Date|Reporting To|Annual CTC|Position|Designation|Department|Location|Duration|Stipend|Salary|Role))\s*[:\-]?\s*(.+)$/i;
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+
+      // 1. Acceptance block
+      if (/^ACCEPTANCE\s+(?:BY|OF)/i.test(line)) {
+        if (currentSec) {
+          parsedSections.push(currentSec);
+          currentSec = null;
         }
-        currentTitle = secMatch[2].trim() || `Clause ${secNum}`;
-      } else {
-        currentContent.push(line);
+        inAcceptance = true;
+        inClosing = false;
+        inIntro = false;
+        continue;
+      }
+
+      if (inAcceptance) {
+        if (/^(?:TASKNERA\s*\||--\s*\d+|Signature:|Date:|Place:)/i.test(line) || /^_{3,}/.test(line)) {
+          continue;
+        }
+        detectedAcceptance += (detectedAcceptance ? ' ' : '') + line;
+        continue;
+      }
+
+      // 2. Closing paragraph
+      if (/^(?:Please sign below|We look forward to)/i.test(line)) {
+        if (currentSec) {
+          parsedSections.push(currentSec);
+          currentSec = null;
+        }
+        inClosing = true;
+        inIntro = false;
+        detectedClosing += (detectedClosing ? ' ' : '') + line;
+        continue;
+      }
+
+      if (inClosing) {
+        if (/^(?:For and on behalf|Ms\.\s+Sheetal|Chief Executive|ACCEPTANCE)/i.test(line) || /^_{3,}/.test(line)) {
+          inClosing = false;
+          if (/^ACCEPTANCE/i.test(line)) {
+            inAcceptance = true;
+          }
+          continue;
+        }
+        detectedClosing += (detectedClosing ? ' ' : '') + line;
+        continue;
+      }
+
+      // 3. Numbered clauses
+      const numMatch = line.match(/^(\d{1,2}[\.\)]|(?:Section|Clause|Article)\s+\d+)[\s:\t]+(.+)/i);
+      if (numMatch) {
+        if (currentSec) parsedSections.push(currentSec);
+        inIntro = false;
+        const leadingDigits = numMatch[1].match(/\d+/);
+        const parsedNum = leadingDigits ? parseInt(leadingDigits[0], 10) : secCounter++;
+        currentSec = {
+          number: isNaN(parsedNum) ? secCounter++ : parsedNum,
+          title: numMatch[2].trim() || `Clause ${secCounter}`,
+          content: '',
+        };
+        continue;
+      }
+
+      if (currentSec) {
+        if (/^(?:For and on behalf|Ms\.\s+Sheetal Bedi|Chief Executive|Please sign below|We look forward)/i.test(line)) {
+          parsedSections.push(currentSec);
+          currentSec = null;
+          if (/^(?:Please sign below|We look forward)/i.test(line)) {
+            inClosing = true;
+            detectedClosing += (detectedClosing ? ' ' : '') + line;
+          }
+        } else {
+          currentSec.content += (currentSec.content ? '\n' : '') + line;
+        }
+        continue;
+      }
+
+      // 4. Pre-clauses metadata: Title, Subject, Intro, and Key Details Table
+      if (
+        /^(?:INTERNSHIP OFFER LETTER|OFFER LETTER|APPOINTMENT LETTER|EMPLOYMENT AGREEMENT|CONTRACT AGREEMENT|SERVICE AGREEMENT|EXPERIENCE CERTIFICATE|RELIEVING LETTER)/i.test(
+          line
+        ) &&
+        !detectedTitle
+      ) {
+        detectedTitle = line;
+        continue;
+      }
+      if (/^Subject:\s*(.*)/i.test(line)) {
+        detectedSubject = line.replace(/^Subject:\s*/i, '').trim();
+        continue;
+      }
+      if (
+        /^Dear\s+/i.test(line) ||
+        /^To,/i.test(line) ||
+        /^\[Candidate/i.test(line) ||
+        /^Date:/i.test(line) ||
+        /^TASKNERA/i.test(line) ||
+        /^GLOBAL HR/i.test(line) ||
+        /^careers@/i.test(line) ||
+        /^D-57/i.test(line)
+      ) {
+        continue;
+      }
+      if (
+        /^We are pleased to/i.test(line) ||
+        /^This is to confirm/i.test(line) ||
+        /^On behalf of/i.test(line) ||
+        /^It is our pleasure/i.test(line)
+      ) {
+        inIntro = true;
+        detectedIntro = line;
+        continue;
+      }
+
+      // 5. Check key-value line e.g. "Position HR Intern" or "Position: HR Intern"
+      const kMatch = line.match(keyPattern);
+      if (kMatch) {
+        inIntro = false;
+        detectedKeyDetails.push({ label: kMatch[1].trim(), value: kMatch[2].trim() });
+        continue;
+      }
+
+      if (inIntro) {
+        detectedIntro += ' ' + line;
+        continue;
       }
     }
 
-    if (currentContent.length > 0) {
-      sections.push({
-        number: secNum,
-        title: currentTitle,
-        content: currentContent.join('\n'),
-      });
-    }
+    if (currentSec) parsedSections.push(currentSec);
 
-    if (sections.length === 0) {
-      const cleanName = fileName.replace(/\.[^/.]+$/, '').replace(/[_-]/g, ' ');
-      sections.push(
-        {
+    // Fallback if no numbered sections found: split by paragraphs
+    if (parsedSections.length === 0) {
+      const paragraphs = cleanText
+        .split(/\r?\n\s*\r?\n/)
+        .map((p) => p.trim())
+        .filter((p) => p.length > 20 && !/^(TASKNERA|Dear\s+|To\s+|Ref:)/i.test(p));
+
+      if (paragraphs.length > 0) {
+        paragraphs.forEach((p, idx) => {
+          parsedSections.push({
+            number: idx + 1,
+            title: `Clause ${idx + 1}`,
+            content: p,
+          });
+        });
+      } else {
+        const cleanName = fileName.replace(/\.[^/.]+$/, '').replace(/[_-]/g, ' ');
+        parsedSections.push({
           number: 1,
-          title: 'Role & Scope of Responsibilities',
-          content: `The candidate/employee will perform all duties and commitments designated under ${cleanName} in accordance with TaskNera operational directives.`,
-        },
-        {
-          number: 2,
-          title: 'Operational Guidelines & Standards',
-          content: 'Work assignments, office timings, reporting hierarchy, and milestones shall comply with organizational policies.',
-        },
-        {
-          number: 3,
-          title: 'Confidentiality and Company Property',
-          content: 'All materials, proprietary methodologies, client data, and software developments shall remain the exclusive property of TaskNera Global Solutions.',
-        },
-        {
-          number: 4,
-          title: 'Code of Conduct & Governance',
-          content: 'The individual agrees to observe highest standards of integrity, professional ethics, and regulatory compliance at all times.',
-        }
-      );
+          title: 'Terms of Agreement',
+          content: `The candidate/employee will perform all duties designated under ${cleanName} in accordance with organizational policies.`,
+        });
+      }
     }
 
     return {
       success: true,
       fileName,
+      title: detectedTitle,
+      subject: detectedSubject,
+      introParagraph: detectedIntro,
+      keyDetails: detectedKeyDetails,
+      sections: parsedSections,
+      closingText: detectedClosing,
+      acceptanceText: detectedAcceptance,
       totalPages: Math.max(1, Math.ceil(cleanText.length / 1800)),
-      totalDetectedTables: 1,
+      totalDetectedTables: detectedKeyDetails.length > 0 ? 1 : 0,
       detectedVariables: ['candidate_name', 'designation', 'effective_date'],
       extractedValues: {},
       pages: [{ pageNumber: 1, rawText: cleanText, htmlMarkup: `<p>${cleanText.slice(0, 500)}...</p>`, tableCount: 0 }],
       fullStructuredHtml: `<p>${cleanText}</p>`,
-      sections,
     };
+  };
+
+  const parseRawTextToStructuredResult = (rawText: string, fileName: string) => {
+    return parseDocumentStructure(rawText, fileName);
   };
 
   // Robust Client-Side Extraction Fallback (guarantees upload never fails even if backend is offline)
@@ -620,28 +765,64 @@ export const GenerateLetterFromPdfModal: React.FC<GenerateLetterFromPdfModalProp
     } else if (lower.endsWith('.docx') || lower.endsWith('.doc')) {
       try {
         const arrayBuffer = await file.arrayBuffer();
-        const decoder = new TextDecoder('utf-8', { fatal: false });
-        const decoded = decoder.decode(arrayBuffer);
-        const matches = decoded.match(/<w:t[^>]*>([^<]+)<\/w:t>/g);
-        if (matches && matches.length > 0) {
-          rawText = matches.map((m) => m.replace(/<[^>]+>/g, '')).join(' ');
-        } else {
-          rawText = decoded.replace(/[^\x20-\x7E\n\r\t]/g, ' ').replace(/\s+/g, ' ');
+        const JSZip = (await import('jszip')).default || (await import('jszip'));
+        const zip = await JSZip.loadAsync(arrayBuffer);
+        const xml = await zip.file('word/document.xml')?.async('text');
+        if (xml) {
+          const paras = xml.match(/<w:p[\s>].*?<\/w:p>/g) || [];
+          const lines: string[] = [];
+          for (const p of paras) {
+            const texts = (p.match(/<w:t[^>]*>([^<]+)<\/w:t>/g) || []).map((m: string) => m.replace(/<[^>]+>/g, '')).join('');
+            if (texts.trim()) lines.push(texts.trim());
+          }
+          rawText = lines.join('\n');
         }
-      } catch {
-        rawText = '';
+      } catch (docxErr) {
+        console.warn('Docx extraction error:', docxErr);
       }
-    } else {
-      // PDF or binary file: do NOT decode binary buffers via naive regex as it captures font binary tables
-      rawText = '';
+    } else if (lower.endsWith('.pdf') || file.type === 'application/pdf') {
+      try {
+        const arrayBuffer = await file.arrayBuffer();
+        const pdfjs = await import('pdfjs-dist');
+        if (!pdfjs.GlobalWorkerOptions.workerSrc) {
+          pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
+        }
+        const loadingTask = pdfjs.getDocument({ data: new Uint8Array(arrayBuffer) });
+        const pdfDoc = await loadingTask.promise;
+        let fullText = '';
+        for (let p = 1; p <= pdfDoc.numPages; p++) {
+          const page = await pdfDoc.getPage(p);
+          const textContent = await page.getTextContent();
+          const lines: string[] = [];
+          let currentY: number | null = null;
+          let currentLine = '';
+          for (const item of textContent.items as any[]) {
+            if (item.str === undefined) continue;
+            const y = item.transform ? Math.round(item.transform[5]) : null;
+            if (currentY !== null && y !== null && Math.abs(y - currentY) > 4) {
+              if (currentLine.trim()) lines.push(currentLine.trim());
+              currentLine = item.str;
+              currentY = y;
+            } else {
+              currentLine += (currentLine ? ' ' : '') + item.str;
+              if (currentY === null) currentY = y;
+            }
+          }
+          if (currentLine.trim()) lines.push(currentLine.trim());
+          fullText += lines.join('\n') + '\n\n';
+        }
+        rawText = fullText;
+      } catch (pdfErr) {
+        console.warn('Client-side PDF extraction error:', pdfErr);
+      }
     }
 
-    if (!rawText || rawText.trim().length < 30) {
+    if (!rawText || rawText.trim().length < 20) {
       const cleanName = file.name.replace(/\.[^/.]+$/, '').replace(/[_-]/g, ' ');
-      rawText = `1. Role and Core Responsibilities\nThe recipient shall undertake all tasks, responsibilities, and assignments associated with ${cleanName} in accordance with company performance standards.\n\n2. Operational Guidelines & Terms\nWorking hours, reporting structures, and milestones shall adhere strictly to TaskNera organizational standards and department directives.\n\n3. Confidentiality and Intellectual Property\nAll intellectual property, proprietary information, and materials developed or handled remain the exclusive property of TaskNera.\n\n4. Professional Conduct and Governance\nThe individual agrees to maintain the highest levels of integrity, business ethics, and professional conduct.`;
+      rawText = `INTERNSHIP OFFER LETTER\nSubject: Offer of Internship\nDear [Candidate Name],\nWe are pleased to offer you an internship with Tasknera.\n\nPosition: Intern\nDuration: 3 months\n\n1. Role and Responsibilities\nThe recipient shall undertake all tasks and responsibilities associated with ${cleanName} in accordance with company performance standards.\n\n2. Operational Guidelines & Terms\nWorking hours, reporting structures, and milestones shall adhere strictly to TaskNera organizational standards.\n\n3. Confidentiality and Intellectual Property\nAll intellectual property and proprietary materials developed remain the exclusive property of TaskNera.\n\n4. Professional Conduct and Governance\nThe individual agrees to maintain the highest levels of integrity and business ethics.`;
     }
 
-    return parseRawTextToStructuredResult(rawText, file.name);
+    return parseDocumentStructure(rawText, file.name);
   };
 
   // STEP 2: Handle File Upload & Extraction (.pdf, .docx, .txt, .md)
@@ -679,7 +860,29 @@ export const GenerateLetterFromPdfModal: React.FC<GenerateLetterFromPdfModalProp
 
       setExtractedData(data);
 
-      const defaultTplTitle = docTitle || file.name.replace(/\.[^/.]+$/, '').replace(/[_-]/g, ' ');
+      if (data.title) {
+        setDocTitle(data.title);
+      }
+      if (data.subject) {
+        setLetterSubject(data.subject);
+      }
+      if (data.introParagraph) {
+        setIntroParagraph(data.introParagraph);
+      }
+      if (data.keyDetails && data.keyDetails.length > 0) {
+        setKeyDetails(data.keyDetails);
+      }
+      if (data.sections && data.sections.length > 0) {
+        setSections(data.sections);
+      }
+      if (data.closingText) {
+        setClosingText(data.closingText);
+      }
+      if (data.acceptanceText) {
+        setAcceptanceText(data.acceptanceText);
+      }
+
+      const defaultTplTitle = data.title || docTitle || file.name.replace(/\.[^/.]+$/, '').replace(/[_-]/g, ' ');
       setSaveTemplateTitle(defaultTplTitle);
       setSaveTemplateDesc(`Custom template parsed from ${file.name} with ${data.sections?.length || 0} clauses & terms.`);
       setSaveTemplateBadge(selectedCategory.badge || 'Template');
@@ -710,8 +913,16 @@ export const GenerateLetterFromPdfModal: React.FC<GenerateLetterFromPdfModalProp
     }
 
     const tplTitle = docTitle || 'Custom Letter Template';
-    const data = parseRawTextToStructuredResult(pastedText, `${tplTitle}.txt`);
+    const data = parseDocumentStructure(pastedText, `${tplTitle}.txt`);
     setExtractedData(data);
+    if (data.title) setDocTitle(data.title);
+    if (data.subject) setLetterSubject(data.subject);
+    if (data.introParagraph) setIntroParagraph(data.introParagraph);
+    if (data.keyDetails && data.keyDetails.length > 0) setKeyDetails(data.keyDetails);
+    if (data.sections && data.sections.length > 0) setSections(data.sections);
+    if (data.closingText) setClosingText(data.closingText);
+    if (data.acceptanceText) setAcceptanceText(data.acceptanceText);
+
     setSaveTemplateTitle(tplTitle);
     setSaveTemplateDesc(`Template with ${data.sections.length} clauses parsed directly from text.`);
     setSaveTemplateBadge(selectedCategory.badge || 'Template');
@@ -739,17 +950,22 @@ export const GenerateLetterFromPdfModal: React.FC<GenerateLetterFromPdfModalProp
       categoryName: selectedCategory.name,
       description:
         saveTemplateDesc.trim() ||
-        `Custom template parsed from ${uploadedPdfFile?.name || 'document'} with ${extractedData.sections?.length || 0} clauses.`,
+        `Custom template parsed from ${uploadedPdfFile?.name || 'document'} with ${sections.length || extractedData.sections?.length || 0} clauses.`,
       badge: saveTemplateBadge.trim() || selectedCategory.badge || 'Template',
       color: selectedCategory.color || '#2563eb',
       iconName: selectedCategory.iconName || 'FileText',
       fileName: uploadedPdfFile?.name,
       totalPages: extractedData.totalPages,
-      totalDetectedTables: extractedData.totalDetectedTables,
-      sections: extractedData.sections || [],
+      totalDetectedTables: keyDetails.length > 0 ? 1 : 0,
+      subject: letterSubject,
+      introParagraph: introParagraph,
+      keyDetails: keyDetails,
+      sections: sections.length > 0 ? sections : extractedData.sections || [],
+      closingText: closingText,
+      acceptanceText: acceptanceText,
       extractedValues: extractedData.extractedValues,
       detectedVariables: extractedData.detectedVariables,
-      fullStructuredHtml: extractedData.fullStructuredHtml,
+      fullStructuredHtml: getCompiledLetterBody(),
     });
 
     setIsTemplateSaved(true);
@@ -789,16 +1005,64 @@ export const GenerateLetterFromPdfModal: React.FC<GenerateLetterFromPdfModalProp
     return result;
   };
 
-  // Compile Final Letter Body (from extracted sections, pages, or user edit)
+  // Compile Final Letter Body (from extracted sections, tables, intro, or user edit)
   const getCompiledLetterBody = (): string => {
     if (editedBodyHtml) {
       return interpolatePlaceholders(editedBodyHtml);
     }
 
-    if (extractedData?.sections && extractedData.sections.length > 0) {
-      const formattedSections = extractedData.sections.map((s) => {
+    const sectionsToRender = sections.length > 0 ? sections : (extractedData?.sections || []);
+    const parts: string[] = [];
+
+    // 1. Subject Header (if detected/customized)
+    if (letterSubject) {
+      parts.push(
+        `<div style="font-weight:700; font-size:13px; color:#0f172a; margin:8px 0 14px; text-decoration:underline;">` +
+          interpolatePlaceholders(letterSubject) +
+        `</div>`
+      );
+    }
+
+    // 2. Salutation & Introductory Paragraph
+    parts.push(
+      `<p style="font-size:12.8px; line-height:1.65; color:#1e293b; margin-bottom:10px;">` +
+        `Dear <strong>${selectedEmployee?.fullName || dynamicValues['candidate_name'] || 'Candidate'}</strong>,` +
+      `</p>`
+    );
+
+    if (introParagraph) {
+      parts.push(
+        `<p style="font-size:12.8px; line-height:1.65; color:#334155; text-align:justify; margin-bottom:14px;">` +
+          interpolatePlaceholders(introParagraph) +
+        `</p>`
+      );
+    }
+
+    // 3. Key Details Table
+    if (keyDetails && keyDetails.length > 0) {
+      const rowsHtml = keyDetails
+        .map(
+          (kd) => `
+        <tr style="border-bottom:1px solid #e2e8f0;">
+          <td style="padding:9px 14px; font-weight:700; color:#334155; width:36%; background:#f8fafc; border-right:1px solid #e2e8f0;">${interpolatePlaceholders(kd.label)}</td>
+          <td style="padding:9px 14px; color:#0f172a; font-weight:500;">${interpolatePlaceholders(kd.value)}</td>
+        </tr>`
+        )
+        .join('');
+
+      parts.push(
+        `<table style="width:100%; border-collapse:collapse; margin:14px 0 20px; font-size:12.8px; border:1px solid #cbd5e1; font-family:system-ui,-apple-system,sans-serif;">` +
+          `<tbody>${rowsHtml}</tbody>` +
+        `</table>`
+      );
+    }
+
+    // 4. Numbered Clauses & Terms
+    if (sectionsToRender.length > 0) {
+      const formattedSections = sectionsToRender.map((s, idx) => {
+        const secNum = s.number || idx + 1;
         const headerHtml = s.title
-          ? `<h3 style="font-size:13.5px; font-weight:700; color:#a35d39; border-bottom:1px solid #e2d3ca; padding-bottom:3px; margin:16px 0 6px; font-family:'Georgia',serif;">${s.number ? `${s.number}. ` : ''}${s.title}</h3>`
+          ? `<h3 style="font-size:13.5px; font-weight:700; color:#a35d39; border-bottom:1px solid #e2d3ca; padding-bottom:3px; margin:16px 0 6px; font-family:'Georgia',serif;">${secNum}. ${interpolatePlaceholders(s.title)}</h3>`
           : '';
 
         if (!s.content) return headerHtml;
@@ -808,25 +1072,19 @@ export const GenerateLetterFromPdfModal: React.FC<GenerateLetterFromPdfModalProp
         let inList = false;
 
         for (const line of lines) {
-          if (line.startsWith('•') || line.startsWith('- ') || line.startsWith('* ')) {
-            const bulletText = line.replace(/^[•\-\*]\s*/, '').trim();
+          if (line.startsWith('•') || line.startsWith('- ') || line.startsWith('* ') || line.startsWith('')) {
+            const bulletText = line.replace(/^[•\-\*]\s*/, '').trim();
             if (!inList) {
               bodyHtml += '<ul style="margin:6px 0 10px 22px; padding:0; list-style-type:disc; font-size:12.8px; color:#334155; line-height:1.65;">';
               inList = true;
             }
-            bodyHtml += `<li style="margin-bottom:4px;">${bulletText}</li>`;
-          } else if (/^(\d{1,2}[\.\)]|(?:Section|Clause)\s+\d+)[\s\t]+(.+)/i.test(line)) {
-            if (inList) {
-              bodyHtml += '</ul>';
-              inList = false;
-            }
-            bodyHtml += `<h4 style="font-size:13px; font-weight:700; color:#0f172a; margin:12px 0 4px;">${line}</h4>`;
+            bodyHtml += `<li style="margin-bottom:4px;">${interpolatePlaceholders(bulletText)}</li>`;
           } else {
             if (inList) {
               bodyHtml += '</ul>';
               inList = false;
             }
-            bodyHtml += `<p style="font-size:12.8px; line-height:1.65; color:#334155; text-align:justify; margin-bottom:8px;">${line}</p>`;
+            bodyHtml += `<p style="font-size:12.8px; line-height:1.65; color:#334155; text-align:justify; margin-bottom:8px;">${interpolatePlaceholders(line)}</p>`;
           }
         }
         if (inList) bodyHtml += '</ul>';
@@ -834,18 +1092,38 @@ export const GenerateLetterFromPdfModal: React.FC<GenerateLetterFromPdfModalProp
         return `<div style="margin-bottom:14px;">${headerHtml}${bodyHtml}</div>`;
       });
 
-      return interpolatePlaceholders(formattedSections.join('\n'));
+      parts.push(formattedSections.join('\n'));
     }
 
-    if (extractedData?.pages && extractedData.pages.length > 0) {
-      return interpolatePlaceholders(
-        extractedData.pages
-          .map((p) => p.htmlMarkup || `<p style="font-size:12.8px; line-height:1.65; color:#334155; margin-bottom:8px;">${p.rawText.replace(/\n/g, '<br/>')}</p>`)
-          .join('')
+    // 5. Closing Paragraph
+    if (closingText) {
+      parts.push(
+        `<p style="font-size:12.8px; line-height:1.65; color:#334155; margin:16px 0 12px; text-align:justify;">` +
+          interpolatePlaceholders(closingText) +
+        `</p>`
       );
     }
 
-    return `<p style="font-size:12.8px; line-height:1.65; color:#334155; margin-bottom:8px;">On behalf of <strong>TaskNera</strong>, we are pleased to issue this formal <strong>${docTitle}</strong> for <strong>${selectedEmployee?.fullName || 'the employee'}</strong>.</p>`;
+    // 6. Acceptance Block
+    if (acceptanceText) {
+      parts.push(
+        `<div style="margin-top:24px; border:1.5px solid #cbd5e1; border-radius:8px; padding:16px 18px; background:#f8fafc;">` +
+          `<div style="font-size:12.5px; font-weight:800; color:#0f172a; margin-bottom:8px; text-transform:uppercase; letter-spacing:0.03em;">` +
+            `ACCEPTANCE BY THE ${selectedCategory.id === 'internship' ? 'INTERN' : 'CANDIDATE'}` +
+          `</div>` +
+          `<p style="font-size:12px; line-height:1.6; color:#334155; margin-bottom:14px;">` +
+            interpolatePlaceholders(acceptanceText) +
+          `</p>` +
+          `<div style="display:flex; justify-content:space-between; align-items:center; font-size:11.5px; color:#475569; border-top:1px dashed #cbd5e1; padding-top:10px; margin-top:8px;">` +
+            `<span><strong>Signature:</strong> _______________________</span>` +
+            `<span><strong>Date:</strong> __________________</span>` +
+            `<span><strong>Place:</strong> __________________</span>` +
+          `</div>` +
+        `</div>`
+      );
+    }
+
+    return parts.join('\n');
   };
 
   // STEP 4 Action: Save Document to System Records
@@ -1849,11 +2127,221 @@ export const GenerateLetterFromPdfModal: React.FC<GenerateLetterFromPdfModalProp
                       Pages: {extractedData.totalPages}
                     </span>
                     <span style={{ backgroundColor: '#dcfce7', padding: '3px 8px', borderRadius: 6, color: '#166534', fontWeight: 600 }}>
-                      Clauses / Sections: {extractedData.sections?.length || 0}
+                      Clauses / Sections: {sections.length || extractedData.sections?.length || 0}
                     </span>
                     <span style={{ backgroundColor: '#dcfce7', padding: '3px 8px', borderRadius: 6, color: '#166534', fontWeight: 600 }}>
-                      Tables: {extractedData.totalDetectedTables || 0}
+                      Key Terms / Rows: {keyDetails.length || extractedData.totalDetectedTables || 0}
                     </span>
+                  </div>
+
+                  {/* Review & Edit Document Content & Clauses */}
+                  <div
+                    style={{
+                      marginTop: 16,
+                      backgroundColor: '#ffffff',
+                      border: '1.5px solid #86efac',
+                      borderRadius: 12,
+                      padding: '16px 18px',
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+                    }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14, flexWrap: 'wrap', gap: 8 }}>
+                      <div>
+                        <h4 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 800, color: '#0f172a' }}>
+                          Extracted Clauses & Letter Content ({sections.length} clauses)
+                        </h4>
+                        <p style={{ margin: '2px 0 0', fontSize: '0.78125rem', color: '#64748b' }}>
+                          Review and customize the extracted terms, clauses, and intro before generating the letter.
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSections([
+                            ...sections,
+                            { number: sections.length + 1, title: `Clause ${sections.length + 1}`, content: 'Enter clause text or terms here...' },
+                          ]);
+                        }}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 6,
+                          padding: '6px 12px',
+                          fontSize: '0.78125rem',
+                          fontWeight: 700,
+                          backgroundColor: '#eff6ff',
+                          color: '#2563eb',
+                          border: '1px solid #bfdbfe',
+                          borderRadius: 6,
+                          cursor: 'pointer',
+                        }}
+                      >
+                        <Plus size={14} />
+                        <span>Add Clause</span>
+                      </button>
+                    </div>
+
+                    {/* Letter Title & Subject */}
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 12 }}>
+                      <div>
+                        <label style={{ fontSize: '0.75rem', fontWeight: 700, color: '#334155', display: 'block', marginBottom: 4 }}>
+                          Document Title:
+                        </label>
+                        <input
+                          type="text"
+                          value={docTitle}
+                          onChange={(e) => setDocTitle(e.target.value)}
+                          placeholder="e.g. INTERNSHIP OFFER LETTER"
+                          style={{ width: '100%', padding: '7px 10px', fontSize: '0.8125rem', border: '1px solid #cbd5e1', borderRadius: 6, boxSizing: 'border-box' }}
+                        />
+                      </div>
+                      <div>
+                        <label style={{ fontSize: '0.75rem', fontWeight: 700, color: '#334155', display: 'block', marginBottom: 4 }}>
+                          Subject Line:
+                        </label>
+                        <input
+                          type="text"
+                          value={letterSubject}
+                          onChange={(e) => setLetterSubject(e.target.value)}
+                          placeholder="e.g. Subject: Offer of Unpaid Internship - Human Resources"
+                          style={{ width: '100%', padding: '7px 10px', fontSize: '0.8125rem', border: '1px solid #cbd5e1', borderRadius: 6, boxSizing: 'border-box' }}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Intro Note */}
+                    <div style={{ marginBottom: 12 }}>
+                      <label style={{ fontSize: '0.75rem', fontWeight: 700, color: '#334155', display: 'block', marginBottom: 4 }}>
+                        Introductory Note / Opening Salutation:
+                      </label>
+                      <textarea
+                        rows={2}
+                        value={introParagraph}
+                        onChange={(e) => setIntroParagraph(e.target.value)}
+                        placeholder="e.g. We are pleased to offer you an internship with Tasknera as an HR Intern for a fixed period of three (3) months..."
+                        style={{ width: '100%', padding: '7px 10px', fontSize: '0.8125rem', lineHeight: 1.45, border: '1px solid #cbd5e1', borderRadius: 6, boxSizing: 'border-box' }}
+                      />
+                    </div>
+
+                    {/* Key Details Grid */}
+                    {keyDetails.length > 0 && (
+                      <div style={{ marginBottom: 14 }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                          <label style={{ fontSize: '0.75rem', fontWeight: 700, color: '#334155' }}>
+                            Key Terms Table ({keyDetails.length} items):
+                          </label>
+                          <button
+                            type="button"
+                            onClick={() => setKeyDetails([...keyDetails, { label: 'New Term', value: 'Value' }])}
+                            style={{ fontSize: '0.75rem', color: '#2563eb', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600 }}
+                          >
+                            + Add Row
+                          </button>
+                        </div>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 8, maxHeight: 180, overflowY: 'auto', paddingRight: 4 }}>
+                          {keyDetails.map((kd, kIdx) => (
+                            <div key={kIdx} style={{ display: 'flex', gap: 6, alignItems: 'center', backgroundColor: '#f8fafc', padding: '6px 8px', borderRadius: 6, border: '1px solid #e2e8f0' }}>
+                              <input
+                                type="text"
+                                value={kd.label}
+                                onChange={(e) => {
+                                  const updated = [...keyDetails];
+                                  updated[kIdx].label = e.target.value;
+                                  setKeyDetails(updated);
+                                }}
+                                style={{ width: '45%', padding: '4px 6px', fontSize: '0.75rem', fontWeight: 600, border: '1px solid #cbd5e1', borderRadius: 4 }}
+                              />
+                              <input
+                                type="text"
+                                value={kd.value}
+                                onChange={(e) => {
+                                  const updated = [...keyDetails];
+                                  updated[kIdx].value = e.target.value;
+                                  setKeyDetails(updated);
+                                }}
+                                style={{ flex: 1, padding: '4px 6px', fontSize: '0.75rem', border: '1px solid #cbd5e1', borderRadius: 4 }}
+                              />
+                              <button
+                                type="button"
+                                onClick={() => setKeyDetails(keyDetails.filter((_, idx) => idx !== kIdx))}
+                                style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', padding: 2 }}
+                              >
+                                <Trash2 size={13} />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Clauses List */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 10, maxHeight: 360, overflowY: 'auto', paddingRight: 4, marginTop: 10 }}>
+                      {sections.map((sec, idx) => (
+                        <div key={idx} style={{ backgroundColor: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 8, padding: 10 }}>
+                          <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 6 }}>
+                            <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#a35d39' }}>#{sec.number || idx + 1}</span>
+                            <input
+                              type="text"
+                              value={sec.title}
+                              onChange={(e) => {
+                                const updated = [...sections];
+                                updated[idx].title = e.target.value;
+                                setSections(updated);
+                              }}
+                              placeholder="Clause Heading / Title"
+                              style={{ flex: 1, padding: '5px 8px', fontSize: '0.8rem', fontWeight: 700, border: '1px solid #cbd5e1', borderRadius: 4 }}
+                            />
+                            <button
+                              type="button"
+                              onClick={() => setSections(sections.filter((_, sIdx) => sIdx !== idx))}
+                              title="Delete Clause"
+                              style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', padding: 2 }}
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                          </div>
+                          <textarea
+                            rows={3}
+                            value={sec.content}
+                            onChange={(e) => {
+                              const updated = [...sections];
+                              updated[idx].content = e.target.value;
+                              setSections(updated);
+                            }}
+                            placeholder="Clause content and bullet points..."
+                            style={{ width: '100%', padding: '6px 8px', fontSize: '0.78125rem', lineHeight: 1.45, border: '1px solid #cbd5e1', borderRadius: 4, boxSizing: 'border-box' }}
+                          />
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Closing & Acceptance Editor */}
+                    <div style={{ marginTop: 12, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                      <div>
+                        <label style={{ fontSize: '0.75rem', fontWeight: 700, color: '#334155', display: 'block', marginBottom: 4 }}>
+                          Closing Message:
+                        </label>
+                        <textarea
+                          rows={2}
+                          value={closingText}
+                          onChange={(e) => setClosingText(e.target.value)}
+                          placeholder="e.g. Please sign and return a copy to confirm your acceptance..."
+                          style={{ width: '100%', padding: '6px 8px', fontSize: '0.78125rem', border: '1px solid #cbd5e1', borderRadius: 4, boxSizing: 'border-box' }}
+                        />
+                      </div>
+                      <div>
+                        <label style={{ fontSize: '0.75rem', fontWeight: 700, color: '#334155', display: 'block', marginBottom: 4 }}>
+                          Acceptance Statement:
+                        </label>
+                        <textarea
+                          rows={2}
+                          value={acceptanceText}
+                          onChange={(e) => setAcceptanceText(e.target.value)}
+                          placeholder="e.g. I have read and accept the terms of this offer..."
+                          style={{ width: '100%', padding: '6px 8px', fontSize: '0.78125rem', border: '1px solid #cbd5e1', borderRadius: 4, boxSizing: 'border-box' }}
+                        />
+                      </div>
+                    </div>
                   </div>
 
                   {/* Reusable Template Saving Box in Offers */}
@@ -2139,6 +2627,26 @@ export const GenerateLetterFromPdfModal: React.FC<GenerateLetterFromPdfModalProp
 
                 <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                   <button
+                    onClick={() => setIsEditClausesModalOpen(!isEditClausesModalOpen)}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 6,
+                      padding: '7px 12px',
+                      fontSize: '0.8125rem',
+                      fontWeight: 700,
+                      backgroundColor: isEditClausesModalOpen ? '#dbeafe' : '#eff6ff',
+                      color: '#2563eb',
+                      border: '1.5px solid #93c5fd',
+                      borderRadius: 8,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    <Edit3 size={14} />
+                    <span>{isEditClausesModalOpen ? 'Hide Clause Editor' : 'Edit Clauses & Content'}</span>
+                  </button>
+
+                  <button
                     onClick={() => setIsDirectEditMode(!isDirectEditMode)}
                     style={{
                       display: 'flex',
@@ -2243,6 +2751,148 @@ export const GenerateLetterFromPdfModal: React.FC<GenerateLetterFromPdfModalProp
                   </button>
                 </div>
               </div>
+
+              {/* Live Clause & Letter Content Drawer */}
+              {isEditClausesModalOpen && (
+                <div
+                  style={{
+                    backgroundColor: '#ffffff',
+                    border: '1.5px solid #93c5fd',
+                    borderRadius: 12,
+                    padding: '16px 20px',
+                    marginBottom: 16,
+                    boxShadow: '0 4px 14px rgba(37,99,235,0.08)',
+                  }}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                    <div>
+                      <h4 style={{ margin: 0, fontSize: '0.92rem', fontWeight: 800, color: '#1e40af' }}>
+                        Live Clause & Letter Content Editor
+                      </h4>
+                      <p style={{ margin: '2px 0 0', fontSize: '0.75rem', color: '#64748b' }}>
+                        Modify clauses, headings, and terms below. Changes instantly refresh the official letterhead preview.
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSections([
+                          ...sections,
+                          { number: sections.length + 1, title: `Clause ${sections.length + 1}`, content: 'Enter clause text or terms here...' },
+                        ]);
+                        setEditedBodyHtml('');
+                      }}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 4,
+                        padding: '6px 12px',
+                        fontSize: '0.78125rem',
+                        fontWeight: 700,
+                        backgroundColor: '#eff6ff',
+                        color: '#2563eb',
+                        border: '1px solid #bfdbfe',
+                        borderRadius: 6,
+                        cursor: 'pointer',
+                      }}
+                    >
+                      <Plus size={13} />
+                      <span>Add Clause</span>
+                    </button>
+                  </div>
+
+                  {/* Title & Subject */}
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 10 }}>
+                    <div>
+                      <label style={{ fontSize: '0.72rem', fontWeight: 700, color: '#334155', display: 'block', marginBottom: 2 }}>
+                        Letter Title:
+                      </label>
+                      <input
+                        type="text"
+                        value={docTitle}
+                        onChange={(e) => {
+                          setDocTitle(e.target.value);
+                          setEditedBodyHtml('');
+                        }}
+                        style={{ width: '100%', padding: '6px 8px', fontSize: '0.8rem', border: '1px solid #cbd5e1', borderRadius: 6, boxSizing: 'border-box' }}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ fontSize: '0.72rem', fontWeight: 700, color: '#334155', display: 'block', marginBottom: 2 }}>
+                        Subject Line:
+                      </label>
+                      <input
+                        type="text"
+                        value={letterSubject}
+                        onChange={(e) => {
+                          setLetterSubject(e.target.value);
+                          setEditedBodyHtml('');
+                        }}
+                        style={{ width: '100%', padding: '6px 8px', fontSize: '0.8rem', border: '1px solid #cbd5e1', borderRadius: 6, boxSizing: 'border-box' }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Intro Note */}
+                  <div style={{ marginBottom: 10 }}>
+                    <label style={{ fontSize: '0.72rem', fontWeight: 700, color: '#334155', display: 'block', marginBottom: 2 }}>
+                      Introductory Note:
+                    </label>
+                    <textarea
+                      rows={2}
+                      value={introParagraph}
+                      onChange={(e) => {
+                        setIntroParagraph(e.target.value);
+                        setEditedBodyHtml('');
+                      }}
+                      style={{ width: '100%', padding: '6px 8px', fontSize: '0.78125rem', border: '1px solid #cbd5e1', borderRadius: 6, boxSizing: 'border-box' }}
+                    />
+                  </div>
+
+                  {/* Clauses List */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8, maxHeight: 240, overflowY: 'auto', paddingRight: 4 }}>
+                    {sections.map((sec, idx) => (
+                      <div key={idx} style={{ backgroundColor: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 6, padding: 8 }}>
+                        <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginBottom: 4 }}>
+                          <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#a35d39' }}>#{sec.number || idx + 1}</span>
+                          <input
+                            type="text"
+                            value={sec.title}
+                            onChange={(e) => {
+                              const updated = [...sections];
+                              updated[idx].title = e.target.value;
+                              setSections(updated);
+                              setEditedBodyHtml('');
+                            }}
+                            style={{ flex: 1, padding: '4px 6px', fontSize: '0.78rem', fontWeight: 700, border: '1px solid #cbd5e1', borderRadius: 4 }}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setSections(sections.filter((_, sIdx) => sIdx !== idx));
+                              setEditedBodyHtml('');
+                            }}
+                            style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', padding: 2 }}
+                          >
+                            <Trash2 size={13} />
+                          </button>
+                        </div>
+                        <textarea
+                          rows={2}
+                          value={sec.content}
+                          onChange={(e) => {
+                            const updated = [...sections];
+                            updated[idx].content = e.target.value;
+                            setSections(updated);
+                            setEditedBodyHtml('');
+                          }}
+                          style={{ width: '100%', padding: '4px 6px', fontSize: '0.75rem', border: '1px solid #cbd5e1', borderRadius: 4, boxSizing: 'border-box' }}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* Official TaskNera Letterhead Visual Paper Sheets Viewport */}
               <div
@@ -2372,13 +3022,19 @@ export const GenerateLetterFromPdfModal: React.FC<GenerateLetterFromPdfModalProp
                       {docTitle}
                     </h2>
 
-                    {/* 4. Salutation & Subject */}
-                    <p style={{ marginBottom: 8, fontSize: '12.8px', color: '#1e293b' }}>
-                      Dear {selectedEmployee.fullName},
-                    </p>
+                    {/* 4. Subject & Salutation */}
+                    {letterSubject ? (
+                      <p style={{ marginBottom: 12, fontWeight: 700, fontSize: '13px', color: '#0f172a' }}>
+                        {interpolatePlaceholders(letterSubject)}
+                      </p>
+                    ) : (
+                      <p style={{ marginBottom: 12, fontWeight: 700, fontSize: '13px', color: '#0f172a' }}>
+                        Subject: {docTitle} — {selectedEmployee.designation}
+                      </p>
+                    )}
 
-                    <p style={{ marginBottom: 14, fontWeight: 700, fontSize: '13px', color: '#0f172a' }}>
-                      Subject: {docTitle} — {selectedEmployee.designation}
+                    <p style={{ marginBottom: 10, fontSize: '12.8px', color: '#1e293b' }}>
+                      Dear <strong>{selectedEmployee.fullName}</strong>,
                     </p>
 
                     {/* 5. Main Extracted Letter Content (Clauses, Body, & Tables) */}

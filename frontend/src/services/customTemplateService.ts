@@ -13,6 +13,11 @@ export interface SavedCustomTemplate {
   fileName?: string;
   totalPages?: number;
   totalDetectedTables?: number;
+  subject?: string;
+  introParagraph?: string;
+  keyDetails?: Array<{ label: string; value: string }>;
+  closingText?: string;
+  acceptanceText?: string;
   sections: Array<{ number: number; title: string; content: string }>;
   extractedValues?: Record<string, string>;
   detectedVariables?: string[];
