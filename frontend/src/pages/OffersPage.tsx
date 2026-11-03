@@ -106,6 +106,7 @@ import { LeaveApprovalModal } from '../components/documents/LeaveApprovalModal.j
 import { FnfSettlementModal } from '../components/documents/FnfSettlementModal.js';
 import { ExitChecklistModal } from '../components/documents/ExitChecklistModal.js';
 import { EmployeeInformationModal } from '../components/documents/EmployeeInformationModal.js';
+import { InternshipOnboardingModal } from '../components/documents/InternshipOnboardingModal.js';
 import { SubscriptionPlansModal } from '../components/documents/SubscriptionPlansModal.js';
 import { CommercialQuotationModal } from '../components/documents/CommercialQuotationModal.js';
 import { PaymentReminderModal } from '../components/documents/PaymentReminderModal.js';
@@ -190,6 +191,7 @@ export const OffersPage: React.FC = () => {
   const [isFnfModalOpen, setIsFnfModalOpen] = useState(false);
   const [isExitChecklistModalOpen, setIsExitChecklistModalOpen] = useState(false);
   const [isEmployeeInfoModalOpen, setIsEmployeeInfoModalOpen] = useState(false);
+  const [isInternshipOnboardingModalOpen, setIsInternshipOnboardingModalOpen] = useState(false);
   const [isSubscriptionPlansModalOpen, setIsSubscriptionPlansModalOpen] = useState(false);
   const [isCommercialQuotationModalOpen, setIsCommercialQuotationModalOpen] = useState(false);
   const [isPaymentReminderModalOpen, setIsPaymentReminderModalOpen] = useState(false);
@@ -904,6 +906,18 @@ export const OffersPage: React.FC = () => {
       badgeBorder: '#c7d2fe',
       active: true,
       onClick: () => setIsEmployeeInfoModalOpen(true),
+    },
+    {
+      id: 'internship_onboarding_form',
+      title: 'Internship Onboarding Form',
+      description: 'Official 3-page onboarding dossier (TASK/HR-FORM/ONBOARD) for Interns & Recruitment Interns covering position, education, emergency contact, role setup, DPDP consent & HR verification.',
+      icon: <GraduationCap size={22} style={{ color: '#0284c7' }} />,
+      badge: 'TASK/HR-FORM/ONBOARD',
+      badgeColor: '#0284c7',
+      badgeBg: '#f0f9ff',
+      badgeBorder: '#bae6fd',
+      active: true,
+      onClick: () => setIsInternshipOnboardingModalOpen(true),
     },
     {
       id: 'leave_approval',
@@ -2503,6 +2517,13 @@ export const OffersPage: React.FC = () => {
       <EmployeeInformationModal
         isOpen={isEmployeeInfoModalOpen}
         onClose={() => setIsEmployeeInfoModalOpen(false)}
+        onSuccess={() => fetchOffers()}
+      />
+
+      {/* Official Internship Onboarding Form (TASK/HR-FORM/ONBOARD) 3-Page Modal */}
+      <InternshipOnboardingModal
+        isOpen={isInternshipOnboardingModalOpen}
+        onClose={() => setIsInternshipOnboardingModalOpen(false)}
         onSuccess={() => fetchOffers()}
       />
 

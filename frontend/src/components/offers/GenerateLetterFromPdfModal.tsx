@@ -127,6 +127,16 @@ export const DEFAULT_LETTER_CATEGORIES: LetterCategoryItem[] = [
     iconName: 'GraduationCap',
   },
   {
+    id: 'internship_onboarding',
+    code: 'INTERNSHIP_ONBOARDING',
+    name: 'Internship Onboarding Form',
+    defaultTitle: 'Internship Onboarding Form',
+    description: 'Official 3-page onboarding dossier (TASK/HR-FORM/ONBOARD) for Interns & Recruitment Interns.',
+    badge: 'Onboarding',
+    color: '#0284c7',
+    iconName: 'GraduationCap',
+  },
+  {
     id: 'contract',
     code: 'EMPLOYMENT_CONTRACT',
     name: 'Contractor / Employment Agreement',
