@@ -40,6 +40,7 @@ import { offerService } from '../../services/offerService.js';
 import { Employee, EmployeeService } from '../../services/employeeService.js';
 import { CustomTemplateService } from '../../services/customTemplateService.js';
 import { useToast } from '../../context/ToastContext.js';
+import { extractTextFromDocx, extractTextFromPdf } from '../../utils/clientDocumentParser.js';
 
 interface GenerateLetterFromPdfModalProps {
   isOpen: boolean;
@@ -765,17 +766,22 @@ export const GenerateLetterFromPdfModal: React.FC<GenerateLetterFromPdfModalProp
     } else if (lower.endsWith('.docx') || lower.endsWith('.doc')) {
       try {
         const arrayBuffer = await file.arrayBuffer();
-        const JSZip = (await import('jszip')).default || (await import('jszip'));
-        const zip = await JSZip.loadAsync(arrayBuffer);
-        const xml = await zip.file('word/document.xml')?.async('text');
-        if (xml) {
-          const paras = xml.match(/<w:p[\s>].*?<\/w:p>/g) || [];
-          const lines: string[] = [];
-          for (const p of paras) {
-            const texts = (p.match(/<w:t[^>]*>([^<]+)<\/w:t>/g) || []).map((m: string) => m.replace(/<[^>]+>/g, '')).join('');
-            if (texts.trim()) lines.push(texts.trim());
+        const extracted = await extractTextFromDocx(arrayBuffer).catch(() => '');
+        if (extracted && extracted.trim().length > 0) {
+          rawText = extracted;
+        } else {
+          const JSZip = (await import('jszip')).default || (await import('jszip'));
+          const zip = await JSZip.loadAsync(arrayBuffer);
+          const xml = await zip.file('word/document.xml')?.async('text');
+          if (xml) {
+            const paras = xml.match(/<w:p[\s>].*?<\/w:p>/g) || [];
+            const lines: string[] = [];
+            for (const p of paras) {
+              const texts = (p.match(/<w:t[^>]*>([^<]+)<\/w:t>/g) || []).map((m: string) => m.replace(/<[^>]+>/g, '')).join('');
+              if (texts.trim()) lines.push(texts.trim());
+            }
+            rawText = lines.join('\n');
           }
-          rawText = lines.join('\n');
         }
       } catch (docxErr) {
         console.warn('Docx extraction error:', docxErr);
@@ -783,7 +789,8 @@ export const GenerateLetterFromPdfModal: React.FC<GenerateLetterFromPdfModalProp
     } else if (lower.endsWith('.pdf') || file.type === 'application/pdf') {
       try {
         const arrayBuffer = await file.arrayBuffer();
-        const pdfjs = await import('pdfjs-dist');
+        // @ts-ignore
+        const pdfjs: any = await import('pdfjs-dist');
         if (!pdfjs.GlobalWorkerOptions.workerSrc) {
           pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
         }
