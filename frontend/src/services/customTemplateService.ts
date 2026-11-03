@@ -22,6 +22,9 @@ export interface SavedCustomTemplate {
   extractedValues?: Record<string, string>;
   detectedVariables?: string[];
   fullStructuredHtml?: string;
+  blueprintContent?: string;
+  sampleData?: Record<string, string>;
+  isCertificate?: boolean;
 }
 
 const STORAGE_KEY = 'tasknera_saved_offer_templates';
@@ -80,6 +83,31 @@ export const CustomTemplateService = {
     }
 
     return savedItem;
+  },
+
+  updateTemplate(id: string, updates: Partial<Omit<SavedCustomTemplate, 'id' | 'createdAt'>>): SavedCustomTemplate | null {
+    const list = this.getSavedTemplates();
+    const idx = list.findIndex((t) => t.id === id);
+    if (idx === -1) return null;
+
+    const updatedItem: SavedCustomTemplate = {
+      ...list[idx],
+      ...updates,
+      id,
+      updatedAt: new Date().toISOString(),
+    };
+    list[idx] = updatedItem;
+
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent(TEMPLATES_UPDATED_EVENT, { detail: updatedItem }));
+      }
+    } catch (e) {
+      console.error('Failed to update template in localStorage', e);
+    }
+
+    return updatedItem;
   },
 
   deleteTemplate(id: string): boolean {

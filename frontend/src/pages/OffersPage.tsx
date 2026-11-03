@@ -93,6 +93,7 @@ import {
   SavedCustomTemplate,
   TEMPLATES_UPDATED_EVENT,
 } from '../services/customTemplateService.js';
+import { EditTemplateModal, TemplateEditData } from '../components/templates/EditTemplateModal.js';
 import { AttendanceWarningModal } from '../components/documents/AttendanceWarningModal.js';
 import { DisciplinaryOutcomeModal } from '../components/documents/DisciplinaryOutcomeModal.js';
 import { ShowCauseNoticeModal } from '../components/documents/ShowCauseNoticeModal.js';
@@ -225,6 +226,44 @@ export const OffersPage: React.FC = () => {
       CustomTemplateService.deleteTemplate(tplId);
       success(`Template "${title}" removed.`);
     }
+  };
+
+  const [templateToEdit, setTemplateToEdit] = useState<TemplateEditData | null>(null);
+  const [isEditTemplateModalOpen, setIsEditTemplateModalOpen] = useState(false);
+
+  const handleEditCustomTemplate = (e: React.MouseEvent, tpl: SavedCustomTemplate) => {
+    e.stopPropagation();
+    const content =
+      tpl.blueprintContent ||
+      (tpl.sections && tpl.sections.length > 0
+        ? tpl.sections.map((s) => `## ${s.title}\n${s.content}`).join('\n\n')
+        : '');
+
+    setTemplateToEdit({
+      id: tpl.id,
+      title: tpl.title,
+      category: tpl.categoryName || tpl.category || 'Custom Template',
+      badge: tpl.badge || 'Saved Template',
+      description: tpl.description || '',
+      blueprintContent: content,
+      fileName: tpl.fileName,
+      isCertificate: tpl.isCertificate,
+      isCustomUploaded: true,
+    });
+    setIsEditTemplateModalOpen(true);
+  };
+
+  const handleSaveCustomTemplateEdit = (saved: TemplateEditData) => {
+    if (!saved.id) return;
+    CustomTemplateService.updateTemplate(saved.id, {
+      title: saved.title,
+      description: saved.description,
+      badge: saved.badge,
+      categoryName: saved.category,
+      blueprintContent: saved.blueprintContent,
+      isCertificate: saved.isCertificate,
+    });
+    success(`Template "${saved.title}" updated.`);
   };
 
   // Policies Section State
@@ -1280,26 +1319,48 @@ export const OffersPage: React.FC = () => {
                           {card.badge}
                         </span>
                         {(card as any).isCustomSavedTemplate && (
-                          <button
-                            type="button"
-                            title="Delete this saved template"
-                            onClick={(e) => handleDeleteCustomTemplate(e, card.id, card.title)}
-                            style={{
-                              background: 'none',
-                              border: 'none',
-                              padding: '2px 4px',
-                              cursor: 'pointer',
-                              color: '#94a3b8',
-                              borderRadius: 4,
-                              display: 'flex',
-                              alignItems: 'center',
-                              transition: 'color 0.15s',
-                            }}
-                            onMouseEnter={(e) => (e.currentTarget.style.color = '#ef4444')}
-                            onMouseLeave={(e) => (e.currentTarget.style.color = '#94a3b8')}
-                          >
-                            <Trash2 size={14} />
-                          </button>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                            <button
+                              type="button"
+                              title="Edit this saved template"
+                              onClick={(e) => handleEditCustomTemplate(e, (card as any).templateData)}
+                              style={{
+                                background: 'none',
+                                border: 'none',
+                                padding: '2px 4px',
+                                cursor: 'pointer',
+                                color: '#94a3b8',
+                                borderRadius: 4,
+                                display: 'flex',
+                                alignItems: 'center',
+                                transition: 'color 0.15s',
+                              }}
+                              onMouseEnter={(e) => (e.currentTarget.style.color = '#2563eb')}
+                              onMouseLeave={(e) => (e.currentTarget.style.color = '#94a3b8')}
+                            >
+                              <Edit3 size={14} />
+                            </button>
+                            <button
+                              type="button"
+                              title="Delete this saved template"
+                              onClick={(e) => handleDeleteCustomTemplate(e, card.id, card.title)}
+                              style={{
+                                background: 'none',
+                                border: 'none',
+                                padding: '2px 4px',
+                                cursor: 'pointer',
+                                color: '#94a3b8',
+                                borderRadius: 4,
+                                display: 'flex',
+                                alignItems: 'center',
+                                transition: 'color 0.15s',
+                              }}
+                              onMouseEnter={(e) => (e.currentTarget.style.color = '#ef4444')}
+                              onMouseLeave={(e) => (e.currentTarget.style.color = '#94a3b8')}
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                          </div>
                         )}
                       </div>
                     </div>
@@ -2404,6 +2465,17 @@ export const OffersPage: React.FC = () => {
           onSuccess={() => fetchOffers()}
         />
       )}
+
+      {/* Edit Template Modal */}
+      <EditTemplateModal
+        isOpen={isEditTemplateModalOpen}
+        onClose={() => {
+          setIsEditTemplateModalOpen(false);
+          setTemplateToEdit(null);
+        }}
+        template={templateToEdit}
+        onSave={handleSaveCustomTemplateEdit}
+      />
     </div>
   );
 };

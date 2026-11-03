@@ -149,6 +149,27 @@ export class TemplateController {
   }
 
   /**
+   * DELETE /api/v1/templates/:id
+   */
+  static async delete(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const companyId = req.user!.companyId;
+      const userId = req.user!.userId;
+      const { id } = req.params;
+
+      const result = await TemplateService.delete(companyId, userId, id);
+
+      res.status(200).json({
+        success: true,
+        message: result.message,
+        data: result,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
    * GET /api/v1/templates/:id/versions
    */
   static async getVersionHistory(req: Request, res: Response, next: NextFunction): Promise<void> {

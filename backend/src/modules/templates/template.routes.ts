@@ -73,6 +73,13 @@ router.patch(
   TemplateController.toggleActive
 );
 
+// 8b. Delete Template (Soft delete)
+router.delete(
+  '/:id',
+  requireRoles('SUPER_ADMIN', 'HR_MANAGER'),
+  TemplateController.delete
+);
+
 // 9. Version History
 router.get('/:id/versions', TemplateController.getVersionHistory);
 

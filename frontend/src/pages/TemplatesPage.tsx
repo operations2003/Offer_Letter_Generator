@@ -27,6 +27,7 @@ import {
   Edit3,
   HelpCircle,
   FileUp,
+  Trash2,
 } from 'lucide-react';
 import { Button } from '../components/common/Button.js';
 import { EmployeeService, Employee, DocumentTemplateItem } from '../services/employeeService.js';
@@ -34,6 +35,12 @@ import { templateService } from '../services/templateService.js';
 import { HrDocument } from '../types/document-engine.js';
 import { useToast } from '../context/ToastContext.js';
 import { parseDocumentClientSide } from '../utils/clientDocumentParser.js';
+import {
+  CustomTemplateService,
+  SavedCustomTemplate,
+  TEMPLATES_UPDATED_EVENT,
+} from '../services/customTemplateService.js';
+import { EditTemplateModal, TemplateEditData } from '../components/templates/EditTemplateModal.js';
 
 export interface CategoryItemDef {
   value: string;
@@ -1138,6 +1145,223 @@ export const TemplatesPage: React.FC = () => {
   const [librarySearch, setLibrarySearch] = useState<string>('');
   const [libraryCategory, setLibraryCategory] = useState<string>('ALL');
 
+  // Uploaded & Custom Templates from Storage
+  const [uploadedTemplates, setUploadedTemplates] = useState<SavedCustomTemplate[]>(() =>
+    CustomTemplateService.getSavedTemplates()
+  );
+  const [activeUploadedTemplateId, setActiveUploadedTemplateId] = useState<string | null>(null);
+
+  // Hidden/Deleted Built-in templates from Library
+  const [deletedBuiltinValues, setDeletedBuiltinValues] = useState<string[]>(() => {
+    try {
+      const saved = localStorage.getItem('tasknera_deleted_builtin_templates');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  // User-customized built-in templates
+  const [customizedBuiltins, setCustomizedBuiltins] = useState<Record<string, { title?: string; blueprintContent?: string; category?: string; description?: string }>>(() => {
+    try {
+      const saved = localStorage.getItem('tasknera_customized_builtin_templates');
+      return saved ? JSON.parse(saved) : {};
+    } catch {
+      return {};
+    }
+  });
+
+  // Edit Template Modal State
+  const [templateToEdit, setTemplateToEdit] = useState<TemplateEditData | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
+  // Listen to CustomTemplateService updates
+  useEffect(() => {
+    const handleTemplatesUpdate = () => {
+      setUploadedTemplates(CustomTemplateService.getSavedTemplates());
+    };
+    window.addEventListener(TEMPLATES_UPDATED_EVENT, handleTemplatesUpdate);
+    return () => window.removeEventListener(TEMPLATES_UPDATED_EVENT, handleTemplatesUpdate);
+  }, []);
+
+  // Delete an Uploaded/Custom Template
+  const handleDeleteUploadedTemplate = (e: React.MouseEvent, tplId: string, title: string) => {
+    e.stopPropagation();
+    if (window.confirm(`Are you sure you want to delete the uploaded template "${title}"?`)) {
+      CustomTemplateService.deleteTemplate(tplId);
+      if (activeUploadedTemplateId === tplId) {
+        setActiveUploadedTemplateId(null);
+        handleCategoryChange(OFFERS_ALL_CATEGORIES[0].value);
+      }
+      success(`Template "${title}" deleted successfully.`);
+    }
+  };
+
+  // Delete / Hide a Built-in Template from Library
+  const handleDeleteBuiltinTemplate = (e: React.MouseEvent, value: string, label: string) => {
+    e.stopPropagation();
+    if (window.confirm(`Are you sure you want to remove "${label}" from your template library?`)) {
+      const next = [...deletedBuiltinValues, value];
+      setDeletedBuiltinValues(next);
+      localStorage.setItem('tasknera_deleted_builtin_templates', JSON.stringify(next));
+      if (templateCategory === value) {
+        const remaining = OFFERS_ALL_CATEGORIES.find((c) => !next.includes(c.value));
+        if (remaining) handleCategoryChange(remaining.value);
+      }
+      success(`Template "${label}" removed from library.`);
+    }
+  };
+
+  // Restore Hidden Built-in Templates
+  const handleRestoreDefaultTemplates = () => {
+    setDeletedBuiltinValues([]);
+    localStorage.removeItem('tasknera_deleted_builtin_templates');
+    success('Restored all default system templates to the library!');
+  };
+
+  // Open Edit Modal for Uploaded Template
+  const handleOpenEditUploadedTemplate = (e: React.MouseEvent, tpl: SavedCustomTemplate) => {
+    e.stopPropagation();
+    const content =
+      tpl.blueprintContent ||
+      (tpl.sections && tpl.sections.length > 0
+        ? tpl.sections.map((s) => `## ${s.title}\n${s.content}`).join('\n\n')
+        : '');
+
+    setTemplateToEdit({
+      id: tpl.id,
+      title: tpl.title,
+      category: tpl.categoryName || tpl.category || 'Uploaded Template',
+      badge: tpl.badge || 'Uploaded Template',
+      description: tpl.description || '',
+      blueprintContent: content,
+      fileName: tpl.fileName,
+      isCertificate: tpl.isCertificate,
+      isCustomUploaded: true,
+    });
+    setIsEditModalOpen(true);
+  };
+
+  // Open Edit Modal for Built-in Template
+  const handleOpenEditBuiltinTemplate = (e: React.MouseEvent, cat: CategoryItemDef) => {
+    e.stopPropagation();
+    const custom = customizedBuiltins[cat.value];
+    setTemplateToEdit({
+      id: `builtin_${cat.value}`,
+      title: custom?.title || cat.label,
+      category: custom?.category || cat.groupLabel,
+      badge: 'Preloaded',
+      description: custom?.description || cat.defaultTitle,
+      blueprintContent: custom?.blueprintContent || cat.blueprintContent,
+      isCertificate: cat.isCertificate,
+      isCustomUploaded: false,
+    });
+    setIsEditModalOpen(true);
+  };
+
+  // Open Edit Modal for currently Active Template in Step 1
+  const handleOpenEditActiveTemplate = () => {
+    setTemplateToEdit({
+      id: activeUploadedTemplateId || `active_${templateCategory}`,
+      title: templateTitle,
+      category: templateCategory,
+      badge: activeUploadedTemplateId ? 'Uploaded Template' : 'Active Template',
+      description: `Active template: ${templateFileName}`,
+      blueprintContent: templateText,
+      fileName: templateFileName,
+      isCertificate: isCertificateDoc,
+      isCustomUploaded: Boolean(activeUploadedTemplateId),
+    });
+    setIsEditModalOpen(true);
+  };
+
+  // Save changes from Edit Modal
+  const handleSaveTemplateEdit = (saved: TemplateEditData, andUse: boolean = false) => {
+    if (saved.isCustomUploaded && saved.id && !saved.id.startsWith('builtin_') && !saved.id.startsWith('active_')) {
+      CustomTemplateService.updateTemplate(saved.id, {
+        title: saved.title,
+        categoryName: saved.category,
+        description: saved.description,
+        badge: saved.badge,
+        blueprintContent: saved.blueprintContent,
+        isCertificate: saved.isCertificate,
+      });
+      if (activeUploadedTemplateId === saved.id || andUse) {
+        setTemplateTitle(saved.title);
+        setTemplateText(saved.blueprintContent);
+        setTemplateCategory(saved.category);
+        setIsCertificateDoc(Boolean(saved.isCertificate));
+        extractPlaceholdersFromText(saved.blueprintContent);
+      }
+    } else if (saved.id && saved.id.startsWith('builtin_')) {
+      const origValue = saved.id.replace('builtin_', '');
+      const nextCustom = {
+        ...customizedBuiltins,
+        [origValue]: {
+          title: saved.title,
+          category: saved.category,
+          description: saved.description,
+          blueprintContent: saved.blueprintContent,
+        },
+      };
+      setCustomizedBuiltins(nextCustom);
+      localStorage.setItem('tasknera_customized_builtin_templates', JSON.stringify(nextCustom));
+
+      if (templateCategory === origValue || andUse) {
+        setTemplateTitle(saved.title);
+        setTemplateText(saved.blueprintContent);
+        setTemplateCategory(origValue);
+        setIsCertificateDoc(Boolean(saved.isCertificate));
+        extractPlaceholdersFromText(saved.blueprintContent);
+      }
+    } else {
+      setTemplateTitle(saved.title);
+      setTemplateText(saved.blueprintContent);
+      setTemplateCategory(saved.category);
+      setIsCertificateDoc(Boolean(saved.isCertificate));
+      extractPlaceholdersFromText(saved.blueprintContent);
+
+      if (activeUploadedTemplateId) {
+        CustomTemplateService.updateTemplate(activeUploadedTemplateId, {
+          title: saved.title,
+          categoryName: saved.category,
+          description: saved.description,
+          blueprintContent: saved.blueprintContent,
+          isCertificate: saved.isCertificate,
+        });
+      }
+    }
+
+    if (andUse) {
+      setActiveTab('generator');
+      setStep(2);
+    }
+    success(`Template "${saved.title}" saved successfully!`);
+  };
+
+  // Select an uploaded template to use in the generator
+  const handleSelectUploadedTemplate = (tpl: SavedCustomTemplate, advanceToStep2: boolean = false) => {
+    setActiveUploadedTemplateId(tpl.id);
+    setTemplateTitle(tpl.title);
+    setTemplateFileName(tpl.fileName || `${tpl.title.replace(/\s+/g, '_')}.docx`);
+    setTemplateCategory(tpl.categoryName || tpl.category || 'Uploaded');
+    setIsCertificateDoc(Boolean(tpl.isCertificate));
+
+    const content =
+      tpl.blueprintContent ||
+      (tpl.sections && tpl.sections.length > 0
+        ? tpl.sections.map((s) => `## ${s.title}\n${s.content}`).join('\n\n')
+        : `# **${tpl.title.toUpperCase()}**\n\nDate: {{issue_date}}\n\nTo: **{{candidate_name}}**\n\nContent...`);
+
+    setTemplateText(content);
+    extractPlaceholdersFromText(content);
+    if (advanceToStep2) {
+      setActiveTab('generator');
+      setStep(2);
+    }
+    success(`Selected uploaded template "${tpl.title}".`);
+  };
+
   // Load initial employees & library
   useEffect(() => {
     loadEmployees();
@@ -1216,18 +1440,41 @@ export const TemplatesPage: React.FC = () => {
     }
 
     setTemplateCategory(catKey);
+    setActiveUploadedTemplateId(null);
     const found = OFFERS_ALL_CATEGORIES.find((c) => c.value === catKey || c.label === catKey);
     if (found) {
-      setTemplateTitle(found.defaultTitle);
+      const custom = customizedBuiltins[catKey];
+      setTemplateTitle(custom?.title || found.defaultTitle);
       setTemplateFileName(`${found.value.replace(/\s+/g, '_')}.docx`);
-      setTemplateText(found.blueprintContent);
+      const content = custom?.blueprintContent || found.blueprintContent;
+      setTemplateText(content);
       setIsCertificateDoc(Boolean(found.isCertificate));
-      extractPlaceholdersFromText(found.blueprintContent);
+      extractPlaceholdersFromText(content);
       if (found.sampleData) {
         setFormData((prev) => ({ ...prev, ...found.sampleData }));
       }
-      success(`Loaded "${found.label}" template.`);
+      success(`Loaded "${custom?.title || found.label}" template.`);
     }
+  };
+
+  // Helper to persist uploaded template to storage so user can edit/delete/reuse anytime
+  const persistUploadedTemplate = (cleanTitle: string, fileName: string, extracted: string, isCert: boolean, suggestedCat?: string) => {
+    const finalCat = suggestedCat || (isCert ? 'Certificates' : 'Offer Letter');
+    const saved = CustomTemplateService.saveTemplate({
+      title: cleanTitle,
+      category: finalCat,
+      categoryCode: isCert ? 'CERTIFICATE' : 'OFFER_LETTER',
+      categoryName: finalCat,
+      description: `Uploaded from ${fileName}`,
+      badge: 'Uploaded Template',
+      color: '#2563eb',
+      fileName: fileName,
+      sections: [],
+      blueprintContent: extracted,
+      isCertificate: isCert,
+    });
+    setActiveUploadedTemplateId(saved.id);
+    return saved;
   };
 
   // Handle File Upload (.docx, .pdf, .txt, .html)
@@ -1250,7 +1497,8 @@ export const TemplatesPage: React.FC = () => {
         setTemplateText(res.extractedContent);
         if (res.suggestedCategory) setTemplateCategory(res.suggestedCategory);
         extractPlaceholdersFromText(res.extractedContent);
-        success(`Uploaded "${file.name}" cleanly (${res.detectedFormat}). Structure and content ready!`);
+        persistUploadedTemplate(cleanTitle, file.name, res.extractedContent, isCert, res.suggestedCategory);
+        success(`Uploaded and saved "${file.name}" cleanly (${res.detectedFormat}). Structure and content ready!`);
         setStep(2);
         setIsUploading(false);
         return;
@@ -1265,7 +1513,8 @@ export const TemplatesPage: React.FC = () => {
       if (clientRes && clientRes.extractedContent && clientRes.extractedContent.trim().length > 0) {
         setTemplateText(clientRes.extractedContent);
         extractPlaceholdersFromText(clientRes.extractedContent);
-        success(`Parsed "${file.name}" successfully (${clientRes.detectedFormat})!`);
+        persistUploadedTemplate(cleanTitle, file.name, clientRes.extractedContent, isCert);
+        success(`Parsed and saved "${file.name}" successfully (${clientRes.detectedFormat})!`);
         setStep(2);
         setIsUploading(false);
         return;
@@ -1295,6 +1544,7 @@ Chief Executive Officer`;
 
     setTemplateText(fallbackBlueprint);
     extractPlaceholdersFromText(fallbackBlueprint);
+    persistUploadedTemplate(cleanTitle, file.name, fallbackBlueprint, isCert);
     info(`Initialized template for "${file.name}". You can now provide or paste your content in Step 2!`);
     setStep(2);
     setIsUploading(false);
@@ -2015,26 +2265,184 @@ Chief Executive Officer`;
                     background: 'linear-gradient(180deg, #f0f7ff 0%, #ffffff 100%)',
                   }}
                 >
-                  <div>
-                    <div style={{ fontSize: '0.72rem', fontWeight: 700, color: '#2563eb', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                      Active Document Template
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                    <div
+                      style={{
+                        width: 40,
+                        height: 40,
+                        borderRadius: 8,
+                        backgroundColor: '#eff6ff',
+                        color: '#2563eb',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flexShrink: 0,
+                      }}
+                    >
+                      <FileText size={20} />
                     </div>
-                    <div style={{ fontSize: '1.05rem', fontWeight: 800, color: '#0f172a', marginTop: 2 }}>
-                      {templateTitle}
-                    </div>
-                    <div style={{ fontSize: '0.78rem', color: '#64748b', marginTop: 2 }}>
-                      File: {templateFileName} • {detectedPlaceholders.length} placeholders ready for content
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#2563eb', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                          Active Document Template
+                        </span>
+                        {activeUploadedTemplateId && (
+                          <span style={{ fontSize: '0.68rem', backgroundColor: '#dbeafe', color: '#1e40af', padding: '1px 6px', borderRadius: 4, fontWeight: 700 }}>
+                            Uploaded Template
+                          </span>
+                        )}
+                      </div>
+                      <div style={{ fontSize: '1.05rem', fontWeight: 800, color: '#0f172a', marginTop: 2 }}>
+                        {templateTitle}
+                      </div>
+                      <div style={{ fontSize: '0.78rem', color: '#64748b', marginTop: 2 }}>
+                        File: {templateFileName} • {detectedPlaceholders.length} placeholder{detectedPlaceholders.length === 1 ? '' : 's'} ready for content
+                      </div>
                     </div>
                   </div>
-                  <Button
-                    variant="primary"
-                    icon={<ArrowRight size={15} />}
-                    onClick={() => setStep(2)}
-                    style={{ padding: '8px 18px', fontSize: '0.85rem', backgroundColor: '#0f172a', borderColor: '#0f172a' }}
-                  >
-                    Continue to Provide Content
-                  </Button>
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                    <Button
+                      variant="secondary"
+                      icon={<Edit3 size={14} />}
+                      onClick={handleOpenEditActiveTemplate}
+                      style={{ padding: '7px 14px', fontSize: '0.8rem' }}
+                    >
+                      Edit Template
+                    </Button>
+
+                    {activeUploadedTemplateId && (
+                      <button
+                        type="button"
+                        title="Delete this uploaded template"
+                        onClick={(e) => handleDeleteUploadedTemplate(e, activeUploadedTemplateId, templateTitle)}
+                        style={{
+                          padding: '7px 12px',
+                          borderRadius: 6,
+                          border: '1px solid #fee2e2',
+                          backgroundColor: '#fef2f2',
+                          color: '#ef4444',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 4,
+                          fontSize: '0.8rem',
+                          fontWeight: 600,
+                        }}
+                      >
+                        <Trash2 size={14} />
+                        Delete
+                      </button>
+                    )}
+
+                    <Button
+                      variant="primary"
+                      icon={<ArrowRight size={15} />}
+                      onClick={() => setStep(2)}
+                      style={{ padding: '8px 18px', fontSize: '0.85rem', backgroundColor: '#0f172a', borderColor: '#0f172a' }}
+                    >
+                      Continue to Provide Content
+                    </Button>
+                  </div>
                 </div>
+
+                {/* Your Uploaded Templates List (if any exist) */}
+                {uploadedTemplates.length > 0 && (
+                  <div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+                      <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#1e293b' }}>
+                        Your Uploaded Templates ({uploadedTemplates.length}):
+                      </div>
+                      <span style={{ fontSize: '0.75rem', color: '#64748b' }}>
+                        Persisted templates ready for instant re-use, editing, or deletion
+                      </span>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 10 }}>
+                      {uploadedTemplates.map((ut) => {
+                        const isActive = activeUploadedTemplateId === ut.id;
+                        return (
+                          <div
+                            key={ut.id}
+                            onClick={() => handleSelectUploadedTemplate(ut)}
+                            style={{
+                              padding: '12px 14px',
+                              borderRadius: 10,
+                              border: isActive ? '2px solid #2563eb' : '1px solid #e2e8f0',
+                              backgroundColor: isActive ? '#eff6ff' : '#ffffff',
+                              cursor: 'pointer',
+                              display: 'flex',
+                              flexDirection: 'column',
+                              justifyContent: 'space-between',
+                              boxShadow: '0 1px 2px rgba(0,0,0,0.02)',
+                              transition: 'all 0.15s ease',
+                            }}
+                          >
+                            <div>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                                <span style={{ fontSize: '0.68rem', fontWeight: 700, color: '#2563eb', backgroundColor: '#dbeafe', padding: '1px 6px', borderRadius: 4 }}>
+                                  {ut.badge || 'Uploaded Template'}
+                                </span>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                                  <button
+                                    type="button"
+                                    title="Edit uploaded template"
+                                    onClick={(e) => handleOpenEditUploadedTemplate(e, ut)}
+                                    style={{
+                                      background: 'none',
+                                      border: 'none',
+                                      padding: '3px',
+                                      cursor: 'pointer',
+                                      color: '#64748b',
+                                      borderRadius: 4,
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                    }}
+                                    onMouseEnter={(e) => (e.currentTarget.style.color = '#2563eb')}
+                                    onMouseLeave={(e) => (e.currentTarget.style.color = '#64748b')}
+                                  >
+                                    <Edit3 size={13} />
+                                  </button>
+                                  <button
+                                    type="button"
+                                    title="Delete uploaded template"
+                                    onClick={(e) => handleDeleteUploadedTemplate(e, ut.id, ut.title)}
+                                    style={{
+                                      background: 'none',
+                                      border: 'none',
+                                      padding: '3px',
+                                      cursor: 'pointer',
+                                      color: '#94a3b8',
+                                      borderRadius: 4,
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                    }}
+                                    onMouseEnter={(e) => (e.currentTarget.style.color = '#ef4444')}
+                                    onMouseLeave={(e) => (e.currentTarget.style.color = '#94a3b8')}
+                                  >
+                                    <Trash2 size={13} />
+                                  </button>
+                                </div>
+                              </div>
+                              <div style={{ fontSize: '0.88rem', fontWeight: 700, color: '#0f172a' }}>
+                                {ut.title}
+                              </div>
+                              <div style={{ fontSize: '0.74rem', color: '#64748b', marginTop: 2 }}>
+                                {ut.fileName ? `File: ${ut.fileName}` : ut.category}
+                              </div>
+                            </div>
+
+                            <div style={{ marginTop: 10, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                              <span style={{ fontSize: '0.72rem', color: isActive ? '#2563eb' : '#64748b', fontWeight: 600 }}>
+                                {isActive ? '✓ Active in Generator' : 'Click to Select'}
+                              </span>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
 
                 {/* Or Select from Pre-designed Blueprints */}
                 <div>
@@ -2043,8 +2451,10 @@ Chief Executive Officer`;
                   </div>
 
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 10 }}>
-                    {OFFERS_ALL_CATEGORIES.map((cat) => {
-                      const isSelected = templateCategory === cat.value;
+                    {OFFERS_ALL_CATEGORIES.filter((cat) => !deletedBuiltinValues.includes(cat.value)).map((cat) => {
+                      const isSelected = !activeUploadedTemplateId && templateCategory === cat.value;
+                      const custom = customizedBuiltins[cat.value];
+                      const displayTitle = custom?.title || cat.label;
                       return (
                         <div
                           key={cat.value}
@@ -2065,7 +2475,7 @@ Chief Executive Officer`;
                             {isSelected && <Check size={14} color="#2563eb" />}
                           </div>
                           <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#0f172a', marginTop: 4 }}>
-                            {cat.label}
+                            {displayTitle}
                           </div>
                         </div>
                       );
@@ -2813,36 +3223,63 @@ Chief Executive Officer`;
         /* TAB 2: TEMPLATE LIBRARY                                             */
         /* =================================================================== */
         <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-          {/* Search & Category Filter */}
+          {/* Search, Action & Category Filter */}
           <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between' }}>
-            <div style={{ position: 'relative', flex: 1, minWidth: 260 }}>
-              <Search
-                size={16}
-                style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }}
-              />
-              <input
-                type="text"
-                placeholder="Search templates by title or category..."
-                value={librarySearch}
-                onChange={(e) => setLibrarySearch(e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '10px 12px 10px 36px',
-                  borderRadius: 8,
-                  border: '1px solid #cbd5e1',
-                  fontSize: '0.85rem',
-                  outline: 'none',
-                }}
-              />
+            <div style={{ display: 'flex', gap: 10, flex: 1, minWidth: 280, alignItems: 'center' }}>
+              <div style={{ position: 'relative', flex: 1 }}>
+                <Search
+                  size={16}
+                  style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }}
+                />
+                <input
+                  type="text"
+                  placeholder="Search templates by title or category..."
+                  value={librarySearch}
+                  onChange={(e) => setLibrarySearch(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px 10px 36px',
+                    borderRadius: 8,
+                    border: '1px solid #cbd5e1',
+                    fontSize: '0.85rem',
+                    outline: 'none',
+                  }}
+                />
+              </div>
+
+              <Button
+                variant="secondary"
+                icon={<Upload size={14} />}
+                onClick={() => fileInputRef.current?.click()}
+                style={{ fontSize: '0.82rem', padding: '9px 14px', flexShrink: 0 }}
+              >
+                Upload Template
+              </Button>
             </div>
 
-            {/* Category Filter Pills */}
-            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+            {/* Category Filter Pills & Restore Button */}
+            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
               {[
-                { key: 'ALL', label: `All (${OFFERS_ALL_CATEGORIES.length})` },
-                { key: 'templates', label: `Letters (${OFFERS_ALL_CATEGORIES.filter((c) => c.group === 'templates').length})` },
-                { key: 'certificates', label: `Certificates (${OFFERS_ALL_CATEGORIES.filter((c) => c.group === 'certificates').length})` },
-                { key: 'policies', label: `Policies (${OFFERS_ALL_CATEGORIES.filter((c) => c.group === 'policies').length})` },
+                {
+                  key: 'ALL',
+                  label: `All (${OFFERS_ALL_CATEGORIES.filter((c) => !deletedBuiltinValues.includes(c.value)).length + uploadedTemplates.length})`,
+                },
+                {
+                  key: 'uploaded',
+                  label: `Uploaded (${uploadedTemplates.length})`,
+                },
+                {
+                  key: 'templates',
+                  label: `Letters (${OFFERS_ALL_CATEGORIES.filter((c) => c.group === 'templates' && !deletedBuiltinValues.includes(c.value)).length})`,
+                },
+                {
+                  key: 'certificates',
+                  label: `Certificates (${OFFERS_ALL_CATEGORIES.filter((c) => c.group === 'certificates' && !deletedBuiltinValues.includes(c.value)).length})`,
+                },
+                {
+                  key: 'policies',
+                  label: `Policies (${OFFERS_ALL_CATEGORIES.filter((c) => c.group === 'policies' && !deletedBuiltinValues.includes(c.value)).length})`,
+                },
               ].map((tab) => (
                 <button
                   key={tab.key}
@@ -2864,6 +3301,30 @@ Chief Executive Officer`;
                   {tab.label}
                 </button>
               ))}
+
+              {deletedBuiltinValues.length > 0 && (
+                <button
+                  type="button"
+                  title="Restore hidden factory templates"
+                  onClick={handleRestoreDefaultTemplates}
+                  style={{
+                    padding: '6px 12px',
+                    borderRadius: 20,
+                    fontSize: '0.75rem',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    border: '1px solid #cbd5e1',
+                    backgroundColor: '#f8fafc',
+                    color: '#475569',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 5,
+                  }}
+                >
+                  <RotateCcw size={13} />
+                  Restore Defaults ({deletedBuiltinValues.length})
+                </button>
+              )}
             </div>
           </div>
 
@@ -2875,64 +3336,224 @@ Chief Executive Officer`;
               gap: 16,
             }}
           >
-            {OFFERS_ALL_CATEGORIES.filter((cat) => {
-              const matchesSearch =
-                cat.label.toLowerCase().includes(librarySearch.toLowerCase()) ||
-                cat.defaultTitle.toLowerCase().includes(librarySearch.toLowerCase()) ||
-                cat.groupLabel.toLowerCase().includes(librarySearch.toLowerCase());
-              const matchesCategory =
-                libraryCategory === 'ALL' || cat.group === libraryCategory;
-              return matchesSearch && matchesCategory;
-            }).map((cat) => (
-              <div
-                key={cat.value}
-                style={{
-                  backgroundColor: '#ffffff',
-                  border: '1px solid #e2e8f0',
-                  borderRadius: 12,
-                  padding: '20px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'space-between',
-                  boxShadow: '0 1px 3px rgba(0,0,0,0.02)',
-                }}
-              >
-                <div>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-                    <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#2563eb', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                      {cat.groupLabel}
-                    </span>
-                    <span style={{ fontSize: '0.72rem', backgroundColor: '#f1f5f9', color: '#64748b', padding: '2px 8px', borderRadius: 10, fontWeight: 600 }}>
-                      Preloaded
-                    </span>
-                  </div>
-                  <h4 style={{ fontSize: '1rem', fontWeight: 700, color: '#0f172a', margin: '0 0 6px 0' }}>
-                    {cat.label}
-                  </h4>
-                  <p style={{ fontSize: '0.8rem', color: '#64748b', margin: 0, lineHeight: 1.4 }}>
-                    {cat.defaultTitle}
-                  </p>
-                </div>
-
-                <div style={{ marginTop: 20, paddingTop: 14, borderTop: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <Button
-                    variant="primary"
-                    icon={<Sparkles size={14} />}
-                    onClick={() => {
-                      handleCategoryChange(cat.value);
-                      setActiveTab('generator');
-                      setStep(2);
+            {/* 1. Uploaded Templates in Library */}
+            {(libraryCategory === 'ALL' || libraryCategory === 'uploaded') &&
+              uploadedTemplates
+                .filter((ut) => {
+                  const term = librarySearch.toLowerCase();
+                  return (
+                    ut.title.toLowerCase().includes(term) ||
+                    (ut.description && ut.description.toLowerCase().includes(term)) ||
+                    (ut.fileName && ut.fileName.toLowerCase().includes(term)) ||
+                    (ut.categoryName && ut.categoryName.toLowerCase().includes(term))
+                  );
+                })
+                .map((ut) => (
+                  <div
+                    key={ut.id}
+                    style={{
+                      backgroundColor: '#ffffff',
+                      border: '1px solid #bfdbfe',
+                      borderRadius: 12,
+                      padding: '20px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'space-between',
+                      boxShadow: '0 1px 3px rgba(0,0,0,0.02)',
                     }}
-                    style={{ fontSize: '0.78rem', padding: '7px 14px', backgroundColor: '#0f172a', borderColor: '#0f172a' }}
                   >
-                    Use in AI Generator
-                  </Button>
-                </div>
-              </div>
-            ))}
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                        <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#2563eb', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                          {ut.badge || 'Uploaded Template'}
+                        </span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                          <button
+                            type="button"
+                            title="Edit this uploaded template"
+                            onClick={(e) => handleOpenEditUploadedTemplate(e, ut)}
+                            style={{
+                              background: 'none',
+                              border: 'none',
+                              padding: '4px',
+                              cursor: 'pointer',
+                              color: '#64748b',
+                              borderRadius: 4,
+                              display: 'flex',
+                              alignItems: 'center',
+                              transition: 'color 0.15s',
+                            }}
+                            onMouseEnter={(e) => (e.currentTarget.style.color = '#2563eb')}
+                            onMouseLeave={(e) => (e.currentTarget.style.color = '#64748b')}
+                          >
+                            <Edit3 size={15} />
+                          </button>
+                          <button
+                            type="button"
+                            title="Delete this uploaded template"
+                            onClick={(e) => handleDeleteUploadedTemplate(e, ut.id, ut.title)}
+                            style={{
+                              background: 'none',
+                              border: 'none',
+                              padding: '4px',
+                              cursor: 'pointer',
+                              color: '#94a3b8',
+                              borderRadius: 4,
+                              display: 'flex',
+                              alignItems: 'center',
+                              transition: 'color 0.15s',
+                            }}
+                            onMouseEnter={(e) => (e.currentTarget.style.color = '#ef4444')}
+                            onMouseLeave={(e) => (e.currentTarget.style.color = '#94a3b8')}
+                          >
+                            <Trash2 size={15} />
+                          </button>
+                        </div>
+                      </div>
+                      <h4 style={{ fontSize: '1rem', fontWeight: 700, color: '#0f172a', margin: '0 0 6px 0' }}>
+                        {ut.title}
+                      </h4>
+                      <p style={{ fontSize: '0.8rem', color: '#64748b', margin: 0, lineHeight: 1.4 }}>
+                        {ut.description || `Custom template uploaded from ${ut.fileName || 'file'}`}
+                      </p>
+                    </div>
+
+                    <div style={{ marginTop: 20, paddingTop: 14, borderTop: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <Button
+                        variant="primary"
+                        icon={<Sparkles size={14} />}
+                        onClick={() => handleSelectUploadedTemplate(ut, true)}
+                        style={{ fontSize: '0.78rem', padding: '7px 14px', backgroundColor: '#0f172a', borderColor: '#0f172a' }}
+                      >
+                        Use in AI Generator
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+
+            {/* 2. Built-in Templates in Library */}
+            {libraryCategory !== 'uploaded' &&
+              OFFERS_ALL_CATEGORIES.filter((cat) => {
+                if (deletedBuiltinValues.includes(cat.value)) return false;
+                const custom = customizedBuiltins[cat.value];
+                const titleToMatch = custom?.title || cat.label;
+                const descToMatch = custom?.description || cat.defaultTitle;
+                const matchesSearch =
+                  titleToMatch.toLowerCase().includes(librarySearch.toLowerCase()) ||
+                  descToMatch.toLowerCase().includes(librarySearch.toLowerCase()) ||
+                  cat.groupLabel.toLowerCase().includes(librarySearch.toLowerCase());
+                const matchesCategory =
+                  libraryCategory === 'ALL' || cat.group === libraryCategory;
+                return matchesSearch && matchesCategory;
+              }).map((cat) => {
+                const custom = customizedBuiltins[cat.value];
+                const displayTitle = custom?.title || cat.label;
+                const displayDesc = custom?.description || cat.defaultTitle;
+                return (
+                  <div
+                    key={cat.value}
+                    style={{
+                      backgroundColor: '#ffffff',
+                      border: '1px solid #e2e8f0',
+                      borderRadius: 12,
+                      padding: '20px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'space-between',
+                      boxShadow: '0 1px 3px rgba(0,0,0,0.02)',
+                    }}
+                  >
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                        <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#2563eb', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                          {cat.groupLabel}
+                        </span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                          <span style={{ fontSize: '0.72rem', backgroundColor: '#f1f5f9', color: '#64748b', padding: '2px 8px', borderRadius: 10, fontWeight: 600 }}>
+                            {custom ? 'Customized' : 'Preloaded'}
+                          </span>
+                          <button
+                            type="button"
+                            title="Edit template content & structure"
+                            onClick={(e) => handleOpenEditBuiltinTemplate(e, cat)}
+                            style={{
+                              background: 'none',
+                              border: 'none',
+                              padding: '4px',
+                              cursor: 'pointer',
+                              color: '#64748b',
+                              borderRadius: 4,
+                              display: 'flex',
+                              alignItems: 'center',
+                              transition: 'color 0.15s',
+                            }}
+                            onMouseEnter={(e) => (e.currentTarget.style.color = '#2563eb')}
+                            onMouseLeave={(e) => (e.currentTarget.style.color = '#64748b')}
+                          >
+                            <Edit3 size={15} />
+                          </button>
+                          <button
+                            type="button"
+                            title="Delete template from library"
+                            onClick={(e) => handleDeleteBuiltinTemplate(e, cat.value, cat.label)}
+                            style={{
+                              background: 'none',
+                              border: 'none',
+                              padding: '4px',
+                              cursor: 'pointer',
+                              color: '#94a3b8',
+                              borderRadius: 4,
+                              display: 'flex',
+                              alignItems: 'center',
+                              transition: 'color 0.15s',
+                            }}
+                            onMouseEnter={(e) => (e.currentTarget.style.color = '#ef4444')}
+                            onMouseLeave={(e) => (e.currentTarget.style.color = '#94a3b8')}
+                          >
+                            <Trash2 size={15} />
+                          </button>
+                        </div>
+                      </div>
+                      <h4 style={{ fontSize: '1rem', fontWeight: 700, color: '#0f172a', margin: '0 0 6px 0' }}>
+                        {displayTitle}
+                      </h4>
+                      <p style={{ fontSize: '0.8rem', color: '#64748b', margin: 0, lineHeight: 1.4 }}>
+                        {displayDesc}
+                      </p>
+                    </div>
+
+                    <div style={{ marginTop: 20, paddingTop: 14, borderTop: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <Button
+                        variant="primary"
+                        icon={<Sparkles size={14} />}
+                        onClick={() => {
+                          handleCategoryChange(cat.value);
+                          setActiveTab('generator');
+                          setStep(2);
+                        }}
+                        style={{ fontSize: '0.78rem', padding: '7px 14px', backgroundColor: '#0f172a', borderColor: '#0f172a' }}
+                      >
+                        Use in AI Generator
+                      </Button>
+                    </div>
+                  </div>
+                );
+              })}
           </div>
         </div>
       )}
+
+      {/* Edit Template Modal */}
+      <EditTemplateModal
+        isOpen={isEditModalOpen}
+        onClose={() => {
+          setIsEditModalOpen(false);
+          setTemplateToEdit(null);
+        }}
+        template={templateToEdit}
+        onSave={(saved) => handleSaveTemplateEdit(saved, false)}
+        onSaveAndUse={(saved) => handleSaveTemplateEdit(saved, true)}
+      />
     </div>
   );
 };

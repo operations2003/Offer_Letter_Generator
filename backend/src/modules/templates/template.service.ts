@@ -357,6 +357,37 @@ export class TemplateService {
   }
 
   /**
+   * Soft deletes a template
+   */
+  static async delete(companyId: string, userId: string, templateId: string) {
+    const template = await prisma.offerTemplate.findFirst({
+      where: { id: templateId, companyId, deletedAt: null },
+    });
+
+    if (!template) {
+      throw new NotFoundError('Offer Template');
+    }
+
+    const updated = await prisma.offerTemplate.update({
+      where: { id: templateId },
+      data: { deletedAt: new Date(), isActive: false },
+    });
+
+    await AuditService.record({
+      companyId,
+      actorType: 'USER',
+      actorId: userId,
+      entityType: 'OfferTemplate',
+      entityId: templateId,
+      action: 'DELETE',
+      actionDescription: `Template "${template.title}" soft deleted`,
+      newState: { deletedAt: updated.deletedAt },
+    });
+
+    return { message: `Template "${template.title}" deleted successfully`, id: templateId };
+  }
+
+  /**
    * Retrieves version history for a template
    */
   static async getVersionHistory(companyId: string, templateId: string) {

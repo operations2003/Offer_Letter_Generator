@@ -895,6 +895,30 @@ class TemplateServiceClass {
   }
 
   /**
+   * Delete template (soft-delete via API or remove from local storage)
+   */
+  async deleteTemplate(id: string): Promise<boolean> {
+    try {
+      const res = await fetch(`/api/v1/templates/${id}`, {
+        method: 'DELETE',
+        headers: this.getAuthHeaders(),
+      });
+      if (res.ok) {
+        this.templates = this.templates.filter((t) => t.id !== id);
+        this.saveToStorage();
+        return true;
+      }
+    } catch {
+      // Fallback
+    }
+
+    const prevLength = this.templates.length;
+    this.templates = this.templates.filter((t) => t.id !== id);
+    this.saveToStorage();
+    return this.templates.length < prevLength;
+  }
+
+  /**
    * Get version history for a template
    */
   async getVersionHistory(id: string): Promise<TemplateVersion[]> {
