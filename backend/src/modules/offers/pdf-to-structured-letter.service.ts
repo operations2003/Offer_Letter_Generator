@@ -496,13 +496,15 @@ export class PdfToStructuredLetterService {
       console.error('Node PDF extraction failed:', nodeErr);
     }
 
-    // Clean up text and filter out binary garbage / font glyph artifacts
+    // Clean up text and filter out binary garbage / font glyph artifacts while strictly preserving newlines
     for (const p of pages) {
       p.rawText = p.rawText
         .replace(/\uFFFD/g, '')
         .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F-\x9F]/g, ' ')
         .replace(/Identity Adobe/gi, '')
-        .replace(/\s+/g, ' ')
+        .replace(/[^\S\r\n]+/g, ' ')
+        .replace(/\r\n/g, '\n')
+        .replace(/\n{3,}/g, '\n\n')
         .trim();
     }
 

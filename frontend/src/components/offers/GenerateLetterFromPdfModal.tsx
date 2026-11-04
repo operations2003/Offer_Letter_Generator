@@ -35,6 +35,7 @@ import {
   FolderPlus,
   Bookmark,
   Save,
+  Lock,
 } from 'lucide-react';
 import { offerService } from '../../services/offerService.js';
 import { Employee, EmployeeService } from '../../services/employeeService.js';
@@ -137,6 +138,16 @@ export const DEFAULT_LETTER_CATEGORIES: LetterCategoryItem[] = [
     iconName: 'GraduationCap',
   },
   {
+    id: 'it_internship_nda',
+    code: 'IT_INTERNSHIP_NDA',
+    name: 'IT Internship Letter & NDA',
+    defaultTitle: 'IT Internship Letter & Non-Disclosure Agreement',
+    description: 'Official 6-page comprehensive package: Internship Offer, Candidate Undertaking, and Annexure A NDA/IP Agreement (TASK/INT Format).',
+    badge: 'Internship & NDA',
+    color: '#881337',
+    iconName: 'Lock',
+  },
+  {
     id: 'contract',
     code: 'EMPLOYMENT_CONTRACT',
     name: 'Contractor / Employment Agreement',
@@ -209,6 +220,8 @@ export const renderCategoryIcon = (cat: LetterCategoryItem) => {
       return <FolderPlus size={22} color={color} />;
     case 'FileCode':
       return <FileCode size={22} color={color} />;
+    case 'Lock':
+      return <Lock size={22} color={color} />;
     default:
       return <FileText size={22} color={color} />;
   }
@@ -505,7 +518,7 @@ export const GenerateLetterFromPdfModal: React.FC<GenerateLetterFromPdfModalProp
       company_name: 'TaskNera',
       company_phone: '+91 7065278229',
       company_email: 'careers@tasknera.com',
-      company_address: 'D-57 Dilshad Colony, Delhi, 110095',
+      company_address: 'D-57 F1, Dilshad Colony, Shahdara, Delhi – 110095',
       signatory_name: 'Sheetal Bedi',
       signatory_title: 'CEO & FOUNDER',
       reference_number: refNumber,

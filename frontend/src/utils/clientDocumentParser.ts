@@ -102,7 +102,21 @@ export async function extractTextFromPdf(arrayBuffer: ArrayBuffer): Promise<stri
     }
   }
 
-  return extractedLines.join('\n');
+  // Filter out font headers, CID stream descriptors, and non-printable binary artifacts
+  const cleanLines = extractedLines.filter((line) => {
+    if (!line || line.trim().length === 0) return false;
+    if (line.includes('Identity Adobe') || line.includes('/CIDInit') || line.includes('/Font') || line.includes('Identity-H')) {
+      return false;
+    }
+    // Remove lines with heavy non-printable or corrupt glyph characters
+    const nonPrintable = line.replace(/[\x20-\x7E\t\r\n]/g, '').length;
+    if (nonPrintable > 3 && nonPrintable > line.length * 0.3) {
+      return false;
+    }
+    return true;
+  });
+
+  return cleanLines.join('\n');
 }
 
 /**

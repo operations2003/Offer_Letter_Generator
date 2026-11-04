@@ -56,6 +56,7 @@ import {
   ClockAlert,
   FileSpreadsheet,
   FileCheck,
+  Lock,
 } from 'lucide-react';
 import { Button } from '../components/common/Button.js';
 import { OfferStatusBadge, AiAdvisoryBadge } from '../components/common/Badge.js';
@@ -107,6 +108,7 @@ import { FnfSettlementModal } from '../components/documents/FnfSettlementModal.j
 import { ExitChecklistModal } from '../components/documents/ExitChecklistModal.js';
 import { EmployeeInformationModal } from '../components/documents/EmployeeInformationModal.js';
 import { InternshipOnboardingModal } from '../components/documents/InternshipOnboardingModal.js';
+import { InternshipLetterNdaModal } from '../components/documents/InternshipLetterNdaModal.js';
 import { SubscriptionPlansModal } from '../components/documents/SubscriptionPlansModal.js';
 import { CommercialQuotationModal } from '../components/documents/CommercialQuotationModal.js';
 import { PaymentReminderModal } from '../components/documents/PaymentReminderModal.js';
@@ -192,6 +194,7 @@ export const OffersPage: React.FC = () => {
   const [isExitChecklistModalOpen, setIsExitChecklistModalOpen] = useState(false);
   const [isEmployeeInfoModalOpen, setIsEmployeeInfoModalOpen] = useState(false);
   const [isInternshipOnboardingModalOpen, setIsInternshipOnboardingModalOpen] = useState(false);
+  const [isInternshipLetterNdaModalOpen, setIsInternshipLetterNdaModalOpen] = useState(false);
   const [isSubscriptionPlansModalOpen, setIsSubscriptionPlansModalOpen] = useState(false);
   const [isCommercialQuotationModalOpen, setIsCommercialQuotationModalOpen] = useState(false);
   const [isPaymentReminderModalOpen, setIsPaymentReminderModalOpen] = useState(false);
@@ -920,6 +923,18 @@ export const OffersPage: React.FC = () => {
       onClick: () => setIsInternshipOnboardingModalOpen(true),
     },
     {
+      id: 'internship_letter_nda',
+      title: 'IT Internship Letter & NDA Template',
+      description: 'Official 6-page comprehensive package: Internship Offer, Candidate Undertaking, & Annexure A Non-Disclosure, Confidentiality and IP Assignment Agreement (TASK/INT format).',
+      icon: <Lock size={22} style={{ color: '#881337' }} />,
+      badge: 'TASK/INT Format',
+      badgeColor: '#881337',
+      badgeBg: '#fff1f2',
+      badgeBorder: '#fecdd3',
+      active: true,
+      onClick: () => setIsInternshipLetterNdaModalOpen(true),
+    },
+    {
       id: 'leave_approval',
       title: 'Approval of Leave',
       description: 'Official 1-page formal leave sanction letter with category breakdown, leave balance & CEO sign-off.',
@@ -1199,6 +1214,7 @@ export const OffersPage: React.FC = () => {
           {[
             { key: 'ALL', label: 'All', count: documentCards.length + certificateCards.length + allPoliciesList.length },
             { key: 'TEMPLATES', label: 'Document Templates', count: documentCards.length },
+            { key: 'INTERNSHIP', label: 'Internship & Training', count: documentCards.filter((c) => c.id.toLowerCase().includes('internship') && !deletedCardIds.includes(c.id)).length, icon: <GraduationCap size={13} /> },
             { key: 'CERTIFICATES', label: 'Certificates', count: certificateCards.length, icon: <Award size={13} /> },
             { key: 'POLICIES', label: 'Company Policies', count: allPoliciesList.length },
           ].map((tab) => {
@@ -1262,13 +1278,13 @@ export const OffersPage: React.FC = () => {
       </div>
 
       {/* 1. Document Templates Selection Cards */}
-      {(activeDocumentTab === 'ALL' || activeDocumentTab === 'TEMPLATES') && (
+      {(activeDocumentTab === 'ALL' || activeDocumentTab === 'TEMPLATES' || activeDocumentTab === 'INTERNSHIP') && (
         <div id="document-templates-section" style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                 <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#0f172a', margin: 0 }}>
-                  Templates
+                  {activeDocumentTab === 'INTERNSHIP' ? 'Internship & Training Programs' : 'Templates'}
                 </h3>
                 <span
                   style={{
@@ -1281,11 +1297,15 @@ export const OffersPage: React.FC = () => {
                     border: '1px solid #e2e8f0',
                   }}
                 >
-                  {documentCards.length - deletedCardIds.length} Available
+                  {activeDocumentTab === 'INTERNSHIP'
+                    ? `${documentCards.filter((c) => c.id.toLowerCase().includes('internship') && !deletedCardIds.includes(c.id)).length} Internship Forms`
+                    : `${documentCards.length - deletedCardIds.length} Available`}
                 </span>
               </div>
               <p style={{ fontSize: '0.8125rem', color: '#64748b', margin: '2px 0 0 0' }}>
-                Select a template to generate a document, or upload a reference PDF to save a new template.
+                {activeDocumentTab === 'INTERNSHIP'
+                  ? 'All official TaskNera internship offers, onboarding dossiers, and legal NDA agreements.'
+                  : 'Select a template to generate a document, or upload a reference PDF to save a new template.'}
               </p>
             </div>
 
@@ -1349,6 +1369,12 @@ export const OffersPage: React.FC = () => {
           >
             {documentCards
               .filter((card) => !deletedCardIds.includes(card.id))
+              .filter((card) => {
+                if (activeDocumentTab === 'INTERNSHIP') {
+                  return card.id.toLowerCase().includes('internship');
+                }
+                return true;
+              })
               .map((card) => {
                 const custom = customizedCards[card.id];
                 const displayTitle = custom?.title || card.title;
@@ -2524,6 +2550,13 @@ export const OffersPage: React.FC = () => {
       <InternshipOnboardingModal
         isOpen={isInternshipOnboardingModalOpen}
         onClose={() => setIsInternshipOnboardingModalOpen(false)}
+        onSuccess={() => fetchOffers()}
+      />
+
+      {/* Official 6-Page IT Internship Letter & NDA (TASK/INT Format) Modal */}
+      <InternshipLetterNdaModal
+        isOpen={isInternshipLetterNdaModalOpen}
+        onClose={() => setIsInternshipLetterNdaModalOpen(false)}
         onSuccess={() => fetchOffers()}
       />
 
