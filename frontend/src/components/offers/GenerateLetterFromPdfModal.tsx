@@ -2974,30 +2974,37 @@ export const GenerateLetterFromPdfModal: React.FC<GenerateLetterFromPdfModalProp
                           padding: '0 4px 12px',
                         }}
                       >
-                        <div>
-                          <h1
-                            style={{
-                              margin: 0,
-                              fontSize: '28px',
-                              fontWeight: 900,
-                              color: '#0072bc',
-                              letterSpacing: '0.04em',
-                              lineHeight: 1,
-                            }}
-                          >
-                            TASKNERA
-                          </h1>
-                          <div
-                            style={{
-                              fontSize: '9.5px',
-                              color: '#00838f',
-                              marginTop: 6,
-                              fontWeight: 700,
-                              letterSpacing: '0.06em',
-                              textTransform: 'uppercase',
-                            }}
-                          >
-                            GLOBAL HR SOLUTIONS | RECRUITMENT | WORKFORCE SUPPORT
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                          <img
+                            src="/logo.png"
+                            alt="TaskNera"
+                            style={{ width: 48, height: 48, objectFit: 'contain' }}
+                          />
+                          <div>
+                            <h1
+                              style={{
+                                margin: 0,
+                                fontSize: '28px',
+                                fontWeight: 900,
+                                color: '#0072bc',
+                                letterSpacing: '0.04em',
+                                lineHeight: 1,
+                              }}
+                            >
+                              TASKNERA
+                            </h1>
+                            <div
+                              style={{
+                                fontSize: '9.5px',
+                                color: '#00838f',
+                                marginTop: 6,
+                                fontWeight: 700,
+                                letterSpacing: '0.06em',
+                                textTransform: 'uppercase',
+                              }}
+                            >
+                              GLOBAL HR SOLUTIONS | RECRUITMENT | WORKFORCE SUPPORT
+                            </div>
                           </div>
                         </div>
 

@@ -85,9 +85,9 @@ export const InternshipLetterNdaModal: React.FC<InternshipLetterNdaModalProps> =
   // Candidate Details
   const [salutation, setSalutation] = useState<'Mr.' | 'Ms.'>('Mr.');
   const [internFullName, setInternFullName] = useState<string>('Rahul Sharma');
-  const [addressLine1, setAddressLine1] = useState<string>('D-57 F1, Dilshad Colony');
-  const [addressLine2, setAddressLine2] = useState<string>('Dilshad Garden, Shahdara');
-  const [cityStatePin, setCityStatePin] = useState<string>('Delhi – 110095');
+  const [addressLine1, setAddressLine1] = useState<string>('B-142, Sector 62');
+  const [addressLine2, setAddressLine2] = useState<string>('Noida, Gautam Buddha Nagar');
+  const [cityStatePin, setCityStatePin] = useState<string>('Uttar Pradesh – 201309');
   const [internEmail, setInternEmail] = useState<string>('rahul.sharma@example.com');
   const [internPhone, setInternPhone] = useState<string>('+91 98765 43210');
 
@@ -668,15 +668,21 @@ export const InternshipLetterNdaModal: React.FC<InternshipLetterNdaModalProps> =
                 >
                   <div>
                     {/* Header */}
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '1px solid #cbd5e1', paddingBottom: 12, marginBottom: 16 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #cbd5e1', paddingBottom: 12, marginBottom: 16 }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                        <div style={{ width: 34, height: 34, borderRadius: 6, background: 'linear-gradient(135deg, #f97316, #ea580c)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 900, fontSize: 18 }}>
-                          T
-                        </div>
+                        <img
+                          src="/logo.png"
+                          alt="TaskNera"
+                          style={{ width: 44, height: 44, objectFit: 'contain' }}
+                        />
                       </div>
                       <div style={{ textAlign: 'right' }}>
-                        <div style={{ fontSize: '15px', fontWeight: 800, color: '#f97316' }}>TaskNera</div>
-                        <div style={{ fontSize: '10.5px', color: '#64748b' }}>D-57 F1, Dilshad Colony, Shahdara, Delhi – 110095</div>
+                        <div style={{ fontSize: '18px', fontWeight: 900, letterSpacing: '-0.02em', lineHeight: 1.1 }}>
+                          <span style={{ color: '#0f172a' }}>Task</span><span style={{ color: '#f97316' }}>Nera</span>
+                        </div>
+                        <div style={{ fontSize: '10.5px', color: '#64748b', marginTop: 3, fontWeight: 500 }}>
+                          D-57 F1, Dilshad Colony, Shahdara, Delhi – 110095
+                        </div>
                       </div>
                     </div>
 
@@ -803,13 +809,21 @@ export const InternshipLetterNdaModal: React.FC<InternshipLetterNdaModalProps> =
                 >
                   <div>
                     {/* Header */}
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '1px solid #cbd5e1', paddingBottom: 12, marginBottom: 24 }}>
-                      <div style={{ width: 34, height: 34, borderRadius: 6, background: 'linear-gradient(135deg, #f97316, #ea580c)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 900, fontSize: 18 }}>
-                        T
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #cbd5e1', paddingBottom: 12, marginBottom: 20 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                        <img
+                          src="/logo.png"
+                          alt="TaskNera"
+                          style={{ width: 44, height: 44, objectFit: 'contain' }}
+                        />
                       </div>
                       <div style={{ textAlign: 'right' }}>
-                        <div style={{ fontSize: '15px', fontWeight: 800, color: '#f97316' }}>TaskNera</div>
-                        <div style={{ fontSize: '10.5px', color: '#64748b' }}>D-57 F1, Dilshad Colony, Shahdara, Delhi – 110095</div>
+                        <div style={{ fontSize: '18px', fontWeight: 900, letterSpacing: '-0.02em', lineHeight: 1.1 }}>
+                          <span style={{ color: '#0f172a' }}>Task</span><span style={{ color: '#f97316' }}>Nera</span>
+                        </div>
+                        <div style={{ fontSize: '10.5px', color: '#64748b', marginTop: 3, fontWeight: 500 }}>
+                          D-57 F1, Dilshad Colony, Shahdara, Delhi – 110095
+                        </div>
                       </div>
                     </div>
 
@@ -876,13 +890,21 @@ export const InternshipLetterNdaModal: React.FC<InternshipLetterNdaModalProps> =
                 >
                   <div>
                     {/* Header */}
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '1px solid #cbd5e1', paddingBottom: 12, marginBottom: 16 }}>
-                      <div style={{ width: 34, height: 34, borderRadius: 6, background: 'linear-gradient(135deg, #f97316, #ea580c)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 900, fontSize: 18 }}>
-                        T
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #cbd5e1', paddingBottom: 12, marginBottom: 16 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                        <img
+                          src="/logo.png"
+                          alt="TaskNera"
+                          style={{ width: 44, height: 44, objectFit: 'contain' }}
+                        />
                       </div>
                       <div style={{ textAlign: 'right' }}>
-                        <div style={{ fontSize: '15px', fontWeight: 800, color: '#f97316' }}>TaskNera</div>
-                        <div style={{ fontSize: '10.5px', color: '#64748b' }}>D-57 F1, Dilshad Colony, Shahdara, Delhi – 110095</div>
+                        <div style={{ fontSize: '18px', fontWeight: 900, letterSpacing: '-0.02em', lineHeight: 1.1 }}>
+                          <span style={{ color: '#0f172a' }}>Task</span><span style={{ color: '#f97316' }}>Nera</span>
+                        </div>
+                        <div style={{ fontSize: '10.5px', color: '#64748b', marginTop: 3, fontWeight: 500 }}>
+                          D-57 F1, Dilshad Colony, Shahdara, Delhi – 110095
+                        </div>
                       </div>
                     </div>
 
@@ -984,13 +1006,21 @@ export const InternshipLetterNdaModal: React.FC<InternshipLetterNdaModalProps> =
                 >
                   <div>
                     {/* Header */}
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '1px solid #cbd5e1', paddingBottom: 12, marginBottom: 18 }}>
-                      <div style={{ width: 34, height: 34, borderRadius: 6, background: 'linear-gradient(135deg, #f97316, #ea580c)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 900, fontSize: 18 }}>
-                        T
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #cbd5e1', paddingBottom: 12, marginBottom: 18 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                        <img
+                          src="/logo.png"
+                          alt="TaskNera"
+                          style={{ width: 44, height: 44, objectFit: 'contain' }}
+                        />
                       </div>
                       <div style={{ textAlign: 'right' }}>
-                        <div style={{ fontSize: '15px', fontWeight: 800, color: '#f97316' }}>TaskNera</div>
-                        <div style={{ fontSize: '10.5px', color: '#64748b' }}>D-57 F1, Dilshad Colony, Shahdara, Delhi – 110095</div>
+                        <div style={{ fontSize: '18px', fontWeight: 900, letterSpacing: '-0.02em', lineHeight: 1.1 }}>
+                          <span style={{ color: '#0f172a' }}>Task</span><span style={{ color: '#f97316' }}>Nera</span>
+                        </div>
+                        <div style={{ fontSize: '10.5px', color: '#64748b', marginTop: 3, fontWeight: 500 }}>
+                          D-57 F1, Dilshad Colony, Shahdara, Delhi – 110095
+                        </div>
                       </div>
                     </div>
 
@@ -1066,13 +1096,21 @@ export const InternshipLetterNdaModal: React.FC<InternshipLetterNdaModalProps> =
                 >
                   <div>
                     {/* Header */}
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '1px solid #cbd5e1', paddingBottom: 12, marginBottom: 18 }}>
-                      <div style={{ width: 34, height: 34, borderRadius: 6, background: 'linear-gradient(135deg, #f97316, #ea580c)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 900, fontSize: 18 }}>
-                        T
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #cbd5e1', paddingBottom: 12, marginBottom: 18 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                        <img
+                          src="/logo.png"
+                          alt="TaskNera"
+                          style={{ width: 44, height: 44, objectFit: 'contain' }}
+                        />
                       </div>
                       <div style={{ textAlign: 'right' }}>
-                        <div style={{ fontSize: '15px', fontWeight: 800, color: '#f97316' }}>TaskNera</div>
-                        <div style={{ fontSize: '10.5px', color: '#64748b' }}>D-57 F1, Dilshad Colony, Shahdara, Delhi – 110095</div>
+                        <div style={{ fontSize: '18px', fontWeight: 900, letterSpacing: '-0.02em', lineHeight: 1.1 }}>
+                          <span style={{ color: '#0f172a' }}>Task</span><span style={{ color: '#f97316' }}>Nera</span>
+                        </div>
+                        <div style={{ fontSize: '10.5px', color: '#64748b', marginTop: 3, fontWeight: 500 }}>
+                          D-57 F1, Dilshad Colony, Shahdara, Delhi – 110095
+                        </div>
                       </div>
                     </div>
 
@@ -1157,13 +1195,21 @@ export const InternshipLetterNdaModal: React.FC<InternshipLetterNdaModalProps> =
                 >
                   <div>
                     {/* Header */}
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '1px solid #cbd5e1', paddingBottom: 12, marginBottom: 20 }}>
-                      <div style={{ width: 34, height: 34, borderRadius: 6, background: 'linear-gradient(135deg, #f97316, #ea580c)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 900, fontSize: 18 }}>
-                        T
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #cbd5e1', paddingBottom: 12, marginBottom: 20 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                        <img
+                          src="/logo.png"
+                          alt="TaskNera"
+                          style={{ width: 44, height: 44, objectFit: 'contain' }}
+                        />
                       </div>
                       <div style={{ textAlign: 'right' }}>
-                        <div style={{ fontSize: '15px', fontWeight: 800, color: '#f97316' }}>TaskNera</div>
-                        <div style={{ fontSize: '10.5px', color: '#64748b' }}>D-57 F1, Dilshad Colony, Shahdara, Delhi – 110095</div>
+                        <div style={{ fontSize: '18px', fontWeight: 900, letterSpacing: '-0.02em', lineHeight: 1.1 }}>
+                          <span style={{ color: '#0f172a' }}>Task</span><span style={{ color: '#f97316' }}>Nera</span>
+                        </div>
+                        <div style={{ fontSize: '10.5px', color: '#64748b', marginTop: 3, fontWeight: 500 }}>
+                          D-57 F1, Dilshad Colony, Shahdara, Delhi – 110095
+                        </div>
                       </div>
                     </div>
 
