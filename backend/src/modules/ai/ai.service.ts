@@ -211,13 +211,13 @@ export class AiService {
       sensitiveFieldsLocked: true,
       suggestions: Array.isArray(parsed.suggestions)
         ? parsed.suggestions.map((s: any) => ({
-            id: s.id || `sug-${Math.random().toString(36).substring(2, 8)}`,
-            category: s.category || 'ROLE_PERKS',
-            title: s.title || 'Suggestion',
-            suggestedWording: s.suggestedWording || '',
-            rationale: s.rationale || '',
-            requiresHumanConfirmation: true, // Strictly enforce human review
-          }))
+          id: s.id || `sug-${Math.random().toString(36).substring(2, 8)}`,
+          category: s.category || 'ROLE_PERKS',
+          title: s.title || 'Suggestion',
+          suggestedWording: s.suggestedWording || '',
+          rationale: s.rationale || '',
+          requiresHumanConfirmation: true, // Strictly enforce human review
+        }))
         : [],
     };
   }
@@ -512,7 +512,7 @@ export class AiService {
       const completion = await this.executeWithRetry({
         systemPrompt:
           'You are a corporate legal counsel assistant specializing in Master Recruitment Services Agreements (MRSA) under Indian law. Extract commercial terms (fee percentage, credit days, replacement days, protection months, seat city) from the user prompt and return a JSON object.',
-        userPrompt: `Extract key agreement parameters from this instruction prompt:\n"${prompt}"\nClient: ${currentClientName || 'Bozzo Cabs'}\nRespond ONLY in JSON with fields: clientName, placementFee, paymentDays, replacementDays, protectionMonths, jurisdictionCity, summary.`,
+        userPrompt: `Extract key agreement parameters from this instruction prompt:\n"${prompt}"\nClient: ${currentClientName || 'Client Company'}\nRespond ONLY in JSON with fields: clientName, placementFee, paymentDays, replacementDays, protectionMonths, jurisdictionCity, summary.`,
         jsonMode: true,
         temperature: 0.1,
       });
@@ -528,7 +528,7 @@ export class AiService {
       return {
         sections: [],
         parsedTerms: {
-          clientName: currentClientName || 'Bozzo Cabs',
+          clientName: currentClientName || 'Client Company',
         },
         summary: `Synthesized agreement parameters from prompt.`,
       };

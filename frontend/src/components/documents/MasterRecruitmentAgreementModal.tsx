@@ -41,6 +41,7 @@ import {
   MrsaSecurityItem,
   INITIAL_MRSA_DATA,
   getDeepCloneMrsaData,
+  updateClientNameInMrsaData,
 } from '../../services/mrsaCatalog.js';
 import {
   generateMrsaFromPrompt,
@@ -53,28 +54,28 @@ import { useToast } from '../../context/ToastContext.js';
 
 const AI_PROMPT_PRESETS = [
   {
-    label: 'Standard Bozzo Cabs',
+    label: 'Standard Recruitment Terms (8.33% CTC)',
     icon: '⚡',
     prompt:
-      'Generate Master Recruitment Agreement for Bozzo Cabs with standard 8.33% Placement Fee on annual CTC, 45-day payment credit period, 60-day candidate exit replacement guarantee, 12 months candidate fee protection period, non-circumvention of 12 months, arbitration seated in New Delhi, and standard DPDP Act compliance.',
+      'Generate Master Recruitment Agreement with standard 8.33% Placement Fee on annual CTC, 45-day payment credit period, 60-day candidate exit replacement guarantee, 12 months candidate fee protection period, non-circumvention of 12 months, arbitration seated in New Delhi, and standard DPDP Act compliance.',
   },
   {
     label: 'Enterprise BFSI & Strict SLA',
     icon: '🏢',
     prompt:
-      'Draft recruitment agreement for Bozzo Cabs with 12.5% placement fee on annual CTC, 30 days invoice payment terms, 90 days candidate replacement warranty, 18 months fee attribution protection, 24 months non-solicitation, 48 hours profile feedback SLA, arbitration in Hyderabad, and strict DPDP Act candidate privacy safeguards.',
+      'Draft recruitment agreement with 12.5% placement fee on annual CTC, 30 days invoice payment terms, 90 days candidate replacement warranty, 18 months fee attribution protection, 24 months non-solicitation, 48 hours profile feedback SLA, arbitration in Hyderabad, and strict DPDP Act candidate privacy safeguards.',
   },
   {
     label: 'High-Growth Tech Startup',
     icon: '🚀',
     prompt:
-      'Create tech recruitment agreement for Bozzo Cabs with 10% placement fee, 15 calendar days payment term, 120 days replacement warranty with credit note option, 12 months candidate attribution, arbitration in Bengaluru, and hybrid-remote work onboarding terms.',
+      'Create tech recruitment agreement with 10% placement fee, 15 calendar days payment term, 120 days replacement warranty with credit note option, 12 months candidate attribution, arbitration in Bengaluru, and hybrid-remote work onboarding terms.',
   },
   {
     label: 'Executive Leadership Retainer',
     icon: '👑',
     prompt:
-      'Draft an executive leadership search agreement for Bozzo Cabs with 15% placement fee, 30 days payment window, 180 days replacement warranty, 24 months candidate protection period, dispute resolution in Mumbai, and strict non-disclosure obligations.',
+      'Draft an executive leadership search agreement with 15% placement fee, 30 days payment window, 180 days replacement warranty, 24 months candidate protection period, dispute resolution in Mumbai, and strict non-disclosure obligations.',
   },
 ];
 
@@ -97,14 +98,13 @@ export const MasterRecruitmentAgreementModal: React.FC<MasterRecruitmentAgreemen
   const [step, setStep] = useState<1 | 2>(1);
 
   // Editor sub-tabs
-  const [editorTab, setEditorTab] = useState<'PARTIES' | 'SECTIONS' | 'SCHEDULE_A' | 'EXECUTION' | 'SCHEDULE_B'>('SECTIONS');
+  const [editorTab, setEditorTab] = useState<'PARTIES' | 'SECTIONS' | 'SCHEDULE_A' | 'EXECUTION' | 'SCHEDULE_B'>('PARTIES');
 
   // Main agreement state
   const [data, setData] = useState<MrsaAgreementData>(() => {
     const initial = getDeepCloneMrsaData();
     if (initialClientName) {
-      initial.client.legalName = initialClientName.toUpperCase();
-      initial.client.tradeName = initialClientName;
+      return updateClientNameInMrsaData(initial, initialClientName);
     }
     return initial;
   });
@@ -154,14 +154,7 @@ export const MasterRecruitmentAgreementModal: React.FC<MasterRecruitmentAgreemen
 
   useEffect(() => {
     if (isOpen && initialClientName) {
-      setData((prev) => ({
-        ...prev,
-        client: {
-          ...prev.client,
-          legalName: initialClientName.toUpperCase(),
-          tradeName: initialClientName,
-        },
-      }));
+      setData((prev) => updateClientNameInMrsaData(prev, initialClientName));
     }
   }, [isOpen, initialClientName]);
 
@@ -1117,7 +1110,7 @@ export const MasterRecruitmentAgreementModal: React.FC<MasterRecruitmentAgreemen
                           rows={3}
                           value={aiPrompt}
                           onChange={(e) => setAiPrompt(e.target.value)}
-                          placeholder='E.g.: "Generate a Master Recruitment Agreement for Bozzo Cabs with a 10% placement fee on annual CTC, 45-day payment terms, 90-day replacement warranty for candidate exits, 18-month candidate fee protection period, non-solicitation of 2 years, arbitration seated in Hyderabad, and strict data privacy compliance under India DPDP Act 2023..."'
+                          placeholder='E.g.: "Generate a Master Recruitment Agreement for Acme Corp with a 10% placement fee on annual CTC, 45-day payment terms, 90-day replacement warranty for candidate exits, 18-month candidate fee protection period, non-solicitation of 2 years, arbitration seated in Hyderabad, and strict data privacy compliance under India DPDP Act 2023..."'
                           style={{
                             width: '100%',
                             padding: '14px 16px',
@@ -1831,7 +1824,7 @@ export const MasterRecruitmentAgreementModal: React.FC<MasterRecruitmentAgreemen
                       </div>
                     </div>
 
-                    {/* Client (Bozzo Cabs) Details Form */}
+                    {/* Client Particulars Form */}
                     <div
                       style={{
                         backgroundColor: '#ffffff',
@@ -1856,7 +1849,10 @@ export const MasterRecruitmentAgreementModal: React.FC<MasterRecruitmentAgreemen
                           <input
                             type="text"
                             value={data.client.legalName}
-                            onChange={(e) => setData({ ...data, client: { ...data.client, legalName: e.target.value } })}
+                            onChange={(e) => {
+                              const newLegal = e.target.value;
+                              setData((prev) => updateClientNameInMrsaData(prev, prev.client.tradeName, newLegal));
+                            }}
                             style={{ width: '100%', padding: '8px 10px', borderRadius: 6, border: '1px solid #cbd5e1' }}
                           />
                         </div>
@@ -1868,7 +1864,10 @@ export const MasterRecruitmentAgreementModal: React.FC<MasterRecruitmentAgreemen
                           <input
                             type="text"
                             value={data.client.tradeName}
-                            onChange={(e) => setData({ ...data, client: { ...data.client, tradeName: e.target.value } })}
+                            onChange={(e) => {
+                              const newTrade = e.target.value;
+                              setData((prev) => updateClientNameInMrsaData(prev, newTrade, prev.client.legalName));
+                            }}
                             style={{ width: '100%', padding: '8px 10px', borderRadius: 6, border: '1px solid #cbd5e1' }}
                           />
                         </div>
@@ -2293,7 +2292,7 @@ export const MasterRecruitmentAgreementModal: React.FC<MasterRecruitmentAgreemen
                     </div>
 
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 20 }}>
-                      {/* For Bozzo Cabs / Client */}
+                      {/* For Client */}
                       <div
                         style={{
                           backgroundColor: '#ffffff',
@@ -2775,7 +2774,7 @@ export const MasterRecruitmentAgreementModal: React.FC<MasterRecruitmentAgreemen
                         display: 'inline-block',
                       }}
                     >
-                      {data.client.tradeName || 'BOZZO CABS'}
+                      {data.client.tradeName || 'CLIENT COMPANY'}
                     </div>
                     <div style={{ fontSize: '8.2pt', color: '#64748b' }}>
                       (the Client / Hiring Company)

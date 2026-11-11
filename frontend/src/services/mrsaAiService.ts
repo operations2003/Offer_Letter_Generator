@@ -13,6 +13,7 @@ import {
   MrsaCommercialRow,
   INITIAL_MRSA_DATA,
   getDeepCloneMrsaData,
+  updateClientNameInMrsaData,
 } from './mrsaCatalog.js';
 
 export interface MrsaAiParsedPromptTerms {
@@ -63,12 +64,11 @@ export function parsePromptTerms(prompt: string, currentClientName?: string): Mr
         ? rawName.toUpperCase()
         : `${rawName.toUpperCase()} PRIVATE LIMITED`;
     }
-  } else if (currentClientName && currentClientName.toLowerCase() !== 'bozzo cabs') {
-    terms.clientName = currentClientName;
-    terms.clientLegalName = currentClientName.toUpperCase();
-  } else if (/bozzo(?:\s+cabs)?/i.test(p)) {
-    terms.clientName = 'Bozzo Cabs';
-    terms.clientLegalName = 'BOZZO CABS PRIVATE LIMITED';
+  } else if (currentClientName && currentClientName.trim()) {
+    terms.clientName = currentClientName.trim();
+    terms.clientLegalName = currentClientName.toUpperCase().includes('LIMITED') || currentClientName.toUpperCase().includes('PVT')
+      ? currentClientName.toUpperCase()
+      : `${currentClientName.toUpperCase()} PRIVATE LIMITED`;
   }
 
   // 2. Fee percentage or pricing model
@@ -199,7 +199,7 @@ export function generateCustomizedMrsaSections(
   terms: MrsaAiParsedPromptTerms,
   promptText: string
 ): MrsaSectionItem[] {
-  const clientTrade = terms.clientName || 'Bozzo Cabs';
+  const clientTrade = terms.clientName || 'Client Company';
   const feeText = terms.placementFee || (terms.feePercentage ? `${terms.feePercentage}% of Annual CTC` : '8.33% of Annual CTC');
   const payDays = terms.paymentDays || 45;
   const repDays = terms.replacementDays || 60;
@@ -568,21 +568,18 @@ export function generateCustomizedMrsaSections(
         };
 
       default:
-        // Update any remaining Bozzo Cabs mentions if a different client name is specified
-        if (terms.clientName && terms.clientName.toLowerCase() !== 'bozzo cabs') {
-          return {
-            ...sec,
-            clauses: sec.clauses.map((c) => ({
-              ...c,
-              paragraphs: c.paragraphs.map((p) => p.replace(/\bBozzo Cabs\b/g, clientTrade)),
-              subclauses: c.subclauses?.map((sc) => ({
-                ...sc,
-                text: sc.text.replace(/\bBozzo Cabs\b/g, clientTrade),
-              })),
+        // Update client name mentions across all default sections
+        return {
+          ...sec,
+          clauses: sec.clauses.map((c) => ({
+            ...c,
+            paragraphs: c.paragraphs.map((p) => p.replace(/\b(?:Client Company|Bozzo Cabs)\b/gi, clientTrade)),
+            subclauses: c.subclauses?.map((sc) => ({
+              ...sc,
+              text: sc.text.replace(/\b(?:Client Company|Bozzo Cabs)\b/gi, clientTrade),
             })),
-          };
-        }
-        return sec;
+          })),
+        };
     }
   });
 }
@@ -659,7 +656,7 @@ export async function generateMrsaFromPrompt(
       const json = await res.json();
       if (json.data && json.data.sections && json.data.sections.length === 25) {
         const backendSections: MrsaSectionItem[] = json.data.sections;
-        const updatedData: MrsaAgreementData = {
+        let updatedData: MrsaAgreementData = {
           ...currentData,
           sections: backendSections,
         };
@@ -667,8 +664,7 @@ export async function generateMrsaFromPrompt(
           Object.assign(parsedTerms, json.data.parsedTerms);
         }
         if (parsedTerms.clientName) {
-          updatedData.client.tradeName = parsedTerms.clientName;
-          updatedData.client.legalName = parsedTerms.clientLegalName || parsedTerms.clientName.toUpperCase();
+          updatedData = updateClientNameInMrsaData(updatedData, parsedTerms.clientName, parsedTerms.clientLegalName);
         }
         updatedData.scheduleA = generateCustomizedScheduleA(currentData.scheduleA, parsedTerms);
         return {
@@ -687,28 +683,14 @@ export async function generateMrsaFromPrompt(
   const customizedSections = generateCustomizedMrsaSections(currentData.sections, parsedTerms, prompt);
   const updatedScheduleA = generateCustomizedScheduleA(currentData.scheduleA, parsedTerms);
 
-  const updatedData: MrsaAgreementData = {
+  let updatedData: MrsaAgreementData = {
     ...currentData,
     sections: customizedSections,
     scheduleA: updatedScheduleA,
   };
 
   if (parsedTerms.clientName) {
-    updatedData.client = {
-      ...updatedData.client,
-      tradeName: parsedTerms.clientName,
-      legalName: parsedTerms.clientLegalName || `${parsedTerms.clientName.toUpperCase()} PRIVATE LIMITED`,
-    };
-    // Update executive summary client row
-    updatedData.executiveSummary = updatedData.executiveSummary.map((row) => {
-      if (row.label === 'Client') {
-        return {
-          ...row,
-          content: `${parsedTerms.clientName}, the client / hiring company, which directly employs or engages selected Candidates.`,
-        };
-      }
-      return row;
-    });
+    updatedData = updateClientNameInMrsaData(updatedData, parsedTerms.clientName, parsedTerms.clientLegalName);
   }
 
   const feeDesc = parsedTerms.placementFee || (parsedTerms.feePercentage ? `${parsedTerms.feePercentage}% CTC` : '8.33% CTC');

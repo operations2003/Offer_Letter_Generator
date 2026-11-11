@@ -2,7 +2,7 @@
 // MASTER RECRUITMENT SERVICES AGREEMENT (MRSA / MSA) CATALOG & DATA MODEL
 // =============================================================================
 // Faithful reproduction of the 21-page Master Recruitment Services Agreement
-// between Client (e.g. Bozzo Cabs) and Tasknera (Recruitment Services Provider).
+// between Client (e.g. Client Company) and Tasknera (Recruitment Services Provider).
 // =============================================================================
 
 export interface MrsaPartyInfo {
@@ -98,17 +98,17 @@ export const INITIAL_MRSA_DATA: MrsaAgreementData = {
   agreementNumber: 'TASK/MRSA/2026/001',
   effectiveDate: 'October 10, 2026',
   client: {
-    legalName: 'BOZZO CABS PRIVATE LIMITED',
-    tradeName: 'Bozzo Cabs',
+    legalName: 'CLIENT COMPANY PRIVATE LIMITED',
+    tradeName: 'Client Company',
     legalForm: 'Private Limited Company',
     signatoryName: 'Authorised Signatory',
     signatoryDesignation: 'Director / Authorised Signatory',
-    registeredAddress: 'Plot No. 42, Hitech City Phase II, Madhapur, Hyderabad, Telangana – 500081, India',
-    cinNumber: 'U63090TG2023PTC178942',
-    udyamNumber: 'UDYAM-TS-02-0045812',
-    gstin: '36AAGCB9812A1Z4',
-    email: 'partnerships@bozzocabs.com',
-    phone: '+91 9849012345',
+    registeredAddress: 'Registered Corporate Office Address, India',
+    cinNumber: 'U72900DL2024PTC123456',
+    udyamNumber: 'UDYAM-DL-01-0012345',
+    gstin: '07AAAAA0000A1Z5',
+    email: 'partnerships@clientcompany.com',
+    phone: '+91 98765 43210',
   },
   serviceProvider: {
     legalName: 'TASKNERA',
@@ -127,12 +127,12 @@ export const INITIAL_MRSA_DATA: MrsaAgreementData = {
     {
       id: 'sum_1',
       label: 'Client',
-      content: 'Bozzo Cabs, the client / hiring company, which directly employs or engages the selected Candidates.',
+      content: 'Client Company, the client / hiring company, which directly employs or engages the selected Candidates.',
     },
     {
       id: 'sum_2',
       label: 'Service Provider',
-      content: 'Tasknera, an independent recruitment services provider and vendor to Bozzo Cabs.',
+      content: 'Tasknera, an independent recruitment services provider and vendor to Client Company.',
     },
     {
       id: 'sum_3',
@@ -158,7 +158,7 @@ export const INITIAL_MRSA_DATA: MrsaAgreementData = {
       id: 'rec_1',
       number: 1,
       content:
-        'Bozzo Cabs is engaged in business and, from time to time, requires to hire employees, consultants or other personnel directly.',
+        'Client Company is engaged in business and, from time to time, requires to hire employees, consultants or other personnel directly.',
     },
     {
       id: 'rec_2',
@@ -170,7 +170,7 @@ export const INITIAL_MRSA_DATA: MrsaAgreementData = {
       id: 'rec_3',
       number: 3,
       content:
-        'Bozzo Cabs wishes to engage Tasknera as a non-exclusive recruitment services provider on the terms of this Agreement, and Tasknera agrees to provide such services on an assignment-by-assignment basis. Bozzo Cabs will directly employ or engage any Candidate it selects.',
+        'Client Company wishes to engage Tasknera as a non-exclusive recruitment services provider on the terms of this Agreement, and Tasknera agrees to provide such services on an assignment-by-assignment basis. Client Company will directly employ or engage any Candidate it selects.',
     },
     {
       id: 'rec_4',
@@ -190,7 +190,7 @@ export const INITIAL_MRSA_DATA: MrsaAgreementData = {
           clauseNumber: '1.1',
           title: 'Candidate',
           paragraphs: [
-            '“Candidate” means any individual who is sourced, identified, screened, shortlisted, referred or introduced by Tasknera to Bozzo Cabs in connection with an Assignment, or whose profile or identifying information is first provided to Bozzo Cabs by Tasknera, whether through email, ATS, recruitment platform, WhatsApp, telephone, video call or any other agreed channel.',
+            '“Candidate” means any individual who is sourced, identified, screened, shortlisted, referred or introduced by Tasknera to Client Company in connection with an Assignment, or whose profile or identifying information is first provided to Client Company by Tasknera, whether through email, ATS, recruitment platform, WhatsApp, telephone, video call or any other agreed channel.',
           ],
         },
         {
@@ -198,7 +198,7 @@ export const INITIAL_MRSA_DATA: MrsaAgreementData = {
           clauseNumber: '1.2',
           title: 'Assignment',
           paragraphs: [
-            '“Assignment” means a specific vacancy, position or recruitment mandate communicated by Bozzo Cabs to Tasknera and accepted by Tasknera in accordance with Clause 3.4 and recorded in a Commercial Confirmation.',
+            '“Assignment” means a specific vacancy, position or recruitment mandate communicated by Client Company to Tasknera and accepted by Tasknera in accordance with Clause 3.4 and recorded in a Commercial Confirmation.',
           ],
         },
         {
@@ -206,7 +206,7 @@ export const INITIAL_MRSA_DATA: MrsaAgreementData = {
           clauseNumber: '1.3',
           title: 'Placement',
           paragraphs: [
-            '“Placement” means the joining or commencement of employment or engagement of a Candidate with Bozzo Cabs or a Covered Entity, whether as an employee, consultant, contractor, freelancer or otherwise, and whether directly or indirectly (including through a third-party payroll, staffing or contracting arrangement initiated, authorised or arranged by Bozzo Cabs or a Covered Entity, where such engagement arises from Tasknera’s introduction of the Candidate).',
+            '“Placement” means the joining or commencement of employment or engagement of a Candidate with Client Company or a Covered Entity, whether as an employee, consultant, contractor, freelancer or otherwise, and whether directly or indirectly (including through a third-party payroll, staffing or contracting arrangement initiated, authorised or arranged by Client Company or a Covered Entity, where such engagement arises from Tasknera’s introduction of the Candidate).',
           ],
         },
         {
@@ -214,7 +214,7 @@ export const INITIAL_MRSA_DATA: MrsaAgreementData = {
           clauseNumber: '1.4',
           title: 'Placement Fee',
           paragraphs: [
-            '“Placement Fee” means the professional recruitment fee payable by Bozzo Cabs to Tasknera for a Placement, determined in accordance with Clause 7.1 and the applicable Commercial Confirmation.',
+            '“Placement Fee” means the professional recruitment fee payable by Client Company to Tasknera for a Placement, determined in accordance with Clause 7.1 and the applicable Commercial Confirmation.',
           ],
         },
         {
@@ -222,7 +222,7 @@ export const INITIAL_MRSA_DATA: MrsaAgreementData = {
           clauseNumber: '1.5',
           title: 'Protection Period',
           paragraphs: [
-            '“Protection Period” means twelve (12) months from the date of Tasknera’s first written submission of a Candidate to Bozzo Cabs, unless a longer period is expressly stated in the applicable Commercial Confirmation.',
+            '“Protection Period” means twelve (12) months from the date of Tasknera’s first written submission of a Candidate to Client Company, unless a longer period is expressly stated in the applicable Commercial Confirmation.',
           ],
         },
         {
@@ -268,7 +268,7 @@ export const INITIAL_MRSA_DATA: MrsaAgreementData = {
           clauseNumber: '1.11',
           title: 'Covered Entity',
           paragraphs: [
-            '“Covered Entity” means a group company, subsidiary, holding company or affiliate of Bozzo Cabs that is (a) expressly covered by the relevant Commercial Confirmation, or (b) not so covered but engages a Candidate in circumstances reasonably connected to Tasknera’s introduction of that Candidate, as further provided in Clause 5.3.',
+            '“Covered Entity” means a group company, subsidiary, holding company or affiliate of Client Company that is (a) expressly covered by the relevant Commercial Confirmation, or (b) not so covered but engages a Candidate in circumstances reasonably connected to Tasknera’s introduction of that Candidate, as further provided in Clause 5.3.',
           ],
         },
         {
@@ -321,7 +321,7 @@ export const INITIAL_MRSA_DATA: MrsaAgreementData = {
           clauseNumber: '2.1',
           title: 'Appointment',
           paragraphs: [
-            'Bozzo Cabs appoints Tasknera as an independent recruitment services provider for Assignments accepted under this Agreement, and Tasknera accepts such appointment. Unless expressly stated otherwise in writing, the appointment is non-exclusive: Bozzo Cabs may engage other recruitment providers (subject to Clauses 4, 5 and 6) and Tasknera may serve other clients (subject to Clause 11).',
+            'Client Company appoints Tasknera as an independent recruitment services provider for Assignments accepted under this Agreement, and Tasknera accepts such appointment. Unless expressly stated otherwise in writing, the appointment is non-exclusive: Client Company may engage other recruitment providers (subject to Clauses 4, 5 and 6) and Tasknera may serve other clients (subject to Clause 11).',
           ],
         },
         {
@@ -329,7 +329,7 @@ export const INITIAL_MRSA_DATA: MrsaAgreementData = {
           clauseNumber: '2.2',
           title: 'Independent vendor and client',
           paragraphs: [
-            'Tasknera is an independent recruitment services provider and vendor to Bozzo Cabs, and Bozzo Cabs is the client and hiring company. The Parties are independent contracting parties. Nothing in this Agreement or any Commercial Confirmation, and no course of dealing between the Parties, creates a partnership, joint venture, agency, franchise, fiduciary relationship or employer-employee relationship between Tasknera and Bozzo Cabs, and neither Party shall hold itself out as such.',
+            'Tasknera is an independent recruitment services provider and vendor to Client Company, and Client Company is the client and hiring company. The Parties are independent contracting parties. Nothing in this Agreement or any Commercial Confirmation, and no course of dealing between the Parties, creates a partnership, joint venture, agency, franchise, fiduciary relationship or employer-employee relationship between Tasknera and Client Company, and neither Party shall hold itself out as such.',
           ],
         },
         {
@@ -337,7 +337,7 @@ export const INITIAL_MRSA_DATA: MrsaAgreementData = {
           clauseNumber: '2.3',
           title: 'No authority to bind',
           paragraphs: [
-            'Tasknera has no authority to bind Bozzo Cabs, to make representations or commitments on Bozzo Cabs’s behalf, to sign contracts, issue offer letters or fix employment terms for Bozzo Cabs, or to incur liabilities in Bozzo Cabs’s name. Bozzo Cabs likewise has no authority to bind Tasknera. Tasknera communicates with Candidates solely as a recruitment services provider, on the basis of information supplied by Bozzo Cabs.',
+            'Tasknera has no authority to bind Client Company, to make representations or commitments on Client Company’s behalf, to sign contracts, issue offer letters or fix employment terms for Client Company, or to incur liabilities in Client Company’s name. Client Company likewise has no authority to bind Tasknera. Tasknera communicates with Candidates solely as a recruitment services provider, on the basis of information supplied by Client Company.',
           ],
         },
         {
@@ -345,7 +345,7 @@ export const INITIAL_MRSA_DATA: MrsaAgreementData = {
           clauseNumber: '2.4',
           title: 'No employment by Tasknera',
           paragraphs: [
-            'Tasknera is not the employer of any Candidate hired or engaged by Bozzo Cabs or a Covered Entity, and does not employ, place on its payroll, supervise, direct or control any Candidate for Bozzo Cabs. After a Candidate joins, Bozzo Cabs (and the relevant Covered Entity) shall be solely responsible for the employment or engagement, including salary and payroll, benefits, statutory employment obligations, workplace conditions, supervision, performance management and termination.',
+            'Tasknera is not the employer of any Candidate hired or engaged by Client Company or a Covered Entity, and does not employ, place on its payroll, supervise, direct or control any Candidate for Client Company. After a Candidate joins, Client Company (and the relevant Covered Entity) shall be solely responsible for the employment or engagement, including salary and payroll, benefits, statutory employment obligations, workplace conditions, supervision, performance management and termination.',
           ],
         },
         {
@@ -361,7 +361,7 @@ export const INITIAL_MRSA_DATA: MrsaAgreementData = {
           clauseNumber: '2.6',
           title: 'Tasknera personnel',
           paragraphs: [
-            'Tasknera’s own employees, consultants and personnel remain solely its responsibility, and nothing in this Agreement creates an employment relationship between them and Bozzo Cabs. Tasknera controls the manner and means by which it performs the Services, subject to the requirements of this Agreement.',
+            'Tasknera’s own employees, consultants and personnel remain solely its responsibility, and nothing in this Agreement creates an employment relationship between them and Client Company. Tasknera controls the manner and means by which it performs the Services, subject to the requirements of this Agreement.',
           ],
         },
       ],
@@ -384,7 +384,7 @@ export const INITIAL_MRSA_DATA: MrsaAgreementData = {
             { id: 'sc_3_1_c', clauseId: '(c)', text: 'resume and profile screening;' },
             { id: 'sc_3_1_d', clauseId: '(d)', text: 'preliminary qualification of Candidates;' },
             { id: 'sc_3_1_e', clauseId: '(e)', text: 'shortlisting;' },
-            { id: 'sc_3_1_f', clauseId: '(f)', text: 'submission of Candidates to Bozzo Cabs;' },
+            { id: 'sc_3_1_f', clauseId: '(f)', text: 'submission of Candidates to Client Company;' },
             { id: 'sc_3_1_g', clauseId: '(g)', text: 'interview scheduling;' },
             { id: 'sc_3_1_h', clauseId: '(h)', text: 'interview coordination;' },
             { id: 'sc_3_1_i', clauseId: '(i)', text: 'interview follow-up;' },
@@ -398,7 +398,7 @@ export const INITIAL_MRSA_DATA: MrsaAgreementData = {
           clauseNumber: '3.2',
           title: 'Assignment information',
           paragraphs: [
-            'Bozzo Cabs shall provide complete and accurate job descriptions, skills, experience, location, work mode, employment type, compensation range, notice requirements, interview process, timelines and other material requirements for each Assignment, and shall communicate any changes promptly.',
+            'Client Company shall provide complete and accurate job descriptions, skills, experience, location, work mode, employment type, compensation range, notice requirements, interview process, timelines and other material requirements for each Assignment, and shall communicate any changes promptly.',
           ],
         },
         {
@@ -430,7 +430,7 @@ export const INITIAL_MRSA_DATA: MrsaAgreementData = {
           clauseNumber: '3.6',
           title: 'Direct dealings with Candidates',
           paragraphs: [
-            'Bozzo Cabs may communicate directly with Candidates for interviews, assessments, offers and employment decisions. Such direct communication shall not affect Tasknera’s fee entitlement where the Candidate was introduced by Tasknera.',
+            'Client Company may communicate directly with Candidates for interviews, assessments, offers and employment decisions. Such direct communication shall not affect Tasknera’s fee entitlement where the Candidate was introduced by Tasknera.',
           ],
         },
         {
@@ -453,7 +453,7 @@ export const INITIAL_MRSA_DATA: MrsaAgreementData = {
           clauseNumber: '4.1',
           title: 'Submission',
           paragraphs: [
-            'A Candidate shall be treated as introduced by Tasknera from the date and time Tasknera first provides the Candidate’s profile or identifying information to Bozzo Cabs for the relevant Assignment through any channel permitted under Clause 22.2.',
+            'A Candidate shall be treated as introduced by Tasknera from the date and time Tasknera first provides the Candidate’s profile or identifying information to Client Company for the relevant Assignment through any channel permitted under Clause 22.2.',
           ],
         },
         {
@@ -469,7 +469,7 @@ export const INITIAL_MRSA_DATA: MrsaAgreementData = {
           clauseNumber: '4.3',
           title: 'Prior candidate / duplicate submission',
           paragraphs: [
-            'If Bozzo Cabs claims that a Candidate was already known to Bozzo Cabs, already under active consideration, or previously submitted by another source before Tasknera’s submission, Bozzo Cabs shall, within five (5) Business Days of receiving Tasknera’s submission of that Candidate, notify Tasknera in writing and provide reasonable documentary evidence, pre-dating Tasknera’s submission, of the earlier submission, consideration or relationship, such as:',
+            'If Client Company claims that a Candidate was already known to Client Company, already under active consideration, or previously submitted by another source before Tasknera’s submission, Client Company shall, within five (5) Business Days of receiving Tasknera’s submission of that Candidate, notify Tasknera in writing and provide reasonable documentary evidence, pre-dating Tasknera’s submission, of the earlier submission, consideration or relationship, such as:',
           ],
           subclauses: [
             { id: 'sc_4_3_a', clauseId: '(a)', text: 'the previous resume submission;' },
@@ -485,7 +485,7 @@ export const INITIAL_MRSA_DATA: MrsaAgreementData = {
           clauseNumber: '4.4',
           title: 'Presumption of introduction',
           paragraphs: [
-            'If Bozzo Cabs does not give notice together with reasonable documentary evidence within the period stated in Clause 4.3, the Candidate shall be presumed, for commercial attribution purposes, to have been introduced by Tasknera. That presumption may be displaced only by documentary evidence of fraud or manifest error.',
+            'If Client Company does not give notice together with reasonable documentary evidence within the period stated in Clause 4.3, the Candidate shall be presumed, for commercial attribution purposes, to have been introduced by Tasknera. That presumption may be displaced only by documentary evidence of fraud or manifest error.',
           ],
         },
         {
@@ -508,7 +508,7 @@ export const INITIAL_MRSA_DATA: MrsaAgreementData = {
           clauseNumber: '5.1',
           title: 'Fee entitlement',
           paragraphs: [
-            'If a Candidate introduced by Tasknera is hired or engaged by Bozzo Cabs or a Covered Entity for the relevant Assignment or for a substantially similar role, and the offer is made or the Placement occurs within the Protection Period, the Placement Fee applicable to that Candidate shall be payable to Tasknera regardless of the route through which the Candidate is eventually hired or engaged, including where Bozzo Cabs or a Covered Entity:',
+            'If a Candidate introduced by Tasknera is hired or engaged by Client Company or a Covered Entity for the relevant Assignment or for a substantially similar role, and the offer is made or the Placement occurs within the Protection Period, the Placement Fee applicable to that Candidate shall be payable to Tasknera regardless of the route through which the Candidate is eventually hired or engaged, including where Client Company or a Covered Entity:',
           ],
           subclauses: [
             { id: 'sc_5_1_a', clauseId: '(a)', text: 'contacts the Candidate directly;' },
@@ -520,7 +520,7 @@ export const INITIAL_MRSA_DATA: MrsaAgreementData = {
               id: 'sc_5_1_f',
               clauseId: '(f)',
               text:
-                'engages the Candidate through a third-party payroll, staffing or contracting arrangement initiated, authorised or arranged by Bozzo Cabs or a Covered Entity, where such engagement arises from Tasknera’s introduction of the Candidate; or',
+                'engages the Candidate through a third-party payroll, staffing or contracting arrangement initiated, authorised or arranged by Client Company or a Covered Entity, where such engagement arises from Tasknera’s introduction of the Candidate; or',
             },
             { id: 'sc_5_1_g', clauseId: '(g)', text: 'changes the hiring route, channel or terms of engagement after Tasknera’s introduction.' },
           ],
@@ -538,7 +538,7 @@ export const INITIAL_MRSA_DATA: MrsaAgreementData = {
           clauseNumber: '5.3',
           title: 'Group and affiliate entities',
           paragraphs: [
-            'The fee protection extends to a hire or engagement by a group company, subsidiary, holding company or affiliate of Bozzo Cabs only where (a) that entity is expressly covered by the relevant Commercial Confirmation, or (b) the hire or engagement is reasonably connected to Tasknera’s introduction, for example where Bozzo Cabs shared the Candidate’s profile with, or referred the Candidate to, that entity. In either case Bozzo Cabs shall remain liable for the Placement Fee unless that entity has agreed in writing with Tasknera to pay it.',
+            'The fee protection extends to a hire or engagement by a group company, subsidiary, holding company or affiliate of Client Company only where (a) that entity is expressly covered by the relevant Commercial Confirmation, or (b) the hire or engagement is reasonably connected to Tasknera’s introduction, for example where Client Company shared the Candidate’s profile with, or referred the Candidate to, that entity. In either case Client Company shall remain liable for the Placement Fee unless that entity has agreed in writing with Tasknera to pay it.',
           ],
         },
         {
@@ -546,7 +546,7 @@ export const INITIAL_MRSA_DATA: MrsaAgreementData = {
           clauseNumber: '5.4',
           title: 'Independent prior relationship exception',
           paragraphs: [
-            'No Placement Fee shall be payable solely due to a Tasknera submission where Bozzo Cabs proves, by evidence of the kind described in Clause 4.3 supplied within the period stated in that Clause, that before Tasknera’s submission the Candidate had an active and genuine recruitment relationship with Bozzo Cabs, or had already been formally shortlisted or interviewed by Bozzo Cabs for the relevant or another vacancy.',
+            'No Placement Fee shall be payable solely due to a Tasknera submission where Client Company proves, by evidence of the kind described in Clause 4.3 supplied within the period stated in that Clause, that before Tasknera’s submission the Candidate had an active and genuine recruitment relationship with Client Company, or had already been formally shortlisted or interviewed by Client Company for the relevant or another vacancy.',
           ],
         },
         {
@@ -577,7 +577,7 @@ export const INITIAL_MRSA_DATA: MrsaAgreementData = {
           clauseNumber: '6.1',
           title: 'No fee avoidance',
           paragraphs: [
-            'Bozzo Cabs shall not, and shall procure that each Covered Entity shall not, knowingly structure, route or alter a Candidate’s engagement (including by changing the hiring entity, channel, role title, contract type or engagement route) primarily for the purpose of avoiding or reducing a Placement Fee properly payable to Tasknera.',
+            'Client Company shall not, and shall procure that each Covered Entity shall not, knowingly structure, route or alter a Candidate’s engagement (including by changing the hiring entity, channel, role title, contract type or engagement route) primarily for the purpose of avoiding or reducing a Placement Fee properly payable to Tasknera.',
           ],
         },
         {
@@ -585,7 +585,7 @@ export const INITIAL_MRSA_DATA: MrsaAgreementData = {
           clauseNumber: '6.2',
           title: 'No misuse of Candidate information',
           paragraphs: [
-            'Bozzo Cabs shall not provide Candidate profiles or Candidate contact information supplied by Tasknera to another recruitment agency or other third party for the purpose of bypassing Tasknera’s fee entitlement.',
+            'Client Company shall not provide Candidate profiles or Candidate contact information supplied by Tasknera to another recruitment agency or other third party for the purpose of bypassing Tasknera’s fee entitlement.',
           ],
         },
         {
@@ -593,7 +593,7 @@ export const INITIAL_MRSA_DATA: MrsaAgreementData = {
           clauseNumber: '6.3',
           title: 'No inducement',
           paragraphs: [
-            'Bozzo Cabs shall not knowingly induce or request a Candidate introduced by Tasknera to withdraw from Tasknera’s process in order to be engaged through another channel.',
+            'Client Company shall not knowingly induce or request a Candidate introduced by Tasknera to withdraw from Tasknera’s process in order to be engaged through another channel.',
           ],
         },
         {
@@ -601,7 +601,7 @@ export const INITIAL_MRSA_DATA: MrsaAgreementData = {
           clauseNumber: '6.4',
           title: 'Legitimate independent hiring',
           paragraphs: [
-            'Nothing in this Clause 6 prevents Bozzo Cabs from hiring a person through a genuinely independent channel where Bozzo Cabs establishes an independent prior recruitment relationship in accordance with Clauses 4.3 and 5.4.',
+            'Nothing in this Clause 6 prevents Client Company from hiring a person through a genuinely independent channel where Client Company establishes an independent prior recruitment relationship in accordance with Clauses 4.3 and 5.4.',
           ],
         },
         {
@@ -632,7 +632,7 @@ export const INITIAL_MRSA_DATA: MrsaAgreementData = {
           clauseNumber: '7.2',
           title: 'Placement Fee earned',
           paragraphs: [
-            'Tasknera earns the Placement Fee when a Candidate introduced by Tasknera joins or commences employment or engagement with Bozzo Cabs or a Covered Entity, or on such other Fee Trigger Event as is stated in the Commercial Confirmation. The Placement Fee is not conditional on the Candidate’s subsequent retention or performance; Bozzo Cabs’s remedy for an early voluntary exit is the replacement service in Clause 8.',
+            'Tasknera earns the Placement Fee when a Candidate introduced by Tasknera joins or commences employment or engagement with Client Company or a Covered Entity, or on such other Fee Trigger Event as is stated in the Commercial Confirmation. The Placement Fee is not conditional on the Candidate’s subsequent retention or performance; Client Company’s remedy for an early voluntary exit is the replacement service in Clause 8.',
           ],
         },
         {
@@ -663,7 +663,7 @@ export const INITIAL_MRSA_DATA: MrsaAgreementData = {
           clauseNumber: '7.5',
           title: 'Joining and compensation confirmation',
           paragraphs: [
-            'Bozzo Cabs shall confirm the Candidate’s actual date of joining to Tasknera no later than the joining date and, for salary/CTC-based roles, provide the compensation details needed to calculate the agreed Placement Fee. On request, Bozzo Cabs shall provide the relevant offer or appointment letter with unrelated personal details redacted. If Bozzo Cabs does not provide the particulars on time, Tasknera may use the written Commercial Confirmation and other reliable recruitment records available to it, subject to reasonable adjustment once the actual particulars are confirmed.',
+            'Client Company shall confirm the Candidate’s actual date of joining to Tasknera no later than the joining date and, for salary/CTC-based roles, provide the compensation details needed to calculate the agreed Placement Fee. On request, Client Company shall provide the relevant offer or appointment letter with unrelated personal details redacted. If Client Company does not provide the particulars on time, Tasknera may use the written Commercial Confirmation and other reliable recruitment records available to it, subject to reasonable adjustment once the actual particulars are confirmed.',
           ],
         },
         {
@@ -671,7 +671,7 @@ export const INITIAL_MRSA_DATA: MrsaAgreementData = {
           clauseNumber: '7.6',
           title: 'GST',
           paragraphs: [
-            'All fees are stated exclusive of taxes. GST and any other legally chargeable indirect taxes shall be payable by Bozzo Cabs in addition to the Placement Fee wherever applicable under Applicable Law, against a valid tax invoice.',
+            'All fees are stated exclusive of taxes. GST and any other legally chargeable indirect taxes shall be payable by Client Company in addition to the Placement Fee wherever applicable under Applicable Law, against a valid tax invoice.',
           ],
         },
         {
@@ -679,7 +679,7 @@ export const INITIAL_MRSA_DATA: MrsaAgreementData = {
           clauseNumber: '7.7',
           title: 'TDS',
           paragraphs: [
-            'Bozzo Cabs may deduct tax at source only where required by Applicable Law, at the rate prescribed, and shall deposit it with the appropriate authority within the statutory time. Bozzo Cabs shall provide the appropriate TDS certificate or documentation to Tasknera within the statutory timeline. If Bozzo Cabs fails to deposit the tax deducted or to provide the certificate within that timeline, Bozzo Cabs shall, on written request, reimburse Tasknera for any tax credit lost as a result of that failure.',
+            'Client Company may deduct tax at source only where required by Applicable Law, at the rate prescribed, and shall deposit it with the appropriate authority within the statutory time. Client Company shall provide the appropriate TDS certificate or documentation to Tasknera within the statutory timeline. If Client Company fails to deposit the tax deducted or to provide the certificate within that timeline, Client Company shall, on written request, reimburse Tasknera for any tax credit lost as a result of that failure.',
           ],
         },
         {
@@ -687,7 +687,7 @@ export const INITIAL_MRSA_DATA: MrsaAgreementData = {
           clauseNumber: '7.8',
           title: 'Invoice',
           paragraphs: [
-            'Tasknera shall generate and send the Placement Fee invoice on the Candidate’s joining date. Bozzo Cabs shall promptly confirm the joining and provide any information reasonably required to prepare the invoice. If the joining or required particulars are not confirmed to Tasknera on the joining date, Tasknera may issue the invoice promptly after receiving confirmation, without affecting its fee entitlement. For salary/CTC-based roles, invoices shall use only the fee basis expressly agreed in writing in the applicable Commercial Confirmation. Each invoice shall identify the Candidate, Assignment, Placement Fee, applicable taxes and payment details and may be delivered by email.',
+            'Tasknera shall generate and send the Placement Fee invoice on the Candidate’s joining date. Client Company shall promptly confirm the joining and provide any information reasonably required to prepare the invoice. If the joining or required particulars are not confirmed to Tasknera on the joining date, Tasknera may issue the invoice promptly after receiving confirmation, without affecting its fee entitlement. For salary/CTC-based roles, invoices shall use only the fee basis expressly agreed in writing in the applicable Commercial Confirmation. Each invoice shall identify the Candidate, Assignment, Placement Fee, applicable taxes and payment details and may be delivered by email.',
           ],
         },
         {
@@ -695,7 +695,7 @@ export const INITIAL_MRSA_DATA: MrsaAgreementData = {
           clauseNumber: '7.9',
           title: 'Payment period',
           paragraphs: [
-            'Bozzo Cabs shall pay each valid invoice, other than any amount disputed in accordance with Clause 7.10, within forty-five (45) calendar days of receipt. Payment shall be made in Indian Rupees by electronic bank transfer to the account stated in the invoice, free of bank charges to Tasknera.',
+            'Client Company shall pay each valid invoice, other than any amount disputed in accordance with Clause 7.10, within forty-five (45) calendar days of receipt. Payment shall be made in Indian Rupees by electronic bank transfer to the account stated in the invoice, free of bank charges to Tasknera.',
           ],
         },
         {
@@ -719,7 +719,7 @@ export const INITIAL_MRSA_DATA: MrsaAgreementData = {
           clauseNumber: '7.12',
           title: 'No set-off',
           paragraphs: [
-            'Bozzo Cabs shall not withhold or set off undisputed fees against unrelated claims or internal adjustments, unless expressly agreed in writing by Tasknera or required by Applicable Law.',
+            'Client Company shall not withhold or set off undisputed fees against unrelated claims or internal adjustments, unless expressly agreed in writing by Tasknera or required by Applicable Law.',
           ],
         },
       ],
@@ -734,14 +734,14 @@ export const INITIAL_MRSA_DATA: MrsaAgreementData = {
           clauseNumber: '8.1',
           title: 'Replacement commitment',
           paragraphs: [
-            'Unless the applicable Commercial Confirmation states otherwise, if a Candidate introduced by Tasknera and placed with Bozzo Cabs voluntarily resigns or withdraws within the Replacement Period of sixty (60) calendar days after joining, Tasknera shall provide one suitable replacement Candidate at no additional Placement Fee, provided that:',
+            'Unless the applicable Commercial Confirmation states otherwise, if a Candidate introduced by Tasknera and placed with Client Company voluntarily resigns or withdraws within the Replacement Period of sixty (60) calendar days after joining, Tasknera shall provide one suitable replacement Candidate at no additional Placement Fee, provided that:',
           ],
           subclauses: [
             { id: 'sc_8_1_a', clauseId: '(a)', text: 'the Placement Fee invoice for the original Placement has been paid by its due date and no undisputed overdue amounts remain outstanding;' },
-            { id: 'sc_8_1_b', clauseId: '(b)', text: 'Bozzo Cabs notifies Tasknera in writing within seven (7) calendar days of the resignation or withdrawal;' },
+            { id: 'sc_8_1_b', clauseId: '(b)', text: 'Client Company notifies Tasknera in writing within seven (7) calendar days of the resignation or withdrawal;' },
             { id: 'sc_8_1_c', clauseId: '(c)', text: 'the vacancy remains open;' },
             { id: 'sc_8_1_d', clauseId: '(d)', text: 'the role, location, compensation and material employment conditions remain substantially the same as those on which the original Candidate was placed; and' },
-            { id: 'sc_8_1_e', clauseId: '(e)', text: 'the separation is not attributable to Bozzo Cabs or to a circumstance listed in Clause 8.3.' },
+            { id: 'sc_8_1_e', clauseId: '(e)', text: 'the separation is not attributable to Client Company or to a circumstance listed in Clause 8.3.' },
           ],
         },
         {
@@ -749,7 +749,7 @@ export const INITIAL_MRSA_DATA: MrsaAgreementData = {
           clauseNumber: '8.2',
           title: 'Service remedy; no automatic refund',
           paragraphs: [
-            'Replacement is a service remedy only. It is not an automatic refund, credit, rebate or reduction of the Placement Fee, and does not entitle Bozzo Cabs to withhold or delay payment of any invoice. Unless expressly agreed in the applicable Commercial Confirmation, no refund obligation arises in respect of fees paid or payable.',
+            'Replacement is a service remedy only. It is not an automatic refund, credit, rebate or reduction of the Placement Fee, and does not entitle Client Company to withhold or delay payment of any invoice. Unless expressly agreed in the applicable Commercial Confirmation, no refund obligation arises in respect of fees paid or payable.',
           ],
         },
         {
@@ -757,7 +757,7 @@ export const INITIAL_MRSA_DATA: MrsaAgreementData = {
           clauseNumber: '8.3',
           title: 'Exclusions',
           paragraphs: [
-            'The replacement commitment shall not apply where the Candidate leaves due to termination by Bozzo Cabs, redundancy, restructuring, layoff, project cancellation, closure, reduction in or change of compensation, material change in role or location, adverse working conditions, delayed joining formalities attributable to Bozzo Cabs, non-payment or material breach by Bozzo Cabs, or other circumstances materially attributable to Bozzo Cabs.',
+            'The replacement commitment shall not apply where the Candidate leaves due to termination by Client Company, redundancy, restructuring, layoff, project cancellation, closure, reduction in or change of compensation, material change in role or location, adverse working conditions, delayed joining formalities attributable to Client Company, non-payment or material breach by Client Company, or other circumstances materially attributable to Client Company.',
           ],
         },
         {
@@ -781,14 +781,14 @@ export const INITIAL_MRSA_DATA: MrsaAgreementData = {
     {
       id: 'sec_9',
       number: 9,
-      title: 'Responsibilities of Bozzo Cabs',
+      title: 'Responsibilities of Client Company',
       clauses: [
         {
           id: 'c_9_1',
           clauseNumber: '9.1',
           title: 'Accurate information',
           paragraphs: [
-            'Bozzo Cabs shall ensure that job descriptions, compensation, work conditions, employment terms and hiring process information supplied to Tasknera are accurate and lawful.',
+            'Client Company shall ensure that job descriptions, compensation, work conditions, employment terms and hiring process information supplied to Tasknera are accurate and lawful.',
           ],
         },
         {
@@ -796,7 +796,7 @@ export const INITIAL_MRSA_DATA: MrsaAgreementData = {
           clauseNumber: '9.2',
           title: 'Timely feedback',
           paragraphs: [
-            'Bozzo Cabs shall use reasonable efforts to provide feedback on Candidate profiles and interviews within agreed timelines so that Candidate engagement is not unnecessarily delayed, and shall nominate a hiring manager or point of contact for each Assignment.',
+            'Client Company shall use reasonable efforts to provide feedback on Candidate profiles and interviews within agreed timelines so that Candidate engagement is not unnecessarily delayed, and shall nominate a hiring manager or point of contact for each Assignment.',
           ],
         },
         {
@@ -804,7 +804,7 @@ export const INITIAL_MRSA_DATA: MrsaAgreementData = {
           clauseNumber: '9.3',
           title: 'Offer and employment responsibility',
           paragraphs: [
-            'Bozzo Cabs shall be solely responsible for offer letters, employment or consultancy agreements, compensation, payroll, benefits, statutory employment obligations, workplace conditions and compliance, supervision, performance management, background verification decisions, work authorisation, post-joining management and termination.',
+            'Client Company shall be solely responsible for offer letters, employment or consultancy agreements, compensation, payroll, benefits, statutory employment obligations, workplace conditions and compliance, supervision, performance management, background verification decisions, work authorisation, post-joining management and termination.',
           ],
         },
         {
@@ -812,7 +812,7 @@ export const INITIAL_MRSA_DATA: MrsaAgreementData = {
           clauseNumber: '9.4',
           title: 'No discriminatory requirements',
           paragraphs: [
-            'Bozzo Cabs shall not require Tasknera to source Candidates using discriminatory or otherwise unlawful criteria, except where a lawful occupational requirement applies.',
+            'Client Company shall not require Tasknera to source Candidates using discriminatory or otherwise unlawful criteria, except where a lawful occupational requirement applies.',
           ],
         },
       ],
@@ -835,7 +835,7 @@ export const INITIAL_MRSA_DATA: MrsaAgreementData = {
           clauseNumber: '10.2',
           title: 'Screening',
           paragraphs: [
-            'Tasknera may perform preliminary screening based on information reasonably available to it and the requirements communicated by Bozzo Cabs. Unless separately contracted in writing, Tasknera does not conduct background verification and does not warrant the accuracy of Candidate-provided information.',
+            'Tasknera may perform preliminary screening based on information reasonably available to it and the requirements communicated by Client Company. Unless separately contracted in writing, Tasknera does not conduct background verification and does not warrant the accuracy of Candidate-provided information.',
           ],
         },
         {
@@ -882,7 +882,7 @@ export const INITIAL_MRSA_DATA: MrsaAgreementData = {
           clauseNumber: '11.4',
           title: 'Terms and Candidate profiles',
           paragraphs: [
-            'The terms of this Agreement and each Commercial Confirmation, including pricing, are Confidential Information of both Parties. Candidate profiles supplied by Tasknera are Confidential Information of Tasknera as against third parties, subject to Bozzo Cabs’s right of use under Clause 13.3.',
+            'The terms of this Agreement and each Commercial Confirmation, including pricing, are Confidential Information of both Parties. Candidate profiles supplied by Tasknera are Confidential Information of Tasknera as against third parties, subject to Client Company’s right of use under Clause 13.3.',
           ],
         },
         {
@@ -929,7 +929,7 @@ export const INITIAL_MRSA_DATA: MrsaAgreementData = {
           clauseNumber: '12.3',
           title: 'Notice, consent and lawful basis',
           paragraphs: [
-            'Where required by Applicable Law, Tasknera shall obtain appropriate notice and consent from Candidates, or have another lawful basis, before sharing Candidate Personal Data with Bozzo Cabs. Where required by Applicable Law, Bozzo Cabs shall provide Candidates with its own notice and shall process Candidate Personal Data only for the purposes stated in Clause 12.2.',
+            'Where required by Applicable Law, Tasknera shall obtain appropriate notice and consent from Candidates, or have another lawful basis, before sharing Candidate Personal Data with Client Company. Where required by Applicable Law, Client Company shall provide Candidates with its own notice and shall process Candidate Personal Data only for the purposes stated in Clause 12.2.',
           ],
         },
         {
@@ -945,7 +945,7 @@ export const INITIAL_MRSA_DATA: MrsaAgreementData = {
           clauseNumber: '12.5',
           title: 'Restricted use and sharing',
           paragraphs: [
-            'Neither Party shall share Candidate Personal Data with an unrelated third party except as required for the recruitment purpose, with appropriate safeguards, or as required by law. Bozzo Cabs shall not share Candidate Personal Data supplied by Tasknera with other recruitment agencies, consistent with Clause 6.2.',
+            'Neither Party shall share Candidate Personal Data with an unrelated third party except as required for the recruitment purpose, with appropriate safeguards, or as required by law. Client Company shall not share Candidate Personal Data supplied by Tasknera with other recruitment agencies, consistent with Clause 6.2.',
           ],
         },
         {
@@ -1000,7 +1000,7 @@ export const INITIAL_MRSA_DATA: MrsaAgreementData = {
           clauseNumber: '13.2',
           title: 'Tasknera materials',
           paragraphs: [
-            'Tasknera retains ownership of its pre-existing and independently developed recruitment methods, sourcing processes, templates, screening frameworks, ATS configurations, databases, proprietary tools, workflows and business processes. No ownership or licence of any of them is transferred to Bozzo Cabs merely because information is shared or Services are performed in connection with an Assignment.',
+            'Tasknera retains ownership of its pre-existing and independently developed recruitment methods, sourcing processes, templates, screening frameworks, ATS configurations, databases, proprietary tools, workflows and business processes. No ownership or licence of any of them is transferred to Client Company merely because information is shared or Services are performed in connection with an Assignment.',
           ],
         },
         {
@@ -1008,15 +1008,15 @@ export const INITIAL_MRSA_DATA: MrsaAgreementData = {
           clauseNumber: '13.3',
           title: 'Use of submitted profiles',
           paragraphs: [
-            'Bozzo Cabs may use Candidate profiles and related information supplied by Tasknera only for recruitment and employment decisions relating to the relevant Candidate, subject to Clauses 6, 11 and 12.',
+            'Client Company may use Candidate profiles and related information supplied by Tasknera only for recruitment and employment decisions relating to the relevant Candidate, subject to Clauses 6, 11 and 12.',
           ],
         },
         {
           id: 'c_13_4',
           clauseNumber: '13.4',
-          title: 'Bozzo Cabs materials',
+          title: 'Client Company materials',
           paragraphs: [
-            'Bozzo Cabs retains ownership of the job descriptions and other materials it supplies, and grants Tasknera a limited right to use them for the purpose of performing the Services.',
+            'Client Company retains ownership of the job descriptions and other materials it supplies, and grants Tasknera a limited right to use them for the purpose of performing the Services.',
           ],
         },
         {
@@ -1053,7 +1053,7 @@ export const INITIAL_MRSA_DATA: MrsaAgreementData = {
           clauseNumber: '14.3',
           title: 'No guarantee of hiring outcome',
           paragraphs: [
-            'Except for the express service commitments in this Agreement, Tasknera makes no warranty that an Assignment will be filled, that a Candidate will be selected, or that any Candidate will join, remain with Bozzo Cabs or perform to a particular standard.',
+            'Except for the express service commitments in this Agreement, Tasknera makes no warranty that an Assignment will be filled, that a Candidate will be selected, or that any Candidate will join, remain with Client Company or perform to a particular standard.',
           ],
         },
         {
@@ -1061,7 +1061,7 @@ export const INITIAL_MRSA_DATA: MrsaAgreementData = {
           clauseNumber: '14.4',
           title: 'No employment decision liability',
           paragraphs: [
-            'Final hiring, rejection, compensation, role assignment, background verification and employment decisions remain solely with Bozzo Cabs. To the extent permitted by Applicable Law, warranties and conditions not expressly stated in this Agreement are excluded.',
+            'Final hiring, rejection, compensation, role assignment, background verification and employment decisions remain solely with Client Company. To the extent permitted by Applicable Law, warranties and conditions not expressly stated in this Agreement are excluded.',
           ],
         },
       ],
@@ -1084,7 +1084,7 @@ export const INITIAL_MRSA_DATA: MrsaAgreementData = {
           clauseNumber: '15.2',
           title: 'Client-specific matters',
           paragraphs: [
-            'Without limiting Clause 15.1, Bozzo Cabs shall indemnify and hold Tasknera harmless from third-party claims arising from Bozzo Cabs’s (or a Covered Entity’s) employment or engagement of a Candidate, workplace conditions, compensation, payroll, statutory employment obligations, unlawful hiring criteria, or acts or omissions after the Candidate joins, except to the extent the claim arises from a matter for which Tasknera is responsible under Clause 15.1.',
+            'Without limiting Clause 15.1, Client Company shall indemnify and hold Tasknera harmless from third-party claims arising from Client Company’s (or a Covered Entity’s) employment or engagement of a Candidate, workplace conditions, compensation, payroll, statutory employment obligations, unlawful hiring criteria, or acts or omissions after the Candidate joins, except to the extent the claim arises from a matter for which Tasknera is responsible under Clause 15.1.',
           ],
         },
         {
@@ -1115,7 +1115,7 @@ export const INITIAL_MRSA_DATA: MrsaAgreementData = {
           clauseNumber: '16.2',
           title: 'Liability cap',
           paragraphs: [
-            'Except for payment obligations, fraud, wilful misconduct, breach of confidentiality, unauthorised use of personal data, intellectual property infringement, or liabilities that cannot lawfully be limited, the aggregate liability of either Party arising out of this Agreement shall not exceed the total Placement Fees paid or payable by Bozzo Cabs to Tasknera during the twelve (12) months preceding the event giving rise to the claim (or, if that event occurs within the first twelve (12) months after the Effective Date, since the Effective Date).',
+            'Except for payment obligations, fraud, wilful misconduct, breach of confidentiality, unauthorised use of personal data, intellectual property infringement, or liabilities that cannot lawfully be limited, the aggregate liability of either Party arising out of this Agreement shall not exceed the total Placement Fees paid or payable by Client Company to Tasknera during the twelve (12) months preceding the event giving rise to the claim (or, if that event occurs within the first twelve (12) months after the Effective Date, since the Effective Date).',
           ],
         },
         {
@@ -1146,7 +1146,7 @@ export const INITIAL_MRSA_DATA: MrsaAgreementData = {
           clauseNumber: '17.2',
           title: 'Candidate charges',
           paragraphs: [
-            'Tasknera shall not knowingly require Candidates to make unlawful payments as a condition of being introduced to Bozzo Cabs.',
+            'Tasknera shall not knowingly require Candidates to make unlawful payments as a condition of being introduced to Client Company.',
           ],
         },
         {
@@ -1511,13 +1511,13 @@ export const INITIAL_MRSA_DATA: MrsaAgreementData = {
       id: 'sch_a_8',
       term: 'TDS',
       masterTerms:
-        'Only where required by law; certificate to be provided by Bozzo Cabs (Clause 7.7).',
+        'Only where required by law; certificate to be provided by Client Company (Clause 7.7).',
     },
     {
       id: 'sch_a_9',
       term: 'Hiring Entity / Covered Entities',
       masterTerms:
-        'Bozzo Cabs only, unless a Commercial Confirmation states otherwise (Clause 5.3).',
+        'Client Company only, unless a Commercial Confirmation states otherwise (Clause 5.3).',
     },
     {
       id: 'sch_a_10',
@@ -1551,7 +1551,7 @@ export const INITIAL_MRSA_DATA: MrsaAgreementData = {
       code: 'B.2',
       title: 'Notice and consent',
       content:
-        'Where required by Applicable Law, Tasknera shall obtain appropriate Candidate notice and consent, or have another lawful basis, before sharing Candidate Personal Data with Bozzo Cabs; Bozzo Cabs shall give any notice required of it (Clause 12.3).',
+        'Where required by Applicable Law, Tasknera shall obtain appropriate Candidate notice and consent, or have another lawful basis, before sharing Candidate Personal Data with Client Company; Client Company shall give any notice required of it (Clause 12.3).',
     },
     {
       id: 'sch_b_3',
@@ -1622,3 +1622,104 @@ export const INITIAL_MRSA_DATA: MrsaAgreementData = {
 export const getDeepCloneMrsaData = (data: MrsaAgreementData = INITIAL_MRSA_DATA): MrsaAgreementData => {
   return JSON.parse(JSON.stringify(data));
 };
+
+/**
+ * Universally updates client trade name and legal name across all fields of an MRSA agreement,
+ * including executive summary, recitals, all 25 sections (clause titles, paragraphs, subclauses),
+ * and Schedule A / Schedule B.
+ */
+export function updateClientNameInMrsaData(
+  data: MrsaAgreementData,
+  newTradeName: string,
+  newLegalName?: string
+): MrsaAgreementData {
+  if (!newTradeName || !newTradeName.trim()) return data;
+
+  const targetTrade = newTradeName.trim();
+  const targetLegal = (newLegalName && newLegalName.trim())
+    ? newLegalName.trim()
+    : targetTrade.toUpperCase().includes('LIMITED') || targetTrade.toUpperCase().includes('PVT')
+      ? targetTrade.toUpperCase()
+      : `${targetTrade.toUpperCase()} PRIVATE LIMITED`;
+
+  const previousTrade = data.client?.tradeName || 'Client Company';
+
+  // Build regex to replace previous trade names, Bozzo Cabs, and Client Company
+  const escapeReg = (s: string) => s.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
+  const patternsToReplace = [
+    escapeReg(previousTrade),
+    'Bozzo Cabs',
+    'BOZZO CABS',
+    'Client Company',
+    'CLIENT COMPANY',
+    '\\[Client Name\\]',
+    '\\[Client Trade Name\\]',
+    '\\[Client Legal Name\\]',
+  ].filter(Boolean);
+
+  const tradeRegex = new RegExp(`\\b(?:${patternsToReplace.join('|')})\\b`, 'gi');
+
+  const replaceText = (text: string): string => {
+    if (!text) return text;
+    return text.replace(tradeRegex, targetTrade);
+  };
+
+  const updated: MrsaAgreementData = JSON.parse(JSON.stringify(data));
+
+  // Update client particulars
+  updated.client.tradeName = targetTrade;
+  updated.client.legalName = targetLegal;
+
+  // Update executive summary
+  if (Array.isArray(updated.executiveSummary)) {
+    updated.executiveSummary = updated.executiveSummary.map((item) => ({
+      ...item,
+      content: replaceText(item.content),
+    }));
+  }
+
+  // Update recitals
+  if (Array.isArray(updated.recitals)) {
+    updated.recitals = updated.recitals.map((rec) => ({
+      ...rec,
+      content: replaceText(rec.content),
+    }));
+  }
+
+  // Update all 25 sections
+  if (Array.isArray(updated.sections)) {
+    updated.sections = updated.sections.map((sec) => ({
+      ...sec,
+      title: replaceText(sec.title),
+      clauses: sec.clauses.map((c) => ({
+        ...c,
+        title: replaceText(c.title),
+        paragraphs: c.paragraphs.map((p) => replaceText(p)),
+        subclauses: c.subclauses ? c.subclauses.map((sc) => ({ ...sc, text: replaceText(sc.text) })) : undefined,
+      })),
+    }));
+  }
+
+  // Update Schedule A
+  if (Array.isArray(updated.scheduleA)) {
+    updated.scheduleA = updated.scheduleA.map((row) => ({
+      ...row,
+      term: replaceText(row.term),
+      masterTerms: replaceText(row.masterTerms),
+    }));
+  }
+
+  // Update Schedule B
+  if (updated.scheduleBIntro) {
+    updated.scheduleBIntro = replaceText(updated.scheduleBIntro);
+  }
+  if (Array.isArray(updated.scheduleB)) {
+    updated.scheduleB = updated.scheduleB.map((row) => ({
+      ...row,
+      title: replaceText(row.title),
+      content: replaceText(row.content),
+    }));
+  }
+
+  return updated;
+}
